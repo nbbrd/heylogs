@@ -40,7 +40,7 @@
             <groupId>com.vladsch.flexmark</groupId>
             <artifactId>flexmark</artifactId>
             <!-- last version for Java8 -->
-            <version>0.62.2</version>
+            <version>0.64.0</version>
         </dependency>
 
         <!-- test only -->
