@@ -1,13 +1,18 @@
 package nbbrd.heylogs;
 
 import com.vladsch.flexmark.ast.Heading;
+import com.vladsch.flexmark.ast.Reference;
+import com.vladsch.flexmark.ast.util.ReferenceRepository;
+import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
+import nbbrd.design.VisibleForTesting;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static nbbrd.heylogs.Rule.invalidNode;
@@ -17,7 +22,7 @@ public enum GuidingPrinciples implements Rule<Node> {
     FOR_HUMANS {
         @Override
         public String validate(Node node) {
-            return node instanceof Heading ? validateForHumans((Heading) node) : null;
+            return node instanceof Document ? validateForHumans((Document) node) : null;
         }
     },
     ENTRY_FOR_EVERY_VERSIONS {
@@ -57,19 +62,30 @@ public enum GuidingPrinciples implements Rule<Node> {
         }
     };
 
-    private static String validateForHumans(@NotNull Heading heading) {
-        if (!Changelog.isChangelogLevel(heading)) {
-            return null;
+    @VisibleForTesting
+    static String validateForHumans(@NotNull Document document) {
+        List<Heading> headings = Nodes.of(Heading.class)
+                .descendants(document)
+                .filter(Changelog::isChangelogLevel)
+                .collect(Collectors.toList());
+
+        switch (headings.size()) {
+            case 0:
+                return invalidNode(document, "Missing Changelog heading");
+            case 1:
+                try {
+                    Changelog.parse(headings.get(0));
+                    return null;
+                } catch (IllegalArgumentException ex) {
+                    return invalidNode(document, ex.getMessage());
+                }
+            default:
+                return invalidNode(document, "Too many Changelog headings");
         }
-        try {
-            Changelog.parse(heading);
-        } catch (IllegalArgumentException ex) {
-            return invalidNode(heading, ex.getMessage());
-        }
-        return null;
     }
 
-    private static String validateEntryForEveryVersions(@NotNull Heading heading) {
+    @VisibleForTesting
+    static String validateEntryForEveryVersions(@NotNull Heading heading) {
         if (!Version.isVersionLevel(heading)) {
             return null;
         }
@@ -81,7 +97,8 @@ public enum GuidingPrinciples implements Rule<Node> {
         return null;
     }
 
-    private static String validateTypeOfChangesGrouped(@NotNull Heading heading) {
+    @VisibleForTesting
+    static String validateTypeOfChangesGrouped(@NotNull Heading heading) {
         if (!TypeOfChange.isTypeOfChangeLevel(heading)) {
             return null;
         }
@@ -93,33 +110,52 @@ public enum GuidingPrinciples implements Rule<Node> {
         return null;
     }
 
-    private static String validateLinkable(@NotNull Heading heading) {
+    @VisibleForTesting
+    static String validateLinkable(@NotNull Heading heading) {
         if (!Version.isVersionLevel(heading)) {
             return null;
         }
-        try {
-            return !Version.parse(heading).isLink() ? invalidNode(heading, "Not linkable") : null;
-        } catch (IllegalArgumentException ex) {
-            return null;
-        }
+
+        Version version = Version.parse(heading);
+
+        ReferenceRepository repository = Parser.REFERENCES.get(heading.getDocument());
+        String normalizeRef = repository.normalizeKey(version.getRef());
+        Reference reference = repository.get(normalizeRef);
+
+        return reference == null
+                ? invalidNode(heading, "Missing reference '" + version.getRef() + "'")
+                : null;
+    }
+
+    @VisibleForTesting
+    static String validateLatestVersionFirst(@NotNull Document doc) {
+        List<VersionNode> versions = VersionNode.allOf(doc);
+
+        Comparator<VersionNode> comparator = Comparator.comparing((VersionNode item) -> item.getVersion().getDate()).reversed();
+        VersionNode unsortedItem = getFirstUnsortedItem(versions, comparator);
+        return unsortedItem != null ? invalidNode(unsortedItem.getNode(), "Versions not sorted") : null;
     }
 
     @lombok.Value
     private static class VersionNode {
         Version version;
         Node node;
-    }
 
-    static String validateLatestVersionFirst(@NotNull Document parent) {
-        List<VersionNode> versions = Nodes.of(Heading.class)
-                .descendants(parent)
-                .filter(Version::isVersionLevel)
-                .map(node -> new VersionNode(Version.parse(node), node))
-                .collect(Collectors.toList());
+        static List<VersionNode> allOf(Document doc) {
+            return Nodes.of(Heading.class)
+                    .descendants(doc)
+                    .filter(Version::isVersionLevel)
+                    .map(node -> {
+                        try {
+                            return new VersionNode(Version.parse(node), node);
+                        } catch (IllegalArgumentException ex) {
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+        }
 
-        Comparator<VersionNode> comparator = Comparator.comparing((VersionNode item) -> item.getVersion().getDate()).reversed();
-        VersionNode unsortedItem = getFirstUnsortedItem(versions, comparator);
-        return unsortedItem != null ? invalidNode(unsortedItem.getNode(), "Versions not sorted") : null;
     }
 
     private static <T> T getFirstUnsortedItem(List<T> list, Comparator<T> comparator) {

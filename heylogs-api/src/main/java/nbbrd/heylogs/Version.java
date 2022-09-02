@@ -2,31 +2,49 @@ package nbbrd.heylogs;
 
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.ast.LinkRef;
+import com.vladsch.flexmark.ast.Text;
 import com.vladsch.flexmark.util.ast.Node;
-import com.vladsch.flexmark.util.collection.iteration.ReversiblePeekingIterator;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.Iterator;
 
 @lombok.Value
 public class Version implements BaseSection {
 
+    private static final String UNRELEASED_KEYWORD = "unreleased";
+    private static final int HEADING_LEVEL = 2;
+
     @lombok.NonNull
     String ref;
-
-    boolean link;
 
     @lombok.NonNull
     LocalDate date;
 
     public boolean isUnreleased() {
-        return "Unreleased".equals(ref);
+        return UNRELEASED_KEYWORD.equalsIgnoreCase(ref);
     }
 
     @Override
     public Heading toHeading() {
-        return null;
+        Heading result = new Heading();
+        result.setOpeningMarker(BasedSequence.repeatOf("#", HEADING_LEVEL));
+        result.setLevel(HEADING_LEVEL);
+
+        LinkRef firstPart = new LinkRef();
+        firstPart.setReferenceOpeningMarker(BasedSequence.of("["));
+        firstPart.setReferenceClosingMarker(BasedSequence.of("]"));
+        firstPart.setReference(BasedSequence.of(ref));
+        result.appendChild(firstPart);
+
+        if (!isUnreleased()) {
+            Text secondPart = new Text();
+            secondPart.setChars(BasedSequence.of(" - ").append(date.toString()));
+            result.appendChild(secondPart);
+        }
+
+        return result;
     }
 
     public static Version parse(Heading heading) {
@@ -34,39 +52,63 @@ public class Version implements BaseSection {
             throw new IllegalArgumentException("Invalid heading level");
         }
 
-        ReversiblePeekingIterator<Node> children = heading.getChildIterator();
-        if (!children.hasNext()) {
-            throw new IllegalArgumentException("Missing version");
+        Iterator<Node> parts = heading.getChildIterator();
+
+        if (!parts.hasNext()) {
+            throw new IllegalArgumentException("Missing ref part");
         }
 
-        Node version = children.next();
-        BasedSequence versionText = version instanceof LinkRef ? version.getChildChars() : version.getChars();
+        String ref = parseRef(parts.next());
 
-        if (versionText.matchChars("Unreleased")) {
-            return new Version("Unreleased", version instanceof LinkRef, LocalDate.MAX);
+        if (ref.equalsIgnoreCase(UNRELEASED_KEYWORD)) {
+            if (parts.hasNext()) {
+                throw new IllegalArgumentException("Unexpected additional part: '" + parts.next().getChars() + "'");
+            }
+
+            return new Version(ref, LocalDate.MAX);
         }
 
-        if (!children.hasNext()) {
-            throw new IllegalArgumentException("Missing date");
+        if (!parts.hasNext()) {
+            throw new IllegalArgumentException("Missing date part");
         }
 
-        Node date = children.next();
-        BasedSequence dateText = date.getChars().trim();
+        LocalDate date = parseDate(parts.next());
 
-        if (!dateText.startsWith("-")) {
+        if (parts.hasNext()) {
+            throw new IllegalArgumentException("Unexpected additional part: '" + parts.next().getChars() + "'");
+        }
+
+        return new Version(ref, date);
+    }
+
+    private static String parseRef(Node firstPart) throws IllegalArgumentException {
+        if (!(firstPart instanceof LinkRef)) {
+            throw new IllegalArgumentException("Missing ref link");
+        }
+        return ((LinkRef) firstPart).getReference().toString();
+    }
+
+    private static LocalDate parseDate(Node secondPart) throws IllegalArgumentException {
+        if (!(secondPart instanceof Text)) {
+            throw new IllegalArgumentException("Invalid date type");
+        }
+
+        BasedSequence date = secondPart.getChars();
+
+        if (!date.trimStart().startsWith("-")) {
             throw new IllegalArgumentException("Missing date prefix");
         }
 
-        BasedSequence x = dateText.safeSubSequence(1).trim();
+        BasedSequence x = date.safeSubSequence(3).trim();
 
         try {
-            return new Version(versionText.toString(), version instanceof LinkRef, LocalDate.parse(x));
+            return LocalDate.parse(x);
         } catch (DateTimeParseException ex) {
-            throw new IllegalArgumentException("Invalid date");
+            throw new IllegalArgumentException("Invalid date format");
         }
     }
 
     public static boolean isVersionLevel(Heading heading) {
-        return heading.getLevel() == 2;
+        return heading.getLevel() == HEADING_LEVEL;
     }
 }

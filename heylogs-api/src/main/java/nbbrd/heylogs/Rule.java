@@ -9,6 +9,6 @@ public interface Rule<T extends Node> {
     String validate(T t);
 
     static String invalidNode(Node node, String reason) {
-        return "Invalid " + node.getNodeName() + " node at line " + node.getLineNumber() + ": " + reason;
+        return "Invalid " + node.getNodeName() + " node at line " + (node.getStartLineNumber() + 1) + ": " + reason;
     }
 }

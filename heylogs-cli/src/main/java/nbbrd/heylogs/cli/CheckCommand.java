@@ -18,19 +18,18 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Command(name = "check")
-public final class CheckCommand implements Callable<Void> {
+public final class CheckCommand implements Callable<Integer> {
 
     @CommandLine.Mixin
     private MarkdownInputOptions input;
 
     @Override
-    public Void call() throws Exception {
+    public Integer call() throws Exception {
         Node document = input.read();
-        check(document);
-        return null;
+        return check(document);
     }
 
-    private void check(Node document) {
+    private Integer check(Node document) {
         List<Rule<Node>> rules = getRules();
         System.out.println("Using rules: " + rules);
 
@@ -45,8 +44,10 @@ public final class CheckCommand implements Callable<Void> {
 
         if (problems.isEmpty()) {
             System.out.println("No problem found");
+            return CommandLine.ExitCode.OK;
         } else {
             problems.forEach(System.out::println);
+            return CommandLine.ExitCode.USAGE;
         }
     }
 

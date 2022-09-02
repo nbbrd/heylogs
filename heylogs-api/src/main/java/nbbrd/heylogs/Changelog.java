@@ -1,6 +1,7 @@
 package nbbrd.heylogs;
 
 import com.vladsch.flexmark.ast.Heading;
+import com.vladsch.flexmark.ast.Text;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import nbbrd.design.RepresentableAs;
 
@@ -8,9 +9,11 @@ import nbbrd.design.RepresentableAs;
 public enum Changelog implements BaseSection {
     INSTANCE;
 
+    private static final int HEADING_LEVEL = 1;
+
     public static Changelog parse(Heading heading) {
         if (!isChangelogLevel(heading)) {
-            throw new IllegalArgumentException("Invalid level");
+            throw new IllegalArgumentException("Invalid heading level");
         }
         if (!"Changelog".contentEquals(heading.getText())) {
             throw new IllegalArgumentException("Invalid text");
@@ -20,10 +23,14 @@ public enum Changelog implements BaseSection {
 
     @Override
     public Heading toHeading() {
-        return new Heading(BasedSequence.of("Changelog"));
+        Heading result = new Heading();
+        result.setOpeningMarker(BasedSequence.repeatOf("#", HEADING_LEVEL));
+        result.setLevel(HEADING_LEVEL);
+        result.appendChild(new Text(BasedSequence.of("Changelog")));
+        return result;
     }
 
     public static boolean isChangelogLevel(Heading heading) {
-        return heading.getLevel() == 1;
+        return heading.getLevel() == HEADING_LEVEL;
     }
 }

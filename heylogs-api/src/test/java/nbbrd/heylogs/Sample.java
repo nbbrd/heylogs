@@ -1,23 +1,38 @@
 package nbbrd.heylogs;
 
+import com.vladsch.flexmark.ast.Heading;
+import com.vladsch.flexmark.formatter.Formatter;
 import com.vladsch.flexmark.parser.Parser;
-import com.vladsch.flexmark.util.ast.Node;
+import com.vladsch.flexmark.util.ast.Document;
+import com.vladsch.flexmark.util.sequence.BasedSequence;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 
 public class Sample {
 
-    public static final String HEADING_UNRELEASED = "## [Unreleased]";
-    public static final String HEADING_V1_1_0 = "## [1.1.0] - 2019-02-15";
-    private static final String HEADING_V1_0_0 = "## [1.0.0] - 2017-06-20";
+    public static final Parser PARSER = Parser.builder().build();
+    public static final Formatter FORMATTER = Formatter.builder().build();
 
-    public static Node get() throws IOException {
-        Parser parser = Parser.builder().build();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(Sample.class.getResourceAsStream("/nbbrd/heylogs/CHANGELOG.md")))) {
-            return parser.parseReader(reader);
+    public static Document using(String name) {
+        try (InputStream stream = Sample.class.getResourceAsStream(name)) {
+            if (stream == null) {
+                throw new IllegalArgumentException("Missing resource '" + name + "'");
+            }
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
+                return PARSER.parseReader(reader);
+            }
+        } catch (IOException ex) {
+            throw new UncheckedIOException(ex);
         }
     }
 
+    public static Heading asHeading(String text) {
+        return (Heading) PARSER.parse(text).getChildOfType(Heading.class);
+    }
+
+    public static String asText(Heading heading) {
+        Document doc = new Document(null, BasedSequence.NULL);
+        doc.appendChild(heading);
+        return FORMATTER.render(doc).trim();
+    }
 }

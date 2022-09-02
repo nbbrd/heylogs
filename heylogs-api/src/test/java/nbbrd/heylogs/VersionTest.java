@@ -1,61 +1,89 @@
 package nbbrd.heylogs;
 
 import com.vladsch.flexmark.ast.Heading;
-import com.vladsch.flexmark.parser.Parser;
-import nbbrd.heylogs.Nodes;
-import nbbrd.heylogs.Sample;
-import nbbrd.heylogs.Version;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.time.LocalDate;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.atIndex;
+import static org.assertj.core.api.Assertions.*;
 
 public class VersionTest {
 
     @Test
-    public void test() throws IOException {
-        LocalDate d20190215 = LocalDate.parse("2019-02-15");
+    public void testParseHeading() {
+        assertThat(parsingHeading("## [Unreleased]"))
+                .isEqualTo(new Version("Unreleased", LocalDate.MAX));
 
-        assertThat(Version.parse(asHeading("## [Unreleased]")))
-                .isEqualTo(new Version("Unreleased", true, LocalDate.MAX));
+        assertThat(parsingHeading("## [Unreleased ]"))
+                .isEqualTo(new Version("Unreleased", LocalDate.MAX));
 
-        assertThat(Version.parse(asHeading("## Unreleased")))
-                .isEqualTo(new Version("Unreleased", false, LocalDate.MAX));
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> parsingHeading("## [Unreleased] - 2019-02-15"))
+                .withMessageContaining("Unexpected additional part");
 
-        assertThat(Version.parse(asHeading("## [1.1.0] - 2019-02-15")))
-                .isEqualTo(new Version("1.1.0", true, d20190215));
+        assertThat(parsingHeading("## [1.1.0] - 2019-02-15"))
+                .isEqualTo(new Version("1.1.0", d20190215));
 
-//        assertThat(Version.parse(asHeading("## 1.1.0 - 2019-02-15")))
-//                .isEqualTo(new Version("1.1.0", false, d20190215));
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> parsingHeading("# [1.1.0] - 2019-02-15"))
+                .withMessageContaining("Invalid heading level");
 
-//        assertThatIllegalArgumentException()
-//                .isThrownBy(()->Version.parse(asHeading("## [1.1.0](https://localhost) - 2019-02-15")));
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> parsingHeading("### [1.1.0] - 2019-02-15"))
+                .withMessageContaining("Invalid heading level");
 
-//        assertThatIllegalArgumentException()
-//                .isThrownBy(() -> Version.parse(asHeading("## [1.1.0] - ")))
-//                .withMessageContaining("Invalid date");
-//
-//        assertThatIllegalArgumentException()
-//                .isThrownBy(() -> Version.parse(asHeading("## [1.1.0] - 2019-02")))
-//                .withMessageContaining("Invalid date");
-//
-//        assertThatIllegalArgumentException()
-//                .isThrownBy(() -> Version.parse(asHeading("## - 2019-02-15")))
-//                .withMessageContaining("Missing version");
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> parsingHeading("## Unreleased"))
+                .withMessageContaining("Missing ref link");
 
-        assertThat(Nodes.of(Heading.class).descendants(Sample.get()).filter(Version::isVersionLevel).map(Version::parse))
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> parsingHeading("## 1.1.0 - 2019-02-15"))
+                .withMessageContaining("Missing ref link");
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> parsingHeading("## [1.1.0](https://localhost) - 2019-02-15"))
+                .withMessageContaining("Missing ref link");
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> Version.parse(Sample.asHeading("## [1.1.0] - ")))
+                .withMessageContaining("Invalid date");
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> parsingHeading("## [1.1.0] - 2019-02"))
+                .withMessageContaining("Invalid date");
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> parsingHeading("## - 2019-02-15"))
+                .withMessageContaining("Missing ref link");
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> parsingHeading("## [1.1.0] - 2019-02-15 [hello]"))
+                .withMessageContaining("Unexpected additional part");
+
+        assertThat(Nodes.of(Heading.class).descendants(Sample.using("Main.md")).filter(Version::isVersionLevel).map(Version::parse))
                 .hasSize(14)
-                .contains(new Version("Unreleased", true, LocalDate.MAX), atIndex(0))
-                .contains(new Version("1.1.0", true, d20190215), atIndex(1));
-
+                .contains(new Version("Unreleased", LocalDate.MAX), atIndex(0))
+                .contains(new Version("1.1.0", d20190215), atIndex(1));
     }
 
-    final Parser parser = Parser.builder().build();
+    @Test
+    public void testFormatHeading() {
+        assertThat(new Version("Unreleased", LocalDate.MAX).toHeading())
+                .extracting(Sample::asText)
+                .asString()
+                .isEqualTo("## [Unreleased]");
 
-    private Heading asHeading(String text) {
-        return (Heading) parser.parse(text).getChildOfType(Heading.class);
+        assertThat(new Version("1.1.0", d20190215).toHeading())
+                .extracting(Sample::asText)
+                .asString()
+                .isEqualTo("## [1.1.0] - 2019-02-15");
     }
+
+    @NotNull
+    private Version parsingHeading(String text) {
+        return Version.parse(Sample.asHeading(text));
+    }
+
+    private final LocalDate d20190215 = LocalDate.parse("2019-02-15");
 }
