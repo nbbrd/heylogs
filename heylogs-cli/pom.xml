@@ -135,7 +135,7 @@
                             <executable>java</executable>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
+                                <classpath/>
                                 <argument>${project.x.mainClass}</argument>
                                 <argument>check</argument>
                                 <argument>-i</argument>
@@ -148,4 +148,80 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>full-release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jreleaser</groupId>
+                        <artifactId>jreleaser-maven-plugin</artifactId>
+                        <version>1.2.0</version>
+                        <executions>
+                            <execution>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>full-release</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <jreleaser>
+                                <release>
+                                    <github>
+                                        <skipTag>true</skipTag>
+                                        <draft>true</draft>
+                                        <!-- Fix default value -->
+                                        <branch>master</branch>
+                                        <changelog>
+                                            <external>${project.basedir}/../CHANGELOG.md</external>
+                                        </changelog>
+                                    </github>
+                                </release>
+                                <checksum>
+                                    <individual>true</individual>
+                                </checksum>
+                                <signing>
+                                    <active>ALWAYS</active>
+                                    <!-- Fix default value -->
+                                    <armored>true</armored>
+                                </signing>
+                                <distributions>
+                                    <!-- Name is here ! -->
+                                    <sdmx-dl>
+                                        <type>SINGLE_JAR</type>
+                                        <artifacts>
+                                            <artifact>
+                                                <path>
+                                                    ${project.build.directory}/${project.artifactId}-${project.version}-bin.jar
+                                                </path>
+                                            </artifact>
+                                        </artifacts>
+                                        <java>
+                                            <mainClass>${project.x.mainClass}</mainClass>
+                                            <artifactId>${project.artifactId}</artifactId>
+                                            <version>8</version>
+                                        </java>
+                                        <scoop>
+                                            <active>RELEASE</active>
+                                        </scoop>
+                                        <brew>
+                                            <active>RELEASE</active>
+                                            <extraProperties>
+                                                <skipJava>true</skipJava>
+                                            </extraProperties>
+                                        </brew>
+                                        <jbang>
+                                            <active>RELEASE</active>
+                                        </jbang>
+                                    </sdmx-dl>
+                                </distributions>
+                            </jreleaser>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
