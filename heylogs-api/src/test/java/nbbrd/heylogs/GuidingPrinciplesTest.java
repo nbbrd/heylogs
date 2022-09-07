@@ -29,13 +29,13 @@ public class GuidingPrinciplesTest {
                 .isNull();
 
         assertThat(validateForHumans(using("Empty.md")))
-                .isEqualTo(Failure.of(FOR_HUMANS, "Missing Changelog heading", 1, 0));
+                .isEqualTo(Failure.of(FOR_HUMANS, "Missing Changelog heading", 1, 1));
 
         assertThat(validateForHumans(using("NoChangelog.md")))
-                .isEqualTo(Failure.of(FOR_HUMANS, "Invalid text", 1, 0));
+                .isEqualTo(Failure.of(FOR_HUMANS, "Invalid text", 1, 1));
 
         assertThat(validateForHumans(using("TooManyChangelog.md")))
-                .isEqualTo(Failure.of(FOR_HUMANS, "Too many Changelog headings", 1, 0));
+                .isEqualTo(Failure.of(FOR_HUMANS, "Too many Changelog headings", 1, 1));
     }
 
     @Test
@@ -50,9 +50,9 @@ public class GuidingPrinciplesTest {
                 .map(GuidingPrinciples::validateEntryForEveryVersions)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains(Failure.of(ENTRY_FOR_EVERY_VERSIONS, "Invalid date format", 2, 25), atIndex(0))
-                .contains(Failure.of(ENTRY_FOR_EVERY_VERSIONS, "Missing date part", 3, 48), atIndex(1))
-                .contains(Failure.of(ENTRY_FOR_EVERY_VERSIONS, "Missing ref link", 4, 60), atIndex(2))
+                .contains(Failure.of(ENTRY_FOR_EVERY_VERSIONS, "Invalid date format", 2, 1), atIndex(0))
+                .contains(Failure.of(ENTRY_FOR_EVERY_VERSIONS, "Missing date part", 3, 1), atIndex(1))
+                .contains(Failure.of(ENTRY_FOR_EVERY_VERSIONS, "Missing ref link", 4, 1), atIndex(2))
                 .hasSize(3);
 
     }
@@ -69,7 +69,7 @@ public class GuidingPrinciplesTest {
                 .map(GuidingPrinciples::validateTypeOfChangesGrouped)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains(Failure.of(TYPE_OF_CHANGES_GROUPED, "Cannot parse 'Stuff'", 7, 78), atIndex(0))
+                .contains(Failure.of(TYPE_OF_CHANGES_GROUPED, "Cannot parse 'Stuff'", 7, 1), atIndex(0))
                 .hasSize(1);
     }
 
@@ -85,7 +85,7 @@ public class GuidingPrinciplesTest {
                 .map(GuidingPrinciples::validateLinkable)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains(Failure.of(LINKABLE, "Missing reference '1.1.0'", 5, 34), atIndex(0))
+                .contains(Failure.of(LINKABLE, "Missing reference '1.1.0'", 5, 1), atIndex(0))
                 .hasSize(1);
     }
 
@@ -98,12 +98,12 @@ public class GuidingPrinciplesTest {
                 .isNull();
 
         assertThat(validateLatestVersionFirst(using("NotLatestVersionFirst.md")))
-                .isEqualTo(Failure.of(LATEST_VERSION_FIRST, "Versions not sorted", 3, 27));
+                .isEqualTo(Failure.of(LATEST_VERSION_FIRST, "Versions not sorted", 3, 1));
 
         assertThat(validateLatestVersionFirst(using("UnsortedVersion.md")))
-                .isEqualTo(Failure.of(LATEST_VERSION_FIRST, "Versions not sorted", 3, 27));
+                .isEqualTo(Failure.of(LATEST_VERSION_FIRST, "Versions not sorted", 3, 1));
 
         assertThat(validateLatestVersionFirst(using("InvalidVersion.md")))
-                .isEqualTo(Failure.of(LATEST_VERSION_FIRST, "Versions not sorted", 5, 77));
+                .isEqualTo(Failure.of(LATEST_VERSION_FIRST, "Versions not sorted", 5, 1));
     }
 }

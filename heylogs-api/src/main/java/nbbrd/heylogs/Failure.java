@@ -24,7 +24,7 @@ public class Failure {
     int column;
 
     public static Failure of(Rule rule, String message, Node node) {
-        return new Failure(rule.getName(), message, node.getStartLineNumber() + 1, node.getStartOfLine());
+        return new Failure(rule.getName(), message, node.getStartLineNumber() + 1, node.lineColumnAtStart().getSecond() + 1);
     }
 
     public static Failure of(Rule rule, String message, int line, int column) {

@@ -37,7 +37,7 @@ public class ExtendedRulesTest {
                 .map(ExtendedRules::validateLimitHeadingDepth)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains(Failure.of(LIMIT_HEADING_DEPTH, "Not expecting level 4", 1, 0))
+                .contains(Failure.of(LIMIT_HEADING_DEPTH, "Not expecting level 4", 1, 1), atIndex(0))
                 .hasSize(1);
     }
 
@@ -53,8 +53,9 @@ public class ExtendedRulesTest {
                 .map(ExtendedRules::validateHttps)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains(Failure.of(HTTPS, "Expecting HTTPS protocol", 1, 0))
-                .hasSize(1); // FIXME: should be 2
+                .contains(Failure.of(HTTPS, "Expecting HTTPS protocol", 1, 1), atIndex(0))
+                .contains(Failure.of(HTTPS, "Expecting HTTPS protocol", 2, 7), atIndex(1))
+                .hasSize(2); // FIXME: should be 3
     }
 
     @Test
@@ -69,7 +70,7 @@ public class ExtendedRulesTest {
                 .map(ExtendedRules::validateGitHubIssueRef)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains(Failure.of(GITHUB_ISSUE_REF, "Expecting GitHub issue ref 172, found 173", 2, 53), atIndex(0))
+                .contains(Failure.of(GITHUB_ISSUE_REF, "Expecting GitHub issue ref 172, found 173", 2, 1), atIndex(0))
                 .hasSize(1);
     }
 }
