@@ -10,41 +10,39 @@ import org.jetbrains.annotations.NotNull;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import static nbbrd.heylogs.Rule.invalidNode;
-
-public enum ExtendedRules implements Rule<Node> {
+public enum ExtendedRules implements Rule {
 
     LIMIT_HEADING_DEPTH {
         @Override
-        public String validate(Node node) {
+        public Failure validate(Node node) {
             return node instanceof Heading ? validateLimitHeadingDepth((Heading) node) : null;
         }
     },
     HTTPS {
         @Override
-        public String validate(Node node) {
+        public Failure validate(Node node) {
             return node instanceof LinkNodeBase ? validateHttps((LinkNodeBase) node) : null;
         }
     },
     GITHUB_ISSUE_REF {
         @Override
-        public String validate(Node node) {
+        public Failure validate(Node node) {
             return node instanceof Link ? validateGitHubIssueRef((Link) node) : null;
         }
     };
 
     @VisibleForTesting
-    static String validateLimitHeadingDepth(@NotNull Heading heading) {
+    static Failure validateLimitHeadingDepth(@NotNull Heading heading) {
         return heading.getLevel() > 3
-                ? invalidNode(heading, "Not expecting level " + heading.getLevel() + "")
+                ? Failure.of(LIMIT_HEADING_DEPTH, "Not expecting level " + heading.getLevel() + "", heading)
                 : null;
     }
 
     @VisibleForTesting
-    static String validateHttps(LinkNodeBase link) {
+    static Failure validateHttps(LinkNodeBase link) {
         try {
             if (new URL(link.getUrl().toString()).getProtocol().equals("http")) {
-                return invalidNode(link, "Expecting HTTPS protocol");
+                return Failure.of(HTTPS, "Expecting HTTPS protocol", link);
             }
         } catch (MalformedURLException e) {
         }
@@ -52,11 +50,11 @@ public enum ExtendedRules implements Rule<Node> {
     }
 
     @VisibleForTesting
-    static String validateGitHubIssueRef(Link link) {
+    static Failure validateGitHubIssueRef(Link link) {
         int expected = getGitHubIssueRefFromURL(link);
         int found = getGitHubIssueRefFromText(link);
         return expected != -1 && found != -1 && expected != found
-                ? invalidNode(link, "Expecting GitHub issue ref " + expected + ", found " + found)
+                ? Failure.of(GITHUB_ISSUE_REF, "Expecting GitHub issue ref " + expected + ", found " + found, link)
                 : null;
     }
 

@@ -15,55 +15,53 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static nbbrd.heylogs.Rule.invalidNode;
-
-public enum GuidingPrinciples implements Rule<Node> {
+public enum GuidingPrinciples implements Rule {
 
     FOR_HUMANS {
         @Override
-        public String validate(Node node) {
+        public Failure validate(Node node) {
             return node instanceof Document ? validateForHumans((Document) node) : null;
         }
     },
     ENTRY_FOR_EVERY_VERSIONS {
         @Override
-        public String validate(Node node) {
+        public Failure validate(Node node) {
             return node instanceof Heading ? validateEntryForEveryVersions((Heading) node) : null;
         }
     },
     TYPE_OF_CHANGES_GROUPED {
         @Override
-        public String validate(Node node) {
+        public Failure validate(Node node) {
             return node instanceof Heading ? validateTypeOfChangesGrouped((Heading) node) : null;
         }
     },
     LINKABLE {
         @Override
-        public String validate(Node node) {
+        public Failure validate(Node node) {
             return node instanceof Heading ? validateLinkable((Heading) node) : null;
         }
     },
     LATEST_VERSION_FIRST {
         @Override
-        public String validate(Node node) {
+        public Failure validate(Node node) {
             return node instanceof Document ? validateLatestVersionFirst((Document) node) : null;
         }
     },
     DATE_DISPLAYED {
         @Override
-        public String validate(Node node) {
+        public Failure validate(Node node) {
             return null;
         }
     },
     SEMVER {
         @Override
-        public String validate(Node node) {
+        public Failure validate(Node node) {
             return null;
         }
     };
 
     @VisibleForTesting
-    static String validateForHumans(@NotNull Document document) {
+    static Failure validateForHumans(@NotNull Document document) {
         List<Heading> headings = Nodes.of(Heading.class)
                 .descendants(document)
                 .filter(Changelog::isChangelogLevel)
@@ -71,47 +69,47 @@ public enum GuidingPrinciples implements Rule<Node> {
 
         switch (headings.size()) {
             case 0:
-                return invalidNode(document, "Missing Changelog heading");
+                return Failure.of(FOR_HUMANS, "Missing Changelog heading", document);
             case 1:
                 try {
                     Changelog.parse(headings.get(0));
                     return null;
                 } catch (IllegalArgumentException ex) {
-                    return invalidNode(document, ex.getMessage());
+                    return Failure.of(FOR_HUMANS, ex.getMessage(), document);
                 }
             default:
-                return invalidNode(document, "Too many Changelog headings");
+                return Failure.of(FOR_HUMANS, "Too many Changelog headings", document);
         }
     }
 
     @VisibleForTesting
-    static String validateEntryForEveryVersions(@NotNull Heading heading) {
+    static Failure validateEntryForEveryVersions(@NotNull Heading heading) {
         if (!Version.isVersionLevel(heading)) {
             return null;
         }
         try {
             Version.parse(heading);
         } catch (IllegalArgumentException ex) {
-            return invalidNode(heading, ex.getMessage());
+            return Failure.of(ENTRY_FOR_EVERY_VERSIONS, ex.getMessage(), heading);
         }
         return null;
     }
 
     @VisibleForTesting
-    static String validateTypeOfChangesGrouped(@NotNull Heading heading) {
+    static Failure validateTypeOfChangesGrouped(@NotNull Heading heading) {
         if (!TypeOfChange.isTypeOfChangeLevel(heading)) {
             return null;
         }
         try {
             TypeOfChange.parse(heading);
         } catch (IllegalArgumentException ex) {
-            return invalidNode(heading, ex.getMessage());
+            return Failure.of(TYPE_OF_CHANGES_GROUPED, ex.getMessage(), heading);
         }
         return null;
     }
 
     @VisibleForTesting
-    static String validateLinkable(@NotNull Heading heading) {
+    static Failure validateLinkable(@NotNull Heading heading) {
         if (!Version.isVersionLevel(heading)) {
             return null;
         }
@@ -123,17 +121,17 @@ public enum GuidingPrinciples implements Rule<Node> {
         Reference reference = repository.get(normalizeRef);
 
         return reference == null
-                ? invalidNode(heading, "Missing reference '" + version.getRef() + "'")
+                ? Failure.of(LINKABLE, "Missing reference '" + version.getRef() + "'", heading)
                 : null;
     }
 
     @VisibleForTesting
-    static String validateLatestVersionFirst(@NotNull Document doc) {
+    static Failure validateLatestVersionFirst(@NotNull Document doc) {
         List<VersionNode> versions = VersionNode.allOf(doc);
 
         Comparator<VersionNode> comparator = Comparator.comparing((VersionNode item) -> item.getVersion().getDate()).reversed();
         VersionNode unsortedItem = getFirstUnsortedItem(versions, comparator);
-        return unsortedItem != null ? invalidNode(unsortedItem.getNode(), "Versions not sorted") : null;
+        return unsortedItem != null ? Failure.of(LATEST_VERSION_FIRST, "Versions not sorted", unsortedItem.getNode()) : null;
     }
 
     @lombok.Value

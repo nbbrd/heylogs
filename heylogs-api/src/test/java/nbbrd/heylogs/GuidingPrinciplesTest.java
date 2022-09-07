@@ -6,8 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
 
-import static nbbrd.heylogs.GuidingPrinciples.validateForHumans;
-import static nbbrd.heylogs.GuidingPrinciples.validateLatestVersionFirst;
+import static nbbrd.heylogs.GuidingPrinciples.*;
 import static nbbrd.heylogs.Nodes.of;
 import static nbbrd.heylogs.Sample.using;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,14 +29,13 @@ public class GuidingPrinciplesTest {
                 .isNull();
 
         assertThat(validateForHumans(using("Empty.md")))
-                .contains("Missing Changelog");
+                .isEqualTo(Failure.of(FOR_HUMANS, "Missing Changelog heading", 1, 0));
 
         assertThat(validateForHumans(using("NoChangelog.md")))
-                .contains("Invalid text");
+                .isEqualTo(Failure.of(FOR_HUMANS, "Invalid text", 1, 0));
 
         assertThat(validateForHumans(using("TooManyChangelog.md")))
-                .contains("Too many Changelog");
-
+                .isEqualTo(Failure.of(FOR_HUMANS, "Too many Changelog headings", 1, 0));
     }
 
     @Test
@@ -52,9 +50,9 @@ public class GuidingPrinciplesTest {
                 .map(GuidingPrinciples::validateEntryForEveryVersions)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains("Invalid Heading node at line 2: Invalid date format", atIndex(0))
-                .contains("Invalid Heading node at line 3: Missing date part", atIndex(1))
-                .contains("Invalid Heading node at line 4: Missing ref link", atIndex(2))
+                .contains(Failure.of(ENTRY_FOR_EVERY_VERSIONS, "Invalid date format", 2, 25), atIndex(0))
+                .contains(Failure.of(ENTRY_FOR_EVERY_VERSIONS, "Missing date part", 3, 48), atIndex(1))
+                .contains(Failure.of(ENTRY_FOR_EVERY_VERSIONS, "Missing ref link", 4, 60), atIndex(2))
                 .hasSize(3);
 
     }
@@ -71,7 +69,7 @@ public class GuidingPrinciplesTest {
                 .map(GuidingPrinciples::validateTypeOfChangesGrouped)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains("Invalid Heading node at line 7: Cannot parse 'Stuff'", atIndex(0))
+                .contains(Failure.of(TYPE_OF_CHANGES_GROUPED, "Cannot parse 'Stuff'", 7, 78), atIndex(0))
                 .hasSize(1);
     }
 
@@ -87,7 +85,7 @@ public class GuidingPrinciplesTest {
                 .map(GuidingPrinciples::validateLinkable)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains("Invalid Heading node at line 5: Missing reference '1.1.0'", atIndex(0))
+                .contains(Failure.of(LINKABLE, "Missing reference '1.1.0'", 5, 34), atIndex(0))
                 .hasSize(1);
     }
 
@@ -100,13 +98,12 @@ public class GuidingPrinciplesTest {
                 .isNull();
 
         assertThat(validateLatestVersionFirst(using("NotLatestVersionFirst.md")))
-                .contains("not sorted");
+                .isEqualTo(Failure.of(LATEST_VERSION_FIRST, "Versions not sorted", 3, 27));
 
         assertThat(validateLatestVersionFirst(using("UnsortedVersion.md")))
-                .contains("not sorted");
+                .isEqualTo(Failure.of(LATEST_VERSION_FIRST, "Versions not sorted", 3, 27));
 
         assertThat(validateLatestVersionFirst(using("InvalidVersion.md")))
-                .contains("not sorted");
+                .isEqualTo(Failure.of(LATEST_VERSION_FIRST, "Versions not sorted", 5, 77));
     }
-
 }

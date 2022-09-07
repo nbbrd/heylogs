@@ -6,9 +6,9 @@ import com.vladsch.flexmark.ast.LinkNodeBase;
 import com.vladsch.flexmark.util.ast.Node;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.Objects;
 
+import static nbbrd.heylogs.ExtendedRules.*;
 import static nbbrd.heylogs.Nodes.of;
 import static nbbrd.heylogs.Sample.using;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +37,7 @@ public class ExtendedRulesTest {
                 .map(ExtendedRules::validateLimitHeadingDepth)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains("Invalid Heading node at line 1: Not expecting level 4")
+                .contains(Failure.of(LIMIT_HEADING_DEPTH, "Not expecting level 4", 1, 0))
                 .hasSize(1);
     }
 
@@ -53,7 +53,7 @@ public class ExtendedRulesTest {
                 .map(ExtendedRules::validateHttps)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains("Invalid Link node at line 1: Expecting HTTPS protocol")
+                .contains(Failure.of(HTTPS, "Expecting HTTPS protocol", 1, 0))
                 .hasSize(1); // FIXME: should be 2
     }
 
@@ -69,7 +69,7 @@ public class ExtendedRulesTest {
                 .map(ExtendedRules::validateGitHubIssueRef)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains("Invalid Link node at line 2: Expecting GitHub issue ref 172, found 173", atIndex(0))
+                .contains(Failure.of(GITHUB_ISSUE_REF, "Expecting GitHub issue ref 172, found 173", 2, 53), atIndex(0))
                 .hasSize(1);
     }
 }
