@@ -189,7 +189,7 @@
                                 </signing>
                                 <distributions>
                                     <!-- Name is here ! -->
-                                    <sdmx-dl>
+                                    <heylogs>
                                         <type>SINGLE_JAR</type>
                                         <artifacts>
                                             <artifact>
@@ -215,7 +215,7 @@
                                         <jbang>
                                             <active>RELEASE</active>
                                         </jbang>
-                                    </sdmx-dl>
+                                    </heylogs>
                                 </distributions>
                             </jreleaser>
                         </configuration>
