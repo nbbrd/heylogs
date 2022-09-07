@@ -116,15 +116,19 @@ public enum GuidingPrinciples implements Rule {
             return null;
         }
 
-        Version version = Version.parse(heading);
+        try {
+            Version version = Version.parse(heading);
 
-        ReferenceRepository repository = Parser.REFERENCES.get(heading.getDocument());
-        String normalizeRef = repository.normalizeKey(version.getRef());
-        Reference reference = repository.get(normalizeRef);
+            ReferenceRepository repository = Parser.REFERENCES.get(heading.getDocument());
+            String normalizeRef = repository.normalizeKey(version.getRef());
+            Reference reference = repository.get(normalizeRef);
 
-        return reference == null
-                ? Failure.of(LINKABLE, "Missing reference '" + version.getRef() + "'", heading)
-                : null;
+            return reference == null
+                    ? Failure.of(LINKABLE, "Missing reference '" + version.getRef() + "'", heading)
+                    : null;
+        } catch (IllegalArgumentException ex) {
+            return null;
+        }
     }
 
     @VisibleForTesting
