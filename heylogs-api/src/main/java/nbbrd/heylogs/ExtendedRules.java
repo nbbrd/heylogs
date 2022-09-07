@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Locale;
 
 public enum ExtendedRules implements Rule {
 
@@ -30,6 +31,11 @@ public enum ExtendedRules implements Rule {
             return node instanceof Link ? validateGitHubIssueRef((Link) node) : null;
         }
     };
+
+    @Override
+    public String getName() {
+        return name().toLowerCase(Locale.ROOT).replace('_', '-');
+    }
 
     @VisibleForTesting
     static Failure validateLimitHeadingDepth(@NotNull Heading heading) {

@@ -9,10 +9,7 @@ import com.vladsch.flexmark.util.ast.Node;
 import nbbrd.design.VisibleForTesting;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public enum GuidingPrinciples implements Rule {
@@ -59,6 +56,11 @@ public enum GuidingPrinciples implements Rule {
             return null;
         }
     };
+
+    @Override
+    public String getName() {
+        return name().toLowerCase(Locale.ROOT).replace('_', '-');
+    }
 
     @VisibleForTesting
     static Failure validateForHumans(@NotNull Document document) {

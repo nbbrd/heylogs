@@ -4,7 +4,7 @@ import com.vladsch.flexmark.util.ast.Node;
 
 public interface Rule {
 
-    String name();
+    String getName();
 
     Failure validate(Node node);
 }

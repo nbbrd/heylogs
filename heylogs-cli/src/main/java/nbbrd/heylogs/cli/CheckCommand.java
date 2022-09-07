@@ -1,15 +1,16 @@
 package nbbrd.heylogs.cli;
 
-import com.vladsch.flexmark.util.ast.Document;
-import com.vladsch.flexmark.util.ast.Node;
 import internal.heylogs.cli.MarkdownInputOptions;
-import nbbrd.heylogs.*;
+import nbbrd.heylogs.ExtendedRules;
+import nbbrd.heylogs.Failure;
+import nbbrd.heylogs.GuidingPrinciples;
+import nbbrd.heylogs.Rule;
 import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
+import java.nio.file.Path;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -22,26 +23,13 @@ public final class CheckCommand implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        Document document = input.read();
-        return check(document);
-    }
-
-    private Integer check(Document document) {
         List<Rule> rules = getRules();
-        System.out.println("Using rules: " + rules);
 
-        List<Failure> problems = getFailures(document, rules);
+        List<Failure> failures = Failure.allOf(input.read(), rules);
 
-        if (problems.isEmpty()) {
-            System.out.println("No problem found");
-            return CommandLine.ExitCode.OK;
-        } else {
-            problems
-                    .stream()
-                    .map(failure -> "Invalid node at line " + failure.getLine() + ": " + failure.getMessage())
-                    .forEach(System.out::println);
-            return CommandLine.ExitCode.USAGE;
-        }
+        printStylish(input.getFile(), failures);
+
+        return failures.isEmpty() ? CommandLine.ExitCode.OK : CommandLine.ExitCode.USAGE;
     }
 
     @NotNull
@@ -51,9 +39,20 @@ public final class CheckCommand implements Callable<Integer> {
                 .collect(Collectors.toList());
     }
 
-    private static List<Failure> getFailures(Document doc, List<Rule> rules) {
-        return Stream.concat(Stream.of(doc), Nodes.of(Node.class).descendants(doc))
-                .flatMap(node -> rules.stream().map(rule -> rule.validate(node)).filter(Objects::nonNull))
-                .collect(Collectors.toList());
+    // https://eslint.org/docs/latest/user-guide/formatters/#stylish
+    private static void printStylish(Path inputFile, List<Failure> failures) {
+        if (inputFile != null) {
+            System.out.println(inputFile);
+        }
+
+        int l = failures.stream().mapToInt(failure -> getNumberOfDigits(failure.getLine())).max().orElse(0);
+        int c = failures.stream().mapToInt(failure -> getNumberOfDigits(failure.getColumn())).max().orElse(0);
+        int m = failures.stream().mapToInt(failure -> failure.getMessage().length()).max().orElse(0);
+
+        failures.forEach(failure -> System.out.println(String.format("  %-" + l + "d:%-" + c + "d  error  %-" + m + "s  %s", failure.getLine(), failure.getColumn(), failure.getMessage(), failure.getRule())));
+    }
+
+    private static int getNumberOfDigits(int number) {
+        return (int) (Math.log10(number) + 1);
     }
 }
