@@ -49,7 +49,7 @@ public final class CheckCommand implements Callable<Integer> {
         int c = failures.stream().mapToInt(failure -> getNumberOfDigits(failure.getColumn())).max().orElse(0);
         int m = failures.stream().mapToInt(failure -> failure.getMessage().length()).max().orElse(0);
 
-        failures.forEach(failure -> System.out.println(String.format("  %-" + l + "d:%-" + c + "d  error  %-" + m + "s  %s", failure.getLine(), failure.getColumn(), failure.getMessage(), failure.getRule())));
+        failures.forEach(failure -> System.out.println(String.format("  %" + l + "d:%-" + c + "d  error  %-" + m + "s  %s", failure.getLine(), failure.getColumn(), failure.getMessage(), failure.getRule())));
     }
 
     private static int getNumberOfDigits(int number) {
