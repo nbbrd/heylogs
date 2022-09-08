@@ -144,6 +144,30 @@
                             <useMavenLogger>true</useMavenLogger>
                         </configuration>
                     </execution>
+                    <!-- Extract the latest version from CHANGELOG.md -->
+                    <execution>
+                        <id>extract-changelog</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>java</executable>
+                            <arguments>
+                                <argument>-classpath</argument>
+                                <classpath/>
+                                <argument>${project.x.mainClass}</argument>
+                                <argument>extract</argument>
+                                <argument>-i</argument>
+                                <argument>${project.parent.basedir}/CHANGELOG.md</argument>
+                                <argument>-o</argument>
+                                <argument>${project.build.directory}/CHANGELOG.md</argument>
+                                <argument>--limit</argument>
+                                <argument>1</argument>
+                            </arguments>
+                            <useMavenLogger>true</useMavenLogger>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>
@@ -171,11 +195,11 @@
                                 <release>
                                     <github>
                                         <skipTag>true</skipTag>
-                                        <draft>true</draft>
+                                        <draft>false</draft>
                                         <!-- Fix default value -->
                                         <branch>master</branch>
                                         <changelog>
-                                            <external>${project.basedir}/../CHANGELOG.md</external>
+                                            <external>${project.build.directory}/CHANGELOG.md</external>
                                         </changelog>
                                     </github>
                                 </release>
