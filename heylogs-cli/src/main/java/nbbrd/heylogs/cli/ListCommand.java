@@ -3,7 +3,7 @@ package nbbrd.heylogs.cli;
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.util.ast.Node;
 import internal.heylogs.cli.MarkdownInputOptions;
-import internal.heylogs.cli.VersionFilter;
+import internal.heylogs.cli.VersionFilterOptions;
 import nbbrd.heylogs.Nodes;
 import nbbrd.heylogs.Version;
 import picocli.CommandLine;
@@ -18,7 +18,7 @@ public final class ListCommand implements Callable<Void> {
     private MarkdownInputOptions input;
 
     @CommandLine.Mixin
-    private VersionFilter filter;
+    private VersionFilterOptions filter;
 
     @Override
     public Void call() throws Exception {
@@ -31,7 +31,7 @@ public final class ListCommand implements Callable<Void> {
         Nodes.of(Heading.class)
                 .descendants(document)
                 .filter(Version::isVersionLevel)
-                .filter(filter::contains)
+                .filter(filter.get()::contains)
                 .limit(filter.getLimit())
                 .map(Node::getChars)
                 .forEach(System.out::println);

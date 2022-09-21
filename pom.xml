@@ -112,6 +112,7 @@
     <modules>
         <module>heylogs-api</module>
         <module>heylogs-cli</module>
+        <module>heylogs-maven-plugin</module>
     </modules>
 
     <profiles>

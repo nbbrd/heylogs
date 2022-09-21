@@ -1,16 +1,13 @@
 package internal.heylogs.cli;
 
-import com.vladsch.flexmark.ast.Heading;
-import nbbrd.heylogs.Version;
+import nbbrd.heylogs.VersionFilter;
 import picocli.CommandLine;
 
 import java.time.LocalDate;
-import java.time.Year;
-import java.time.YearMonth;
 
 @lombok.Getter
 @lombok.Setter
-public class VersionFilter {
+public class VersionFilterOptions {
 
     @CommandLine.Option(
             names = {"--ref"},
@@ -41,29 +38,21 @@ public class VersionFilter {
     )
     private int limit = Integer.MAX_VALUE;
 
-    public boolean contains(Heading heading) {
-        return contains(Version.parse(heading));
-    }
-
-    public boolean contains(Version version) {
-        return version.getRef().contains(ref)
-                && from.compareTo(version.getDate()) <= 0
-                && (to.isAfter(version.getDate()) || (to.equals(LocalDate.MAX) && version.isUnreleased()));
+    public VersionFilter get() {
+        return VersionFilter
+                .builder()
+                .ref(ref)
+                .from(from)
+                .to(to)
+                .limit(limit)
+                .build();
     }
 
     private static final class CustomConverter implements CommandLine.ITypeConverter<LocalDate> {
 
         @Override
-        public LocalDate convert(String value) throws Exception {
-            try {
-                return Year.parse(value).atDay(1);
-            } catch (Exception ex1) {
-                try {
-                    return YearMonth.parse(value).atDay(1);
-                } catch (Exception ex2) {
-                    return LocalDate.parse(value);
-                }
-            }
+        public LocalDate convert(String value) {
+            return VersionFilter.parseLocalDate(value);
         }
     }
 }

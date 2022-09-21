@@ -119,53 +119,22 @@
                 </configuration>
             </plugin>
 
+            <!-- Check that CHANGELOG.md complies with the keep-a-changelog format -->
+            <!-- Extract the latest version from CHANGELOG.md -->
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.1.0</version>
+                <groupId>com.github.nbbrd.heylogs</groupId>
+                <artifactId>heylogs-maven-plugin</artifactId>
+                <version>${project.version}</version>
                 <executions>
-                    <!-- Check that CHANGELOG.md complies with the keep-a-changelog format -->
-                    <execution>
-                        <id>check-changelog</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>java</executable>
-                            <arguments>
-                                <argument>-classpath</argument>
-                                <classpath/>
-                                <argument>${project.x.mainClass}</argument>
-                                <argument>check</argument>
-                                <argument>-i</argument>
-                                <argument>${project.parent.basedir}/CHANGELOG.md</argument>
-                            </arguments>
-                            <useMavenLogger>true</useMavenLogger>
-                        </configuration>
-                    </execution>
-                    <!-- Extract the latest version from CHANGELOG.md -->
                     <execution>
                         <id>extract-changelog</id>
-                        <phase>package</phase>
                         <goals>
-                            <goal>exec</goal>
+                            <goal>check</goal>
+                            <goal>extract</goal>
                         </goals>
                         <configuration>
-                            <executable>java</executable>
-                            <arguments>
-                                <argument>-classpath</argument>
-                                <classpath/>
-                                <argument>${project.x.mainClass}</argument>
-                                <argument>extract</argument>
-                                <argument>-i</argument>
-                                <argument>${project.parent.basedir}/CHANGELOG.md</argument>
-                                <argument>-o</argument>
-                                <argument>${project.build.directory}/CHANGELOG.md</argument>
-                                <argument>--limit</argument>
-                                <argument>1</argument>
-                            </arguments>
-                            <useMavenLogger>true</useMavenLogger>
+                            <inputFile>${project.parent.basedir}/CHANGELOG.md</inputFile>
+                            <limit>1</limit>
                         </configuration>
                     </execution>
                 </executions>
