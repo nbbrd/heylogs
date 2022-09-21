@@ -6,7 +6,7 @@
 
     <groupId>com.github.nbbrd.heylogs</groupId>
     <artifactId>heylogs-parent</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
     <packaging>pom</packaging>
 
     <name>heylogs</name>
@@ -49,7 +49,7 @@
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
-                <version>5.9.0</version>
+                <version>5.9.1</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -88,7 +88,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.2.2</version>
+                    <version>3.3.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -112,6 +112,7 @@
     <modules>
         <module>heylogs-api</module>
         <module>heylogs-cli</module>
+        <module>heylogs-maven-plugin</module>
     </modules>
 
     <profiles>
@@ -325,7 +326,7 @@
                             <dependency>
                                 <groupId>org.kordamp.maven</groupId>
                                 <artifactId>pomchecker-enforcer-rules</artifactId>
-                                <version>1.2.0</version>
+                                <version>1.3.0</version>
                             </dependency>
                             <dependency>
                                 <groupId>org.codehaus.mojo</groupId>

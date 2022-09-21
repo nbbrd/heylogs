@@ -1,19 +1,14 @@
 package nbbrd.heylogs.cli;
 
 import internal.heylogs.cli.MarkdownInputOptions;
-import nbbrd.heylogs.ExtendedRules;
 import nbbrd.heylogs.Failure;
-import nbbrd.heylogs.GuidingPrinciples;
 import nbbrd.heylogs.Rule;
-import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Command(name = "check")
 public final class CheckCommand implements Callable<Integer> {
@@ -23,20 +18,13 @@ public final class CheckCommand implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        List<Rule> rules = getRules();
+        List<Rule> rules = Rule.getDefault();
 
         List<Failure> failures = Failure.allOf(input.read(), rules);
 
         printStylish(input.getFile(), failures);
 
         return failures.isEmpty() ? CommandLine.ExitCode.OK : CommandLine.ExitCode.USAGE;
-    }
-
-    @NotNull
-    private static List<Rule> getRules() {
-        return Stream.concat(Stream.of(GuidingPrinciples.values()), Stream.of(ExtendedRules.values()))
-                .map(Rule.class::cast)
-                .collect(Collectors.toList());
     }
 
     // https://eslint.org/docs/latest/user-guide/formatters/#stylish
