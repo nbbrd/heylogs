@@ -34,6 +34,11 @@
             <artifactId>java-design-processor</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.github.nbbrd.java-service-util</groupId>
+            <artifactId>java-service-processor</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- compile and runtime -->
         <dependency>

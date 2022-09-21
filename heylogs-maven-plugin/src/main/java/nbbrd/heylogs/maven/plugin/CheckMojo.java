@@ -3,7 +3,7 @@ package nbbrd.heylogs.maven.plugin;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
 import nbbrd.heylogs.Failure;
-import nbbrd.heylogs.Rule;
+import nbbrd.heylogs.RuleLoader;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -41,7 +41,7 @@ public final class CheckMojo extends AbstractMojo {
             getLog().info("Reading " + inputFile);
             Document changelog = read();
 
-            List<Failure> failures = Failure.allOf(changelog, Rule.getDefault());
+            List<Failure> failures = Failure.allOf(changelog, RuleLoader.load());
             if (!failures.isEmpty()) {
                 getLog().error("Invalid CHANGELOG");
                 failures.forEach(failure -> getLog().error(failure.toString()));

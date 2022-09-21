@@ -3,6 +3,7 @@ package nbbrd.heylogs.cli;
 import internal.heylogs.cli.MarkdownInputOptions;
 import nbbrd.heylogs.Failure;
 import nbbrd.heylogs.Rule;
+import nbbrd.heylogs.RuleLoader;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -18,9 +19,7 @@ public final class CheckCommand implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        List<Rule> rules = Rule.getDefault();
-
-        List<Failure> failures = Failure.allOf(input.read(), rules);
+        List<Failure> failures = Failure.allOf(input.read(), RuleLoader.load());
 
         printStylish(input.getFile(), failures);
 
