@@ -11,14 +11,20 @@ import java.time.Year;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @lombok.Value
 @lombok.Builder
 public class VersionFilter {
 
+    public static final VersionFilter DEFAULT = VersionFilter.builder().build();
     @lombok.NonNull
     @lombok.Builder.Default
     String ref = "";
+
+    @lombok.NonNull
+    @lombok.Builder.Default
+    Pattern unreleasedPattern = Pattern.compile("^.*-SNAPSHOT$");
 
     @lombok.NonNull
     @lombok.Builder.Default
@@ -31,12 +37,20 @@ public class VersionFilter {
     @lombok.Builder.Default
     int limit = Integer.MAX_VALUE;
 
+    private boolean isUnreleasedPattern() {
+        return unreleasedPattern.asPredicate().test(ref);
+    }
+
+    private boolean containsRef(Version version) {
+        return (isUnreleasedPattern() && version.isUnreleased()) || version.getRef().contains(ref);
+    }
+
     public boolean contains(Heading heading) {
         return contains(Version.parse(heading));
     }
 
     public boolean contains(Version version) {
-        return version.getRef().contains(ref)
+        return containsRef(version)
                 && from.compareTo(version.getDate()) <= 0
                 && (to.isAfter(version.getDate()) || (to.equals(LocalDate.MAX) && version.isUnreleased()));
     }
