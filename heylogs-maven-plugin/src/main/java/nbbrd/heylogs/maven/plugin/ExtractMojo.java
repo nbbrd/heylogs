@@ -15,14 +15,19 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.Files;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.Objects;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 @Mojo(name = "extract", defaultPhase = LifecyclePhase.GENERATE_RESOURCES, threadSafe = true)
 public final class ExtractMojo extends AbstractMojo {
 
-    @Parameter(defaultValue = "${project.basedir}/CHANGELOG.md", property = "heylogs.inputFile")
+    @Parameter(defaultValue = "${project.basedir}/CHANGELOG.md", property = "heylogs.input.file")
     private File inputFile;
 
-    @Parameter(defaultValue = "${project.build.directory}/CHANGELOG.md", property = "heylogs.outputFile")
+    @Parameter(defaultValue = "${project.build.directory}/CHANGELOG.md", property = "heylogs.output.file")
     private File outputFile;
 
     @Parameter(defaultValue = "", property = "heylogs.ref")
@@ -40,6 +45,9 @@ public final class ExtractMojo extends AbstractMojo {
     @Parameter(defaultValue = "false", property = "heylogs.skip")
     private boolean skip;
 
+    @Parameter(defaultValue = "^.*-SNAPSHOT$", property = "heylogs.unreleased.pattern")
+    private String unreleasedPattern;
+
     @Override
     public void execute() throws MojoExecutionException {
         if (skip) {
@@ -52,44 +60,71 @@ public final class ExtractMojo extends AbstractMojo {
             return;
         }
 
-        try {
-            getLog().info("Reading " + inputFile);
-            Document changelog = read();
+        getLog().info("Reading " + inputFile);
+        Document changelog = read();
 
-            VersionFilter filter = getFilter();
+        VersionFilter filter = getFilter();
 
-            getLog().info("Extracting with " + filter);
-            filter.apply(changelog);
+        getLog().info("Extracting with " + filter);
+        filter.apply(changelog);
 
-            getLog().info("Writing " + outputFile);
-            write(changelog);
-        } catch (IOException ex) {
-            throw new MojoExecutionException("Error while extracting changelog", ex);
-        }
+        getLog().info("Writing " + outputFile);
+        write(changelog);
     }
 
-    private VersionFilter getFilter() {
+    private VersionFilter getFilter() throws MojoExecutionException {
         return VersionFilter
                 .builder()
-                .ref(ref != null ? ref : "")
-                .from(VersionFilter.parseLocalDate(from))
-                .to(VersionFilter.parseLocalDate(to))
+                .ref(Objects.toString(ref, ""))
+                .unreleasedPattern(fetchUnreleasedPattern())
+                .from(fetchFrom())
+                .to(fetchTo())
                 .limit(limit)
                 .build();
     }
 
-    public Document read() throws IOException {
-        Parser parser = Parser.builder().build();
-        try (Reader reader = Files.newBufferedReader(inputFile.toPath())) {
-            return parser.parseReader(reader);
+    private Pattern fetchUnreleasedPattern() throws MojoExecutionException {
+        try {
+            return Pattern.compile(unreleasedPattern);
+        } catch (PatternSyntaxException ex) {
+            throw new MojoExecutionException("Invalid unreleased pattern", ex);
         }
     }
 
-    public void write(Document document) throws IOException {
-        Files.createDirectories(outputFile.getParentFile().toPath());
-        Formatter formatter = Formatter.builder().build();
-        try (Writer writer = Files.newBufferedWriter(outputFile.toPath())) {
-            formatter.render(document, writer);
+    private LocalDate fetchFrom() throws MojoExecutionException {
+        try {
+            return VersionFilter.parseLocalDate(from);
+        } catch (DateTimeParseException ex) {
+            throw new MojoExecutionException("Invalid format for 'from' parameter", ex);
+        }
+    }
+
+    private LocalDate fetchTo() throws MojoExecutionException {
+        try {
+            return VersionFilter.parseLocalDate(to);
+        } catch (DateTimeParseException ex) {
+            throw new MojoExecutionException("Invalid format for 'to' parameter", ex);
+        }
+    }
+
+    public Document read() throws MojoExecutionException {
+        Parser parser = Parser.builder().build();
+        try (Reader reader = Files.newBufferedReader(inputFile.toPath())) {
+            return parser.parseReader(reader);
+        } catch (IOException ex) {
+            throw new MojoExecutionException("Failed to read file", ex);
+        }
+    }
+
+    public void write(Document document) throws MojoExecutionException {
+        try {
+            Files.createDirectories(outputFile.getParentFile().toPath());
+            Formatter formatter = Formatter.builder().build();
+            try (Writer writer = Files.newBufferedWriter(outputFile.toPath())) {
+                formatter.render(document, writer);
+            }
+        } catch (IOException ex) {
+            throw new MojoExecutionException("Failed to write file", ex);
         }
     }
 }

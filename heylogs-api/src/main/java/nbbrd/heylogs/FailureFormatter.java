@@ -1,16 +1,18 @@
 package nbbrd.heylogs;
 
-import com.vladsch.flexmark.util.ast.Node;
 import nbbrd.service.Quantifier;
 import nbbrd.service.ServiceDefinition;
+
+import java.io.IOException;
+import java.util.List;
 
 @ServiceDefinition(
         quantifier = Quantifier.MULTIPLE,
         batch = true
 )
-public interface Rule {
+public interface FailureFormatter {
 
     String getName();
 
-    Failure validate(Node node);
+    void format(Appendable appendable, String source, List<Failure> failures) throws IOException;
 }

@@ -5,11 +5,13 @@ import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.ast.LinkNodeBase;
 import com.vladsch.flexmark.util.ast.Node;
 import nbbrd.design.VisibleForTesting;
+import nbbrd.service.ServiceProvider;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Locale;
+import java.util.stream.Stream;
 
 public enum ExtendedRules implements Rule {
 
@@ -87,5 +89,14 @@ public enum ExtendedRules implements Rule {
         } catch (NumberFormatException ex) {
         }
         return -1;
+    }
+
+    @ServiceProvider
+    public static final class Batch implements RuleBatch {
+
+        @Override
+        public Stream<Rule> getProviders() {
+            return Stream.of(ExtendedRules.values());
+        }
     }
 }

@@ -26,7 +26,8 @@ import java.util.concurrent.Callable;
         subcommands = {
                 ListCommand.class,
                 CheckCommand.class,
-                ExtractCommand.class
+                ExtractCommand.class,
+                DebugCommand.class
         }
 )
 public final class MainCommand implements Callable<Void> {

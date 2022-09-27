@@ -7,10 +7,12 @@ import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
 import nbbrd.design.VisibleForTesting;
+import nbbrd.service.ServiceProvider;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public enum GuidingPrinciples implements Rule {
 
@@ -177,5 +179,14 @@ public enum GuidingPrinciples implements Rule {
             previous = current;
         }
         return null;
+    }
+
+    @ServiceProvider
+    public static final class Batch implements RuleBatch {
+
+        @Override
+        public Stream<Rule> getProviders() {
+            return Stream.of(GuidingPrinciples.values());
+        }
     }
 }
