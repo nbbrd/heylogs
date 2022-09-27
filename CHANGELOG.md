@@ -12,6 +12,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Add rule extension point [#12](https://github.com/nbbrd/heylogs/issues/12)
 - Add failure format extension point [#13](https://github.com/nbbrd/heylogs/issues/13)
 
+### Changed
+
+- Simplify properties naming of Maven plugin [#18](https://github.com/nbbrd/heylogs/issues/18)
+
 ## [0.2.0] - 2022-09-21
 
 ### Added

@@ -19,10 +19,10 @@ import java.nio.file.Files;
 @Mojo(name = "extract", defaultPhase = LifecyclePhase.GENERATE_RESOURCES, threadSafe = true)
 public final class ExtractMojo extends AbstractMojo {
 
-    @Parameter(defaultValue = "${project.basedir}/CHANGELOG.md", property = "heylogs.inputFile")
+    @Parameter(defaultValue = "${project.basedir}/CHANGELOG.md", property = "heylogs.input.file")
     private File inputFile;
 
-    @Parameter(defaultValue = "${project.build.directory}/CHANGELOG.md", property = "heylogs.outputFile")
+    @Parameter(defaultValue = "${project.build.directory}/CHANGELOG.md", property = "heylogs.output.file")
     private File outputFile;
 
     @Parameter(defaultValue = "", property = "heylogs.ref")
