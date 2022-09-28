@@ -10,6 +10,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - Modify default ref parameter of extract mojo to `${project.version}` [#20](https://github.com/nbbrd/heylogs/issues/20)
+- Modify extract mojo to fail if changelog is not found [#21](https://github.com/nbbrd/heylogs/issues/21)
 
 ## [0.3.0] - 2022-09-27
 

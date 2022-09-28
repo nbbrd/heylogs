@@ -56,8 +56,8 @@ public final class ExtractMojo extends AbstractMojo {
         }
 
         if (!inputFile.exists()) {
-            getLog().info("Changelog not found");
-            return;
+            getLog().error("Changelog not found");
+            throw new MojoExecutionException("Changelog not found");
         }
 
         getLog().info("Reading " + inputFile);
