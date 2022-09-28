@@ -30,7 +30,7 @@ public final class ExtractMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.build.directory}/CHANGELOG.md", property = "heylogs.output.file")
     private File outputFile;
 
-    @Parameter(defaultValue = "", property = "heylogs.ref")
+    @Parameter(defaultValue = "${project.version}", property = "heylogs.ref")
     private String ref;
 
     @Parameter(defaultValue = "-999999999-01-01", property = "heylogs.from")
@@ -56,8 +56,8 @@ public final class ExtractMojo extends AbstractMojo {
         }
 
         if (!inputFile.exists()) {
-            getLog().info("Changelog not found");
-            return;
+            getLog().error("Changelog not found");
+            throw new MojoExecutionException("Changelog not found");
         }
 
         getLog().info("Reading " + inputFile);
