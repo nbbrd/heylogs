@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.1] - 2022-09-28
+
 ### Changed
 
 - Modify default ref parameter of extract mojo to `${project.version}` [#20](https://github.com/nbbrd/heylogs/issues/20)
@@ -36,7 +38,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Initial release
 
-[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/nbbrd/heylogs/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/nbbrd/heylogs/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/nbbrd/heylogs/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/nbbrd/heylogs/releases/tag/v0.1.0
