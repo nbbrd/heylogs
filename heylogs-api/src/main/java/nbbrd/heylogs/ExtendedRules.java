@@ -1,12 +1,10 @@
 package nbbrd.heylogs;
 
-import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.ast.LinkNodeBase;
 import com.vladsch.flexmark.util.ast.Node;
 import nbbrd.design.VisibleForTesting;
 import nbbrd.service.ServiceProvider;
-import org.jetbrains.annotations.NotNull;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -15,12 +13,6 @@ import java.util.stream.Stream;
 
 public enum ExtendedRules implements Rule {
 
-    LIMIT_HEADING_DEPTH {
-        @Override
-        public Failure validate(Node node) {
-            return node instanceof Heading ? validateLimitHeadingDepth((Heading) node) : null;
-        }
-    },
     HTTPS {
         @Override
         public Failure validate(Node node) {
@@ -37,13 +29,6 @@ public enum ExtendedRules implements Rule {
     @Override
     public String getName() {
         return name().toLowerCase(Locale.ROOT).replace('_', '-');
-    }
-
-    @VisibleForTesting
-    static Failure validateLimitHeadingDepth(@NotNull Heading heading) {
-        return heading.getLevel() > 3
-                ? Failure.of(LIMIT_HEADING_DEPTH, "Not expecting level " + heading.getLevel() + "", heading)
-                : null;
     }
 
     @VisibleForTesting
