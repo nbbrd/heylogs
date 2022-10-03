@@ -1,6 +1,5 @@
 package nbbrd.heylogs;
 
-import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.ast.LinkNodeBase;
 import com.vladsch.flexmark.util.ast.Node;
@@ -8,7 +7,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
 
-import static nbbrd.heylogs.ExtendedRules.*;
+import static nbbrd.heylogs.ExtendedRules.GITHUB_ISSUE_REF;
+import static nbbrd.heylogs.ExtendedRules.HTTPS;
 import static nbbrd.heylogs.Nodes.of;
 import static nbbrd.heylogs.Sample.using;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,22 +23,6 @@ public class ExtendedRulesTest {
             assertThat(Nodes.of(Node.class).descendants(sample).map(rule::validate).filter(Objects::nonNull))
                     .isEmpty();
         }
-    }
-
-    @Test
-    public void testValidateLimitHeadingDepth() {
-        assertThat(of(Heading.class).descendants(using("Main.md")))
-                .map(ExtendedRules::validateLimitHeadingDepth)
-                .isNotEmpty()
-                .filteredOn(Objects::nonNull)
-                .isEmpty();
-
-        assertThat(of(Heading.class).descendants(using("InvalidHeadingLevel.md")))
-                .map(ExtendedRules::validateLimitHeadingDepth)
-                .isNotEmpty()
-                .filteredOn(Objects::nonNull)
-                .contains(Failure.of(LIMIT_HEADING_DEPTH, "Not expecting level 4", 1, 1), atIndex(0))
-                .hasSize(1);
     }
 
     @Test

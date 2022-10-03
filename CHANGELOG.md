@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Removed
+
+- Remove limit-heading-depth rule [#23](https://github.com/nbbrd/heylogs/issues/23)
+
 ## [0.3.1] - 2022-09-28
 
 ### Changed
