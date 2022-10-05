@@ -24,6 +24,7 @@ import java.util.concurrent.Callable;
         commandListHeading = "%nCommands:%n",
         headerHeading = "%n",
         subcommands = {
+                ScanCommand.class,
                 ListCommand.class,
                 CheckCommand.class,
                 ExtractCommand.class,
