@@ -47,6 +47,11 @@
             <!-- last version for Java8 -->
             <version>0.62.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.semver4j</groupId>
+            <artifactId>semver4j</artifactId>
+            <version>2.1.1</version>
+        </dependency>
 
         <!-- test only -->
         <dependency>

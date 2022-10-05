@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Add optional semantic versioning rule [#22](https://github.com/nbbrd/heylogs/issues/22)
+
 ## [0.3.2] - 2022-10-03
 
 ### Removed

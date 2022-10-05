@@ -64,6 +64,11 @@ public enum GuidingPrinciples implements Rule {
         return name().toLowerCase(Locale.ROOT).replace('_', '-');
     }
 
+    @Override
+    public boolean isAvailable() {
+        return true;
+    }
+
     @VisibleForTesting
     static Failure validateForHumans(@NotNull Document document) {
         List<Heading> headings = Nodes.of(Heading.class)

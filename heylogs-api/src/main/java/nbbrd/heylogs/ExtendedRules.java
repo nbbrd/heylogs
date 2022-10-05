@@ -31,6 +31,11 @@ public enum ExtendedRules implements Rule {
         return name().toLowerCase(Locale.ROOT).replace('_', '-');
     }
 
+    @Override
+    public boolean isAvailable() {
+        return true;
+    }
+
     @VisibleForTesting
     static Failure validateHttps(LinkNodeBase link) {
         try {

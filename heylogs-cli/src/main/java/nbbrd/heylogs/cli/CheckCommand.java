@@ -28,8 +28,19 @@ public final class CheckCommand implements Callable<Integer> {
     )
     private String format;
 
+    @CommandLine.Option(
+            names = {"--semver"},
+            defaultValue = "false",
+            description = "Mention if this changelog follows Semantic Versioning."
+    )
+    private boolean semver;
+
     @Override
     public Integer call() throws Exception {
+        if (semver) {
+            System.setProperty(Rule.ENABLE_KEY, "semver");
+        }
+
         List<Failure> failures = Failure.allOf(input.read(), RuleLoader.load());
 
         try (Writer writer = output.newCharWriter()) {
