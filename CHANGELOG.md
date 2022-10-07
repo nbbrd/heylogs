@@ -10,6 +10,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 - Add optional semantic versioning rule [#22](https://github.com/nbbrd/heylogs/issues/22)
+- Add command to scan content of changelog [#26](https://github.com/nbbrd/heylogs/issues/26)
 
 ## [0.3.2] - 2022-10-03
 
