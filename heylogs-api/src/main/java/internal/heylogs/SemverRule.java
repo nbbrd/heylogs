@@ -1,8 +1,11 @@
-package nbbrd.heylogs;
+package internal.heylogs;
 
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.util.ast.Node;
 import nbbrd.design.VisibleForTesting;
+import nbbrd.heylogs.Failure;
+import nbbrd.heylogs.Rule;
+import nbbrd.heylogs.Version;
 import nbbrd.service.ServiceProvider;
 import org.semver4j.Semver;
 

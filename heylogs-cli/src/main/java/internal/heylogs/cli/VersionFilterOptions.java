@@ -1,5 +1,6 @@
 package internal.heylogs.cli;
 
+import nbbrd.heylogs.TimeRange;
 import nbbrd.heylogs.VersionFilter;
 import picocli.CommandLine;
 
@@ -30,7 +31,7 @@ public class VersionFilterOptions {
             description = "",
             converter = LenientDateConverter.class
     )
-    private LocalDate from = VersionFilter.DEFAULT.getFrom();
+    private LocalDate from = VersionFilter.DEFAULT.getTimeRange().getFrom();
 
     @CommandLine.Option(
             names = {"--to"},
@@ -38,7 +39,7 @@ public class VersionFilterOptions {
             description = "",
             converter = LenientDateConverter.class
     )
-    private LocalDate to = VersionFilter.DEFAULT.getTo();
+    private LocalDate to = VersionFilter.DEFAULT.getTimeRange().getTo();
 
     @CommandLine.Option(
             names = {"--limit"},
@@ -51,8 +52,7 @@ public class VersionFilterOptions {
                 .builder()
                 .ref(ref)
                 .unreleasedPattern(unreleasedPattern)
-                .from(from)
-                .to(to)
+                .timeRange(TimeRange.of(from, to))
                 .limit(limit)
                 .build();
     }

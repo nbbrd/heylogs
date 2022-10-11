@@ -4,7 +4,6 @@ import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.util.ast.Node;
 import org.semver4j.Semver;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -14,6 +13,7 @@ import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
+import static nbbrd.heylogs.TimeRange.toTimeRange;
 
 @lombok.Value
 public class Scan {
@@ -25,60 +25,38 @@ public class Scan {
                 .map(Version::parse)
                 .collect(Collectors.partitioningBy(Version::isUnreleased));
 
+        boolean compatibleWithSemver = isCompatibleWithSemver(versionByType.get(false));
+
         return new Scan(
                 versionByType.get(false).size(),
-                TimeRange.of(versionByType.get(false)),
-                SemverSummary.of(versionByType.get(false)),
+                versionByType.get(false).stream().map(Version::getDate).collect(toTimeRange()).orElse(TimeRange.ALL),
+                compatibleWithSemver,
+                compatibleWithSemver ? getDetails(versionByType.get(false)) : "",
                 versionByType.containsKey(true)
         );
     }
 
     int releaseCount;
     TimeRange timeRange;
-    SemverSummary semverSummary;
+    boolean compatibleWithSemver;
+    String semverDetails;
     boolean hasUnreleasedSection;
 
-    @lombok.Value
-    public static class TimeRange {
-
-        public static final TimeRange NONE = new TimeRange(LocalDate.MIN, LocalDate.MAX);
-
-        public static TimeRange of(List<Version> versions) {
-            return versions.isEmpty() ? NONE : new TimeRange(versions.get(versions.size() - 1).getDate(), versions.get(0).getDate());
-        }
-
-        LocalDate fist;
-        LocalDate last;
+    private static boolean isCompatibleWithSemver(List<Version> releases) {
+        return releases.stream().map(Version::getRef).allMatch(Semver::isValid);
     }
 
-    @lombok.Value
-    public static class SemverSummary {
+    private static String getDetails(List<Version> releases) {
+        List<Semver> semvers = releases.stream().map(Version::getRef).map(Semver::parse).collect(toList());
 
-        public static SemverSummary of(List<Version> releases) {
-            if (!isCompatibleWithSemver(releases)) {
-                return new SemverSummary(false, "");
-            }
+        SortedMap<Semver.VersionDiff, List<Semver.VersionDiff>> diffs = IntStream.range(1, semvers.size())
+                .mapToObj(i -> semvers.get(i).diff(semvers.get(i - 1)))
+                .collect(groupingBy((Semver.VersionDiff o) -> o, TreeMap::new, toList()));
 
-            List<Semver> semvers = releases.stream().map(Version::getRef).map(Semver::parse).collect(toList());
-
-            SortedMap<Semver.VersionDiff, List<Semver.VersionDiff>> diffs = IntStream.range(1, semvers.size())
-                    .mapToObj(i -> semvers.get(i).diff(semvers.get(i - 1)))
-                    .collect(groupingBy((Semver.VersionDiff o) -> o, TreeMap::new, toList()));
-
-            String details = diffs
-                    .entrySet()
-                    .stream()
-                    .map(entry -> entry.getValue().size() + " " + entry.getKey().toString())
-                    .collect(Collectors.joining(", ", " (", ")"));
-
-            return new SemverSummary(true, details);
-        }
-
-        private static boolean isCompatibleWithSemver(List<Version> releases) {
-            return releases.stream().map(Version::getRef).allMatch(Semver::isValid);
-        }
-
-        boolean compatibleWithSemver;
-        String details;
+        return diffs
+                .entrySet()
+                .stream()
+                .map(entry -> entry.getValue().size() + " " + entry.getKey().toString())
+                .collect(Collectors.joining(", ", " (", ")"));
     }
 }

@@ -14,24 +14,24 @@ class ScanTest {
         assertThat(Scan.of(using("Empty.md")))
                 .isEqualTo(new Scan(
                         0,
-                        Scan.TimeRange.NONE,
-                        new Scan.SemverSummary(true, " ()"),
+                        TimeRange.ALL,
+                        true, " ()",
                         true
                 ));
 
         assertThat(Scan.of(using("Main.md")))
                 .isEqualTo(new Scan(
                         13,
-                        new Scan.TimeRange(LocalDate.of(2014, 5, 31), LocalDate.of(2019, 2, 15)),
-                        new Scan.SemverSummary(true, " (1 MAJOR, 4 MINOR, 7 PATCH)"),
+                        TimeRange.of(LocalDate.of(2014, 5, 31), LocalDate.of(2019, 2, 15)),
+                        true, " (1 MAJOR, 4 MINOR, 7 PATCH)",
                         true
                 ));
 
         assertThat(Scan.of(using("InvalidSemver.md")))
                 .isEqualTo(new Scan(
                         2,
-                        new Scan.TimeRange(LocalDate.of(2019, 2, 15), LocalDate.of(2019, 2, 15)),
-                        new Scan.SemverSummary(false, ""),
+                        TimeRange.of(LocalDate.of(2019, 2, 15), LocalDate.of(2019, 2, 15)),
+                        false, "",
                         true
                 ));
     }

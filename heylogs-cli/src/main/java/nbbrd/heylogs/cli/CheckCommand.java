@@ -1,5 +1,6 @@
 package nbbrd.heylogs.cli;
 
+import internal.heylogs.StylishFormatter;
 import internal.heylogs.cli.MarkdownInputOptions;
 import nbbrd.console.picocli.text.TextOutputOptions;
 import nbbrd.heylogs.*;

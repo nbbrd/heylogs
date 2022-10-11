@@ -1,14 +1,19 @@
-package nbbrd.heylogs;
+package internal.heylogs;
 
 import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.ast.LinkNodeBase;
 import com.vladsch.flexmark.util.ast.Node;
+import internal.heylogs.ExtendedRules;
+import nbbrd.heylogs.Failure;
+import nbbrd.heylogs.Nodes;
+import nbbrd.heylogs.Sample;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
 
-import static nbbrd.heylogs.ExtendedRules.GITHUB_ISSUE_REF;
-import static nbbrd.heylogs.ExtendedRules.HTTPS;
+import static internal.heylogs.ExtendedRules.GITHUB_ISSUE_REF;
+import static internal.heylogs.ExtendedRules.HTTPS;
 import static nbbrd.heylogs.Nodes.of;
 import static nbbrd.heylogs.Sample.using;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,7 +25,7 @@ public class ExtendedRulesTest {
     public void test() {
         Node sample = Sample.using("Main.md");
         for (ExtendedRules rule : ExtendedRules.values()) {
-            assertThat(Nodes.of(Node.class).descendants(sample).map(rule::validate).filter(Objects::nonNull))
+            Assertions.assertThat(Nodes.of(Node.class).descendants(sample).map(rule::validate).filter(Objects::nonNull))
                     .isEmpty();
         }
     }

@@ -3,6 +3,7 @@ package nbbrd.heylogs.maven.plugin;
 import com.vladsch.flexmark.formatter.Formatter;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
+import nbbrd.heylogs.TimeRange;
 import nbbrd.heylogs.VersionFilter;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -77,8 +78,7 @@ public final class ExtractMojo extends AbstractMojo {
                 .builder()
                 .ref(Objects.toString(ref, ""))
                 .unreleasedPattern(fetchUnreleasedPattern())
-                .from(fetchFrom())
-                .to(fetchTo())
+                .timeRange(TimeRange.of(fetchFrom(), fetchTo()))
                 .limit(limit)
                 .build();
     }

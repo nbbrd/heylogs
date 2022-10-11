@@ -1,5 +1,7 @@
-package nbbrd.heylogs;
+package internal.heylogs;
 
+import nbbrd.heylogs.Failure;
+import nbbrd.heylogs.FailureFormatter;
 import nbbrd.service.ServiceProvider;
 
 import java.io.IOException;

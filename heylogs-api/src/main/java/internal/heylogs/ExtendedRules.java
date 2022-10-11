@@ -1,9 +1,12 @@
-package nbbrd.heylogs;
+package internal.heylogs;
 
 import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.ast.LinkNodeBase;
 import com.vladsch.flexmark.util.ast.Node;
 import nbbrd.design.VisibleForTesting;
+import nbbrd.heylogs.Failure;
+import nbbrd.heylogs.Rule;
+import nbbrd.heylogs.RuleBatch;
 import nbbrd.service.ServiceProvider;
 
 import java.net.MalformedURLException;

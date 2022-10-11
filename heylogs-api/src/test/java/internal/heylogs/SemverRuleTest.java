@@ -1,7 +1,9 @@
-package nbbrd.heylogs;
+package internal.heylogs;
 
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.util.ast.Node;
+import internal.heylogs.SemverRule;
+import nbbrd.heylogs.Failure;
 import org.junit.jupiter.api.Test;
 
 import java.util.Objects;

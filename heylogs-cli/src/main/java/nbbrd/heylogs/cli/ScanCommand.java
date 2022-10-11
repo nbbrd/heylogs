@@ -28,10 +28,10 @@ public final class ScanCommand implements Callable<Void> {
             System.out.println("  No release found");
         } else {
             System.out.printf("  Found %d releases%n", report.getReleaseCount());
-            System.out.printf("  Ranging from %s to %s%n", report.getTimeRange().getFist(), report.getTimeRange().getLast());
+            System.out.printf("  Ranging from %s to %s%n", report.getTimeRange().getFrom(), report.getTimeRange().getTo());
 
-            if (report.getSemverSummary().isCompatibleWithSemver())
-                System.out.println("  Compatible with Semantic Versioning" + report.getSemverSummary().getDetails());
+            if (report.isCompatibleWithSemver())
+                System.out.println("  Compatible with Semantic Versioning" + report.getSemverDetails());
             else
                 System.out.println("  Not compatible with Semantic Versioning");
         }
