@@ -1,69 +1,56 @@
 package nbbrd.heylogs.cli;
 
-import internal.heylogs.StylishFormatter;
-import internal.heylogs.cli.MarkdownInputOptions;
-import nbbrd.console.picocli.text.TextOutputOptions;
-import nbbrd.heylogs.*;
+import internal.heylogs.cli.FailureFormatOptions;
+import internal.heylogs.cli.MarkdownInputSupport;
+import internal.heylogs.cli.RuleSetOptions;
+import nbbrd.console.picocli.FileOutputOptions;
+import nbbrd.console.picocli.MultiFileInputOptions;
+import nbbrd.heylogs.Failure;
+import nbbrd.heylogs.FailureFormatter;
+import nbbrd.heylogs.Rule;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 import java.io.Writer;
-import java.util.Iterator;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import static internal.heylogs.cli.MarkdownInputSupport.newMarkdownInputSupport;
+import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
+
 @Command(name = "check")
-public final class CheckCommand implements Callable<Integer> {
+public final class CheckCommand implements Callable<Void> {
 
     @CommandLine.Mixin
-    private MarkdownInputOptions input;
+    private MultiFileInputOptions input;
 
     @CommandLine.Mixin
-    private TextOutputOptions output;
+    private FileOutputOptions output;
 
-    @CommandLine.Option(
-            names = {"-f", "--format"},
-            defaultValue = "stylish",
-            description = "Specify the formatter used to control the appearance of the result. Valid values: ${COMPLETION-CANDIDATES}.",
-            completionCandidates = FormatCandidates.class
-    )
-    private String format;
+    @CommandLine.Mixin
+    private RuleSetOptions ruleSet;
 
-    @CommandLine.Option(
-            names = {"--semver"},
-            defaultValue = "false",
-            description = "Mention if this changelog follows Semantic Versioning."
-    )
-    private boolean semver;
+    @CommandLine.Mixin
+    private FailureFormatOptions format;
 
     @Override
-    public Integer call() throws Exception {
-        if (semver) {
-            System.setProperty(Rule.ENABLE_KEY, "semver");
+    public Void call() throws Exception {
+        try (Writer writer = newTextOutputSupport().newBufferedWriter(output.getFile())) {
+
+            List<Rule> rules = ruleSet.getRules();
+            FailureFormatter formatter = format.getFormatter();
+            MarkdownInputSupport markdown = newMarkdownInputSupport();
+
+            for (Path file : input.getAllFiles(markdown::accept)) {
+                formatter.format(
+                        writer,
+                        markdown.getName(file),
+                        Failure.allOf(markdown.readDocument(file), rules)
+                );
+            }
         }
 
-        List<Failure> failures = Failure.allOf(input.read(), RuleLoader.load());
-
-        try (Writer writer = output.newCharWriter()) {
-            FailureFormatterLoader.load()
-                    .stream()
-                    .filter(formatter -> formatter.getName().equals(format))
-                    .findFirst()
-                    .orElse(new StylishFormatter())
-                    .format(writer, input.hasFile() ? input.getFile().toString() : "stdin", failures);
-        }
-
-        return failures.isEmpty() ? CommandLine.ExitCode.OK : CommandLine.ExitCode.USAGE;
-    }
-
-    public static final class FormatCandidates implements Iterable<String> {
-
-        @Override
-        public Iterator<String> iterator() {
-            return FailureFormatterLoader.load()
-                    .stream()
-                    .map(FailureFormatter::getName)
-                    .iterator();
-        }
+        return null;
     }
 }

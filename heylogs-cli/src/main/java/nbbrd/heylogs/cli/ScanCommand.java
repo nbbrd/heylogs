@@ -1,40 +1,67 @@
 package nbbrd.heylogs.cli;
 
-import com.vladsch.flexmark.util.ast.Node;
-import internal.heylogs.cli.MarkdownInputOptions;
+import internal.heylogs.cli.MarkdownInputSupport;
+import nbbrd.console.picocli.FileOutputOptions;
+import nbbrd.console.picocli.MultiFileInputOptions;
 import nbbrd.heylogs.Scan;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.concurrent.Callable;
+
+import static internal.heylogs.cli.MarkdownInputSupport.newMarkdownInputSupport;
+import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
 
 @Command(name = "scan")
 public final class ScanCommand implements Callable<Void> {
 
     @CommandLine.Mixin
-    private MarkdownInputOptions input;
+    private MultiFileInputOptions input;
+
+    @CommandLine.Mixin
+    private FileOutputOptions output;
 
     @Override
     public Void call() throws Exception {
-        Node document = input.read();
-        Scan report = Scan.of(document);
-        print(report);
+        try (BufferedWriter writer = newTextOutputSupport().newBufferedWriter(output.getFile())) {
+
+            MarkdownInputSupport markdown = newMarkdownInputSupport();
+
+            for (Path file : input.getAllFiles(markdown::accept)) {
+                write(
+                        writer,
+                        markdown.getName(file),
+                        Scan.of(markdown.readDocument(file)));
+            }
+        }
+
         return null;
     }
 
-    private void print(Scan report) {
-        System.out.println(input.getFile());
-        if (report.getReleaseCount() == 0) {
-            System.out.println("  No release found");
+    private static void write(BufferedWriter writer, String source, Scan scan) throws IOException {
+        writer.write(source);
+        writer.newLine();
+        if (scan.getReleaseCount() == 0) {
+            writer.append("  No release found");
+            writer.newLine();
         } else {
-            System.out.printf("  Found %d releases%n", report.getReleaseCount());
-            System.out.printf("  Ranging from %s to %s%n", report.getTimeRange().getFrom(), report.getTimeRange().getTo());
+            writer.append(String.format("  Found %d releases", scan.getReleaseCount()));
+            writer.newLine();
+            writer.append(String.format("  Ranging from %s to %s", scan.getTimeRange().getFrom(), scan.getTimeRange().getTo()));
+            writer.newLine();
 
-            if (report.isCompatibleWithSemver())
-                System.out.println("  Compatible with Semantic Versioning" + report.getSemverDetails());
-            else
-                System.out.println("  Not compatible with Semantic Versioning");
+            if (scan.isCompatibleWithSemver()) {
+                writer.append("  Compatible with Semantic Versioning" + scan.getSemverDetails());
+                writer.newLine();
+            } else {
+                writer.append("  Not compatible with Semantic Versioning");
+                writer.newLine();
+            }
         }
-        System.out.println(report.isHasUnreleasedSection() ? "  Has an unreleased version" : "  Has no unreleased version");
+        writer.append(scan.isHasUnreleasedSection() ? "  Has an unreleased version" : "  Has no unreleased version");
+        writer.newLine();
     }
 }
