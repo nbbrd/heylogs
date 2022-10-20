@@ -4,10 +4,7 @@ import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.util.ast.Node;
 import org.semver4j.Semver;
 
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -22,7 +19,8 @@ public class Scan {
         Map<Boolean, List<Version>> versionByType = Nodes.of(Heading.class)
                 .descendants(document)
                 .filter(Version::isVersionLevel)
-                .map(Version::parse)
+                .map(Scan::parseVersionOrNull)
+                .filter(Objects::nonNull)
                 .collect(Collectors.partitioningBy(Version::isUnreleased));
 
         boolean compatibleWithSemver = isCompatibleWithSemver(versionByType.get(false));
@@ -34,6 +32,14 @@ public class Scan {
                 compatibleWithSemver ? getDetails(versionByType.get(false)) : "",
                 versionByType.containsKey(true)
         );
+    }
+
+    private static Version parseVersionOrNull(Heading heading) {
+        try {
+            return Version.parse(heading);
+        } catch (IllegalArgumentException ex) {
+            return null;
+        }
     }
 
     int releaseCount;
