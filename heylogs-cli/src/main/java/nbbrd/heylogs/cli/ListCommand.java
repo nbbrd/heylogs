@@ -29,8 +29,8 @@ public final class ListCommand implements Callable<Void> {
     @CommandLine.Mixin
     private FileOutputOptions output;
 
-    @CommandLine.ArgGroup(heading = "%nFilters:%n")
-    private VersionFilterOptions filter;
+    @CommandLine.ArgGroup(heading = "%nFilters:%n", exclusive = false)
+    private final VersionFilterOptions filter = new VersionFilterOptions();
 
     @Override
     public Void call() throws Exception {

@@ -63,5 +63,6 @@ public final class ScanCommand implements Callable<Void> {
         }
         writer.append(scan.isHasUnreleasedSection() ? "  Has an unreleased version" : "  Has no unreleased version");
         writer.newLine();
+        writer.newLine();
     }
 }

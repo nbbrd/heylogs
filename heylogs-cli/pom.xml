@@ -134,6 +134,7 @@
                         </goals>
                         <configuration>
                             <inputFile>${project.parent.basedir}/CHANGELOG.md</inputFile>
+                            <semver>true</semver>
                         </configuration>
                     </execution>
                 </executions>
