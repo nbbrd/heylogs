@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import static internal.heylogs.cli.MarkdownInputSupport.newMarkdownInputSupport;
 import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
 
-@Command(name = "list")
+@Command(name = "list", description = "List versions from changelog.")
 public final class ListCommand implements Callable<Void> {
 
     @CommandLine.Mixin

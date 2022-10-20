@@ -11,6 +11,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Add optional semantic versioning rule [#22](https://github.com/nbbrd/heylogs/issues/22)
 - Add command to scan content of changelog [#26](https://github.com/nbbrd/heylogs/issues/26)
+- Add missing descriptions in CLI [#29](https://github.com/nbbrd/heylogs/issues/29)
 
 ### Changed
 

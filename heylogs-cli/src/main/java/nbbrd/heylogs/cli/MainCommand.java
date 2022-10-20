@@ -29,6 +29,10 @@ import java.util.concurrent.Callable;
                 CheckCommand.class,
                 ExtractCommand.class,
                 DebugCommand.class
+        },
+        description = {
+                "Set of tools to deal with the @|bold keep-a-changelog|@ format.",
+                "%nMore info at https://github.com/nbbrd/heylogs"
         }
 )
 public final class MainCommand implements Callable<Void> {

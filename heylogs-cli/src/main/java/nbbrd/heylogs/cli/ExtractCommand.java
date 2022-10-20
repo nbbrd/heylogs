@@ -4,7 +4,6 @@ import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.cli.VersionFilterOptions;
 import nbbrd.console.picocli.FileInputParameters;
 import nbbrd.console.picocli.FileOutputOptions;
-import nbbrd.console.picocli.FileOutputParameters;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -14,7 +13,7 @@ import java.util.concurrent.Callable;
 import static internal.heylogs.cli.MarkdownInputSupport.newMarkdownInputSupport;
 import static internal.heylogs.cli.MarkdownOutputSupport.newMarkdownOutputSupport;
 
-@Command(name = "extract")
+@Command(name = "extract", description = "Extract versions from changelog.")
 public final class ExtractCommand implements Callable<Void> {
 
     @CommandLine.Mixin

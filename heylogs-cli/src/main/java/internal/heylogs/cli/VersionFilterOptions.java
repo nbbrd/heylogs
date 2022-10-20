@@ -14,21 +14,21 @@ public class VersionFilterOptions {
     @CommandLine.Option(
             names = {"--ref"},
             paramLabel = "<ref>",
-            description = ""
+            description = "Filter versions by name."
     )
     private String ref = VersionFilter.DEFAULT.getRef();
 
     @CommandLine.Option(
             names = {"--unreleased-pattern"},
             paramLabel = "<pattern>",
-            description = ""
+            description = "Assume that versions that match this pattern are unreleased."
     )
     private Pattern unreleasedPattern = VersionFilter.DEFAULT.getUnreleasedPattern();
 
     @CommandLine.Option(
             names = {"--from"},
             paramLabel = "<date>",
-            description = "",
+            description = "Filter versions by min date (included).",
             converter = LenientDateConverter.class
     )
     private LocalDate from = VersionFilter.DEFAULT.getTimeRange().getFrom();
@@ -36,14 +36,14 @@ public class VersionFilterOptions {
     @CommandLine.Option(
             names = {"--to"},
             paramLabel = "<date>",
-            description = "",
+            description = "Filter versions by max date (included).",
             converter = LenientDateConverter.class
     )
     private LocalDate to = VersionFilter.DEFAULT.getTimeRange().getTo();
 
     @CommandLine.Option(
             names = {"--limit"},
-            description = ""
+            description = "Limit the number of versions."
     )
     private int limit = VersionFilter.DEFAULT.getLimit();
 

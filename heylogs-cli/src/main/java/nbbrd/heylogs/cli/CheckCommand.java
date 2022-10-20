@@ -19,7 +19,7 @@ import java.util.concurrent.Callable;
 import static internal.heylogs.cli.MarkdownInputSupport.newMarkdownInputSupport;
 import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
 
-@Command(name = "check")
+@Command(name = "check", description = "Check changelog format.")
 public final class CheckCommand implements Callable<Void> {
 
     @CommandLine.Mixin
