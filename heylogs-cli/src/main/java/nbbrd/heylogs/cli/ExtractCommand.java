@@ -22,7 +22,7 @@ public final class ExtractCommand implements Callable<Void> {
     @CommandLine.Mixin
     private FileOutputOptions output;
 
-    @CommandLine.Mixin
+    @CommandLine.ArgGroup(heading = "%nFilters:%n")
     private VersionFilterOptions filter;
 
     @Override

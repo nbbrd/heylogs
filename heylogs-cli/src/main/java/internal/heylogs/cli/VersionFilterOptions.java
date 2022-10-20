@@ -12,21 +12,21 @@ import java.util.regex.Pattern;
 public class VersionFilterOptions {
 
     @CommandLine.Option(
-            names = {"--ref"},
+            names = {"-r", "--ref"},
             paramLabel = "<ref>",
             description = "Filter versions by name."
     )
     private String ref = VersionFilter.DEFAULT.getRef();
 
     @CommandLine.Option(
-            names = {"--unreleased-pattern"},
+            names = {"-u", "--unreleased"},
             paramLabel = "<pattern>",
             description = "Assume that versions that match this pattern are unreleased."
     )
     private Pattern unreleasedPattern = VersionFilter.DEFAULT.getUnreleasedPattern();
 
     @CommandLine.Option(
-            names = {"--from"},
+            names = {"-f", "--from"},
             paramLabel = "<date>",
             description = "Filter versions by min date (included).",
             converter = LenientDateConverter.class
@@ -34,7 +34,7 @@ public class VersionFilterOptions {
     private LocalDate from = VersionFilter.DEFAULT.getTimeRange().getFrom();
 
     @CommandLine.Option(
-            names = {"--to"},
+            names = {"-t", "--to"},
             paramLabel = "<date>",
             description = "Filter versions by max date (included).",
             converter = LenientDateConverter.class
@@ -42,7 +42,7 @@ public class VersionFilterOptions {
     private LocalDate to = VersionFilter.DEFAULT.getTimeRange().getTo();
 
     @CommandLine.Option(
-            names = {"--limit"},
+            names = {"-l", "--limit"},
             description = "Limit the number of versions."
     )
     private int limit = VersionFilter.DEFAULT.getLimit();

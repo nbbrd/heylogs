@@ -29,7 +29,7 @@ public final class ListCommand implements Callable<Void> {
     @CommandLine.Mixin
     private FileOutputOptions output;
 
-    @CommandLine.Mixin
+    @CommandLine.ArgGroup(heading = "%nFilters:%n")
     private VersionFilterOptions filter;
 
     @Override

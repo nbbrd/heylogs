@@ -11,7 +11,7 @@ import java.util.List;
 public class RuleSetOptions {
 
     @CommandLine.Option(
-            names = {"--semver"},
+            names = {"-s", "--semver"},
             defaultValue = "false",
             description = "Mention if this changelog follows Semantic Versioning."
     )
