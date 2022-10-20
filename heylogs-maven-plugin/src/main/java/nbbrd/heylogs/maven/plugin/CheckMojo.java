@@ -3,6 +3,7 @@ package nbbrd.heylogs.maven.plugin;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
 import nbbrd.heylogs.Failure;
+import nbbrd.heylogs.Rule;
 import nbbrd.heylogs.RuleLoader;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -25,6 +26,9 @@ public final class CheckMojo extends AbstractMojo {
     @Parameter(defaultValue = "false", property = "heylogs.skip")
     private boolean skip;
 
+    @Parameter(defaultValue = "false", property = "heylogs.semver")
+    private boolean semver;
+
     @Override
     public void execute() throws MojoExecutionException {
         if (skip) {
@@ -40,6 +44,11 @@ public final class CheckMojo extends AbstractMojo {
         try {
             getLog().info("Reading " + inputFile);
             Document changelog = read();
+
+            if (semver) {
+                getLog().info("Using semver rule");
+                System.setProperty(Rule.ENABLE_KEY, "semver");
+            }
 
             List<Failure> failures = Failure.allOf(changelog, RuleLoader.load());
             if (!failures.isEmpty()) {

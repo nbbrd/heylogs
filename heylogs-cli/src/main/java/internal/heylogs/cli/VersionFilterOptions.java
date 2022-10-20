@@ -1,5 +1,6 @@
 package internal.heylogs.cli;
 
+import nbbrd.heylogs.TimeRange;
 import nbbrd.heylogs.VersionFilter;
 import picocli.CommandLine;
 
@@ -11,38 +12,38 @@ import java.util.regex.Pattern;
 public class VersionFilterOptions {
 
     @CommandLine.Option(
-            names = {"--ref"},
+            names = {"-r", "--ref"},
             paramLabel = "<ref>",
-            description = ""
+            description = "Filter versions by name."
     )
     private String ref = VersionFilter.DEFAULT.getRef();
 
     @CommandLine.Option(
-            names = {"--unreleased-pattern"},
+            names = {"-u", "--unreleased"},
             paramLabel = "<pattern>",
-            description = ""
+            description = "Assume that versions that match this pattern are unreleased."
     )
     private Pattern unreleasedPattern = VersionFilter.DEFAULT.getUnreleasedPattern();
 
     @CommandLine.Option(
-            names = {"--from"},
+            names = {"-f", "--from"},
             paramLabel = "<date>",
-            description = "",
+            description = "Filter versions by min date (included).",
             converter = LenientDateConverter.class
     )
-    private LocalDate from = VersionFilter.DEFAULT.getFrom();
+    private LocalDate from = VersionFilter.DEFAULT.getTimeRange().getFrom();
 
     @CommandLine.Option(
-            names = {"--to"},
+            names = {"-t", "--to"},
             paramLabel = "<date>",
-            description = "",
+            description = "Filter versions by max date (included).",
             converter = LenientDateConverter.class
     )
-    private LocalDate to = VersionFilter.DEFAULT.getTo();
+    private LocalDate to = VersionFilter.DEFAULT.getTimeRange().getTo();
 
     @CommandLine.Option(
-            names = {"--limit"},
-            description = ""
+            names = {"-l", "--limit"},
+            description = "Limit the number of versions."
     )
     private int limit = VersionFilter.DEFAULT.getLimit();
 
@@ -51,8 +52,7 @@ public class VersionFilterOptions {
                 .builder()
                 .ref(ref)
                 .unreleasedPattern(unreleasedPattern)
-                .from(from)
-                .to(to)
+                .timeRange(TimeRange.of(from, to))
                 .limit(limit)
                 .build();
     }

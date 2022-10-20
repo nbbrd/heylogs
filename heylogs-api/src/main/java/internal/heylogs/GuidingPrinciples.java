@@ -1,4 +1,4 @@
-package nbbrd.heylogs;
+package internal.heylogs;
 
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.ast.Reference;
@@ -7,6 +7,7 @@ import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
 import nbbrd.design.VisibleForTesting;
+import nbbrd.heylogs.*;
 import nbbrd.service.ServiceProvider;
 import org.jetbrains.annotations.NotNull;
 
@@ -62,6 +63,11 @@ public enum GuidingPrinciples implements Rule {
     @Override
     public String getName() {
         return name().toLowerCase(Locale.ROOT).replace('_', '-');
+    }
+
+    @Override
+    public boolean isAvailable() {
+        return true;
     }
 
     @VisibleForTesting

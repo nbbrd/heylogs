@@ -9,8 +9,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@lombok.Value
-@lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
+@lombok.Value(staticConstructor = "of")
 public class Failure {
 
     @lombok.NonNull

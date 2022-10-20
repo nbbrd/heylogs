@@ -28,11 +28,7 @@ public class VersionFilter {
 
     @lombok.NonNull
     @lombok.Builder.Default
-    LocalDate from = LocalDate.MIN;
-
-    @lombok.NonNull
-    @lombok.Builder.Default
-    LocalDate to = LocalDate.MAX;
+    TimeRange timeRange = TimeRange.ALL;
 
     @lombok.Builder.Default
     int limit = Integer.MAX_VALUE;
@@ -50,9 +46,7 @@ public class VersionFilter {
     }
 
     public boolean contains(Version version) {
-        return containsRef(version)
-                && from.compareTo(version.getDate()) <= 0
-                && (to.isAfter(version.getDate()) || (to.equals(LocalDate.MAX) && version.isUnreleased()));
+        return containsRef(version) && timeRange.contains(version.getDate());
     }
 
     public void apply(Document root) {

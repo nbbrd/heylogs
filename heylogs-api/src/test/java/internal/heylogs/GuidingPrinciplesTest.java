@@ -1,12 +1,14 @@
-package nbbrd.heylogs;
+package internal.heylogs;
 
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.util.ast.Node;
+import internal.heylogs.GuidingPrinciples;
+import nbbrd.heylogs.Failure;
 import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
 
-import static nbbrd.heylogs.GuidingPrinciples.*;
+import static internal.heylogs.GuidingPrinciples.*;
 import static nbbrd.heylogs.Nodes.of;
 import static nbbrd.heylogs.Sample.using;
 import static org.assertj.core.api.Assertions.assertThat;

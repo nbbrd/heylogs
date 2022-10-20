@@ -6,7 +6,7 @@
 
     <groupId>com.github.nbbrd.heylogs</groupId>
     <artifactId>heylogs-parent</artifactId>
-    <version>0.3.2</version>
+    <version>0.4.0</version>
     <packaging>pom</packaging>
 
     <name>heylogs</name>
@@ -42,7 +42,7 @@
             <dependency>
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
-                <version>3.25.0</version>
+                <version>3.26.0</version>
             </dependency>
 
             <!-- test libraries -->
@@ -447,7 +447,7 @@
                     <plugin>
                         <groupId>com.amashchenko.maven.plugin</groupId>
                         <artifactId>gitflow-maven-plugin</artifactId>
-                        <version>1.18.0</version>
+                        <version>1.19.0</version>
                         <configuration>
                             <gitFlowConfig>
                                 <versionTagPrefix>v</versionTagPrefix>

@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.github.nbbrd.heylogs</groupId>
         <artifactId>heylogs-parent</artifactId>
-        <version>0.3.2</version>
+        <version>0.4.0</version>
     </parent>
 
     <artifactId>heylogs-api</artifactId>
@@ -46,6 +46,11 @@
             <artifactId>flexmark</artifactId>
             <!-- last version for Java8 -->
             <version>0.62.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.semver4j</groupId>
+            <artifactId>semver4j</artifactId>
+            <version>2.1.1</version>
         </dependency>
 
         <!-- test only -->
