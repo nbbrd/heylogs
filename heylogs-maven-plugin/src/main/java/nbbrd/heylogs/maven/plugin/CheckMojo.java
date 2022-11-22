@@ -18,7 +18,7 @@ import java.io.Reader;
 import java.nio.file.Files;
 import java.util.List;
 
-@Mojo(name = "check", defaultPhase = LifecyclePhase.GENERATE_RESOURCES, threadSafe = true)
+@Mojo(name = "check", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
 public final class CheckMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "${project.basedir}/CHANGELOG.md", property = "heylogs.input.file")

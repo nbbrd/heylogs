@@ -13,7 +13,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
-- Modify check goal in Maven plugin to raise error if changelog is missing on root project
+- Modify check goal in Maven plugin to raise error if changelog is missing on root project [#46](https://github.com/nbbrd/heylogs/issues/46)
+- Change default phase of check goal to `VALIDATE` in Maven plugin [#47](https://github.com/nbbrd/heylogs/issues/47)
 
 ## [0.4.0] - 2022-10-20
 
