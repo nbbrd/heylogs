@@ -10,6 +10,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.semver4j.Semver;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,6 +30,9 @@ public final class CheckMojo extends AbstractMojo {
     @Parameter(defaultValue = "false", property = "heylogs.semver")
     private boolean semver;
 
+    @Parameter(defaultValue = "${project.version}", readonly = true)
+    private String projectVersion;
+
     @Override
     public void execute() throws MojoExecutionException {
         if (skip) {
@@ -46,8 +50,14 @@ public final class CheckMojo extends AbstractMojo {
             Document changelog = read();
 
             if (semver) {
-                getLog().info("Using semver rule");
-                System.setProperty(Rule.ENABLE_KEY, "semver");
+                getLog().info("Using Semantic Versioning specification");
+                if (Semver.isValid(projectVersion)) {
+                    getLog().info("Valid project version");
+                    System.setProperty(Rule.ENABLE_KEY, "semver");
+                } else {
+                    getLog().error(String.format("Invalid project version: '%s' must follow Semantic Versioning specification (https://semver.org/)", projectVersion));
+                    throw new MojoExecutionException("Invalid project version. See above for details.");
+                }
             }
 
             List<Failure> failures = Failure.allOf(changelog, RuleLoader.load());
