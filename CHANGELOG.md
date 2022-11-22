@@ -11,6 +11,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Validate project version with Semantic Versioning specification in Maven plugin [#45](https://github.com/nbbrd/heylogs/issues/45)
 
+### Changed
+
+- Modify check goal in Maven plugin to raise error if changelog is missing on root project
+
 ## [0.4.0] - 2022-10-20
 
 ### Added

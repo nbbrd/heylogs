@@ -33,6 +33,9 @@ public final class CheckMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.version}", readonly = true)
     private String projectVersion;
 
+    @Parameter(defaultValue = "${project.basedir}", readonly = true)
+    private File projectBaseDir;
+
     @Override
     public void execute() throws MojoExecutionException {
         if (skip) {
@@ -40,36 +43,65 @@ public final class CheckMojo extends AbstractMojo {
             return;
         }
 
-        if (!inputFile.exists()) {
-            getLog().info("Changelog not found");
-            return;
+        if (semver) {
+            enableSemanticVersioning();
         }
 
+        if (inputFile.exists()) {
+            validateFile();
+        } else {
+            if (isRootProject()) {
+                raiseErrorMissingFile();
+            } else {
+                notifyMissingFile();
+            }
+        }
+    }
+
+    private void enableSemanticVersioning() throws MojoExecutionException {
+        getLog().info("Using Semantic Versioning specification");
+        if (Semver.isValid(projectVersion)) {
+            getLog().info("Valid project version");
+            System.setProperty(Rule.ENABLE_KEY, "semver");
+        } else {
+            getLog().error(String.format("Invalid project version: '%s' must follow Semantic Versioning specification (https://semver.org/)", projectVersion));
+            throw new MojoExecutionException("Invalid project version. See above for details.");
+        }
+    }
+
+    private void validateFile() throws MojoExecutionException {
         try {
             getLog().info("Reading " + inputFile);
             Document changelog = read();
 
-            if (semver) {
-                getLog().info("Using Semantic Versioning specification");
-                if (Semver.isValid(projectVersion)) {
-                    getLog().info("Valid project version");
-                    System.setProperty(Rule.ENABLE_KEY, "semver");
-                } else {
-                    getLog().error(String.format("Invalid project version: '%s' must follow Semantic Versioning specification (https://semver.org/)", projectVersion));
-                    throw new MojoExecutionException("Invalid project version. See above for details.");
-                }
-            }
-
             List<Failure> failures = Failure.allOf(changelog, RuleLoader.load());
             if (!failures.isEmpty()) {
-                getLog().error("Invalid CHANGELOG");
+                getLog().error("Invalid changelog");
                 failures.forEach(failure -> getLog().error(failure.toString()));
-                throw new MojoExecutionException("Invalid CHANGELOG");
+                throw new MojoExecutionException("Invalid changelog");
             }
-            getLog().info("Valid CHANGELOG");
+            getLog().info("Valid changelog");
         } catch (IOException ex) {
             throw new MojoExecutionException("Error while checking changelog", ex);
         }
+    }
+
+    private boolean isRootProject() {
+        File parentDir = projectBaseDir.getParentFile();
+        if (parentDir != null) {
+            File parentPom = new File(parentDir, "pom.xml");
+            return !parentPom.exists();
+        }
+        return true;
+    }
+
+    private void raiseErrorMissingFile() throws MojoExecutionException {
+        getLog().error("Missing changelog");
+        throw new MojoExecutionException("Missing changelog");
+    }
+
+    private void notifyMissingFile() {
+        getLog().info("Changelog not found");
     }
 
     public Document read() throws IOException {
