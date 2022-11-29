@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.5.0] - 2022-11-29
+
 ### Added
 
 - Validate project version with Semantic Versioning specification in Maven plugin [#45](https://github.com/nbbrd/heylogs/issues/45)
@@ -65,7 +67,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Initial release
 
-[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/nbbrd/heylogs/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/nbbrd/heylogs/compare/v0.3.2...v0.4.0
 [0.3.2]: https://github.com/nbbrd/heylogs/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/nbbrd/heylogs/compare/v0.3.0...v0.3.1
