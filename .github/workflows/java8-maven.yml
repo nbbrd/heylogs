@@ -4,20 +4,15 @@ on: [ push, pull_request ]
 
 jobs:
   build-and-test-job:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     strategy:
       fail-fast: false
       matrix:
         java: [ 8, 17 ]
         os: [ ubuntu-latest, macOS-latest, windows-latest ]
-        experimental: [ false ]
-        include:
-          - java: '-ea'
-            os: ubuntu-latest
-            experimental: true
 
     name: JDK${{ matrix.java }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ matrix.experimental }}
 
     steps:
       - name: Checkout source code
