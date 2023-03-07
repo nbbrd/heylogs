@@ -55,11 +55,12 @@ public class Scan {
     private static String getDetails(List<Version> releases) {
         List<Semver> semvers = releases.stream().map(Version::getRef).map(Semver::parse).collect(toList());
 
-        SortedMap<Semver.VersionDiff, List<Semver.VersionDiff>> diffs = IntStream.range(1, semvers.size())
+        TreeMap<Semver.VersionDiff, List<Semver.VersionDiff>> diffs = IntStream.range(1, semvers.size())
                 .mapToObj(i -> semvers.get(i).diff(semvers.get(i - 1)))
                 .collect(groupingBy((Semver.VersionDiff o) -> o, TreeMap::new, toList()));
 
         return diffs
+                .descendingMap()
                 .entrySet()
                 .stream()
                 .map(entry -> entry.getValue().size() + " " + entry.getKey().toString())
