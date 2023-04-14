@@ -6,6 +6,7 @@ import nbbrd.service.ServiceProvider;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 import static java.lang.System.lineSeparator;
 
@@ -30,7 +31,7 @@ public final class StylishFormatter implements FailureFormatter {
 
         for (Failure failure : failures) {
             appendable
-                    .append(String.format("  %" + l + "d:%-" + c + "d  error  %-" + m + "s  %s", failure.getLine(), failure.getColumn(), failure.getMessage(), failure.getRule()))
+                    .append(String.format(Locale.ROOT, "  %" + l + "d:%-" + c + "d  error  %-" + m + "s  %s", failure.getLine(), failure.getColumn(), failure.getMessage(), failure.getRule()))
                     .append(lineSeparator());
         }
 
@@ -43,7 +44,7 @@ public final class StylishFormatter implements FailureFormatter {
                 appendable.append("  1 problem");
                 break;
             default:
-                appendable.append(String.format("  %d problems", failures.size()));
+                appendable.append(String.format(Locale.ROOT, "  %d problems", failures.size()));
                 break;
         }
         appendable.append(lineSeparator());

@@ -7,6 +7,7 @@ import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 public class Sample {
 
@@ -18,7 +19,7 @@ public class Sample {
             if (stream == null) {
                 throw new IllegalArgumentException("Missing resource '" + name + "'");
             }
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
                 return PARSER.parseReader(reader);
             }
         } catch (IOException ex) {

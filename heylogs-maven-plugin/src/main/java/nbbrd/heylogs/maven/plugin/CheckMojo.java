@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Locale;
 
 @Mojo(name = "check", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
 public final class CheckMojo extends AbstractMojo {
@@ -64,7 +65,7 @@ public final class CheckMojo extends AbstractMojo {
             getLog().info("Valid project version");
             System.setProperty(Rule.ENABLE_KEY, "semver");
         } else {
-            getLog().error(String.format("Invalid project version: '%s' must follow Semantic Versioning specification (https://semver.org/)", projectVersion));
+            getLog().error(String.format(Locale.ROOT, "Invalid project version: '%s' must follow Semantic Versioning specification (https://semver.org/)", projectVersion));
             throw new MojoExecutionException("Invalid project version. See above for details.");
         }
     }

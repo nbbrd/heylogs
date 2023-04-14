@@ -10,6 +10,7 @@ import picocli.CommandLine.Command;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Locale;
 import java.util.concurrent.Callable;
 
 import static internal.heylogs.cli.MarkdownInputSupport.newMarkdownInputSupport;
@@ -48,9 +49,9 @@ public final class ScanCommand implements Callable<Void> {
             writer.append("  No release found");
             writer.newLine();
         } else {
-            writer.append(String.format("  Found %d releases", scan.getReleaseCount()));
+            writer.append(String.format(Locale.ROOT, "  Found %d releases", scan.getReleaseCount()));
             writer.newLine();
-            writer.append(String.format("  Ranging from %s to %s", scan.getTimeRange().getFrom(), scan.getTimeRange().getTo()));
+            writer.append(String.format(Locale.ROOT, "  Ranging from %s to %s", scan.getTimeRange().getFrom(), scan.getTimeRange().getTo()));
             writer.newLine();
 
             if (scan.isCompatibleWithSemver()) {
