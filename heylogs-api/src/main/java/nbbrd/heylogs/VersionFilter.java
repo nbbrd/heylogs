@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 public class VersionFilter {
 
     public static final VersionFilter DEFAULT = VersionFilter.builder().build();
+
     @lombok.NonNull
     @lombok.Builder.Default
     String ref = "";

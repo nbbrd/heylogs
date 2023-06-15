@@ -1,6 +1,7 @@
 package nbbrd.heylogs;
 
 import com.vladsch.flexmark.ast.Heading;
+import lombok.NonNull;
 import nbbrd.design.SealedType;
 
 @SealedType({
@@ -10,5 +11,5 @@ import nbbrd.design.SealedType;
 })
 public interface BaseSection {
 
-    Heading toHeading();
+    @NonNull Heading toHeading();
 }

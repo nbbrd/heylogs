@@ -1,26 +1,29 @@
 package nbbrd.heylogs;
 
 import com.vladsch.flexmark.ast.Heading;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
-
+import static nbbrd.heylogs.Changelog.parse;
+import static nbbrd.heylogs.Sample.asHeading;
 import static org.assertj.core.api.Assertions.*;
 
 public class ChangelogTest {
 
     @Test
-    public void testParseHeading() {
-        assertThat(parsingHeading("# Changelog"))
+    public void testParse() {
+        //noinspection DataFlowIssue
+        assertThatNullPointerException()
+                .isThrownBy(() -> parse(null));
+
+        assertThat(parse(asHeading("# Changelog")))
                 .isEqualTo(Changelog.INSTANCE);
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> parsingHeading("## Changelog"))
+                .isThrownBy(() -> parse(asHeading("## Changelog")))
                 .withMessageContaining("Invalid heading level");
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> parsingHeading("# hello"))
+                .isThrownBy(() -> parse(asHeading("# hello")))
                 .withMessageContaining("Invalid text");
 
         assertThat(Nodes.of(Heading.class).descendants(Sample.using("Main.md")).filter(Changelog::isChangelogLevel).map(Changelog::parse))
@@ -29,15 +32,9 @@ public class ChangelogTest {
     }
 
     @Test
-    public void testFormatHeading() {
+    public void testToHeading() {
         assertThat(Changelog.INSTANCE.toHeading())
-                .extracting(Sample::asText)
-                .asString()
+                .extracting(Sample::asText, STRING)
                 .isEqualTo("# Changelog");
-    }
-
-    @NotNull
-    private Changelog parsingHeading(String text) {
-        return Changelog.parse(Sample.asHeading(text));
     }
 }
