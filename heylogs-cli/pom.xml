@@ -127,10 +127,11 @@
                 <version>${project.version}</version>
                 <executions>
                     <execution>
-                        <id>extract-changelog</id>
+                        <id>changelog</id>
                         <goals>
                             <goal>check</goal>
                             <goal>extract</goal>
+                            <goal>scan</goal>
                         </goals>
                         <configuration>
                             <inputFile>${project.parent.basedir}/CHANGELOG.md</inputFile>

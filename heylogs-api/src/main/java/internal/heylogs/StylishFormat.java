@@ -83,6 +83,5 @@ public final class StylishFormat implements Format {
         }
         appendable.append(status.isHasUnreleasedSection() ? "  Has an unreleased version" : "  Has no unreleased version");
         appendable.append(lineSeparator());
-        appendable.append(lineSeparator());
     }
 }

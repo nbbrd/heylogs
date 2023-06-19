@@ -10,12 +10,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 - Add extension point for scan formatting
+- Add scan mojo
 
 ### Changed
 
 - Refactor extension points
 - Merge list command into extract command
-- Improve output of CheckMojo errors
+- Improve output of errors in check mojo 
 
 ## [0.5.0] - 2022-11-29
 
