@@ -1,14 +1,15 @@
-package nbbrd.heylogs;
+package nbbrd.heylogs.spi;
 
 import com.vladsch.flexmark.util.ast.Node;
 import lombok.NonNull;
+import nbbrd.heylogs.Failure;
 import nbbrd.service.Quantifier;
 import nbbrd.service.ServiceDefinition;
 import nbbrd.service.ServiceFilter;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.Arrays;
 import java.util.Properties;
-import java.util.stream.Stream;
 
 @ServiceDefinition(
         quantifier = Quantifier.MULTIPLE,
@@ -16,17 +17,19 @@ import java.util.stream.Stream;
 )
 public interface Rule {
 
-    String getName();
+    @NonNull String getId();
 
-    Failure validate(Node node);
+    @Nullable Failure validate(@NonNull Node node);
 
     @ServiceFilter
     boolean isAvailable();
 
+    Failure NO_PROBLEM = null;
+
     String ENABLE_KEY = "heylogs.rule.enable";
 
-    static boolean isEnabled(@NonNull Properties properties, @NonNull String ruleName) {
+    static boolean isEnabled(@NonNull Properties properties, @NonNull String ruleId) {
         String list = properties.getProperty(ENABLE_KEY);
-        return list != null && Arrays.asList(list.split(",", -1)).contains(ruleName);
+        return list != null && Arrays.asList(list.split(",", -1)).contains(ruleId);
     }
 }

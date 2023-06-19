@@ -1,26 +1,27 @@
 package internal.heylogs;
 
+import lombok.NonNull;
 import nbbrd.heylogs.Failure;
-import nbbrd.heylogs.FailureFormatter;
+import nbbrd.heylogs.spi.Format;
 import nbbrd.service.ServiceProvider;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
 
 import static java.lang.System.lineSeparator;
+import static java.util.Locale.ROOT;
 
 // https://eslint.org/docs/latest/user-guide/formatters/#stylish
 @ServiceProvider
-public final class StylishFormatter implements FailureFormatter {
+public final class StylishFormat implements Format {
 
     @Override
-    public String getName() {
+    public @NonNull String getId() {
         return "stylish";
     }
 
     @Override
-    public void format(Appendable appendable, String source, List<Failure> failures) throws IOException {
+    public void formatFailures(@NonNull Appendable appendable, @NonNull String source, @NonNull List<Failure> failures) throws IOException {
         appendable
                 .append(source)
                 .append(lineSeparator());
@@ -29,9 +30,9 @@ public final class StylishFormatter implements FailureFormatter {
         int c = failures.stream().mapToInt(failure -> getNumberOfDigits(failure.getColumn())).max().orElse(0);
         int m = failures.stream().mapToInt(failure -> failure.getMessage().length()).max().orElse(0);
 
-        for (Failure failure : failures) {
+        for (Failure x : failures) {
             appendable
-                    .append(String.format(Locale.ROOT, "  %" + l + "d:%-" + c + "d  error  %-" + m + "s  %s", failure.getLine(), failure.getColumn(), failure.getMessage(), failure.getRule()))
+                    .append(String.format(ROOT, "  %" + l + "d:%-" + c + "d  error  %-" + m + "s  %s", x.getLine(), x.getColumn(), x.getMessage(), x.getRuleId()))
                     .append(lineSeparator());
         }
 
@@ -44,7 +45,7 @@ public final class StylishFormatter implements FailureFormatter {
                 appendable.append("  1 problem");
                 break;
             default:
-                appendable.append(String.format(Locale.ROOT, "  %d problems", failures.size()));
+                appendable.append(String.format(ROOT, "  %d problems", failures.size()));
                 break;
         }
         appendable.append(lineSeparator());

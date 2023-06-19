@@ -1,21 +1,22 @@
 package nbbrd.heylogs.cli;
 
-import nbbrd.heylogs.FailureFormatter;
-import nbbrd.heylogs.FailureFormatterLoader;
-import nbbrd.heylogs.Rule;
-import nbbrd.heylogs.RuleLoader;
+import nbbrd.heylogs.Checker;
+import nbbrd.heylogs.spi.Format;
+import nbbrd.heylogs.spi.Rule;
 import picocli.CommandLine.Command;
 
 import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.joining;
 
 @Command(name = "debug", hidden = true)
 public final class DebugCommand implements Callable<Void> {
 
     @Override
     public Void call() {
-        System.out.println("Rules: " + RuleLoader.load().stream().map(Rule::getName).collect(Collectors.joining(", ")));
-        System.out.println("Formatters: " + FailureFormatterLoader.load().stream().map(FailureFormatter::getName).collect(Collectors.joining(", ")));
+        Checker checker = Checker.ofServiceLoader();
+        System.out.println("Rules: " + checker.getRules().stream().map(Rule::getId).collect(joining(", ")));
+        System.out.println("Formats: " + checker.getFormats().stream().map(Format::getId).collect(joining(", ")));
         return null;
     }
 }

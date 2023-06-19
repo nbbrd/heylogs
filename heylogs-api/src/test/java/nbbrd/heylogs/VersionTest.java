@@ -1,11 +1,13 @@
 package nbbrd.heylogs;
 
+import _test.Sample;
 import com.vladsch.flexmark.ast.Heading;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
-import static nbbrd.heylogs.Sample.asHeading;
+import static _test.Sample.asHeading;
+import static _test.Sample.using;
 import static nbbrd.heylogs.Version.parse;
 import static org.assertj.core.api.Assertions.*;
 
@@ -66,7 +68,7 @@ public class VersionTest {
                 .isThrownBy(() -> parse(asHeading("## [1.1.0] - 2019-02-15 [hello]")))
                 .withMessageContaining("Unexpected additional part");
 
-        assertThat(Nodes.of(Heading.class).descendants(Sample.using("Main.md")).filter(Version::isVersionLevel).map(Version::parse))
+        assertThat(Nodes.of(Heading.class).descendants(using("/Main.md")).filter(Version::isVersionLevel).map(Version::parse))
                 .hasSize(14)
                 .contains(Version.of("Unreleased", LocalDate.MAX), atIndex(0))
                 .contains(Version.of("1.1.0", d20190215), atIndex(1));

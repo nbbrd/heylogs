@@ -1,5 +1,6 @@
 package nbbrd.heylogs;
 
+import _test.Sample;
 import com.vladsch.flexmark.util.ast.Document;
 import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.Test;
@@ -7,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.util.function.Function;
 
+import static _test.Sample.using;
 import static nbbrd.heylogs.VersionFilter.builder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.InstanceOfAssertFactories.STRING;
@@ -103,7 +105,7 @@ public class VersionFilterTest {
     @Test
     public void testApply() {
         Function<VersionFilter, String> usingMain = o -> {
-            Document doc = Sample.using("Main.md");
+            Document doc = using("/Main.md");
             o.apply(doc);
             return Sample.FORMATTER.render(doc);
         };

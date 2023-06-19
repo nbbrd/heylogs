@@ -1,10 +1,12 @@
 package nbbrd.heylogs;
 
+import _test.Sample;
 import com.vladsch.flexmark.ast.Heading;
 import org.junit.jupiter.api.Test;
 
+import static _test.Sample.using;
 import static nbbrd.heylogs.Changelog.parse;
-import static nbbrd.heylogs.Sample.asHeading;
+import static _test.Sample.asHeading;
 import static org.assertj.core.api.Assertions.*;
 
 public class ChangelogTest {
@@ -26,7 +28,7 @@ public class ChangelogTest {
                 .isThrownBy(() -> parse(asHeading("# hello")))
                 .withMessageContaining("Invalid text");
 
-        assertThat(Nodes.of(Heading.class).descendants(Sample.using("Main.md")).filter(Changelog::isChangelogLevel).map(Changelog::parse))
+        assertThat(Nodes.of(Heading.class).descendants(using("/Main.md")).filter(Changelog::isChangelogLevel).map(Changelog::parse))
                 .hasSize(1)
                 .contains(Changelog.INSTANCE, atIndex(0));
     }

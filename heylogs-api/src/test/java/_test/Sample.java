@@ -1,4 +1,4 @@
-package nbbrd.heylogs;
+package _test;
 
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.formatter.Formatter;

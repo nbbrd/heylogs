@@ -2,9 +2,9 @@ package nbbrd.heylogs.maven.plugin;
 
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
+import internal.heylogs.SemverRule;
+import nbbrd.heylogs.Checker;
 import nbbrd.heylogs.Failure;
-import nbbrd.heylogs.Rule;
-import nbbrd.heylogs.RuleLoader;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -17,7 +17,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.util.List;
-import java.util.Locale;
+
+import static java.util.Locale.ROOT;
 
 @Mojo(name = "check", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
 public final class CheckMojo extends AbstractMojo {
@@ -45,7 +46,7 @@ public final class CheckMojo extends AbstractMojo {
         }
 
         if (semver) {
-            enableSemanticVersioning();
+            checkSemanticVersioning();
         }
 
         if (inputFile.exists()) {
@@ -59,13 +60,12 @@ public final class CheckMojo extends AbstractMojo {
         }
     }
 
-    private void enableSemanticVersioning() throws MojoExecutionException {
+    private void checkSemanticVersioning() throws MojoExecutionException {
         getLog().info("Using Semantic Versioning specification");
         if (Semver.isValid(projectVersion)) {
             getLog().info("Valid project version");
-            System.setProperty(Rule.ENABLE_KEY, "semver");
         } else {
-            getLog().error(String.format(Locale.ROOT, "Invalid project version: '%s' must follow Semantic Versioning specification (https://semver.org/)", projectVersion));
+            getLog().error(String.format(ROOT, "Invalid project version: '%s' must follow Semantic Versioning specification (https://semver.org/)", projectVersion));
             throw new MojoExecutionException("Invalid project version. See above for details.");
         }
     }
@@ -75,7 +75,9 @@ public final class CheckMojo extends AbstractMojo {
             getLog().info("Reading " + inputFile);
             Document changelog = read();
 
-            List<Failure> failures = Failure.allOf(changelog, RuleLoader.load());
+            Checker checker = getChecker();
+
+            List<Failure> failures = checker.validate(changelog);
             if (!failures.isEmpty()) {
                 getLog().error("Invalid changelog");
                 failures.forEach(failure -> getLog().error(failure.toString()));
@@ -85,6 +87,14 @@ public final class CheckMojo extends AbstractMojo {
         } catch (IOException ex) {
             throw new MojoExecutionException("Error while checking changelog", ex);
         }
+    }
+
+    private Checker getChecker() {
+        Checker.Builder result = Checker.ofServiceLoader().toBuilder();
+        if (semver) {
+            result.rule(new SemverRule());
+        }
+        return result.build();
     }
 
     private boolean isRootProject() {
