@@ -17,9 +17,11 @@ import static java.util.Locale.ROOT;
 @ServiceProvider
 public final class StylishFormat implements Format {
 
+    public static final String ID = "stylish";
+
     @Override
     public @NonNull String getId() {
-        return "stylish";
+        return ID;
     }
 
     @Override

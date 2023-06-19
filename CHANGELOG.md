@@ -15,6 +15,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Refactor extension points
 - Merge list command into extract command
+- Improve output of CheckMojo errors
 
 ## [0.5.0] - 2022-11-29
 

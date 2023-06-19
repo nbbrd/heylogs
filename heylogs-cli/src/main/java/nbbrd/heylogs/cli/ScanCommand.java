@@ -1,5 +1,6 @@
 package nbbrd.heylogs.cli;
 
+import internal.heylogs.StylishFormat;
 import internal.heylogs.cli.FormatCandidates;
 import internal.heylogs.cli.MarkdownInputSupport;
 import nbbrd.console.picocli.FileOutputOptions;
@@ -27,7 +28,7 @@ public final class ScanCommand implements Callable<Void> {
     @CommandLine.Option(
             names = {"-f", "--format"},
             paramLabel = "<name>",
-            defaultValue = "stylish",
+            defaultValue = StylishFormat.ID,
             description = "Specify the format used to control the appearance of the result. Valid values: ${COMPLETION-CANDIDATES}.",
             completionCandidates = FormatCandidates.class
     )
