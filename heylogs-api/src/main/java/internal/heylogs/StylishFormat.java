@@ -1,7 +1,9 @@
 package internal.heylogs;
 
 import lombok.NonNull;
+import nbbrd.design.MightBePromoted;
 import nbbrd.heylogs.Failure;
+import nbbrd.heylogs.Status;
 import nbbrd.heylogs.spi.Format;
 import nbbrd.service.ServiceProvider;
 
@@ -51,7 +53,34 @@ public final class StylishFormat implements Format {
         appendable.append(lineSeparator());
     }
 
+    @MightBePromoted
     private static int getNumberOfDigits(int number) {
         return (int) (Math.log10(number) + 1);
+    }
+
+    @Override
+    public void formatStatus(@NonNull Appendable appendable, @NonNull String source, @NonNull Status status) throws IOException {
+        appendable.append(source);
+        appendable.append(lineSeparator());
+        if (status.getReleaseCount() == 0) {
+            appendable.append("  No release found");
+            appendable.append(lineSeparator());
+        } else {
+            appendable.append(String.format(ROOT, "  Found %d releases", status.getReleaseCount()));
+            appendable.append(lineSeparator());
+            appendable.append(String.format(ROOT, "  Ranging from %s to %s", status.getTimeRange().getFrom(), status.getTimeRange().getTo()));
+            appendable.append(lineSeparator());
+
+            if (status.isCompatibleWithSemver()) {
+                appendable.append("  Compatible with Semantic Versioning").append(status.getSemverDetails());
+                appendable.append(lineSeparator());
+            } else {
+                appendable.append("  Not compatible with Semantic Versioning");
+                appendable.append(lineSeparator());
+            }
+        }
+        appendable.append(status.isHasUnreleasedSection() ? "  Has an unreleased version" : "  Has no unreleased version");
+        appendable.append(lineSeparator());
+        appendable.append(lineSeparator());
     }
 }

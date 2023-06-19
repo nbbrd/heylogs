@@ -7,28 +7,30 @@ import java.time.LocalDate;
 import static _test.Sample.using;
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ScanTest {
+class ScannerTest {
 
     @Test
-    void of() {
-        assertThat(Scan.of(using("/Empty.md")))
-                .isEqualTo(new Scan(
+    void testScan() {
+        Scanner x = Scanner.ofServiceLoader();
+
+        assertThat(x.scan(using("/Empty.md")))
+                .isEqualTo(new Status(
                         0,
                         TimeRange.ALL,
                         true, " ()",
                         true
                 ));
 
-        assertThat(Scan.of(using("/Main.md")))
-                .isEqualTo(new Scan(
+        assertThat(x.scan(using("/Main.md")))
+                .isEqualTo(new Status(
                         13,
                         TimeRange.of(LocalDate.of(2014, 5, 31), LocalDate.of(2019, 2, 15)),
                         true, " (1 MAJOR, 4 MINOR, 7 PATCH)",
                         true
                 ));
 
-        assertThat(Scan.of(using("/InvalidSemver.md")))
-                .isEqualTo(new Scan(
+        assertThat(x.scan(using("/InvalidSemver.md")))
+                .isEqualTo(new Status(
                         2,
                         TimeRange.of(LocalDate.of(2019, 2, 15), LocalDate.of(2019, 2, 15)),
                         false, "",

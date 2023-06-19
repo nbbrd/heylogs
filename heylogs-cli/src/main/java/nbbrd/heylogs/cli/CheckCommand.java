@@ -1,18 +1,16 @@
 package nbbrd.heylogs.cli;
 
 import internal.heylogs.SemverRule;
+import internal.heylogs.cli.FormatCandidates;
 import internal.heylogs.cli.MarkdownInputSupport;
 import nbbrd.console.picocli.FileOutputOptions;
 import nbbrd.console.picocli.MultiFileInputOptions;
 import nbbrd.heylogs.Checker;
-import nbbrd.heylogs.spi.Format;
-import nbbrd.heylogs.spi.FormatLoader;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 import java.io.Writer;
 import java.nio.file.Path;
-import java.util.Iterator;
 import java.util.concurrent.Callable;
 
 import static internal.heylogs.cli.MarkdownInputSupport.newMarkdownInputSupport;
@@ -35,11 +33,11 @@ public final class CheckCommand implements Callable<Void> {
     private boolean semver;
 
     @CommandLine.Option(
-            names = {"-f", "--formatter"},
+            names = {"-f", "--format"},
             paramLabel = "<name>",
             defaultValue = "stylish",
-            description = "Specify the formatter used to control the appearance of the result. Valid values: ${COMPLETION-CANDIDATES}.",
-            completionCandidates = FailureFormatters.class
+            description = "Specify the format used to control the appearance of the result. Valid values: ${COMPLETION-CANDIDATES}.",
+            completionCandidates = FormatCandidates.class
     )
     private String formatId;
 
@@ -70,16 +68,5 @@ public final class CheckCommand implements Callable<Void> {
             result.rule(new SemverRule());
         }
         return result.build();
-    }
-
-    public static final class FailureFormatters implements Iterable<String> {
-
-        @Override
-        public Iterator<String> iterator() {
-            return FormatLoader.load()
-                    .stream()
-                    .map(Format::getId)
-                    .iterator();
-        }
     }
 }
