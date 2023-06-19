@@ -52,7 +52,6 @@ public final class CheckCommand implements Callable<Void> {
 
             for (Path file : input.getAllFiles(markdown::accept)) {
                 checker.formatFailures(
-                        formatId,
                         writer,
                         markdown.getName(file),
                         checker.validate(markdown.readDocument(file))
@@ -64,7 +63,9 @@ public final class CheckCommand implements Callable<Void> {
     }
 
     private Checker getChecker() {
-        Checker.Builder result = Checker.ofServiceLoader().toBuilder();
+        Checker.Builder result = Checker.ofServiceLoader()
+                .toBuilder()
+                .formatId(formatId);
         if (semver) {
             result.rule(new SemverRule());
         }

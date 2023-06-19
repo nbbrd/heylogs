@@ -9,11 +9,11 @@ import java.time.LocalDate;
 import java.util.function.Function;
 
 import static _test.Sample.using;
-import static nbbrd.heylogs.VersionFilter.builder;
+import static nbbrd.heylogs.Extractor.builder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.InstanceOfAssertFactories.STRING;
 
-public class VersionFilterTest {
+public class ExtractorTest {
 
     @Test
     public void testRef() {
@@ -62,7 +62,7 @@ public class VersionFilterTest {
 
     @Test
     public void testTimeRange() {
-        Function<TimeRange, VersionFilter> onTimeRange = o -> builder().timeRange(o).build();
+        Function<TimeRange, Extractor> onTimeRange = o -> builder().timeRange(o).build();
 
         assertThat(TimeRange.ALL)
                 .extracting(onTimeRange)
@@ -103,10 +103,10 @@ public class VersionFilterTest {
 
 
     @Test
-    public void testApply() {
-        Function<VersionFilter, String> usingMain = o -> {
+    public void testExtract() {
+        Function<Extractor, String> usingMain = extractor -> {
             Document doc = using("/Main.md");
-            o.apply(doc);
+            extractor.extract(doc);
             return Sample.FORMATTER.render(doc);
         };
 
@@ -129,12 +129,20 @@ public class VersionFilterTest {
                                 "[1.1.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.0...v1.1.0\n" +
                                 "\n");
 
+        assertThat(builder().ref("1.1.0").ignoreContent(true).build())
+                .extracting(usingMain, STRING)
+                .isEqualTo(
+                        "## [1.1.0] - 2019-02-15\n" +
+                                "\n" +
+                                "[1.1.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.0...v1.1.0\n" +
+                                "\n");
+
         assertThat(builder().ref("zzz").build())
                 .extracting(usingMain, STRING)
                 .isEmpty();
     }
 
-    private static Condition<VersionFilter> containing(Version version) {
+    private static Condition<Extractor> containing(Version version) {
         return new Condition<>(parent -> parent.contains(version), "Must contain %s", version);
     }
 

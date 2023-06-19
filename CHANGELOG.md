@@ -7,6 +7,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Refactor extension points
+- Merge list command into extract command
+
 ## [0.5.0] - 2022-11-29
 
 ### Added

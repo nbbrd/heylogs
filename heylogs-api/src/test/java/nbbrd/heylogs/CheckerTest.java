@@ -46,13 +46,13 @@ public class CheckerTest {
     @Test
     public void testFormatFailures() throws IOException {
         assertThatIOException()
-                .isThrownBy(() -> Checker.builder().build().formatFailures("", new StringBuilder(), "", emptyList()));
+                .isThrownBy(() -> Checker.builder().build().formatFailures(new StringBuilder(), "", emptyList()));
 
         assertThatIOException()
-                .isThrownBy(() -> Checker.ofServiceLoader().formatFailures("", new StringBuilder(), "", emptyList()));
+                .isThrownBy(() -> Checker.ofServiceLoader().toBuilder().formatId("other").build().formatFailures(new StringBuilder(), "", emptyList()));
 
         StringBuilder output = new StringBuilder();
-        Checker.ofServiceLoader().formatFailures("stylish", output, "file1", asList(Failure.builder().ruleId("rule1").message("some message").line(10).column(20).build()));
+        Checker.ofServiceLoader().formatFailures(output, "file1", asList(Failure.builder().ruleId("rule1").message("some message").line(10).column(20).build()));
         assertThat(output.toString())
                 .isEqualToIgnoringNewLines(
                         "file1\n" +

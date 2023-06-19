@@ -36,17 +36,26 @@ public class Checker {
     @lombok.Singular
     List<Format> formats;
 
+    @NonNull
+    @lombok.Builder.Default
+    String formatId = FIRST_FORMAT_AVAILABLE;
+
     public @NonNull List<Failure> validate(@NonNull Document doc) {
         return Stream.concat(Stream.of(doc), Nodes.of(Node.class).descendants(doc))
                 .flatMap(node -> rules.stream().map(rule -> rule.validate(node)).filter(Objects::nonNull))
                 .collect(Collectors.toList());
     }
 
-    public void formatFailures(@NonNull String formatId, @NonNull Appendable appendable, @NonNull String source, @NonNull List<Failure> failures) throws IOException {
-        formats.stream()
-                .filter(format -> format.getId().equals(formatId))
-                .findFirst()
-                .orElseThrow(() -> new IOException("Cannot find format '" + formatId + "'"))
-                .formatFailures(appendable, source, failures);
+    public void formatFailures(@NonNull Appendable appendable, @NonNull String source, @NonNull List<Failure> failures) throws IOException {
+        getFormatById().formatFailures(appendable, source, failures);
     }
+
+    private Format getFormatById() throws IOException {
+        return formats.stream()
+                .filter(format -> formatId.equals(FIRST_FORMAT_AVAILABLE) || format.getId().equals(formatId))
+                .findFirst()
+                .orElseThrow(() -> new IOException("Cannot find format '" + formatId + "'"));
+    }
+
+    private static final String FIRST_FORMAT_AVAILABLE = "";
 }

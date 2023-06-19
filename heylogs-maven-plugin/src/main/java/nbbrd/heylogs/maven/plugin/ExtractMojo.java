@@ -4,7 +4,7 @@ import com.vladsch.flexmark.formatter.Formatter;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
 import nbbrd.heylogs.TimeRange;
-import nbbrd.heylogs.VersionFilter;
+import nbbrd.heylogs.Extractor;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -49,6 +49,9 @@ public final class ExtractMojo extends AbstractMojo {
     @Parameter(defaultValue = "^.*-SNAPSHOT$", property = "heylogs.unreleased.pattern")
     private String unreleasedPattern;
 
+    @Parameter(defaultValue = "false", property = "heylogs.ignore.content")
+    private boolean ignoreContent;
+
     @Override
     public void execute() throws MojoExecutionException {
         if (skip) {
@@ -64,22 +67,23 @@ public final class ExtractMojo extends AbstractMojo {
         getLog().info("Reading " + inputFile);
         Document changelog = read();
 
-        VersionFilter filter = getFilter();
+        Extractor extractor = getExtractor();
 
-        getLog().info("Extracting with " + filter);
-        filter.apply(changelog);
+        getLog().info("Extracting with " + extractor);
+        extractor.extract(changelog);
 
         getLog().info("Writing " + outputFile);
         write(changelog);
     }
 
-    private VersionFilter getFilter() throws MojoExecutionException {
-        return VersionFilter
+    private Extractor getExtractor() throws MojoExecutionException {
+        return Extractor
                 .builder()
                 .ref(Objects.toString(ref, ""))
                 .unreleasedPattern(fetchUnreleasedPattern())
                 .timeRange(TimeRange.of(fetchFrom(), fetchTo()))
                 .limit(limit)
+                .ignoreContent(ignoreContent)
                 .build();
     }
 
@@ -93,7 +97,7 @@ public final class ExtractMojo extends AbstractMojo {
 
     private LocalDate fetchFrom() throws MojoExecutionException {
         try {
-            return VersionFilter.parseLocalDate(from);
+            return Extractor.parseLocalDate(from);
         } catch (DateTimeParseException ex) {
             throw new MojoExecutionException("Invalid format for 'from' parameter", ex);
         }
@@ -101,7 +105,7 @@ public final class ExtractMojo extends AbstractMojo {
 
     private LocalDate fetchTo() throws MojoExecutionException {
         try {
-            return VersionFilter.parseLocalDate(to);
+            return Extractor.parseLocalDate(to);
         } catch (DateTimeParseException ex) {
             throw new MojoExecutionException("Invalid format for 'to' parameter", ex);
         }
