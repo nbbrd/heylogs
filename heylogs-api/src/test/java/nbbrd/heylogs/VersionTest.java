@@ -41,6 +41,10 @@ public class VersionTest {
                 .withMessageContaining("Invalid heading level");
 
         assertThatIllegalArgumentException()
+                .isThrownBy(() -> parse(asHeading("##")))
+                .withMessageContaining("Missing ref part");
+
+        assertThatIllegalArgumentException()
                 .isThrownBy(() -> parse(asHeading("## Unreleased")))
                 .withMessageContaining("Missing ref link");
 
@@ -53,12 +57,16 @@ public class VersionTest {
                 .withMessageContaining("Missing ref link");
 
         assertThatIllegalArgumentException()
+                .isThrownBy(() -> parse(asHeading("## [1.1.0] 2019-02-15")))
+                .withMessageContaining("Missing date prefix");
+
+        assertThatIllegalArgumentException()
                 .isThrownBy(() -> parse(asHeading("## [1.1.0] - ")))
-                .withMessageContaining("Invalid date");
+                .withMessageContaining("Invalid date format");
 
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> parse(asHeading("## [1.1.0] - 2019-02")))
-                .withMessageContaining("Invalid date");
+                .withMessageContaining("Invalid date format");
 
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> parse(asHeading("## - 2019-02-15")))

@@ -10,7 +10,8 @@ import java.util.function.Function;
 
 import static _test.Sample.using;
 import static nbbrd.heylogs.Extractor.builder;
-import static org.assertj.core.api.Assertions.assertThat;
+import static nbbrd.heylogs.Extractor.parseLocalDate;
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.InstanceOfAssertFactories.STRING;
 
 public class ExtractorTest {
@@ -140,6 +141,24 @@ public class ExtractorTest {
         assertThat(builder().ref("zzz").build())
                 .extracting(usingMain, STRING)
                 .isEmpty();
+    }
+
+    @Test
+    public void testParseLocalDate() {
+        assertThatNullPointerException()
+                .isThrownBy(() -> parseLocalDate(null));
+
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(() -> parseLocalDate(""));
+
+        assertThat(parseLocalDate("2010"))
+                .isEqualTo("2010-01-01");
+
+        assertThat(parseLocalDate("2010-02"))
+                .isEqualTo("2010-02-01");
+
+        assertThat(parseLocalDate("2010-02-03"))
+                .isEqualTo("2010-02-03");
     }
 
     private static Condition<Extractor> containing(Version version) {

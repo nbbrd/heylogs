@@ -8,10 +8,10 @@ import nbbrd.design.VisibleForTesting;
 import nbbrd.heylogs.Failure;
 import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleBatch;
+import nbbrd.io.text.Parser;
 import nbbrd.service.ServiceProvider;
 import org.jetbrains.annotations.NotNull;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Locale;
 import java.util.stream.Stream;
@@ -43,18 +43,17 @@ public enum ExtendedRules implements Rule {
 
     @VisibleForTesting
     static Failure validateHttps(LinkNodeBase link) {
-        try {
-            if (new URL(link.getUrl().toString()).getProtocol().equals("http")) {
-                return Failure
+        return Parser
+                .onURL()
+                .parseValue(link.getUrl())
+                .filter(url -> !url.getProtocol().equals("https"))
+                .map(ignore -> Failure
                         .builder()
                         .rule(HTTPS)
                         .message("Expecting HTTPS protocol")
                         .location(link)
-                        .build();
-            }
-        } catch (MalformedURLException e) {
-        }
-        return NO_PROBLEM;
+                        .build())
+                .orElse(NO_PROBLEM);
     }
 
     @VisibleForTesting
@@ -72,26 +71,26 @@ public enum ExtendedRules implements Rule {
     }
 
     private static int getGitHubIssueRefFromURL(Link link) {
-        try {
-            URL url = new URL(link.getUrl().toString());
-            if (url.getHost().equals("github.com")) {
-                int index = url.getPath().indexOf("/issues/");
-                if (index != -1) {
-                    return Integer.parseInt(url.getPath().substring(index + 8));
-                }
+        URL url = Parser.onURL().parse(link.getUrl());
+        if (url != null && url.getHost().equals("github.com")) {
+            int index = url.getPath().indexOf("/issues/");
+            if (index != -1) {
+                return Parser
+                        .onInteger()
+                        .parseValue(url.getPath().substring(index + 8))
+                        .orElse(NO_ISSUE_REF);
             }
-        } catch (MalformedURLException | NumberFormatException ex) {
         }
         return NO_ISSUE_REF;
     }
 
     private static int getGitHubIssueRefFromText(Link link) {
-        try {
-            String text = link.getText().toString();
-            if (text.startsWith("#")) {
-                return Integer.parseInt(text.substring(1));
-            }
-        } catch (NumberFormatException ex) {
+        String text = link.getText().toString();
+        if (text.startsWith("#")) {
+            return Parser
+                    .onInteger()
+                    .parseValue(text.substring(1))
+                    .orElse(NO_ISSUE_REF);
         }
         return NO_ISSUE_REF;
     }

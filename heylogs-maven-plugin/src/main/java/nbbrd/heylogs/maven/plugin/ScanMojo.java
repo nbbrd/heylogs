@@ -1,27 +1,24 @@
 package nbbrd.heylogs.maven.plugin;
 
-import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.StylishFormat;
 import nbbrd.heylogs.Scanner;
 import nbbrd.heylogs.Status;
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import java.io.*;
-import java.nio.file.Files;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
 
 @Mojo(name = "scan", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
-public final class ScanMojo extends AbstractMojo {
+public final class ScanMojo extends HeylogsMojo {
 
     @Parameter(defaultValue = "${project.basedir}/CHANGELOG.md", property = "heylogs.input.file")
     private File inputFile;
-
-    @Parameter(defaultValue = "false", property = "heylogs.skip")
-    private boolean skip;
 
     @Parameter(defaultValue = StylishFormat.ID, property = "heylogs.format.id")
     private String formatId;
@@ -37,61 +34,36 @@ public final class ScanMojo extends AbstractMojo {
         }
 
         if (inputFile.exists()) {
-            scanFile();
+            scan(loadScanner());
         } else {
-            if (isRootProject()) {
-                raiseErrorMissingFile();
+            if (isRootProject(projectBaseDir)) {
+                raiseErrorMissingChangelog();
             } else {
-                notifyMissingFile();
+                notifyMissingChangelog();
             }
         }
     }
 
-    private void scanFile() throws MojoExecutionException {
-        try {
-            getLog().info("Reading " + inputFile);
-            Document changelog = read();
-
-            Scanner scanner = getScanner();
-
-            Status status = scanner.scan(changelog);
-            StringBuilder text = new StringBuilder();
-            scanner.formatStatus(text, inputFile.toString(), status);
-            new BufferedReader(new StringReader(text.toString())).lines().forEach(getLog()::info);
-        } catch (IOException ex) {
-            throw new MojoExecutionException("Error while scanning changelog", ex);
-        }
-    }
-
-    private Scanner getScanner() {
+    private Scanner loadScanner() {
         return Scanner.ofServiceLoader()
                 .toBuilder()
                 .formatId(formatId)
                 .build();
     }
 
-    private boolean isRootProject() {
-        File parentDir = projectBaseDir.getParentFile();
-        if (parentDir != null) {
-            File parentPom = new File(parentDir, "pom.xml");
-            return !parentPom.exists();
-        }
-        return true;
+    private void scan(Scanner scanner) throws MojoExecutionException {
+        Document changelog = readChangelog(inputFile);
+        Status status = scanner.scan(changelog);
+        writeStatus(status, scanner);
     }
 
-    private void raiseErrorMissingFile() throws MojoExecutionException {
-        getLog().error("Missing changelog");
-        throw new MojoExecutionException("Missing changelog");
-    }
-
-    private void notifyMissingFile() {
-        getLog().info("Changelog not found");
-    }
-
-    public Document read() throws IOException {
-        Parser parser = Parser.builder().build();
-        try (Reader reader = Files.newBufferedReader(inputFile.toPath())) {
-            return parser.parseReader(reader);
+    private void writeStatus(Status status, Scanner scanner) throws MojoExecutionException {
+        try {
+            StringBuilder text = new StringBuilder();
+            scanner.formatStatus(text, inputFile.toString(), status);
+            new BufferedReader(new StringReader(text.toString())).lines().forEach(getLog()::info);
+        } catch (IOException ex) {
+            throw new MojoExecutionException("Error while writing status", ex);
         }
     }
 }

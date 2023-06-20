@@ -94,10 +94,6 @@ public class Version implements BaseSection {
     }
 
     private static LocalDate parseDate(Node secondPart) throws IllegalArgumentException {
-        if (!(secondPart instanceof Text)) {
-            throw new IllegalArgumentException("Invalid date type");
-        }
-
         BasedSequence date = secondPart.getChars();
 
         if (!date.trimStart().startsWith("-")) {
