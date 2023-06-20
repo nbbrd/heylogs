@@ -11,6 +11,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Add extension point for scan formatting
 - Add scan mojo
+- Add list command and mojo
 
 ### Changed
 

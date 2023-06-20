@@ -14,7 +14,7 @@ import java.util.concurrent.Callable;
 
 @Command(
         name = About.NAME,
-        versionProvider = MainCommand.ManifestVersionProvider.class,
+        versionProvider = HeylogsCommand.ManifestVersionProvider.class,
         scope = CommandLine.ScopeType.INHERIT,
         sortOptions = false,
         mixinStandardHelpOptions = true,
@@ -27,14 +27,14 @@ import java.util.concurrent.Callable;
                 ScanCommand.class,
                 CheckCommand.class,
                 ExtractCommand.class,
-                DebugCommand.class
+                ListCommand.class
         },
         description = {
                 "Set of tools to deal with the @|bold keep-a-changelog|@ format.",
                 "%nMore info at https://github.com/nbbrd/heylogs"
         }
 )
-public final class MainCommand implements Callable<Void> {
+public final class HeylogsCommand implements Callable<Void> {
 
     public static void main(String[] args) {
         SpecialProperties specialProperties = SpecialProperties.parse(args);
@@ -52,10 +52,10 @@ public final class MainCommand implements Callable<Void> {
         specialProperties.apply(System.getProperties());
 
         try (AnsiConsole ignore = AnsiConsole.windowsInstall()) {
-            CommandLine cmd = new CommandLine(new MainCommand());
+            CommandLine cmd = new CommandLine(new HeylogsCommand());
             cmd.setCaseInsensitiveEnumValuesAllowed(true);
             cmd.setDefaultValueProvider(new CommandLine.PropertiesDefaultProvider(properties));
-            cmd.setExecutionExceptionHandler(new PrintAndLogExceptionHandler(MainCommand.class, specialProperties.isDebugRequired()));
+            cmd.setExecutionExceptionHandler(new PrintAndLogExceptionHandler(HeylogsCommand.class, specialProperties.isDebugRequired()));
             return cmd.execute(args);
         }
     }

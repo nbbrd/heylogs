@@ -18,7 +18,7 @@
     <url>https://github.com/nbbrd/heylogs</url>
 
     <properties>
-        <project.x.mainClass>nbbrd.heylogs.cli.MainCommand</project.x.mainClass>
+        <project.x.mainClass>nbbrd.heylogs.cli.HeylogsCommand</project.x.mainClass>
     </properties>
 
     <dependencies>
@@ -138,6 +138,7 @@
                             <goal>check</goal>
                             <goal>extract</goal>
                             <goal>scan</goal>
+                            <goal>list</goal>
                         </goals>
                         <configuration>
                             <inputFile>${project.parent.basedir}/CHANGELOG.md</inputFile>

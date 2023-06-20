@@ -70,8 +70,8 @@ public final class CheckMojo extends HeylogsMojo {
     }
 
     private Checker loadChecker() {
-        Checker.Builder result = Checker.ofServiceLoader().
-                toBuilder()
+        Checker.Builder result = Checker.ofServiceLoader()
+                .toBuilder()
                 .formatId(formatId);
         if (semver) {
             result.rule(new SemverRule());
