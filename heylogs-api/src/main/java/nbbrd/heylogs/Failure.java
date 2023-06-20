@@ -1,19 +1,15 @@
 package nbbrd.heylogs;
 
-import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
-import lombok.AccessLevel;
+import lombok.NonNull;
+import nbbrd.heylogs.spi.Rule;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-@lombok.Value(staticConstructor = "of")
+@lombok.Value
+@lombok.Builder
 public class Failure {
 
     @lombok.NonNull
-    String rule;
+    String ruleId;
 
     @lombok.NonNull
     String message;
@@ -22,17 +18,15 @@ public class Failure {
 
     int column;
 
-    public static Failure of(Rule rule, String message, Node node) {
-        return new Failure(rule.getName(), message, node.getStartLineNumber() + 1, node.lineColumnAtStart().getSecond() + 1);
-    }
+    public static final class Builder {
 
-    public static Failure of(Rule rule, String message, int line, int column) {
-        return new Failure(rule.getName(), message, line, column);
-    }
+        public @NonNull Builder rule(@NonNull Rule rule) {
+            return ruleId(rule.getId());
+        }
 
-    public static List<Failure> allOf(Document doc, List<Rule> rules) {
-        return Stream.concat(Stream.of(doc), Nodes.of(Node.class).descendants(doc))
-                .flatMap(node -> rules.stream().map(rule -> rule.validate(node)).filter(Objects::nonNull))
-                .collect(Collectors.toList());
+        public @NonNull Builder location(@NonNull Node location) {
+            return line(location.getStartLineNumber() + 1)
+                    .column(location.lineColumnAtStart().getSecond() + 1);
+        }
     }
 }

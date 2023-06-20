@@ -3,10 +3,14 @@ package nbbrd.heylogs;
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.ast.Text;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
+import lombok.NonNull;
+import nbbrd.design.RepresentableAs;
+import nbbrd.design.StaticFactoryMethod;
 
 import java.util.stream.Stream;
 
 @lombok.AllArgsConstructor
+@RepresentableAs(Heading.class)
 public enum TypeOfChange implements BaseSection {
 
     ADDED("Added"),
@@ -22,7 +26,7 @@ public enum TypeOfChange implements BaseSection {
     final String label;
 
     @Override
-    public Heading toHeading() {
+    public @NonNull Heading toHeading() {
         Heading result = new Heading();
         result.setOpeningMarker(BasedSequence.repeatOf("#", HEADING_LEVEL));
         result.setLevel(HEADING_LEVEL);
@@ -30,7 +34,8 @@ public enum TypeOfChange implements BaseSection {
         return result;
     }
 
-    public static TypeOfChange parse(Heading heading) {
+    @StaticFactoryMethod
+    public static @NonNull TypeOfChange parse(@NonNull Heading heading) {
         if (!isTypeOfChangeLevel(heading)) {
             throw new IllegalArgumentException("Invalid heading level");
         }

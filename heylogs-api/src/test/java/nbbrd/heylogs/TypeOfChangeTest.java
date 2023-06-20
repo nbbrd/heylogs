@@ -1,45 +1,46 @@
 package nbbrd.heylogs;
 
+import _test.Sample;
 import com.vladsch.flexmark.ast.Heading;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
+import static _test.Sample.asHeading;
+import static _test.Sample.using;
+import static nbbrd.heylogs.TypeOfChange.parse;
 import static org.assertj.core.api.Assertions.*;
 
 public class TypeOfChangeTest {
 
     @Test
-    public void testParseHeading() {
-        assertThat(parsingHeading("### Added"))
+    public void testParse() {
+        //noinspection DataFlowIssue
+        assertThatNullPointerException()
+                .isThrownBy(() -> parse(null));
+
+        assertThat(parse(asHeading("### Added")))
                 .isEqualTo(TypeOfChange.ADDED);
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> parsingHeading("## Added"))
+                .isThrownBy(() -> parse(asHeading("## Added")))
                 .withMessageContaining("Invalid heading level");
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> parsingHeading("#### Added"))
+                .isThrownBy(() -> parse(asHeading("#### Added")))
                 .withMessageContaining("Invalid heading level");
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> parsingHeading("### hello"))
+                .isThrownBy(() -> parse(asHeading("### hello")))
                 .withMessageContaining("Cannot parse");
 
-        assertThat(Nodes.of(Heading.class).descendants(Sample.using("Main.md")).filter(TypeOfChange::isTypeOfChangeLevel).map(TypeOfChange::parse))
+        assertThat(Nodes.of(Heading.class).descendants(using("/Main.md")).filter(TypeOfChange::isTypeOfChangeLevel).map(TypeOfChange::parse))
                 .hasSize(24)
                 .contains(TypeOfChange.ADDED, atIndex(0));
     }
 
     @Test
-    public void testFormatHeading() {
+    public void testToHeading() {
         assertThat(TypeOfChange.ADDED.toHeading())
-                .extracting(Sample::asText)
-                .asString()
+                .extracting(Sample::asText, STRING)
                 .isEqualTo("### Added");
-    }
-
-    @NotNull
-    private TypeOfChange parsingHeading(String text) {
-        return TypeOfChange.parse(Sample.asHeading(text));
     }
 }

@@ -6,8 +6,11 @@ import com.vladsch.flexmark.ast.util.ReferenceRepository;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
+import nbbrd.design.MightBeGenerated;
 import nbbrd.design.VisibleForTesting;
 import nbbrd.heylogs.*;
+import nbbrd.heylogs.spi.Rule;
+import nbbrd.heylogs.spi.RuleBatch;
 import nbbrd.service.ServiceProvider;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,49 +22,43 @@ public enum GuidingPrinciples implements Rule {
 
     FOR_HUMANS {
         @Override
-        public Failure validate(Node node) {
-            return node instanceof Document ? validateForHumans((Document) node) : null;
+        public Failure validate(@NotNull Node node) {
+            return node instanceof Document ? validateForHumans((Document) node) : NO_PROBLEM;
         }
     },
     ENTRY_FOR_EVERY_VERSIONS {
         @Override
-        public Failure validate(Node node) {
-            return node instanceof Heading ? validateEntryForEveryVersions((Heading) node) : null;
+        public Failure validate(@NotNull Node node) {
+            return node instanceof Heading ? validateEntryForEveryVersions((Heading) node) : NO_PROBLEM;
         }
     },
     TYPE_OF_CHANGES_GROUPED {
         @Override
-        public Failure validate(Node node) {
-            return node instanceof Heading ? validateTypeOfChangesGrouped((Heading) node) : null;
+        public Failure validate(@NotNull Node node) {
+            return node instanceof Heading ? validateTypeOfChangesGrouped((Heading) node) : NO_PROBLEM;
         }
     },
     LINKABLE {
         @Override
-        public Failure validate(Node node) {
-            return node instanceof Heading ? validateLinkable((Heading) node) : null;
+        public Failure validate(@NotNull Node node) {
+            return node instanceof Heading ? validateLinkable((Heading) node) : NO_PROBLEM;
         }
     },
     LATEST_VERSION_FIRST {
         @Override
-        public Failure validate(Node node) {
-            return node instanceof Document ? validateLatestVersionFirst((Document) node) : null;
+        public Failure validate(@NotNull Node node) {
+            return node instanceof Document ? validateLatestVersionFirst((Document) node) : NO_PROBLEM;
         }
     },
     DATE_DISPLAYED {
         @Override
-        public Failure validate(Node node) {
-            return null;
-        }
-    },
-    SEMVER {
-        @Override
-        public Failure validate(Node node) {
-            return null;
+        public Failure validate(@NotNull Node node) {
+            return NO_PROBLEM;
         }
     };
 
     @Override
-    public String getName() {
+    public @NotNull String getId() {
         return name().toLowerCase(Locale.ROOT).replace('_', '-');
     }
 
@@ -79,49 +76,74 @@ public enum GuidingPrinciples implements Rule {
 
         switch (headings.size()) {
             case 0:
-                return Failure.of(FOR_HUMANS, "Missing Changelog heading", document);
+                return Failure
+                        .builder()
+                        .rule(FOR_HUMANS)
+                        .message("Missing Changelog heading")
+                        .location(document)
+                        .build();
             case 1:
                 try {
                     Changelog.parse(headings.get(0));
-                    return null;
+                    return NO_PROBLEM;
                 } catch (IllegalArgumentException ex) {
-                    return Failure.of(FOR_HUMANS, ex.getMessage(), document);
+                    return Failure
+                            .builder()
+                            .rule(FOR_HUMANS)
+                            .message(ex.getMessage())
+                            .location(document)
+                            .build();
                 }
             default:
-                return Failure.of(FOR_HUMANS, "Too many Changelog headings", document);
+                return Failure
+                        .builder()
+                        .rule(FOR_HUMANS)
+                        .message("Too many Changelog headings")
+                        .location(document)
+                        .build();
         }
     }
 
     @VisibleForTesting
     static Failure validateEntryForEveryVersions(@NotNull Heading heading) {
         if (!Version.isVersionLevel(heading)) {
-            return null;
+            return NO_PROBLEM;
         }
         try {
             Version.parse(heading);
         } catch (IllegalArgumentException ex) {
-            return Failure.of(ENTRY_FOR_EVERY_VERSIONS, ex.getMessage(), heading);
+            return Failure
+                    .builder()
+                    .rule(ENTRY_FOR_EVERY_VERSIONS)
+                    .message(ex.getMessage())
+                    .location(heading)
+                    .build();
         }
-        return null;
+        return NO_PROBLEM;
     }
 
     @VisibleForTesting
     static Failure validateTypeOfChangesGrouped(@NotNull Heading heading) {
         if (!TypeOfChange.isTypeOfChangeLevel(heading)) {
-            return null;
+            return NO_PROBLEM;
         }
         try {
             TypeOfChange.parse(heading);
         } catch (IllegalArgumentException ex) {
-            return Failure.of(TYPE_OF_CHANGES_GROUPED, ex.getMessage(), heading);
+            return Failure
+                    .builder()
+                    .rule(TYPE_OF_CHANGES_GROUPED)
+                    .message(ex.getMessage())
+                    .location(heading)
+                    .build();
         }
-        return null;
+        return NO_PROBLEM;
     }
 
     @VisibleForTesting
     static Failure validateLinkable(@NotNull Heading heading) {
         if (!Version.isVersionLevel(heading)) {
-            return null;
+            return NO_PROBLEM;
         }
 
         try {
@@ -132,10 +154,15 @@ public enum GuidingPrinciples implements Rule {
             Reference reference = repository.get(normalizeRef);
 
             return reference == null
-                    ? Failure.of(LINKABLE, "Missing reference '" + version.getRef() + "'", heading)
-                    : null;
+                    ? Failure
+                    .builder()
+                    .rule(LINKABLE)
+                    .message("Missing reference '" + version.getRef() + "'")
+                    .location(heading)
+                    .build()
+                    : NO_PROBLEM;
         } catch (IllegalArgumentException ex) {
-            return null;
+            return NO_PROBLEM;
         }
     }
 
@@ -145,7 +172,14 @@ public enum GuidingPrinciples implements Rule {
 
         Comparator<VersionNode> comparator = Comparator.comparing((VersionNode item) -> item.getVersion().getDate()).reversed();
         VersionNode unsortedItem = getFirstUnsortedItem(versions, comparator);
-        return unsortedItem != null ? Failure.of(LATEST_VERSION_FIRST, "Versions not sorted", unsortedItem.getNode()) : null;
+        return unsortedItem != null
+                ? Failure
+                .builder()
+                .rule(LATEST_VERSION_FIRST)
+                .message("Versions not sorted")
+                .location(unsortedItem.getNode())
+                .build()
+                : NO_PROBLEM;
     }
 
     @lombok.Value
@@ -187,6 +221,7 @@ public enum GuidingPrinciples implements Rule {
         return null;
     }
 
+    @MightBeGenerated
     @ServiceProvider
     public static final class Batch implements RuleBatch {
 

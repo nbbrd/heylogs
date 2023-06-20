@@ -1,10 +1,11 @@
-package nbbrd.heylogs;
+package nbbrd.heylogs.spi;
 
+import nbbrd.heylogs.spi.Rule;
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import static nbbrd.heylogs.Rule.isEnabled;
+import static nbbrd.heylogs.spi.Rule.isEnabled;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 

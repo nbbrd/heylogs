@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.github.nbbrd.heylogs</groupId>
+        <artifactId>heylogs-parent</artifactId>
+        <version>0.6.0</version>
+    </parent>
+
+    <artifactId>heylogs-bom</artifactId>
+    <packaging>pom</packaging>
+
+    <name>heylogs-bom</name>
+    <description>Keep-a-changelog tool - Bill of Materials</description>
+    <url>https://github.com/nbbrd/heylogs</url>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <artifactId>heylogs-api</artifactId>
+                <groupId>${project.groupId}</groupId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <artifactId>heylogs-cli</artifactId>
+                <groupId>${project.groupId}</groupId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <artifactId>heylogs-maven-plugin</artifactId>
+                <groupId>${project.groupId}</groupId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.5.0</version>
+                <configuration>
+                    <flattenMode>bom</flattenMode>
+                    <outputDirectory>${project.build.directory}</outputDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Check that CHANGELOG.md complies with the keep-a-changelog format -->
+            <!-- Extract the latest version from CHANGELOG.md -->
+            <plugin>
+                <groupId>com.github.nbbrd.heylogs</groupId>
+                <artifactId>heylogs-maven-plugin</artifactId>
+                <version>${project.version}</version>
+                <executions>
+                    <execution>
+                        <id>changelog</id>
+                        <goals>
+                            <goal>check</goal>
+                            <goal>extract</goal>
+                            <goal>scan</goal>
+                            <goal>list</goal>
+                        </goals>
+                        <configuration>
+                            <inputFile>${project.parent.basedir}/CHANGELOG.md</inputFile>
+                            <semver>true</semver>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <!-- Release binaries on GitHub -->
+        <!-- Note that all plugins are run on 'install' phase -->
+        <profile>
+            <id>full-release</id>
+            <build>
+                <plugins>
+                    <!-- Release assets -->
+                    <plugin>
+                        <groupId>org.jreleaser</groupId>
+                        <artifactId>jreleaser-maven-plugin</artifactId>
+                        <version>1.5.1</version>
+                        <executions>
+                            <execution>
+                                <id>release-assets</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>full-release</goal>
+                                </goals>
+                                <configuration>
+                                    <jreleaser>
+                                        <release>
+                                            <github>
+                                                <skipTag>true</skipTag>
+                                                <!-- Fix default value -->
+                                                <branch>master</branch>
+                                                <changelog>
+                                                    <external>${project.build.directory}/CHANGELOG.md</external>
+                                                </changelog>
+                                            </github>
+                                        </release>
+                                        <signing>
+                                            <active>ALWAYS</active>
+                                            <!-- Fix default value -->
+                                            <armored>true</armored>
+                                        </signing>
+                                        <distributions>
+                                            <!-- Name is here ! -->
+                                            <heylogs>
+                                                <type>SINGLE_JAR</type>
+                                                <artifacts>
+                                                    <artifact>
+                                                        <path>
+                                                            ${project.parent.basedir}/heylogs-cli/target/heylogs-cli-${project.version}-bin.jar
+                                                        </path>
+                                                    </artifact>
+                                                </artifacts>
+                                                <java>
+                                                    <mainClass>nbbrd.heylogs.cli.HeylogsCommand</mainClass>
+                                                    <artifactId>heylogs-cli</artifactId>
+                                                    <version>8</version>
+                                                </java>
+                                                <scoop>
+                                                    <active>RELEASE</active>
+                                                </scoop>
+                                                <brew>
+                                                    <active>RELEASE</active>
+                                                    <extraProperties>
+                                                        <skipJava>true</skipJava>
+                                                    </extraProperties>
+                                                </brew>
+                                                <jbang>
+                                                    <active>RELEASE</active>
+                                                </jbang>
+                                            </heylogs>
+                                        </distributions>
+                                    </jreleaser>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

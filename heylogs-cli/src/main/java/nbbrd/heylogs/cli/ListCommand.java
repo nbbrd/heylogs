@@ -1,62 +1,40 @@
 package nbbrd.heylogs.cli;
 
-import com.vladsch.flexmark.ast.Heading;
-import com.vladsch.flexmark.util.ast.Document;
-import com.vladsch.flexmark.util.ast.Node;
-import internal.heylogs.cli.VersionFilterOptions;
-import nbbrd.console.picocli.FileInputParameters;
-import nbbrd.console.picocli.FileOutputOptions;
-import nbbrd.heylogs.Nodes;
-import nbbrd.heylogs.Version;
+import internal.heylogs.SemverRule;
+import nbbrd.heylogs.Checker;
+import nbbrd.heylogs.spi.Format;
+import nbbrd.heylogs.spi.Rule;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
 
-import static internal.heylogs.cli.MarkdownInputSupport.newMarkdownInputSupport;
-import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
+import static java.util.stream.Collectors.joining;
 
-@Command(name = "list", description = "List versions from changelog.")
+@Command(name = "list", description = "List available resources.")
 public final class ListCommand implements Callable<Void> {
 
-    @CommandLine.Mixin
-    private FileInputParameters input;
-
-    @CommandLine.Mixin
-    private FileOutputOptions output;
-
-    @CommandLine.ArgGroup(heading = "%nFilters:%n", exclusive = false)
-    private final VersionFilterOptions filter = new VersionFilterOptions();
+    @CommandLine.Option(
+            names = {"-s", "--semver"},
+            defaultValue = "false",
+            description = "Mention if this changelog follows Semantic Versioning."
+    )
+    private boolean semver;
 
     @Override
-    public Void call() throws Exception {
-        store(list(load()));
+    public Void call() {
+        Checker checker = getChecker();
+        System.out.println("Rules: " + checker.getRules().stream().map(Rule::getId).collect(joining(", ")));
+        System.out.println("Formats: " + checker.getFormats().stream().map(Format::getId).collect(joining(", ")));
         return null;
     }
 
-    private Document load() throws IOException {
-        return newMarkdownInputSupport().readDocument(input.getFile());
-    }
-
-    private List<Heading> list(Node document) {
-        return Nodes.of(Heading.class)
-                .descendants(document)
-                .filter(Version::isVersionLevel)
-                .filter(filter.get()::contains)
-                .limit(filter.getLimit())
-                .collect(Collectors.toList());
-    }
-
-    private void store(List<Heading> list) throws IOException {
-        try (BufferedWriter writer = newTextOutputSupport().newBufferedWriter(output.getFile())) {
-            for (Heading item : list) {
-                writer.append(item.getChars());
-                writer.newLine();
-            }
+    private Checker getChecker() {
+        Checker.Builder result = Checker.ofServiceLoader()
+                .toBuilder();
+        if (semver) {
+            result.rule(new SemverRule());
         }
+        return result.build();
     }
 }

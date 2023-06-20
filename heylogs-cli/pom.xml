@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.github.nbbrd.heylogs</groupId>
         <artifactId>heylogs-parent</artifactId>
-        <version>0.5.0</version>
+        <version>0.6.0</version>
     </parent>
 
     <artifactId>heylogs-cli</artifactId>
@@ -16,10 +16,6 @@
     <name>heylogs-cli</name>
     <description>Keep-a-changelog tool - CLI</description>
     <url>https://github.com/nbbrd/heylogs</url>
-
-    <properties>
-        <project.x.mainClass>nbbrd.heylogs.cli.MainCommand</project.x.mainClass>
-    </properties>
 
     <dependencies>
         <!-- compile only -->
@@ -63,6 +59,12 @@
             <groupId>com.github.nbbrd.java-console-properties</groupId>
             <artifactId>java-console-properties</artifactId>
             <version>1.4.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.github.nbbrd.java-io-util</groupId>
+                    <artifactId>java-io-base</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- test only -->
@@ -110,7 +112,7 @@
                                 implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                         <transformer
                                 implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                            <mainClass>${project.x.mainClass}</mainClass>
+                            <mainClass>nbbrd.heylogs.cli.HeylogsCommand</mainClass>
                         </transformer>
                     </transformers>
                     <shadedArtifactAttached>true</shadedArtifactAttached>
@@ -118,103 +120,6 @@
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                 </configuration>
             </plugin>
-
-            <!-- Check that CHANGELOG.md complies with the keep-a-changelog format -->
-            <!-- Extract the latest version from CHANGELOG.md -->
-            <plugin>
-                <groupId>com.github.nbbrd.heylogs</groupId>
-                <artifactId>heylogs-maven-plugin</artifactId>
-                <version>${project.version}</version>
-                <executions>
-                    <execution>
-                        <id>extract-changelog</id>
-                        <goals>
-                            <goal>check</goal>
-                            <goal>extract</goal>
-                        </goals>
-                        <configuration>
-                            <inputFile>${project.parent.basedir}/CHANGELOG.md</inputFile>
-                            <semver>true</semver>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>full-release</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.jreleaser</groupId>
-                        <artifactId>jreleaser-maven-plugin</artifactId>
-                        <version>1.3.1</version>
-                        <executions>
-                            <execution>
-                                <phase>install</phase>
-                                <goals>
-                                    <goal>full-release</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <jreleaser>
-                                <release>
-                                    <github>
-                                        <skipTag>true</skipTag>
-                                        <draft>false</draft>
-                                        <!-- Fix default value -->
-                                        <branch>master</branch>
-                                        <changelog>
-                                            <external>${project.build.directory}/CHANGELOG.md</external>
-                                        </changelog>
-                                    </github>
-                                </release>
-                                <checksum>
-                                    <individual>true</individual>
-                                </checksum>
-                                <signing>
-                                    <active>ALWAYS</active>
-                                    <!-- Fix default value -->
-                                    <armored>true</armored>
-                                </signing>
-                                <distributions>
-                                    <!-- Name is here ! -->
-                                    <heylogs>
-                                        <type>SINGLE_JAR</type>
-                                        <artifacts>
-                                            <artifact>
-                                                <path>
-                                                    ${project.build.directory}/${project.artifactId}-${project.version}-bin.jar
-                                                </path>
-                                            </artifact>
-                                        </artifacts>
-                                        <java>
-                                            <mainClass>${project.x.mainClass}</mainClass>
-                                            <artifactId>${project.artifactId}</artifactId>
-                                            <version>8</version>
-                                        </java>
-                                        <scoop>
-                                            <active>RELEASE</active>
-                                        </scoop>
-                                        <brew>
-                                            <active>RELEASE</active>
-                                            <extraProperties>
-                                                <skipJava>true</skipJava>
-                                            </extraProperties>
-                                        </brew>
-                                        <jbang>
-                                            <active>RELEASE</active>
-                                        </jbang>
-                                    </heylogs>
-                                </distributions>
-                            </jreleaser>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>

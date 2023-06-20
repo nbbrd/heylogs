@@ -5,12 +5,16 @@ import com.vladsch.flexmark.ast.LinkRef;
 import com.vladsch.flexmark.ast.Text;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
+import lombok.NonNull;
+import nbbrd.design.RepresentableAs;
+import nbbrd.design.StaticFactoryMethod;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Iterator;
 
-@lombok.Value
+@lombok.Value(staticConstructor = "of")
+@RepresentableAs(Heading.class)
 public class Version implements BaseSection {
 
     private static final String UNRELEASED_KEYWORD = "unreleased";
@@ -27,7 +31,7 @@ public class Version implements BaseSection {
     }
 
     @Override
-    public Heading toHeading() {
+    public @NonNull Heading toHeading() {
         Heading result = new Heading();
         result.setOpeningMarker(BasedSequence.repeatOf("#", HEADING_LEVEL));
         result.setLevel(HEADING_LEVEL);
@@ -47,7 +51,8 @@ public class Version implements BaseSection {
         return result;
     }
 
-    public static Version parse(Heading heading) {
+    @StaticFactoryMethod
+    public static @NonNull Version parse(@NonNull Heading heading) {
         if (!isVersionLevel(heading)) {
             throw new IllegalArgumentException("Invalid heading level");
         }
@@ -89,10 +94,6 @@ public class Version implements BaseSection {
     }
 
     private static LocalDate parseDate(Node secondPart) throws IllegalArgumentException {
-        if (!(secondPart instanceof Text)) {
-            throw new IllegalArgumentException("Invalid date type");
-        }
-
         BasedSequence date = secondPart.getChars();
 
         if (!date.trimStart().startsWith("-")) {

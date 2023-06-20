@@ -3,15 +3,19 @@ package nbbrd.heylogs;
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.ast.Text;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
+import lombok.NonNull;
 import nbbrd.design.RepresentableAs;
+import nbbrd.design.StaticFactoryMethod;
 
 @RepresentableAs(Heading.class)
 public enum Changelog implements BaseSection {
+
     INSTANCE;
 
     private static final int HEADING_LEVEL = 1;
 
-    public static Changelog parse(Heading heading) {
+    @StaticFactoryMethod
+    public static @NonNull Changelog parse(@NonNull Heading heading) {
         if (!isChangelogLevel(heading)) {
             throw new IllegalArgumentException("Invalid heading level");
         }
@@ -22,7 +26,7 @@ public enum Changelog implements BaseSection {
     }
 
     @Override
-    public Heading toHeading() {
+    public @NonNull Heading toHeading() {
         Heading result = new Heading();
         result.setOpeningMarker(BasedSequence.repeatOf("#", HEADING_LEVEL));
         result.setLevel(HEADING_LEVEL);
