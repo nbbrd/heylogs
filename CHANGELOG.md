@@ -9,15 +9,15 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
-- Add extension point for scan formatting
-- Add scan mojo
-- Add list command and mojo
+- Add extension point for scan formatting [#119](https://github.com/nbbrd/heylogs/issues/119)
+- Add scan mojo [#120](https://github.com/nbbrd/heylogs/issues/120)
+- Add list command and mojo [#120](https://github.com/nbbrd/heylogs/issues/120)
 
 ### Changed
 
-- Refactor extension points
-- Merge list command into extract command
-- Improve output of errors in check mojo 
+- Refactor extension points [#119](https://github.com/nbbrd/heylogs/issues/119)
+- Merge old list command into extract command [#120](https://github.com/nbbrd/heylogs/issues/120)
+- Improve output of errors in check mojo [#119](https://github.com/nbbrd/heylogs/issues/119)
 
 ## [0.5.0] - 2022-11-29
 
