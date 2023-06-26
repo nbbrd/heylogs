@@ -6,6 +6,7 @@ import nbbrd.heylogs.Failure;
 import nbbrd.service.Quantifier;
 import nbbrd.service.ServiceDefinition;
 import nbbrd.service.ServiceFilter;
+import nbbrd.service.ServiceId;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.Arrays;
@@ -17,12 +18,13 @@ import java.util.Properties;
 )
 public interface Rule {
 
+    @ServiceId
     @NonNull String getId();
-
-    @Nullable Failure validate(@NonNull Node node);
 
     @ServiceFilter
     boolean isAvailable();
+
+    @Nullable Failure validate(@NonNull Node node);
 
     Failure NO_PROBLEM = null;
 
