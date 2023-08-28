@@ -202,7 +202,7 @@
                 <lombok.version>1.18.28</lombok.version>
                 <java-service.version>1.7.0</java-service.version>
                 <java-design.version>1.4.0</java-design.version>
-                <picocli.version>4.7.4</picocli.version>
+                <picocli.version>4.7.5</picocli.version>
             </properties>
             <dependencyManagement>
                 <dependencies>
