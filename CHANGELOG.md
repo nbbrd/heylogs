@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Renamed rule `entry-for-every-versions` to `all-h2-contain-a-version`
+
 ## [0.6.0] - 2023-06-20
 
 This release improves extension points and also aligns features of Maven plugin and CLI.
