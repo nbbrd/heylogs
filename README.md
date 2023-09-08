@@ -5,7 +5,7 @@
 You can quickly start working with it by following these steps:
 
 1. [Install jbang](https://www.jbang.dev/download/)
-2. Download [`heylogs.java`](https://github.com/nbbrd/jbang-catalog/blob/master/heylogs.java) - provided by [jbang-catalog](https://github.com/nbbrd/jbang-catalog/tree/master)
-3. Execute `jbang heylogs.java`
+3. Execute `jbang https://raw.githubusercontent.com/nbbrd/jbang-catalog/master/heylogs.java check `
 
-On linux, you can make `heylogs.java` executable and place it in `/usr/local/bin`. Then it is directly available at the command line.
+On linux, you can download `heylogs.java`, flag it as executable, rename it to `heylogs`, and place it in `/usr/local/bin`.
+Then it is directly available at the command line as `heylogs`.
