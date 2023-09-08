@@ -97,8 +97,8 @@ public class Version implements BaseSection {
         BasedSequence date = secondPart.getChars();
 
         BasedSequence trimmedStart = date.trimStart();
-        // The unicode en dash ("–") is also accepted as separator
-        if (!trimmedStart.startsWith("-") && !trimmedStart.startsWith("–")) {
+        // The unicode en dash ("–") and em dash ("—") are also accepted as separators
+        if (!trimmedStart.startsWith("-") && !trimmedStart.startsWith("–") && !trimmedStart.startsWith("—")) {
             throw new IllegalArgumentException("Missing date prefix");
         }
 

@@ -9,7 +9,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
-- The en dash ("–") is also supported as separator between version and date
+- The en ("–") and em dashes ("") are also supported as separator between version and date
 
 ## [0.6.0] - 2023-06-20
 
