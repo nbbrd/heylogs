@@ -32,6 +32,10 @@ public class VersionTest {
         assertThat(parse(asHeading("## [1.1.0] - 2019-02-15")))
                 .isEqualTo(Version.of("1.1.0", d20190215));
 
+        // Unicode en dash as separator
+        assertThat(parse(asHeading("## [1.1.0] – 2019-02-15")))
+                .isEqualTo(Version.of("1.1.0", d20190215));
+
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> parse(asHeading("# [1.1.0] - 2019-02-15")))
                 .withMessageContaining("Invalid heading level");
