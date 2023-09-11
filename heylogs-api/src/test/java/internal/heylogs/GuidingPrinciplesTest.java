@@ -42,18 +42,18 @@ public class GuidingPrinciplesTest {
     @Test
     public void testValidateEntryForEveryVersions() {
         assertThat(of(Heading.class).descendants(using("/Main.md")))
-                .map(GuidingPrinciples::validateEntryForEveryVersions)
+                .map(GuidingPrinciples::validateAllH2ContainAVersion)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .isEmpty();
 
         assertThat(of(Heading.class).descendants(using("/InvalidVersion.md")))
-                .map(GuidingPrinciples::validateEntryForEveryVersions)
+                .map(GuidingPrinciples::validateAllH2ContainAVersion)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains(Failure.builder().rule(ENTRY_FOR_EVERY_VERSIONS).message("Invalid date format").line(2).column(1).build(), atIndex(0))
-                .contains(Failure.builder().rule(ENTRY_FOR_EVERY_VERSIONS).message("Missing date part").line(3).column(1).build(), atIndex(1))
-                .contains(Failure.builder().rule(ENTRY_FOR_EVERY_VERSIONS).message("Missing ref link").line(4).column(1).build(), atIndex(2))
+                .contains(Failure.builder().rule(ALL_H2_CONTAIN_A_VERSION).message("Invalid date format").line(2).column(1).build(), atIndex(0))
+                .contains(Failure.builder().rule(ALL_H2_CONTAIN_A_VERSION).message("Missing date part").line(3).column(1).build(), atIndex(1))
+                .contains(Failure.builder().rule(ALL_H2_CONTAIN_A_VERSION).message("Missing ref link").line(4).column(1).build(), atIndex(2))
                 .hasSize(3);
 
     }

@@ -26,10 +26,10 @@ public enum GuidingPrinciples implements Rule {
             return node instanceof Document ? validateForHumans((Document) node) : NO_PROBLEM;
         }
     },
-    ENTRY_FOR_EVERY_VERSIONS {
+    ALL_H2_CONTAIN_A_VERSION {
         @Override
         public Failure validate(@NotNull Node node) {
-            return node instanceof Heading ? validateEntryForEveryVersions((Heading) node) : NO_PROBLEM;
+            return node instanceof Heading ? validateAllH2ContainAVersion((Heading) node) : NO_PROBLEM;
         }
     },
     TYPE_OF_CHANGES_GROUPED {
@@ -105,7 +105,7 @@ public enum GuidingPrinciples implements Rule {
     }
 
     @VisibleForTesting
-    static Failure validateEntryForEveryVersions(@NotNull Heading heading) {
+    static Failure validateAllH2ContainAVersion(@NotNull Heading heading) {
         if (!Version.isVersionLevel(heading)) {
             return NO_PROBLEM;
         }
@@ -114,7 +114,7 @@ public enum GuidingPrinciples implements Rule {
         } catch (IllegalArgumentException ex) {
             return Failure
                     .builder()
-                    .rule(ENTRY_FOR_EVERY_VERSIONS)
+                    .rule(ALL_H2_CONTAIN_A_VERSION)
                     .message(ex.getMessage())
                     .location(heading)
                     .build();
