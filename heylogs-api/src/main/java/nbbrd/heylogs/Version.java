@@ -96,7 +96,9 @@ public class Version implements BaseSection {
     private static LocalDate parseDate(Node secondPart) throws IllegalArgumentException {
         BasedSequence date = secondPart.getChars();
 
-        if (!date.trimStart().startsWith("-")) {
+        BasedSequence trimmedStart = date.trimStart();
+        // The unicode en dash ("–") and em dash ("—") are also accepted as separators
+        if (!trimmedStart.startsWith("-") && !trimmedStart.startsWith("–") && !trimmedStart.startsWith("—")) {
             throw new IllegalArgumentException("Missing date prefix");
         }
 

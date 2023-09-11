@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- The en ("–") and em dashes ("") are also supported as separator between version and date
+
 ### Changed
 
 - Renamed rule `entry-for-every-versions` to `all-h2-contain-a-version`
