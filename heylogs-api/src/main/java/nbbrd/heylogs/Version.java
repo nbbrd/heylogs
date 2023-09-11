@@ -4,6 +4,7 @@ import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.ast.LinkRef;
 import com.vladsch.flexmark.ast.Text;
 import com.vladsch.flexmark.util.ast.Node;
+import com.vladsch.flexmark.util.misc.CharPredicate;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAs;
@@ -19,6 +20,13 @@ public class Version implements BaseSection {
 
     private static final String UNRELEASED_KEYWORD = "unreleased";
     private static final int HEADING_LEVEL = 2;
+
+    private static final char HYPHEN = '-';
+    private static final char EN_DASH = '–';
+    private static final char EM_DASH = '—';
+
+    // The unicode en dash ("–") and em dash ("—") are also accepted as separators
+    private static final CharPredicate VALID_SEPARATOR = CharPredicate.anyOf(HYPHEN, EN_DASH, EM_DASH);
 
     @lombok.NonNull
     String ref;
@@ -96,9 +104,7 @@ public class Version implements BaseSection {
     private static LocalDate parseDate(Node secondPart) throws IllegalArgumentException {
         BasedSequence date = secondPart.getChars();
 
-        BasedSequence trimmedStart = date.trimStart();
-        // The unicode en dash ("–") and em dash ("—") are also accepted as separators
-        if (!trimmedStart.startsWith("-") && !trimmedStart.startsWith("–") && !trimmedStart.startsWith("—")) {
+        if (!date.trimStart().startsWith(VALID_SEPARATOR)) {
             throw new IllegalArgumentException("Missing date prefix");
         }
 

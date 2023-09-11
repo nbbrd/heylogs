@@ -9,6 +9,7 @@ import nbbrd.design.StaticFactoryMethod;
 
 import java.util.stream.Stream;
 
+@lombok.Getter
 @lombok.AllArgsConstructor
 @RepresentableAs(Heading.class)
 public enum TypeOfChange implements BaseSection {
@@ -22,7 +23,6 @@ public enum TypeOfChange implements BaseSection {
 
     private static final int HEADING_LEVEL = 3;
 
-    @lombok.Getter
     final String label;
 
     @Override

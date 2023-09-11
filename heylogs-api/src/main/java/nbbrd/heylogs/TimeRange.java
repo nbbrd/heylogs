@@ -27,8 +27,7 @@ public class TimeRange {
     @lombok.NonNull
     LocalDate to;
 
-
     public boolean contains(LocalDate date) {
-        return from.compareTo(date) <= 0 && date.compareTo(to) <= 0;
+        return !from.isAfter(date) && !date.isAfter(to);
     }
 }
