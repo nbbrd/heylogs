@@ -19,10 +19,9 @@ Features:
 
 ## Command-line tool
 
-Heylogs CLI runs on any desktop operating system such as Microsoft **Windows**, **Solaris OS**, Apple **macOS**, *
-*Ubuntu** and other various **Linux** distributions.
-
-It requires a **Java SE Runtime Environment (JRE) version 8 or later** to run on such as OpenJDK.
+Heylogs CLI runs on any desktop operating system such as Microsoft Windows, 
+Solaris OS, Apple macOS, Ubuntu and other various Linux distributions. 
+It requires a Java SE Runtime Environment (JRE) version 8 or later to run on such as OpenJDK.
 
 ### Installation
 
