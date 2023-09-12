@@ -9,11 +9,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Added support for checking git diffs for touching released versions. Use `-g` at the command line.
 - The en ("–") and em dashes ("") are also supported as separator between version and date
 
 ### Changed
 
 - Renamed rule `entry-for-every-versions` to `all-h2-contain-a-version`
+- Minimum Java requirement is now Java 11 (due to the dependency on [Eclipse JGit](https://eclipse.dev/jgit/))
 
 ## [0.6.0] - 2023-06-20
 

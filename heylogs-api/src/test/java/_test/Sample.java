@@ -8,6 +8,8 @@ import com.vladsch.flexmark.util.sequence.BasedSequence;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class Sample {
 
@@ -19,6 +21,19 @@ public class Sample {
             if (stream == null) {
                 throw new IllegalArgumentException("Missing resource '" + name + "'");
             }
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+                return PARSER.parseReader(reader);
+            }
+        } catch (IOException ex) {
+            throw new UncheckedIOException(ex);
+        }
+    }
+
+    public static Document using(Path path) {
+        if (!Files.exists(path)) {
+            throw new IllegalArgumentException("File not found: '" + path + "'");
+        }
+        try (InputStream stream = Files.newInputStream(path)) {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
                 return PARSER.parseReader(reader);
             }

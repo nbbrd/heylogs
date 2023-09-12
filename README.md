@@ -9,7 +9,7 @@ It can be used as a linter in interactive sessions and automations.
 Key points:
 
 - Available as a library, a [command-line tool](#installation) and a [Maven plugin](#maven-plugin)
-- Java 8 minimum requirement
+- Java 11 minimum requirement
 
 Features:
 
@@ -17,11 +17,18 @@ Features:
 - Checks format
 - Extracts versions
 
+The `check` feature also contains a check if during an update of the CHANGELOG.md file, areas of released versions are touched.
+For instance, a contributor starts a pull request and adds their change to CHANGELOG.md.
+Then, the main branch is released.
+Now, the PR should move the changelog entry to the new `[unreleased]` section.
+Therefore, `heylogs` warns in case there are modifications inside blocks of released versions.
+One has to enable this check explicitly by the `-g` command line parameter.
+
 ## Command-line tool
 
 Heylogs CLI runs on any desktop operating system such as Microsoft Windows, 
 Solaris OS, Apple macOS, Ubuntu and other various Linux distributions. 
-It requires a Java SE Runtime Environment (JRE) version 8 or later to run on such as OpenJDK.
+It requires a Java SE Runtime Environment (JRE) version 11 or later to run on such as OpenJDK.
 
 ### Installation
 
@@ -165,7 +172,7 @@ The following script extract the latest version from the changelog for a release
 ## Developing
 
 This project is written in Java and uses [Apache Maven](https://maven.apache.org/) as a build tool.  
-It requires [Java 8 as minimum version](https://whichjdk.com/) and all its dependencies are hosted
+It requires [Java 11 as minimum version](https://whichjdk.com/) and all its dependencies are hosted
 on [Maven Central](https://search.maven.org/).
 
 The code can be build using any IDE or by just type-in the following commands in a terminal:

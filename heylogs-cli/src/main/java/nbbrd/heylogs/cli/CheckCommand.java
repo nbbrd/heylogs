@@ -1,5 +1,7 @@
 package nbbrd.heylogs.cli;
 
+import com.vladsch.flexmark.util.misc.Pair;
+import internal.heylogs.GitDiffRule;
 import internal.heylogs.SemverRule;
 import internal.heylogs.StylishFormat;
 import internal.heylogs.cli.FormatCandidates;
@@ -42,6 +44,27 @@ public final class CheckCommand implements Callable<Void> {
     )
     private String formatId;
 
+    @CommandLine.Option(
+            names = {"-g", "--gitdiff"},
+            description = "Checks the git diff whether the contents of a released version are changed. A git revision range might be main...patch-1. Default is to compare the HEAD commit with its first parent.",
+            arity = "0..1",
+            defaultValue = "-1...-1",
+            fallbackValue = "1...1",
+            paramLabel = "<git revision range>",
+            converter = GitRangeConverter.class
+    )
+    private Pair<String, String> checkGit;
+
+    private GitDiffRule gitDiffRule;
+
+    private boolean isGitDiffEnabled() {
+        return !checkGit.equals(new Pair("-1", "-1"));
+    }
+
+    private boolean useHeadAndParent() {
+        return checkGit.equals(new Pair("1", "1"));
+    }
+
     @Override
     public Void call() throws Exception {
         try (Writer writer = newTextOutputSupport().newBufferedWriter(output.getFile())) {
@@ -50,6 +73,9 @@ public final class CheckCommand implements Callable<Void> {
             MarkdownInputSupport markdown = newMarkdownInputSupport();
 
             for (Path file : input.getAllFiles(markdown::accept)) {
+                if (isGitDiffEnabled()) {
+                    gitDiffRule.setPath(file.getParent());
+                }
                 checker.formatFailures(
                         writer,
                         markdown.getName(file),
@@ -67,6 +93,14 @@ public final class CheckCommand implements Callable<Void> {
                 .formatId(formatId);
         if (semver) {
             result.rule(new SemverRule());
+        }
+        if (isGitDiffEnabled()) {
+            if (useHeadAndParent()) {
+                gitDiffRule = new GitDiffRule();
+            } else {
+                gitDiffRule = new GitDiffRule(checkGit.getFirst(), checkGit.getSecond());
+            }
+            result.rule(gitDiffRule);
         }
         return result.build();
     }

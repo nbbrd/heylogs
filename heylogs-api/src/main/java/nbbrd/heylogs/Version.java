@@ -13,12 +13,14 @@ import nbbrd.design.StaticFactoryMethod;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Iterator;
+import java.util.Objects;
 
 @lombok.Value(staticConstructor = "of")
 @RepresentableAs(Heading.class)
 public class Version implements BaseSection {
 
     private static final String UNRELEASED_KEYWORD = "unreleased";
+
     private static final int HEADING_LEVEL = 2;
 
     private static final char HYPHEN = '-';
@@ -119,5 +121,20 @@ public class Version implements BaseSection {
 
     public static boolean isVersionLevel(Heading heading) {
         return heading.getLevel() == HEADING_LEVEL;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        Version version = (Version) o;
+        return Objects.equals(ref, version.ref) && Objects.equals(date, version.date);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(ref, date);
     }
 }
