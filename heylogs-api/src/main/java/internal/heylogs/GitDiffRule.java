@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
@@ -312,7 +313,7 @@ public final class GitDiffRule implements Rule {
         Parser parser = Parser.builder().build();
         Document document;
         try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
-             InputStreamReader inputStreamReader = new InputStreamReader(byteArrayInputStream)) {
+             InputStreamReader inputStreamReader = new InputStreamReader(byteArrayInputStream, StandardCharsets.UTF_8)) {
             document = parser.parseReader(inputStreamReader);
         }
         ReversiblePeekingIterator<Node> iterator = document.getChildren().iterator();
