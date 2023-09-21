@@ -1,20 +1,31 @@
 package internal.heylogs;
 
+import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.ast.LinkNodeBase;
+import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
+import lombok.NonNull;
 import nbbrd.design.MightBeGenerated;
 import nbbrd.design.VisibleForTesting;
 import nbbrd.heylogs.Failure;
+import nbbrd.heylogs.Nodes;
+import nbbrd.heylogs.Version;
 import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleBatch;
 import nbbrd.io.text.Parser;
 import nbbrd.service.ServiceProvider;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.URL;
+import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 
 public enum ExtendedRules implements Rule {
 
@@ -28,6 +39,12 @@ public enum ExtendedRules implements Rule {
         @Override
         public Failure validate(@NotNull Node node) {
             return node instanceof Link ? validateGitHubIssueRef((Link) node) : NO_PROBLEM;
+        }
+    },
+    CONSISTENT_SEPARATOR {
+        @Override
+        public @Nullable Failure validate(@NonNull Node node) {
+            return node instanceof Document ? validateConsistentSeparator((Document) node) : NO_PROBLEM;
         }
     };
 
@@ -96,6 +113,31 @@ public enum ExtendedRules implements Rule {
     }
 
     private static final int NO_ISSUE_REF = -1;
+
+    @VisibleForTesting
+    static Failure validateConsistentSeparator(Document doc) {
+        List<Character> separators = Nodes.of(Heading.class)
+                .descendants(doc)
+                .filter(Version::isVersionLevel)
+                .map(node -> {
+                    try {
+                        return Version.parse(node).getSeparator();
+                    } catch (IllegalArgumentException ex) {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(toList());
+
+        return separators.size() > 1
+                ? Failure
+                .builder()
+                .rule(CONSISTENT_SEPARATOR)
+                .message("Expecting consistent version-date separator " + separators.get(0) + ", found [" + separators.stream().skip(1).map(String::valueOf).collect(joining(", ")) + "]")
+                .build()
+                : NO_PROBLEM;
+    }
 
     @MightBeGenerated
     @ServiceProvider
