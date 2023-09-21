@@ -4,6 +4,7 @@ import internal.heylogs.SemverRule;
 import internal.heylogs.StylishFormat;
 import internal.heylogs.cli.FormatCandidates;
 import internal.heylogs.cli.MarkdownInputSupport;
+import internal.heylogs.cli.SpecialProperties;
 import nbbrd.console.picocli.FileOutputOptions;
 import nbbrd.console.picocli.MultiFileInputOptions;
 import nbbrd.heylogs.Checker;
@@ -41,6 +42,13 @@ public final class CheckCommand implements Callable<Void> {
             completionCandidates = FormatCandidates.class
     )
     private String formatId;
+
+    @CommandLine.Option(
+            names = {SpecialProperties.DEBUG_OPTION},
+            defaultValue = "false",
+            hidden = true
+    )
+    private boolean debug;
 
     @Override
     public Void call() throws Exception {
