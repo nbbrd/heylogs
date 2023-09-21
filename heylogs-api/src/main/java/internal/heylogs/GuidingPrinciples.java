@@ -18,6 +18,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static nbbrd.heylogs.Util.illegalArgumentToNull;
+
 public enum GuidingPrinciples implements Rule {
 
     FOR_HUMANS {
@@ -187,17 +189,15 @@ public enum GuidingPrinciples implements Rule {
         Version version;
         Node node;
 
+        static VersionNode parse(Heading node) {
+            return new VersionNode(Version.parse(node), node);
+        }
+
         static List<VersionNode> allOf(Document doc) {
             return Nodes.of(Heading.class)
                     .descendants(doc)
                     .filter(Version::isVersionLevel)
-                    .map(node -> {
-                        try {
-                            return new VersionNode(Version.parse(node), node);
-                        } catch (IllegalArgumentException ex) {
-                            return null;
-                        }
-                    })
+                    .map(illegalArgumentToNull(VersionNode::parse))
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
         }

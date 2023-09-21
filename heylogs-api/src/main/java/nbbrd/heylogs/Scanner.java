@@ -19,6 +19,7 @@ import java.util.stream.IntStream;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static nbbrd.heylogs.TimeRange.toTimeRange;
+import static nbbrd.heylogs.Util.illegalArgumentToNull;
 
 @lombok.Value
 @lombok.Builder(toBuilder = true)
@@ -43,7 +44,7 @@ public class Scanner {
         Map<Boolean, List<Version>> versionByType = Nodes.of(Heading.class)
                 .descendants(document)
                 .filter(Version::isVersionLevel)
-                .map(Scanner::parseVersionOrNull)
+                .map(illegalArgumentToNull(Version::parse))
                 .filter(Objects::nonNull)
                 .collect(Collectors.partitioningBy(Version::isUnreleased));
 
@@ -57,14 +58,6 @@ public class Scanner {
                 .semverDetails(compatibleWithSemver ? getDetails(versionByType.get(false)) : "")
                 .hasUnreleasedSection(versionByType.containsKey(true))
                 .build();
-    }
-
-    private static Version parseVersionOrNull(Heading heading) {
-        try {
-            return Version.parse(heading);
-        } catch (IllegalArgumentException ex) {
-            return null;
-        }
     }
 
     private static boolean isCompatibleWithSemver(List<Version> releases) {

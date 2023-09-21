@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
+import static nbbrd.heylogs.Util.illegalArgumentToNull;
 
 public enum ExtendedRules implements Rule {
 
@@ -119,14 +120,9 @@ public enum ExtendedRules implements Rule {
         List<Character> separators = Nodes.of(Heading.class)
                 .descendants(doc)
                 .filter(Version::isVersionLevel)
-                .map(node -> {
-                    try {
-                        return Version.parse(node).getSeparator();
-                    } catch (IllegalArgumentException ex) {
-                        return null;
-                    }
-                })
+                .map(illegalArgumentToNull(Version::parse))
                 .filter(Objects::nonNull)
+                .map(Version::getSeparator)
                 .distinct()
                 .collect(toList());
 
