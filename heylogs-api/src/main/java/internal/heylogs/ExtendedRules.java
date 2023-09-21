@@ -130,9 +130,14 @@ public enum ExtendedRules implements Rule {
                 ? Failure
                 .builder()
                 .rule(CONSISTENT_SEPARATOR)
-                .message("Expecting consistent version-date separator " + separators.get(0) + ", found [" + separators.stream().skip(1).map(String::valueOf).collect(joining(", ")) + "]")
+                .message("Expecting consistent version-date separator " + toUnicode(separators.get(0)) + ", found [" + separators.stream().skip(1).map(ExtendedRules::toUnicode).collect(joining(", ")) + "]")
+                .location(doc)
                 .build()
                 : NO_PROBLEM;
+    }
+
+    private static String toUnicode(Character c) {
+        return String.format(Locale.ROOT, "\\u%04x", (int) c);
     }
 
     @MightBeGenerated
