@@ -2,24 +2,24 @@ package internal.heylogs;
 
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.util.ast.Node;
+import lombok.NonNull;
 import nbbrd.design.VisibleForTesting;
 import nbbrd.heylogs.Failure;
 import nbbrd.heylogs.Version;
 import nbbrd.heylogs.spi.Rule;
 import nbbrd.service.ServiceProvider;
-import org.jetbrains.annotations.NotNull;
 import org.semver4j.Semver;
 
 @ServiceProvider
 public final class SemverRule implements Rule {
 
     @Override
-    public @NotNull String getId() {
+    public @NonNull String getId() {
         return "semver";
     }
 
     @Override
-    public Failure validate(@NotNull Node node) {
+    public Failure validate(@NonNull Node node) {
         return node instanceof Heading ? validateSemVer((Heading) node) : NO_PROBLEM;
     }
 
