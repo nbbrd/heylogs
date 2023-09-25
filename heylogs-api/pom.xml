@@ -46,11 +46,23 @@
             <artifactId>flexmark</artifactId>
             <!-- last version for Java8 -->
             <version>0.62.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jetbrains</groupId>
+                    <artifactId>annotations</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.semver4j</groupId>
             <artifactId>semver4j</artifactId>
             <version>5.2.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jetbrains</groupId>
+                    <artifactId>annotations</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.github.nbbrd.java-io-util</groupId>

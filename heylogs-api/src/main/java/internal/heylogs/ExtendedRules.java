@@ -16,7 +16,6 @@ import nbbrd.heylogs.spi.RuleBatch;
 import nbbrd.io.text.Parser;
 import nbbrd.service.ServiceProvider;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.jetbrains.annotations.NotNull;
 
 import java.net.URL;
 import java.util.List;
@@ -32,13 +31,13 @@ public enum ExtendedRules implements Rule {
 
     HTTPS {
         @Override
-        public Failure validate(@NotNull Node node) {
+        public Failure validate(@NonNull Node node) {
             return node instanceof LinkNodeBase ? validateHttps((LinkNodeBase) node) : NO_PROBLEM;
         }
     },
     GITHUB_ISSUE_REF {
         @Override
-        public Failure validate(@NotNull Node node) {
+        public Failure validate(@NonNull Node node) {
             return node instanceof Link ? validateGitHubIssueRef((Link) node) : NO_PROBLEM;
         }
     },
@@ -50,7 +49,7 @@ public enum ExtendedRules implements Rule {
     };
 
     @Override
-    public @NotNull String getId() {
+    public @NonNull String getId() {
         return name().toLowerCase(Locale.ROOT).replace('_', '-');
     }
 

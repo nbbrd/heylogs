@@ -6,13 +6,13 @@ import com.vladsch.flexmark.ast.util.ReferenceRepository;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
+import lombok.NonNull;
 import nbbrd.design.MightBeGenerated;
 import nbbrd.design.VisibleForTesting;
 import nbbrd.heylogs.*;
 import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleBatch;
 import nbbrd.service.ServiceProvider;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,43 +24,43 @@ public enum GuidingPrinciples implements Rule {
 
     FOR_HUMANS {
         @Override
-        public Failure validate(@NotNull Node node) {
+        public Failure validate(@NonNull Node node) {
             return node instanceof Document ? validateForHumans((Document) node) : NO_PROBLEM;
         }
     },
     ALL_H2_CONTAIN_A_VERSION {
         @Override
-        public Failure validate(@NotNull Node node) {
+        public Failure validate(@NonNull Node node) {
             return node instanceof Heading ? validateAllH2ContainAVersion((Heading) node) : NO_PROBLEM;
         }
     },
     TYPE_OF_CHANGES_GROUPED {
         @Override
-        public Failure validate(@NotNull Node node) {
+        public Failure validate(@NonNull Node node) {
             return node instanceof Heading ? validateTypeOfChangesGrouped((Heading) node) : NO_PROBLEM;
         }
     },
     LINKABLE {
         @Override
-        public Failure validate(@NotNull Node node) {
+        public Failure validate(@NonNull Node node) {
             return node instanceof Heading ? validateLinkable((Heading) node) : NO_PROBLEM;
         }
     },
     LATEST_VERSION_FIRST {
         @Override
-        public Failure validate(@NotNull Node node) {
+        public Failure validate(@NonNull Node node) {
             return node instanceof Document ? validateLatestVersionFirst((Document) node) : NO_PROBLEM;
         }
     },
     DATE_DISPLAYED {
         @Override
-        public Failure validate(@NotNull Node node) {
+        public Failure validate(@NonNull Node node) {
             return NO_PROBLEM;
         }
     };
 
     @Override
-    public @NotNull String getId() {
+    public @NonNull String getId() {
         return name().toLowerCase(Locale.ROOT).replace('_', '-');
     }
 
@@ -70,7 +70,7 @@ public enum GuidingPrinciples implements Rule {
     }
 
     @VisibleForTesting
-    static Failure validateForHumans(@NotNull Document document) {
+    static Failure validateForHumans(@NonNull Document document) {
         List<Heading> headings = Nodes.of(Heading.class)
                 .descendants(document)
                 .filter(Changelog::isChangelogLevel)
@@ -107,7 +107,7 @@ public enum GuidingPrinciples implements Rule {
     }
 
     @VisibleForTesting
-    static Failure validateAllH2ContainAVersion(@NotNull Heading heading) {
+    static Failure validateAllH2ContainAVersion(@NonNull Heading heading) {
         if (!Version.isVersionLevel(heading)) {
             return NO_PROBLEM;
         }
@@ -125,7 +125,7 @@ public enum GuidingPrinciples implements Rule {
     }
 
     @VisibleForTesting
-    static Failure validateTypeOfChangesGrouped(@NotNull Heading heading) {
+    static Failure validateTypeOfChangesGrouped(@NonNull Heading heading) {
         if (!TypeOfChange.isTypeOfChangeLevel(heading)) {
             return NO_PROBLEM;
         }
@@ -143,7 +143,7 @@ public enum GuidingPrinciples implements Rule {
     }
 
     @VisibleForTesting
-    static Failure validateLinkable(@NotNull Heading heading) {
+    static Failure validateLinkable(@NonNull Heading heading) {
         if (!Version.isVersionLevel(heading)) {
             return NO_PROBLEM;
         }
@@ -169,7 +169,7 @@ public enum GuidingPrinciples implements Rule {
     }
 
     @VisibleForTesting
-    static Failure validateLatestVersionFirst(@NotNull Document doc) {
+    static Failure validateLatestVersionFirst(@NonNull Document doc) {
         List<VersionNode> versions = VersionNode.allOf(doc);
 
         Comparator<VersionNode> comparator = Comparator.comparing((VersionNode item) -> item.getVersion().getDate()).reversed();
