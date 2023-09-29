@@ -104,6 +104,9 @@
                                 </goals>
                                 <configuration>
                                     <jreleaser>
+                                        <project>
+                                            <description>Keep-a-changelog tool</description>
+                                        </project>
                                         <release>
                                             <github>
                                                 <skipTag>true</skipTag>
