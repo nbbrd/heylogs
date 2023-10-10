@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.github.nbbrd.heylogs</groupId>
         <artifactId>heylogs-parent</artifactId>
-        <version>0.6.0</version>
+        <version>0.7.0</version>
     </parent>
 
     <artifactId>heylogs-bom</artifactId>
@@ -94,7 +94,7 @@
                     <plugin>
                         <groupId>org.jreleaser</groupId>
                         <artifactId>jreleaser-maven-plugin</artifactId>
-                        <version>1.5.1</version>
+                        <version>1.8.0</version>
                         <executions>
                             <execution>
                                 <id>release-assets</id>
@@ -104,6 +104,9 @@
                                 </goals>
                                 <configuration>
                                     <jreleaser>
+                                        <project>
+                                            <description>Keep-a-changelog tool</description>
+                                        </project>
                                         <release>
                                             <github>
                                                 <skipTag>true</skipTag>

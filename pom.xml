@@ -6,7 +6,7 @@
 
     <groupId>com.github.nbbrd.heylogs</groupId>
     <artifactId>heylogs-parent</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
     <packaging>pom</packaging>
 
     <name>heylogs</name>
@@ -42,14 +42,14 @@
             <dependency>
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
-                <version>3.35.0</version>
+                <version>3.39.0</version>
             </dependency>
 
             <!-- test libraries -->
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
-                <version>5.9.3</version>
+                <version>5.10.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -68,7 +68,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-clean-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>3.3.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -107,9 +107,14 @@
                 </plugin>
                 <!-- Other plugins -->
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>3.6.0</version>
+                </plugin>
+                <plugin>
                     <groupId>de.thetaphi</groupId>
                     <artifactId>forbiddenapis</artifactId>
-                    <version>3.5.1</version>
+                    <version>3.6</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -199,10 +204,10 @@
                 </property>
             </activation>
             <properties>
-                <lombok.version>1.18.28</lombok.version>
-                <java-service.version>1.6.1</java-service.version>
+                <lombok.version>1.18.30</lombok.version>
+                <java-service.version>1.7.0</java-service.version>
                 <java-design.version>1.4.0</java-design.version>
-                <picocli.version>4.7.4</picocli.version>
+                <picocli.version>4.7.5</picocli.version>
             </properties>
             <dependencyManagement>
                 <dependencies>
@@ -369,7 +374,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-enforcer-plugin</artifactId>
-                        <version>3.3.0</version>
+                        <version>3.4.1</version>
                         <dependencies>
                             <dependency>
                                 <groupId>org.kordamp.maven</groupId>
@@ -442,7 +447,7 @@
                     <plugin>
                         <groupId>org.gaul</groupId>
                         <artifactId>modernizer-maven-plugin</artifactId>
-                        <version>2.6.0</version>
+                        <version>2.7.0</version>
                         <configuration>
                             <javaVersion>1.8</javaVersion>
                         </configuration>
@@ -539,7 +544,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.5.0</version>
+                        <version>3.6.0</version>
                         <executions>
                             <execution>
                                 <id>attach-empty-javadocs</id>

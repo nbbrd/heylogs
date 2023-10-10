@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 import static _test.Sample.asHeading;
 import static _test.Sample.using;
-import static nbbrd.heylogs.Version.parse;
+import static nbbrd.heylogs.Version.*;
 import static org.assertj.core.api.Assertions.*;
 
 public class VersionTest {
@@ -20,17 +20,25 @@ public class VersionTest {
                 .isThrownBy(() -> parse(null));
 
         assertThat(parse(asHeading("## [Unreleased]")))
-                .isEqualTo(Version.of("Unreleased", LocalDate.MAX));
+                .isEqualTo(Version.of("Unreleased", HYPHEN, LocalDate.MAX));
 
         assertThat(parse(asHeading("## [Unreleased ]")))
-                .isEqualTo(Version.of("Unreleased", LocalDate.MAX));
+                .isEqualTo(Version.of("Unreleased", HYPHEN, LocalDate.MAX));
 
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> parse(asHeading("## [Unreleased] - 2019-02-15")))
                 .withMessageContaining("Unexpected additional part");
 
         assertThat(parse(asHeading("## [1.1.0] - 2019-02-15")))
-                .isEqualTo(Version.of("1.1.0", d20190215));
+                .isEqualTo(Version.of("1.1.0", HYPHEN, d20190215));
+
+        // Unicode en dash as separator
+        assertThat(parse(asHeading("## [1.1.0] – 2019-02-15")))
+                .isEqualTo(Version.of("1.1.0", EN_DASH, d20190215));
+
+        // Unicode em dash as separator
+        assertThat(parse(asHeading("## [1.1.0] — 2019-02-15")))
+                .isEqualTo(Version.of("1.1.0", EM_DASH, d20190215));
 
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> parse(asHeading("# [1.1.0] - 2019-02-15")))
@@ -78,18 +86,18 @@ public class VersionTest {
 
         assertThat(Nodes.of(Heading.class).descendants(using("/Main.md")).filter(Version::isVersionLevel).map(Version::parse))
                 .hasSize(14)
-                .contains(Version.of("Unreleased", LocalDate.MAX), atIndex(0))
-                .contains(Version.of("1.1.0", d20190215), atIndex(1));
+                .contains(Version.of("Unreleased", HYPHEN, LocalDate.MAX), atIndex(0))
+                .contains(Version.of("1.1.0", HYPHEN, d20190215), atIndex(1));
     }
 
     @Test
     public void testToHeading() {
-        assertThat(Version.of("Unreleased", LocalDate.MAX).toHeading())
+        assertThat(Version.of("Unreleased", HYPHEN, LocalDate.MAX).toHeading())
                 .extracting(Sample::asText)
                 .asString()
                 .isEqualTo("## [Unreleased]");
 
-        assertThat(Version.of("1.1.0", d20190215).toHeading())
+        assertThat(Version.of("1.1.0", HYPHEN, d20190215).toHeading())
                 .extracting(Sample::asText, STRING)
                 .isEqualTo("## [1.1.0] - 2019-02-15");
     }
