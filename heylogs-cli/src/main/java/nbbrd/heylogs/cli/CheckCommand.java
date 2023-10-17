@@ -8,18 +8,20 @@ import internal.heylogs.cli.SpecialProperties;
 import nbbrd.console.picocli.FileOutputOptions;
 import nbbrd.console.picocli.MultiFileInputOptions;
 import nbbrd.heylogs.Checker;
+import nbbrd.heylogs.Failure;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 import java.io.Writer;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import static internal.heylogs.cli.MarkdownInputSupport.newMarkdownInputSupport;
 import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
 
 @Command(name = "check", description = "Check changelog format.")
-public final class CheckCommand implements Callable<Void> {
+public final class CheckCommand implements Callable<Integer> {
 
     @CommandLine.Mixin
     private MultiFileInputOptions input;
@@ -51,22 +53,20 @@ public final class CheckCommand implements Callable<Void> {
     private boolean debug;
 
     @Override
-    public Void call() throws Exception {
+    public Integer call() throws Exception {
         try (Writer writer = newTextOutputSupport().newBufferedWriter(output.getFile())) {
 
             Checker checker = getChecker();
             MarkdownInputSupport markdown = newMarkdownInputSupport();
 
+            int failureCount = 0;
             for (Path file : input.getAllFiles(markdown::accept)) {
-                checker.formatFailures(
-                        writer,
-                        markdown.getName(file),
-                        checker.validate(markdown.readDocument(file))
-                );
+                List<Failure> failures = checker.validate(markdown.readDocument(file));
+                checker.formatFailures(writer, markdown.getName(file), failures);
+                failureCount += failures.size();
             }
+            return failureCount;
         }
-
-        return null;
     }
 
     private Checker getChecker() {

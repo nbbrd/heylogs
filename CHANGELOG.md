@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix missing error code when problems are found in check command [#159](https://github.com/nbbrd/jbang-catalog/issues/159)
+
 ## [0.7.0] - 2023-10-10
 
 This release adds support for a custom separator between version and date. It also provides some basic documentation.
