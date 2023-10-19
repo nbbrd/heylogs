@@ -7,6 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.7.1] - 2023-10-19
+
+### Fixed
+
+- Fix missing error code when problems are found in check command [#159](https://github.com/nbbrd/jbang-catalog/issues/159)
+
 ## [0.7.0] - 2023-10-10
 
 This release adds support for a custom separator between version and date. It also provides some basic documentation.
@@ -100,7 +106,8 @@ This release improves extension points and also aligns features of Maven plugin 
 
 - Initial release
 
-[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.7.1...HEAD
+[0.7.1]: https://github.com/nbbrd/heylogs/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/nbbrd/heylogs/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/nbbrd/heylogs/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/nbbrd/heylogs/compare/v0.4.0...v0.5.0

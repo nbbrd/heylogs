@@ -6,7 +6,7 @@
 
     <groupId>com.github.nbbrd.heylogs</groupId>
     <artifactId>heylogs-parent</artifactId>
-    <version>0.7.0</version>
+    <version>0.7.1</version>
     <packaging>pom</packaging>
 
     <name>heylogs</name>
@@ -206,7 +206,7 @@
             <properties>
                 <lombok.version>1.18.30</lombok.version>
                 <java-service.version>1.7.0</java-service.version>
-                <java-design.version>1.4.0</java-design.version>
+                <java-design.version>1.5.0</java-design.version>
                 <picocli.version>4.7.5</picocli.version>
             </properties>
             <dependencyManagement>
