@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.github.nbbrd.heylogs</groupId>
         <artifactId>heylogs-parent</artifactId>
-        <version>0.6.1-SNAPSHOT</version>
+        <version>0.7.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>heylogs-bom</artifactId>
@@ -104,6 +104,9 @@
                                 </goals>
                                 <configuration>
                                     <jreleaser>
+                                        <project>
+                                            <description>Keep-a-changelog tool</description>
+                                        </project>
                                         <release>
                                             <github>
                                                 <skipTag>true</skipTag>

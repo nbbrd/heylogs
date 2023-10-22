@@ -9,6 +9,7 @@ import com.vladsch.flexmark.util.sequence.BasedSequence;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
+import nbbrd.design.VisibleForTesting;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -23,15 +24,22 @@ public class Version implements BaseSection {
 
     private static final int HEADING_LEVEL = 2;
 
-    private static final char HYPHEN = '-';
-    private static final char EN_DASH = '–';
-    private static final char EM_DASH = '—';
+    @VisibleForTesting
+    static final char HYPHEN = '-';
+
+    @VisibleForTesting
+    static final char EN_DASH = '–';
+
+    @VisibleForTesting
+    static final char EM_DASH = '—';
 
     // The unicode en dash ("–") and em dash ("—") are also accepted as separators
     private static final CharPredicate VALID_SEPARATOR = CharPredicate.anyOf(HYPHEN, EN_DASH, EM_DASH);
 
     @lombok.NonNull
     String ref;
+
+    char separator;
 
     @lombok.NonNull
     LocalDate date;
@@ -54,7 +62,7 @@ public class Version implements BaseSection {
 
         if (!isUnreleased()) {
             Text secondPart = new Text();
-            secondPart.setChars(BasedSequence.of(" - ").append(date.toString()));
+            secondPart.setChars(BasedSequence.of(" " + separator + " ").append(date.toString()));
             result.appendChild(secondPart);
         }
 
@@ -72,28 +80,31 @@ public class Version implements BaseSection {
         if (!parts.hasNext()) {
             throw new IllegalArgumentException("Missing ref part");
         }
+        Node firstPart = parts.next();
 
-        String ref = parseRef(parts.next());
+        String ref = parseRef(firstPart);
 
         if (ref.equalsIgnoreCase(UNRELEASED_KEYWORD)) {
             if (parts.hasNext()) {
                 throw new IllegalArgumentException("Unexpected additional part: '" + parts.next().getChars() + "'");
             }
 
-            return new Version(ref, LocalDate.MAX);
+            return new Version(ref, HYPHEN, LocalDate.MAX);
         }
 
         if (!parts.hasNext()) {
             throw new IllegalArgumentException("Missing date part");
         }
+        Node secondPart = parts.next();
 
-        LocalDate date = parseDate(parts.next());
+        char separator = parseSeparator(secondPart);
+        LocalDate date = parseDate(secondPart);
 
         if (parts.hasNext()) {
             throw new IllegalArgumentException("Unexpected additional part: '" + parts.next().getChars() + "'");
         }
 
-        return new Version(ref, date);
+        return new Version(ref, separator, date);
     }
 
     private static String parseRef(Node firstPart) throws IllegalArgumentException {
@@ -103,12 +114,18 @@ public class Version implements BaseSection {
         return ((LinkRef) firstPart).getReference().toString();
     }
 
-    private static LocalDate parseDate(Node secondPart) throws IllegalArgumentException {
-        BasedSequence date = secondPart.getChars();
+    private static char parseSeparator(Node secondPart) throws IllegalArgumentException {
+        BasedSequence text = secondPart.getChars().trimStart();
 
-        if (!date.trimStart().startsWith(VALID_SEPARATOR)) {
+        if (!text.startsWith(VALID_SEPARATOR)) {
             throw new IllegalArgumentException("Missing date prefix");
         }
+
+        return text.charAt(0);
+    }
+
+    private static LocalDate parseDate(Node secondPart) throws IllegalArgumentException {
+        BasedSequence date = secondPart.getChars();
 
         BasedSequence x = date.safeSubSequence(3).trim();
 

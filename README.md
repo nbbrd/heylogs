@@ -35,7 +35,7 @@ It requires a Java SE Runtime Environment (JRE) version 11 or later to run on su
 The easiest way of installing the CLI is to use a package manager.  
 Each operating system has its own manager. See the list below for specific instructions.
 
-#### Scoop bucket
+#### Scoop
 
 ![WINDOWS]
 
@@ -44,7 +44,7 @@ scoop bucket add nbbrd https://github.com/nbbrd/scoop-nbbrd.git
 scoop install heylogs
 ```
 
-#### Homebrew tap
+#### Homebrew
 
 ![MACOS] ![LINUX]
 
@@ -52,49 +52,33 @@ scoop install heylogs
 brew install nbbrd/tap/heylogs
 ```
 
-#### JBang catalog
+#### JBang
+
+The CLI can be run by JBang almost anywhere using one of these options:
+- Specific version (Maven coordinates): `com.github.nbbrd.heylogs:heylogs-cli:_VERSION_:bin`
+- Latest version (JBang catalog): `heylogs@nbbrd`
 
 ![WINDOWS] ![MACOS] ![LINUX]
 
 ```shell
-jbang heylogs@nbbrd <command> [<args>]
+jbang com.github.nbbrd.heylogs:heylogs-cli:_VERSION_:bin <command> [<args>]
 ```
+
+![GITHUB]
+
+```yml
+- uses: jbangdev/jbang-action@v0.110.1
+  with:
+    script: com.github.nbbrd.heylogs:heylogs-cli:_VERSION_:bin
+    scriptargs: "<command> [<args>]"
+```
+_Note that the trust parameter is required if the catalog is used instead of the Maven coordinates:  
+`trust: https://github.com/nbbrd/jbang-catalog`_
 
 ![DOCKER]
 
 ```shell
-docker run -v `pwd`:/ws --workdir=/ws jbangdev/jbang-action heylogs@nbbrd <command> [<args>]
-```
-
-```shell
-docker run -v `pwd`:/ws --workdir=/ws quay.io/jbangdev/jbang-action heylogs@nbbrd <command> [<args>]
-```
-
-![GITHUB]
-
-```yml
-- uses: jbangdev/jbang-action@v0.98.0
-  with:
-    trust: https://github.com/nbbrd/jbang-catalog
-    script: heylogs@nbbrd
-    scriptargs: "<command> [<args>]"
-```
-
-#### JBang Maven coordinate
-
-![WINDOWS] ![MACOS] ![LINUX]
-
-```shell
-jbang com.github.nbbrd.heylogs:heylogs-cli:RELEASE:bin <command> [<args>]
-```
-
-![GITHUB]
-
-```yml
-- uses: jbangdev/jbang-action@v0.98.0
-  with:
-    script: com.github.nbbrd.heylogs:heylogs-cli:RELEASE:bin
-    scriptargs: "<command> [<args>]"
+docker run -v `pwd`:/ws --workdir=/ws jbangdev/jbang-action com.github.nbbrd.heylogs:heylogs-cli:_VERSION_:bin <command> [<args>]
 ```
 
 #### Maven command-line
@@ -102,7 +86,7 @@ jbang com.github.nbbrd.heylogs:heylogs-cli:RELEASE:bin <command> [<args>]
 ![WINDOWS] ![MACOS] ![LINUX] ![GITHUB]
 
 ```shell
-mvn dependency:copy -Dartifact=com.github.nbbrd.heylogs:heylogs-cli:RELEASE:jar:bin -DoutputDirectory=. -Dmdep.stripVersion -q
+mvn dependency:copy -Dartifact=com.github.nbbrd.heylogs:heylogs-cli:_VERSION_:jar:bin -DoutputDirectory=. -Dmdep.stripVersion -q
 java -jar heylogs-cli-bin.jar <command> [<args>]
 ```
 
@@ -122,7 +106,7 @@ To use the CLI without installing it:
 
 Heylogs is available as a Maven plugin and therefore may be part of the build process.
 
-The following script check the changelog on every build:
+The following script checks the changelog on every build:
 
 ```xml
 <plugin>
@@ -144,7 +128,7 @@ The following script check the changelog on every build:
 </plugin>
 ```
 
-The following script extract the latest version from the changelog for a release:
+The following script extracts the latest version from the changelog during a release:
 
 ```xml
 <profile>

@@ -44,8 +44,6 @@ import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jooq.lambda.Unchecked;
 import org.tinylog.Logger;
 
@@ -116,7 +114,7 @@ public final class GitDiffRule implements Rule {
     }
 
     @Override
-    public @NotNull String getId() {
+    public String getId() {
         return "releasechangesfrozen";
     }
 
@@ -126,7 +124,7 @@ public final class GitDiffRule implements Rule {
     }
 
     @Override
-    public Failure validate(@NotNull Node node) {
+    public Failure validate(Node node) {
         if (!isGitRepository || processedReference) {
             return NO_PROBLEM;
         }
@@ -174,8 +172,7 @@ public final class GitDiffRule implements Rule {
         return result;
     }
 
-    @Nullable
-    private void initialize(@NotNull Node node) {
+    private void initialize(Node node) {
         initialized = true;
         try {
             initialize();
@@ -196,7 +193,7 @@ public final class GitDiffRule implements Rule {
         } while (iterator.hasNext() && (previous instanceof Reference));
     }
 
-    private Failure getFailure(@NotNull Heading heading, int nextHeadingLineNumber) {
+    private Failure getFailure(Heading heading, int nextHeadingLineNumber) {
         int lineNumber = heading.getLineNumber();
         Optional<Integer> firstModifiedLineNumber = intersects(lineNumber, nextHeadingLineNumber - 1);
         if (firstModifiedLineNumber.isEmpty()) {
@@ -309,7 +306,7 @@ public final class GitDiffRule implements Rule {
     }
 
     @VisibleForTesting
-    static @Nullable Version getNewestRelease(byte[] bytes) throws Exception {
+    static Version getNewestRelease(byte[] bytes) throws Exception {
         Parser parser = Parser.builder().build();
         Document document;
         try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);

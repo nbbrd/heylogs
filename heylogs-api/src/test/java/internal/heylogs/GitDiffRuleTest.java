@@ -282,9 +282,10 @@ class GitDiffRuleTest {
     public static Stream<Arguments> versionDeterminedCorrectly() {
         return Stream.of(
                 Arguments.of(null, CHANGELOG_NO_RELEASE),
-                Arguments.of(Version.of("0.1.0", d20230911), CHANGELOG_INITIAL),
-                Arguments.of(Version.of("0.1.0", d20230911), CHANGELOG_UNRELEASED),
-                Arguments.of(Version.of("0.2.0", d20230912), CHANGELOG_020)
+                // Can't use import static nbbrd.heylogs.Version.HYPHEN, thus no constant here
+                Arguments.of(Version.of("0.1.0", '-', d20230911), CHANGELOG_INITIAL),
+                Arguments.of(Version.of("0.1.0", '-', d20230911), CHANGELOG_UNRELEASED),
+                Arguments.of(Version.of("0.2.0", '-', d20230912), CHANGELOG_020)
         );
     }
 

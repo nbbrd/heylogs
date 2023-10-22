@@ -1,38 +1,55 @@
 package internal.heylogs;
 
+import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.ast.LinkNodeBase;
+import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
+import lombok.NonNull;
 import nbbrd.design.MightBeGenerated;
 import nbbrd.design.VisibleForTesting;
 import nbbrd.heylogs.Failure;
+import nbbrd.heylogs.Nodes;
+import nbbrd.heylogs.Version;
 import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleBatch;
 import nbbrd.io.text.Parser;
 import nbbrd.service.ServiceProvider;
-import org.jetbrains.annotations.NotNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.net.URL;
+import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+import static nbbrd.heylogs.Util.illegalArgumentToNull;
 
 public enum ExtendedRules implements Rule {
 
     HTTPS {
         @Override
-        public Failure validate(@NotNull Node node) {
+        public Failure validate(@NonNull Node node) {
             return node instanceof LinkNodeBase ? validateHttps((LinkNodeBase) node) : NO_PROBLEM;
         }
     },
     GITHUB_ISSUE_REF {
         @Override
-        public Failure validate(@NotNull Node node) {
+        public Failure validate(@NonNull Node node) {
             return node instanceof Link ? validateGitHubIssueRef((Link) node) : NO_PROBLEM;
+        }
+    },
+    CONSISTENT_SEPARATOR {
+        @Override
+        public @Nullable Failure validate(@NonNull Node node) {
+            return node instanceof Document ? validateConsistentSeparator((Document) node) : NO_PROBLEM;
         }
     };
 
     @Override
-    public @NotNull String getId() {
+    public @NonNull String getId() {
         return name().toLowerCase(Locale.ROOT).replace('_', '-');
     }
 
@@ -96,6 +113,31 @@ public enum ExtendedRules implements Rule {
     }
 
     private static final int NO_ISSUE_REF = -1;
+
+    @VisibleForTesting
+    static Failure validateConsistentSeparator(Document doc) {
+        List<Character> separators = Nodes.of(Heading.class)
+                .descendants(doc)
+                .filter(Version::isVersionLevel)
+                .map(illegalArgumentToNull(Version::parse))
+                .filter(Objects::nonNull)
+                .map(Version::getSeparator)
+                .distinct()
+                .collect(toList());
+
+        return separators.size() > 1
+                ? Failure
+                .builder()
+                .rule(CONSISTENT_SEPARATOR)
+                .message("Expecting consistent version-date separator " + toUnicode(separators.get(0)) + ", found [" + separators.stream().skip(1).map(ExtendedRules::toUnicode).collect(joining(", ")) + "]")
+                .location(doc)
+                .build()
+                : NO_PROBLEM;
+    }
+
+    private static String toUnicode(Character c) {
+        return String.format(Locale.ROOT, "\\u%04x", (int) c);
+    }
 
     @MightBeGenerated
     @ServiceProvider

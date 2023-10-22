@@ -1,20 +1,19 @@
 package internal.heylogs;
 
+import _test.Sample;
 import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.ast.LinkNodeBase;
 import com.vladsch.flexmark.util.ast.Node;
 import nbbrd.heylogs.Failure;
 import nbbrd.heylogs.Nodes;
-import _test.Sample;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
 
-import static internal.heylogs.ExtendedRules.GITHUB_ISSUE_REF;
-import static internal.heylogs.ExtendedRules.HTTPS;
-import static nbbrd.heylogs.Nodes.of;
 import static _test.Sample.using;
+import static internal.heylogs.ExtendedRules.*;
+import static nbbrd.heylogs.Nodes.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Index.atIndex;
 
@@ -60,5 +59,11 @@ public class ExtendedRulesTest {
                 .filteredOn(Objects::nonNull)
                 .contains(Failure.builder().rule(GITHUB_ISSUE_REF).message("Expecting GitHub issue ref 172, found 173").line(2).column(1).build(), atIndex(0))
                 .hasSize(1);
+    }
+
+    @Test
+    public void testValidateConsistentSeparator() {
+        assertThat(validateConsistentSeparator(using("/ErraticSeparator.md")))
+                .isEqualTo(Failure.builder().rule(CONSISTENT_SEPARATOR).message("Expecting consistent version-date separator \\u002d, found [\\u2013, \\u2014]").line(1).column(1).build());
     }
 }

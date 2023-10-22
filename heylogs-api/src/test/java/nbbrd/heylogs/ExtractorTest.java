@@ -11,6 +11,7 @@ import java.util.function.Function;
 import static _test.Sample.using;
 import static nbbrd.heylogs.Extractor.builder;
 import static nbbrd.heylogs.Extractor.parseLocalDate;
+import static nbbrd.heylogs.Version.HYPHEN;
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.InstanceOfAssertFactories.STRING;
 
@@ -165,7 +166,7 @@ public class ExtractorTest {
         return new Condition<>(parent -> parent.contains(version), "Must contain %s", version);
     }
 
-    private final Version unreleased = Version.of("Unreleased", LocalDate.MAX);
-    private final Version v1_1_0 = Version.of("1.1.0", LocalDate.parse("2019-02-15"));
-    private final Version v1_0_0 = Version.of("1.0.0", LocalDate.parse("2017-06-20"));
+    private final Version unreleased = Version.of("Unreleased", HYPHEN, LocalDate.MAX);
+    private final Version v1_1_0 = Version.of("1.1.0", HYPHEN, LocalDate.parse("2019-02-15"));
+    private final Version v1_0_0 = Version.of("1.0.0", HYPHEN, LocalDate.parse("2017-06-20"));
 }

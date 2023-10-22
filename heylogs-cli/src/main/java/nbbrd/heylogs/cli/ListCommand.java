@@ -1,6 +1,7 @@
 package nbbrd.heylogs.cli;
 
 import internal.heylogs.SemverRule;
+import internal.heylogs.cli.SpecialProperties;
 import nbbrd.heylogs.Checker;
 import nbbrd.heylogs.spi.Format;
 import nbbrd.heylogs.spi.Rule;
@@ -20,6 +21,13 @@ public final class ListCommand implements Callable<Void> {
             description = "Mention if this changelog follows Semantic Versioning."
     )
     private boolean semver;
+
+    @CommandLine.Option(
+            names = {SpecialProperties.DEBUG_OPTION},
+            defaultValue = "false",
+            hidden = true
+    )
+    private boolean debug;
 
     @Override
     public Void call() {
