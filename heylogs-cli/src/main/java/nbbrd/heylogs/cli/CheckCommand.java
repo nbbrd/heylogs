@@ -92,7 +92,7 @@ public final class CheckCommand implements Callable<Integer> {
             int failureCount = 0;
             for (Path file : input.getAllFiles(markdown::accept)) {
                 if (isGitDiffEnabled()) {
-                    gitDiffRule.setPath(file.getParent());
+                    gitDiffRule.setPath(file.toAbsolutePath().getParent());
                 }
                 List<Failure> failures = checker.validate(markdown.readDocument(file));
                 checker.formatFailures(writer, markdown.getName(file), failures);

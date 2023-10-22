@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -106,6 +107,10 @@ public final class GitDiffRule implements Rule {
      * </p>
      */
     public void setPath(Path path) {
+        if (path == null) {
+            java.util.logging.Logger.getLogger(GitDiffRule.class.getCanonicalName()).log(Level.WARNING, "null was passed");
+            return;
+        }
         if (path.equals(this.path)) {
             return;
         }
