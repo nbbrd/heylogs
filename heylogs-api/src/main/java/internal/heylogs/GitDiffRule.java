@@ -108,7 +108,7 @@ public final class GitDiffRule implements Rule {
      */
     public void setPath(Path path) {
         if (path == null) {
-            java.util.logging.Logger.getLogger(GitDiffRule.class.getCanonicalName()).log(Level.WARNING, "null was passed");
+            Logger.warn("null was passed");
             return;
         }
         if (path.equals(this.path)) {
@@ -240,8 +240,14 @@ public final class GitDiffRule implements Rule {
             ObjectId newObjectId;
             if (useHeadAndParent) {
                 newObjectId = repository.resolve(Constants.HEAD);
+                if (newObjectId == null) {
+                    throw new IllegalArgumentException("HEAD not found in repository");
+                }
             } else {
                 newObjectId = repository.resolve(newRevStr);
+                if (newObjectId == null) {
+                    throw new IllegalArgumentException("Reference " + newRevStr + " not found in repository");
+                }
             }
             RevCommit commit = revWalk.parseCommit(newObjectId);
             RevCommit oldCommit;
