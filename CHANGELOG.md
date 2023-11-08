@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Output all separators in error message by [@koppor](https://github.com/koppor) [#164](https://github.com/nbbrd/heylogs/pull/164)
+
 ## [0.7.1] - 2023-10-19
 
 ### Fixed
