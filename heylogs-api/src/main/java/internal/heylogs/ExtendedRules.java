@@ -129,7 +129,7 @@ public enum ExtendedRules implements Rule {
                 ? Failure
                 .builder()
                 .rule(CONSISTENT_SEPARATOR)
-                .message("Expecting consistent version-date separator " + toUnicode(separators.get(0)) + ", found [" + separators.stream().skip(1).map(ExtendedRules::toUnicode).collect(joining(", ")) + "]")
+                .message("Expecting consistent version-date separator " + toUnicode(separators.get(0)) + ", found " + separators.stream().map(ExtendedRules::toUnicode).collect(joining(", ", "[", "]")))
                 .location(doc)
                 .build()
                 : NO_PROBLEM;
