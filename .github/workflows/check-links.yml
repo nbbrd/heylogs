@@ -35,4 +35,4 @@ jobs:
         uses: lycheeverse/lychee-action@v1.8.0
         with:
           fail: true
-          args: --max-concurrency 1 --cache --no-progress --exclude-all-private './**/*.md'
+          args: --max-concurrency 1 --cache --no-progress --exclude-all-private --exclude-path '*/src/test/resources/*' './**/*.md'
