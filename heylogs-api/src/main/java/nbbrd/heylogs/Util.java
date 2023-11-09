@@ -2,6 +2,7 @@ package nbbrd.heylogs;
 
 import lombok.NonNull;
 
+import java.util.Locale;
 import java.util.function.Function;
 
 public final class Util {
@@ -18,5 +19,9 @@ public final class Util {
                 return null;
             }
         };
+    }
+
+    public static @NonNull String toUnicode(@NonNull Character c) {
+        return String.format(Locale.ROOT, "\\u%04x", (int) c);
     }
 }

@@ -102,5 +102,14 @@ public class VersionTest {
                 .isEqualTo("## [1.1.0] - 2019-02-15");
     }
 
+    @Test
+    public void testToString() {
+        assertThat(Version.of("Unreleased", HYPHEN, LocalDate.MAX))
+                .hasToString("Version(ref=Unreleased, separator=\\u002d, date=+999999999-12-31)");
+
+        assertThat(Version.of("1.1.0", HYPHEN, d20190215))
+                .hasToString("Version(ref=1.1.0, separator=\\u002d, date=2019-02-15)");
+    }
+
     private final LocalDate d20190215 = LocalDate.parse("2019-02-15");
 }
