@@ -19,7 +19,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
-- Fix missing error code when problems are found in check command [#159](https://github.com/nbbrd/jbang-catalog/issues/159)
+- Fix missing error code when problems are found in check command [#159](https://github.com/nbbrd/heylogs/issues/159)
 
 ## [0.7.0] - 2023-10-10
 
