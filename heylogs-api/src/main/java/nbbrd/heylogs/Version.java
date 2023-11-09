@@ -20,10 +20,6 @@ import java.util.Objects;
 @RepresentableAs(Heading.class)
 public class Version implements BaseSection {
 
-    private static final String UNRELEASED_KEYWORD = "unreleased";
-
-    private static final int HEADING_LEVEL = 2;
-
     @VisibleForTesting
     static final char HYPHEN = '-';
 
@@ -32,6 +28,14 @@ public class Version implements BaseSection {
 
     @VisibleForTesting
     static final char EM_DASH = '—';
+
+    private static final int HEADING_LEVEL = 2;
+
+    private static final String UNRELEASED_KEYWORD = "unreleased";
+
+    private static final char UNRELEASED_SEPARATOR = HYPHEN;
+
+    private static final LocalDate UNRELEASED_DATE = LocalDate.MAX;
 
     // The unicode en dash ("–") and em dash ("—") are also accepted as separators
     private static final CharPredicate VALID_SEPARATOR = CharPredicate.anyOf(HYPHEN, EN_DASH, EM_DASH);
@@ -46,6 +50,11 @@ public class Version implements BaseSection {
 
     public boolean isUnreleased() {
         return UNRELEASED_KEYWORD.equalsIgnoreCase(ref);
+    }
+
+    @Override
+    public String toString() {
+        return "Version(ref=" + ref + ", separator=" + Util.toUnicode(separator) + ", date=" + date + ")";
     }
 
     @Override
@@ -89,7 +98,7 @@ public class Version implements BaseSection {
                 throw new IllegalArgumentException("Unexpected additional part: '" + parts.next().getChars() + "'");
             }
 
-            return new Version(ref, HYPHEN, LocalDate.MAX);
+            return new Version(ref, UNRELEASED_SEPARATOR, UNRELEASED_DATE);
         }
 
         if (!parts.hasNext()) {

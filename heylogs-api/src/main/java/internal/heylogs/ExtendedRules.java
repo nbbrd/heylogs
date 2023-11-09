@@ -10,6 +10,7 @@ import nbbrd.design.MightBeGenerated;
 import nbbrd.design.VisibleForTesting;
 import nbbrd.heylogs.Failure;
 import nbbrd.heylogs.Nodes;
+import nbbrd.heylogs.Util;
 import nbbrd.heylogs.Version;
 import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleBatch;
@@ -20,7 +21,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import java.net.URL;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.joining;
@@ -120,7 +120,7 @@ public enum ExtendedRules implements Rule {
                 .descendants(doc)
                 .filter(Version::isVersionLevel)
                 .map(illegalArgumentToNull(Version::parse))
-                .filter(Objects::nonNull)
+                .filter(version -> version != null && !version.isUnreleased())
                 .map(Version::getSeparator)
                 .distinct()
                 .collect(toList());
@@ -129,14 +129,10 @@ public enum ExtendedRules implements Rule {
                 ? Failure
                 .builder()
                 .rule(CONSISTENT_SEPARATOR)
-                .message("Expecting consistent version-date separator " + toUnicode(separators.get(0)) + ", found [" + separators.stream().skip(1).map(ExtendedRules::toUnicode).collect(joining(", ")) + "]")
+                .message("Expecting consistent version-date separator " + Util.toUnicode(separators.get(0)) + ", found " + separators.stream().map(Util::toUnicode).collect(joining(", ", "[", "]")))
                 .location(doc)
                 .build()
                 : NO_PROBLEM;
-    }
-
-    private static String toUnicode(Character c) {
-        return String.format(Locale.ROOT, "\\u%04x", (int) c);
     }
 
     @MightBeGenerated

@@ -13,7 +13,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Output all separators in error message by [@koppor](https://github.com/koppor) [#164](https://github.com/nbbrd/heylogs/pull/164)
 - Minimum Java requirement is now Java 11 (due to the dependency on [Eclipse JGit](https://eclipse.dev/jgit/))
+
+### Fixed
+
+- Fix consistent-separator rule when unreleased keyword is present [#163](https://github.com/nbbrd/heylogs/issues/163)
 
 ## [0.7.1] - 2023-10-19
 
