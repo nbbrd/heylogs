@@ -1,8 +1,10 @@
-name: Check external href links in the documentation
+name: Check links in documentation
 
 on:
   push:
     paths:
+      - '.github/workflows/check-links.yml'
+      - 'lychee.toml'
       - '**/*.md'
   schedule:
     # Run on the first of each month at 9:00 AM
@@ -35,4 +37,4 @@ jobs:
         uses: lycheeverse/lychee-action@v1.8.0
         with:
           fail: true
-          args: --max-concurrency 1 --cache --no-progress --exclude-all-private --exclude-path '*/src/test/resources/*' './**/*.md'
+          args: --max-concurrency 1 --cache --no-progress --exclude-all-private './**/*.md'

@@ -1,0 +1,1 @@
+exclude_path = ["heylogs-api/src/test/resources/Main.md"]
