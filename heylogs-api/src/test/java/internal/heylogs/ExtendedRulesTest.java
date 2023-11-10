@@ -64,6 +64,9 @@ public class ExtendedRulesTest {
     @Test
     public void testValidateConsistentSeparator() {
         assertThat(validateConsistentSeparator(using("/ErraticSeparator.md")))
-                .isEqualTo(Failure.builder().rule(CONSISTENT_SEPARATOR).message("Expecting consistent version-date separator \\u002d, found [\\u2013, \\u2014]").line(1).column(1).build());
+                .isEqualTo(Failure.builder().rule(CONSISTENT_SEPARATOR).message("Expecting consistent version-date separator \\u002d, found [\\u002d, \\u2013, \\u2014]").line(1).column(1).build());
+
+        assertThat(validateConsistentSeparator(using("/NonDefaultSeparator.md")))
+                .isEqualTo(NO_PROBLEM);
     }
 }

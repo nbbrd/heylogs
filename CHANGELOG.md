@@ -7,11 +7,21 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.7.2] - 2023-11-10
+
+### Changed
+
+- Output all separators in error message by [@koppor](https://github.com/koppor) [#164](https://github.com/nbbrd/heylogs/pull/164)
+
+### Fixed
+
+- Fix consistent-separator rule when unreleased keyword is present [#163](https://github.com/nbbrd/heylogs/issues/163)
+
 ## [0.7.1] - 2023-10-19
 
 ### Fixed
 
-- Fix missing error code when problems are found in check command [#159](https://github.com/nbbrd/jbang-catalog/issues/159)
+- Fix missing error code when problems are found in check command [#159](https://github.com/nbbrd/heylogs/issues/159)
 
 ## [0.7.0] - 2023-10-10
 
@@ -106,7 +116,8 @@ This release improves extension points and also aligns features of Maven plugin 
 
 - Initial release
 
-[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.7.1...HEAD
+[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.7.2...HEAD
+[0.7.2]: https://github.com/nbbrd/heylogs/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/nbbrd/heylogs/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/nbbrd/heylogs/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/nbbrd/heylogs/compare/v0.5.0...v0.6.0
