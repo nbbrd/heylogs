@@ -13,8 +13,8 @@ Key points:
 
 Features:
 
-- Summarizes content
 - Checks format
+- Summarizes content
 - Extracts versions
 
 ## Command-line tool
@@ -22,6 +22,19 @@ Features:
 Heylogs CLI runs on any desktop operating system such as Microsoft Windows, 
 Solaris OS, Apple macOS, Ubuntu and other various Linux distributions. 
 It requires a Java SE Runtime Environment (JRE) version 8 or later to run on such as OpenJDK.
+
+### Using in a GitHub action
+
+![GITHUB]
+
+Most probably, one wants to check the `CHANGELOG.md` file, thus the command is as follows:
+
+```yml
+- uses: jbangdev/jbang-action@v0.110.1
+  with:
+    script: com.github.nbbrd.heylogs:heylogs-cli:_VERSION_:bin
+    scriptargs: "check CHANGELOG.md"
+```
 
 ### Installation
 
@@ -57,6 +70,12 @@ The CLI can be run by JBang almost anywhere using one of these options:
 jbang com.github.nbbrd.heylogs:heylogs-cli:_VERSION_:bin <command> [<args>]
 ```
 
+![DOCKER]
+
+```shell
+docker run -v `pwd`:/ws --workdir=/ws jbangdev/jbang-action com.github.nbbrd.heylogs:heylogs-cli:_VERSION_:bin <command> [<args>]
+```
+
 ![GITHUB]
 
 ```yml
@@ -65,14 +84,9 @@ jbang com.github.nbbrd.heylogs:heylogs-cli:_VERSION_:bin <command> [<args>]
     script: com.github.nbbrd.heylogs:heylogs-cli:_VERSION_:bin
     scriptargs: "<command> [<args>]"
 ```
+
 _Note that the trust parameter is required if the catalog is used instead of the Maven coordinates:  
 `trust: https://github.com/nbbrd/jbang-catalog`_
-
-![DOCKER]
-
-```shell
-docker run -v `pwd`:/ws --workdir=/ws jbangdev/jbang-action com.github.nbbrd.heylogs:heylogs-cli:_VERSION_:bin <command> [<args>]
-```
 
 #### Maven command-line
 
