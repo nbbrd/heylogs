@@ -14,11 +14,11 @@ import java.util.Properties;
 
 @ServiceDefinition(
         quantifier = Quantifier.MULTIPLE,
-        batch = true
+        batchType = RuleBatch.class
 )
 public interface Rule {
 
-    @ServiceId
+    @ServiceId(pattern = ServiceId.KEBAB_CASE)
     @NonNull String getId();
 
     @ServiceFilter

@@ -12,11 +12,11 @@ import java.util.List;
 
 @ServiceDefinition(
         quantifier = Quantifier.MULTIPLE,
-        batch = true
+        batchType = FormatBatch.class
 )
 public interface Format {
 
-    @ServiceId
+    @ServiceId(pattern = ServiceId.KEBAB_CASE)
     @NonNull String getId();
 
     void formatFailures(@NonNull Appendable appendable, @NonNull String source, @NonNull List<Failure> failures) throws IOException;

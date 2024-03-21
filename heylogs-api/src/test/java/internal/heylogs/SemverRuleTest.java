@@ -3,15 +3,22 @@ package internal.heylogs;
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.util.ast.Node;
 import nbbrd.heylogs.Failure;
+import nbbrd.service.ServiceId;
 import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
 
-import static nbbrd.heylogs.Nodes.of;
 import static _test.Sample.using;
+import static nbbrd.heylogs.Nodes.of;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SemverRuleTest {
+
+    @Test
+    public void testIdPattern() {
+        assertThat(new SemverRule().getId())
+                .matches(ServiceId.KEBAB_CASE);
+    }
 
     @Test
     public void testSample() {

@@ -6,10 +6,13 @@ import com.vladsch.flexmark.ast.LinkNodeBase;
 import com.vladsch.flexmark.util.ast.Node;
 import nbbrd.heylogs.Failure;
 import nbbrd.heylogs.Nodes;
+import nbbrd.heylogs.spi.Rule;
+import nbbrd.service.ServiceId;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import static _test.Sample.using;
 import static internal.heylogs.ExtendedRules.*;
@@ -18,6 +21,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Index.atIndex;
 
 public class ExtendedRulesTest {
+
+    @Test
+    public void testIdPattern() {
+        assertThat(GuidingPrinciples.values())
+                .extracting(Rule::getId)
+                .allMatch(Pattern.compile(ServiceId.KEBAB_CASE).asPredicate());
+    }
 
     @Test
     public void test() {
