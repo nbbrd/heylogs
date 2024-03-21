@@ -14,10 +14,14 @@ import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleBatch;
 import nbbrd.service.ServiceProvider;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static internal.heylogs.RuleSupport.nameToId;
 import static nbbrd.heylogs.Util.illegalArgumentToNull;
 
 public enum GuidingPrinciples implements Rule {
@@ -61,7 +65,7 @@ public enum GuidingPrinciples implements Rule {
 
     @Override
     public @NonNull String getId() {
-        return name().toLowerCase(Locale.ROOT).replace('_', '-');
+        return nameToId(this);
     }
 
     @Override

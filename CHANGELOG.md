@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Add check on GitHub Pull Request links [#173](https://github.com/nbbrd/heylogs/issues/173)
+
 ## [0.7.2] - 2023-11-10
 
 ### Changed
