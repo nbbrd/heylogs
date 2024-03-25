@@ -2,9 +2,8 @@ package internal.heylogs.github;
 
 import org.junit.jupiter.api.Test;
 
-import static internal.heylogs.github.GitHubIssueRef.parse;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static internal.heylogs.github.GitHubIssueRef.*;
+import static org.assertj.core.api.Assertions.*;
 
 class GitHubIssueRefTest {
 
@@ -29,14 +28,38 @@ class GitHubIssueRefTest {
                 .hasToString("nbbrd/heylogs#173");
     }
 
+    @SuppressWarnings("DataFlowIssue")
+    @Test
+    public void testFactories() {
+        assertThatNullPointerException().isThrownBy(() -> shortOf(null));
+
+        assertThat(shortOf(issue173).isCompatibleWith(issue173)).isTrue();
+        assertThat(shortOf(issue173).isCompatibleWith(pullRequest217)).isFalse();
+        assertThat(shortOf(pullRequest217).isCompatibleWith(issue173)).isFalse();
+        assertThat(shortOf(pullRequest217).isCompatibleWith(pullRequest217)).isTrue();
+
+        assertThatNullPointerException().isThrownBy(() -> fullOf(null));
+
+        assertThat(fullOf(issue173).isCompatibleWith(issue173)).isTrue();
+        assertThat(fullOf(issue173).isCompatibleWith(pullRequest217)).isFalse();
+        assertThat(fullOf(pullRequest217).isCompatibleWith(issue173)).isFalse();
+        assertThat(fullOf(pullRequest217).isCompatibleWith(pullRequest217)).isTrue();
+    }
+
     @Test
     public void testIsCompatibleWith() {
-        GitHubIssueLink issue173 = GitHubIssueLink.parse("https://github.com/nbbrd/heylogs/issues/173");
-        GitHubIssueLink pullRequest217 = GitHubIssueLink.parse("https://github.com/nbbrd/heylogs/pull/217");
-
         assertThat(parse("#173").isCompatibleWith(issue173)).isTrue();
         assertThat(parse("nbbrd/heylogs#173").isCompatibleWith(issue173)).isTrue();
         assertThat(parse("jdemetra/jdplus-main#173").isCompatibleWith(issue173)).isFalse();
         assertThat(parse("#173").isCompatibleWith(pullRequest217)).isFalse();
     }
+
+    @Test
+    public void testIsShort() {
+        assertThat(parse("#173").isShort()).isTrue();
+        assertThat(parse("nbbrd/heylogs#173").isShort()).isFalse();
+    }
+
+    private final GitHubIssueLink issue173 = GitHubIssueLink.parse("https://github.com/nbbrd/heylogs/issues/173");
+    private final GitHubIssueLink pullRequest217 = GitHubIssueLink.parse("https://github.com/nbbrd/heylogs/pull/217");
 }

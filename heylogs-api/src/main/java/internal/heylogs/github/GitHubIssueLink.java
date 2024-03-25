@@ -1,5 +1,6 @@
 package internal.heylogs.github;
 
+import internal.heylogs.GitHostLink;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAsString;
 
@@ -10,19 +11,18 @@ import static java.lang.Integer.parseInt;
 
 @RepresentableAsString
 @lombok.Value
-class GitHubIssueLink {
+class GitHubIssueLink implements GitHostLink {
 
     public static final String ISSUES_TYPE = "issues";
     public static final String PULL_REQUEST_TYPE = "pull";
-    public static final int NO_PORT = -1;
 
     public static @NonNull GitHubIssueLink parse(@NonNull CharSequence text) {
         Matcher m = PATTERN.matcher(text);
         if (!m.matches()) throw new IllegalArgumentException(text.toString());
         return new GitHubIssueLink(
+                m.group("protocol"),
                 m.group("host"),
                 m.group("port") != null ? parseInt(m.group("port")) : NO_PORT,
-                m.group("protocol"),
                 m.group("owner"),
                 m.group("repo"),
                 m.group("type"),
@@ -30,9 +30,9 @@ class GitHubIssueLink {
         );
     }
 
+    @NonNull String protocol;
     @NonNull String host;
     int port;
-    @NonNull String protocol;
     @NonNull String owner;
     @NonNull String repo;
     @NonNull String type;

@@ -1,7 +1,9 @@
 package internal.heylogs.github;
 
+import internal.heylogs.GitHostRef;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAsString;
+import nbbrd.design.StaticFactoryMethod;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.regex.Matcher;
@@ -10,9 +12,10 @@ import java.util.regex.Pattern;
 import static java.lang.Integer.parseInt;
 
 @RepresentableAsString
-@lombok.Value
-class GitHubIssueRef {
+@lombok.Value(staticConstructor = "of")
+class GitHubIssueRef implements GitHostRef<GitHubIssueLink> {
 
+    @StaticFactoryMethod
     public static @NonNull GitHubIssueRef parse(@NonNull CharSequence text) {
         Matcher m = PATTERN.matcher(text);
         if (!m.matches()) throw new IllegalArgumentException(text.toString());
@@ -23,24 +26,32 @@ class GitHubIssueRef {
         );
     }
 
+    @StaticFactoryMethod
+    public static @NonNull GitHubIssueRef shortOf(@NonNull GitHubIssueLink link) {
+        return new GitHubIssueRef(null, null, link.getIssueNumber());
+    }
+
+    @StaticFactoryMethod
+    public static @NonNull GitHubIssueRef fullOf(@NonNull GitHubIssueLink link) {
+        return new GitHubIssueRef(link.getOwner(), link.getRepo(), link.getIssueNumber());
+    }
+
     @Nullable String owner;
     @Nullable String repo;
     int issueNumber;
 
     @Override
     public String toString() {
-        return hasOwnerRepo()
-                ? owner + "/" + repo + "#" + issueNumber
-                : "#" + issueNumber;
+        return isShort() ? "#" + issueNumber : owner + "/" + repo + "#" + issueNumber;
     }
 
     public boolean isCompatibleWith(@NonNull GitHubIssueLink link) {
-        return (!hasOwnerRepo() || (link.getOwner().equals(owner) && link.getRepo().equals(repo)))
+        return (isShort() || (link.getOwner().equals(owner) && link.getRepo().equals(repo)))
                 && link.getIssueNumber() == issueNumber;
     }
 
-    private boolean hasOwnerRepo() {
-        return owner != null && repo != null;
+    public boolean isShort() {
+        return !(owner != null && repo != null);
     }
 
     // https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/autolinked-references-and-urls#issues-and-pull-requests

@@ -7,15 +7,13 @@ import nbbrd.heylogs.Failure;
 import nbbrd.heylogs.Nodes;
 import nbbrd.heylogs.spi.Rule;
 import nbbrd.service.ServiceId;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
 import java.util.regex.Pattern;
 
 import static _test.Sample.using;
-import static internal.heylogs.github.GitHubRules.GITHUB_ISSUE_REF;
-import static internal.heylogs.github.GitHubRules.GITHUB_PULL_REQUEST_REF;
+import static internal.heylogs.github.GitHubRules.*;
 import static nbbrd.heylogs.Nodes.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Index.atIndex;
@@ -30,12 +28,21 @@ public class GitHubRulesTest {
     }
 
     @Test
-    public void test() {
+    public void testRules() {
         Node sample = Sample.using("/Main.md");
         for (GitHubRules rule : GitHubRules.values()) {
-            Assertions.assertThat(Nodes.of(Node.class).descendants(sample).map(rule::validate).filter(Objects::nonNull))
+            assertThat(Nodes.of(Node.class).descendants(sample).map(rule::validate).filter(Objects::nonNull))
                     .isEmpty();
         }
+
+        assertThat(Nodes.of(Node.class).descendants(using("/InvalidGitHubIssueRef.md")).map(GITHUB_ISSUE_REF::validate).filter(Objects::nonNull))
+                .hasSize(1);
+
+        assertThat(Nodes.of(Node.class).descendants(using("/InvalidGitHubPullRequestRef.md")).map(GITHUB_PULL_REQUEST_REF::validate).filter(Objects::nonNull))
+                .hasSize(1);
+
+        assertThat(Nodes.of(Node.class).descendants(using("/InvalidGitHubMentionRef.md")).map(GITHUB_MENTION_REF::validate).filter(Objects::nonNull))
+                .hasSize(1);
     }
 
     @Test
@@ -50,7 +57,7 @@ public class GitHubRulesTest {
                 .map(GitHubRules::validateGitHubIssueRef)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains(Failure.builder().rule(GITHUB_ISSUE_REF).message("Expecting GitHub issue ref 172, found 173").line(2).column(1).build(), atIndex(0))
+                .contains(Failure.builder().rule(GITHUB_ISSUE_REF).message("Expecting GitHub issue ref #172, found #173").line(2).column(1).build(), atIndex(0))
                 .hasSize(1);
     }
 
@@ -66,7 +73,23 @@ public class GitHubRulesTest {
                 .map(GitHubRules::validateGitHubPullRequestRef)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains(Failure.builder().rule(GITHUB_PULL_REQUEST_REF).message("Expecting GitHub pull request ref 172, found 173").line(2).column(1).build(), atIndex(0))
+                .contains(Failure.builder().rule(GITHUB_PULL_REQUEST_REF).message("Expecting GitHub pull request ref #172, found #173").line(2).column(1).build(), atIndex(0))
+                .hasSize(1);
+    }
+
+    @Test
+    public void testValidateGitHubMentionRef() {
+        assertThat(of(Link.class).descendants(using("/Main.md")))
+                .map(GitHubRules::validateGitHubMentionRef)
+                .isNotEmpty()
+                .filteredOn(Objects::nonNull)
+                .isEmpty();
+
+        assertThat(of(Link.class).descendants(using("/InvalidGitHubMentionRef.md")))
+                .map(GitHubRules::validateGitHubMentionRef)
+                .isNotEmpty()
+                .filteredOn(Objects::nonNull)
+                .contains(Failure.builder().rule(GITHUB_MENTION_REF).message("Expecting GitHub mention ref @charphi, found @user").line(2).column(1).build(), atIndex(0))
                 .hasSize(1);
     }
 }
