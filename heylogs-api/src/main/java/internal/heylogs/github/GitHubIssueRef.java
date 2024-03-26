@@ -1,6 +1,7 @@
 package internal.heylogs.github;
 
 import internal.heylogs.GitHostRef;
+import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAsString;
 import nbbrd.design.StaticFactoryMethod;
@@ -12,8 +13,11 @@ import java.util.regex.Pattern;
 import static java.lang.Integer.parseInt;
 
 @RepresentableAsString
-@lombok.Value(staticConstructor = "of")
+@lombok.Value
+@lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
 class GitHubIssueRef implements GitHostRef<GitHubIssueLink> {
+
+    public enum Type {NUMBER, OWNER_REPO_NUMBER}
 
     @StaticFactoryMethod
     public static @NonNull GitHubIssueRef parse(@NonNull CharSequence text) {
@@ -27,13 +31,10 @@ class GitHubIssueRef implements GitHostRef<GitHubIssueLink> {
     }
 
     @StaticFactoryMethod
-    public static @NonNull GitHubIssueRef shortOf(@NonNull GitHubIssueLink link) {
-        return new GitHubIssueRef(null, null, link.getIssueNumber());
-    }
-
-    @StaticFactoryMethod
-    public static @NonNull GitHubIssueRef fullOf(@NonNull GitHubIssueLink link) {
-        return new GitHubIssueRef(link.getOwner(), link.getRepo(), link.getIssueNumber());
+    public static @NonNull GitHubIssueRef of(@NonNull GitHubIssueLink link, @NonNull Type type) {
+        return type.equals(Type.NUMBER)
+                ? new GitHubIssueRef(null, null, link.getIssueNumber())
+                : new GitHubIssueRef(link.getOwner(), link.getRepo(), link.getIssueNumber());
     }
 
     @Nullable String owner;
@@ -42,16 +43,16 @@ class GitHubIssueRef implements GitHostRef<GitHubIssueLink> {
 
     @Override
     public String toString() {
-        return isShort() ? "#" + issueNumber : owner + "/" + repo + "#" + issueNumber;
+        return getType().equals(Type.NUMBER) ? "#" + issueNumber : owner + "/" + repo + "#" + issueNumber;
     }
 
     public boolean isCompatibleWith(@NonNull GitHubIssueLink link) {
-        return (isShort() || (link.getOwner().equals(owner) && link.getRepo().equals(repo)))
+        return (getType().equals(Type.NUMBER) || (link.getOwner().equals(owner) && link.getRepo().equals(repo)))
                 && link.getIssueNumber() == issueNumber;
     }
 
-    public boolean isShort() {
-        return !(owner != null && repo != null);
+    public @NonNull Type getType() {
+        return !(owner != null && repo != null) ? Type.NUMBER : Type.OWNER_REPO_NUMBER;
     }
 
     // https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/autolinked-references-and-urls#issues-and-pull-requests

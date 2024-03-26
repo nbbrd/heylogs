@@ -1,8 +1,8 @@
 package internal.heylogs.github;
 
+import internal.heylogs.GitHostLink;
 import org.junit.jupiter.api.Test;
 
-import static internal.heylogs.github.GitHubIssueLink.NO_PORT;
 import static internal.heylogs.github.GitHubIssueLink.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -18,9 +18,7 @@ class GitHubIssueLinkTest {
                 .isThrownBy(() -> parse("https://github.com/nbbrd/heylogs/173"));
 
         assertThat(parse("https://github.com/nbbrd/heylogs/issues/173"))
-                .returns("https", GitHubIssueLink::getProtocol)
-                .returns("github.com", GitHubIssueLink::getHost)
-                .returns(NO_PORT, GitHubIssueLink::getPort)
+                .returns(GitHostLink.urlOf("https://github.com"), GitHubIssueLink::getBase)
                 .returns("nbbrd", GitHubIssueLink::getOwner)
                 .returns("heylogs", GitHubIssueLink::getRepo)
                 .returns("issues", GitHubIssueLink::getType)
@@ -28,9 +26,7 @@ class GitHubIssueLinkTest {
                 .hasToString("https://github.com/nbbrd/heylogs/issues/173");
 
         assertThat(parse("https://github.com/nbbrd/heylogs/pull/217"))
-                .returns("https", GitHubIssueLink::getProtocol)
-                .returns("github.com", GitHubIssueLink::getHost)
-                .returns(NO_PORT, GitHubIssueLink::getPort)
+                .returns(GitHostLink.urlOf("https://github.com"), GitHubIssueLink::getBase)
                 .returns("nbbrd", GitHubIssueLink::getOwner)
                 .returns("heylogs", GitHubIssueLink::getRepo)
                 .returns("pull", GitHubIssueLink::getType)
@@ -39,9 +35,7 @@ class GitHubIssueLinkTest {
 
 
         assertThat(parse("https://localhost:8080/nbbrd/heylogs/issues/173"))
-                .returns("https", GitHubIssueLink::getProtocol)
-                .returns("localhost", GitHubIssueLink::getHost)
-                .returns(8080, GitHubIssueLink::getPort)
+                .returns(GitHostLink.urlOf("https://localhost:8080"), GitHubIssueLink::getBase)
                 .returns("nbbrd", GitHubIssueLink::getOwner)
                 .returns("heylogs", GitHubIssueLink::getRepo)
                 .returns("issues", GitHubIssueLink::getType)

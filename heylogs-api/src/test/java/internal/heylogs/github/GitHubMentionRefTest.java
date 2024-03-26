@@ -54,9 +54,9 @@ class GitHubMentionRefTest {
     }
 
     @Test
-    public void testIsUser() {
-        assertThat(parse("@charphi").isUser()).isTrue();
-        assertThat(parse("@nbbrd/devs").isUser()).isFalse();
+    public void testGetType() {
+        assertThat(parse("@charphi").getType()).isEqualTo(GitHubMentionRef.Type.USER);
+        assertThat(parse("@nbbrd/devs").getType()).isEqualTo(GitHubMentionRef.Type.TEAM);
     }
 
     private final GitHubMentionLink charphi = GitHubMentionLink.parse("https://github.com/charphi");

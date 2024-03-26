@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 
 import static _test.Sample.using;
 import static internal.heylogs.github.GitHubRules.*;
+import static java.util.stream.Collectors.toList;
 import static nbbrd.heylogs.Nodes.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Index.atIndex;
@@ -22,7 +23,7 @@ public class GitHubRulesTest {
 
     @Test
     public void testIdPattern() {
-        assertThat(GitHubRules.values())
+        assertThat(new GitHubRules().getProviders())
                 .extracting(Rule::getId)
                 .allMatch(Pattern.compile(ServiceId.KEBAB_CASE).asPredicate());
     }
@@ -30,7 +31,7 @@ public class GitHubRulesTest {
     @Test
     public void testRules() {
         Node sample = Sample.using("/Main.md");
-        for (GitHubRules rule : GitHubRules.values()) {
+        for (Rule rule : new GitHubRules().getProviders().collect(toList())) {
             assertThat(Nodes.of(Node.class).descendants(sample).map(rule::validate).filter(Objects::nonNull))
                     .isEmpty();
         }
@@ -51,13 +52,13 @@ public class GitHubRulesTest {
     @Test
     public void testValidateGitHubIssueRef() {
         assertThat(of(Link.class).descendants(using("/Main.md")))
-                .map(GitHubRules::validateGitHubIssueRef)
+                .map(GITHUB_ISSUE_REF::validate)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .isEmpty();
 
         assertThat(of(Link.class).descendants(using("/InvalidGitHubIssueRef.md")))
-                .map(GitHubRules::validateGitHubIssueRef)
+                .map(GITHUB_ISSUE_REF::validate)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .contains(Failure.builder().rule(GITHUB_ISSUE_REF).message("Expecting GitHub issue ref #172, found #173").line(2).column(1).build(), atIndex(0))
@@ -67,13 +68,13 @@ public class GitHubRulesTest {
     @Test
     public void testValidateGitHubPullRequestRef() {
         assertThat(of(Link.class).descendants(using("/Main.md")))
-                .map(GitHubRules::validateGitHubPullRequestRef)
+                .map(GITHUB_PULL_REQUEST_REF::validate)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .isEmpty();
 
         assertThat(of(Link.class).descendants(using("/InvalidGitHubPullRequestRef.md")))
-                .map(GitHubRules::validateGitHubPullRequestRef)
+                .map(GITHUB_PULL_REQUEST_REF::validate)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .contains(Failure.builder().rule(GITHUB_PULL_REQUEST_REF).message("Expecting GitHub pull request ref #172, found #173").line(2).column(1).build(), atIndex(0))
@@ -83,13 +84,13 @@ public class GitHubRulesTest {
     @Test
     public void testValidateGitHubMentionRef() {
         assertThat(of(Link.class).descendants(using("/Main.md")))
-                .map(GitHubRules::validateGitHubMentionRef)
+                .map(GITHUB_MENTION_REF::validate)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .isEmpty();
 
         assertThat(of(Link.class).descendants(using("/InvalidGitHubMentionRef.md")))
-                .map(GitHubRules::validateGitHubMentionRef)
+                .map(GITHUB_MENTION_REF::validate)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .contains(Failure.builder().rule(GITHUB_MENTION_REF).message("Expecting GitHub mention ref @charphi, found @user").line(2).column(1).build(), atIndex(0))
@@ -99,13 +100,13 @@ public class GitHubRulesTest {
     @Test
     public void testValidateGitHubCommitSHARef() {
         assertThat(of(Link.class).descendants(using("/Main.md")))
-                .map(GitHubRules::validateGitHubCommitSHARef)
+                .map(GITHUB_COMMIT_SHA_REF::validate)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .isEmpty();
 
         assertThat(of(Link.class).descendants(using("/InvalidGitHubCommitSHARef.md")))
-                .map(GitHubRules::validateGitHubCommitSHARef)
+                .map(GITHUB_COMMIT_SHA_REF::validate)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .contains(Failure.builder().rule(GITHUB_COMMIT_SHA_REF).message("Expecting GitHub commit SHA ref 862157d, found 0000000").line(2).column(1).build(), atIndex(0))

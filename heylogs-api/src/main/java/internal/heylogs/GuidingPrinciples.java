@@ -225,12 +225,13 @@ public enum GuidingPrinciples implements Rule {
         return null;
     }
 
+    @SuppressWarnings("unused")
     @MightBeGenerated
     @ServiceProvider
     public static final class Batch implements RuleBatch {
 
         @Override
-        public Stream<Rule> getProviders() {
+        public @NonNull Stream<Rule> getProviders() {
             return Stream.of(GuidingPrinciples.values());
         }
     }

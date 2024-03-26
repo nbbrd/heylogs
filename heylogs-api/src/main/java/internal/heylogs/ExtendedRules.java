@@ -84,6 +84,7 @@ public enum ExtendedRules implements Rule {
                 : NO_PROBLEM;
     }
 
+    @SuppressWarnings("unused")
     @MightBeGenerated
     @ServiceProvider
     public static final class Batch implements RuleBatch {

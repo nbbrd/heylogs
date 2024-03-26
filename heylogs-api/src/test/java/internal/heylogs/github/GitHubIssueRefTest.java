@@ -31,19 +31,18 @@ class GitHubIssueRefTest {
     @SuppressWarnings("DataFlowIssue")
     @Test
     public void testFactories() {
-        assertThatNullPointerException().isThrownBy(() -> shortOf(null));
+        assertThatNullPointerException().isThrownBy(() -> of(null, Type.NUMBER));
+        assertThatNullPointerException().isThrownBy(() -> of(issue173, null));
 
-        assertThat(shortOf(issue173).isCompatibleWith(issue173)).isTrue();
-        assertThat(shortOf(issue173).isCompatibleWith(pullRequest217)).isFalse();
-        assertThat(shortOf(pullRequest217).isCompatibleWith(issue173)).isFalse();
-        assertThat(shortOf(pullRequest217).isCompatibleWith(pullRequest217)).isTrue();
+        assertThat(of(issue173, Type.NUMBER).isCompatibleWith(issue173)).isTrue();
+        assertThat(of(issue173, Type.NUMBER).isCompatibleWith(pullRequest217)).isFalse();
+        assertThat(of(pullRequest217, Type.NUMBER).isCompatibleWith(issue173)).isFalse();
+        assertThat(of(pullRequest217, Type.NUMBER).isCompatibleWith(pullRequest217)).isTrue();
 
-        assertThatNullPointerException().isThrownBy(() -> fullOf(null));
-
-        assertThat(fullOf(issue173).isCompatibleWith(issue173)).isTrue();
-        assertThat(fullOf(issue173).isCompatibleWith(pullRequest217)).isFalse();
-        assertThat(fullOf(pullRequest217).isCompatibleWith(issue173)).isFalse();
-        assertThat(fullOf(pullRequest217).isCompatibleWith(pullRequest217)).isTrue();
+        assertThat(of(issue173, Type.OWNER_REPO_NUMBER).isCompatibleWith(issue173)).isTrue();
+        assertThat(of(issue173, Type.OWNER_REPO_NUMBER).isCompatibleWith(pullRequest217)).isFalse();
+        assertThat(of(pullRequest217, Type.OWNER_REPO_NUMBER).isCompatibleWith(issue173)).isFalse();
+        assertThat(of(pullRequest217, Type.OWNER_REPO_NUMBER).isCompatibleWith(pullRequest217)).isTrue();
     }
 
     @Test
@@ -55,9 +54,9 @@ class GitHubIssueRefTest {
     }
 
     @Test
-    public void testIsShort() {
-        assertThat(parse("#173").isShort()).isTrue();
-        assertThat(parse("nbbrd/heylogs#173").isShort()).isFalse();
+    public void testGetType() {
+        assertThat(parse("#173").getType()).isEqualTo(Type.NUMBER);
+        assertThat(parse("nbbrd/heylogs#173").getType()).isEqualTo(Type.OWNER_REPO_NUMBER);
     }
 
     private final GitHubIssueLink issue173 = GitHubIssueLink.parse("https://github.com/nbbrd/heylogs/issues/173");

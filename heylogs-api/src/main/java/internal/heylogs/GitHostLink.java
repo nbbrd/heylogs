@@ -2,13 +2,18 @@ package internal.heylogs;
 
 import lombok.NonNull;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 public interface GitHostLink {
 
-    @NonNull String getProtocol();
+    @NonNull URL getBase();
 
-    @NonNull String getHost();
-
-    int getPort();
-
-    int NO_PORT = -1;
+    static @NonNull URL urlOf(@NonNull String text) throws IllegalArgumentException {
+        try {
+            return new URL(text);
+        } catch (MalformedURLException ex) {
+            throw new IllegalArgumentException(ex);
+        }
+    }
 }

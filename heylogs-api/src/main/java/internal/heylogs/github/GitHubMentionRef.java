@@ -1,6 +1,7 @@
 package internal.heylogs.github;
 
 import internal.heylogs.GitHostRef;
+import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAsString;
 import nbbrd.design.StaticFactoryMethod;
@@ -11,8 +12,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @RepresentableAsString
-@lombok.Value(staticConstructor = "of")
+@lombok.Value
+@lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
 class GitHubMentionRef implements GitHostRef<GitHubMentionLink> {
+
+    public enum Type {USER, TEAM}
 
     @StaticFactoryMethod
     public static @NonNull GitHubMentionRef parse(@NonNull CharSequence text) {
@@ -36,17 +40,17 @@ class GitHubMentionRef implements GitHostRef<GitHubMentionLink> {
 
     @Override
     public String toString() {
-        return isUser()
+        return getType().equals(Type.USER)
                 ? "@" + user
                 : "@" + organization + "/" + teamName;
     }
 
-    public boolean isUser() {
-        return user != null;
+    public @NonNull Type getType() {
+        return user != null ? Type.USER : Type.TEAM;
     }
 
     public boolean isCompatibleWith(@NonNull GitHubMentionLink link) {
-        return isUser()
+        return getType().equals(Type.USER)
                 ? link.isUser() && Objects.equals(link.getUser(), getUser())
                 : !link.isUser() && Objects.equals(link.getOrganization(), getOrganization()) && Objects.equals(link.getTeamName(), getTeamName());
     }

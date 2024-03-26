@@ -1,137 +1,69 @@
 package internal.heylogs.github;
 
-import com.vladsch.flexmark.ast.Link;
-import com.vladsch.flexmark.util.ast.Node;
-import internal.heylogs.GitHostSupport;
+import internal.heylogs.GitHostLink;
+import internal.heylogs.GitHostRef;
+import internal.heylogs.GitHostRefRuleSupport;
 import lombok.NonNull;
-import nbbrd.design.MightBeGenerated;
 import nbbrd.design.VisibleForTesting;
-import nbbrd.heylogs.Failure;
 import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleBatch;
 import nbbrd.service.ServiceProvider;
 
 import java.util.stream.Stream;
 
-import static internal.heylogs.RuleSupport.nameToId;
-
-public enum GitHubRules implements Rule {
-
-    GITHUB_ISSUE_REF {
-        @Override
-        public Failure validate(@NonNull Node node) {
-            return node instanceof Link ? validateGitHubIssueRef((Link) node) : NO_PROBLEM;
-        }
-    },
-    GITHUB_PULL_REQUEST_REF {
-        @Override
-        public Failure validate(@NonNull Node node) {
-            return node instanceof Link ? validateGitHubPullRequestRef((Link) node) : NO_PROBLEM;
-        }
-    },
-    GITHUB_MENTION_REF {
-        @Override
-        public Failure validate(@NonNull Node node) {
-            return node instanceof Link ? validateGitHubMentionRef((Link) node) : NO_PROBLEM;
-        }
-    },
-    GITHUB_COMMIT_SHA_REF {
-        @Override
-        public Failure validate(@NonNull Node node) {
-            return node instanceof Link ? validateGitHubCommitSHARef((Link) node) : NO_PROBLEM;
-        }
-    };
+@ServiceProvider
+public final class GitHubRules implements RuleBatch {
 
     @Override
-    public @NonNull String getId() {
-        return nameToId(this);
-    }
-
-    @Override
-    public boolean isAvailable() {
-        return true;
+    public @NonNull Stream<Rule> getProviders() {
+        return Stream.of(GITHUB_ISSUE_REF, GITHUB_PULL_REQUEST_REF, GITHUB_MENTION_REF, GITHUB_COMMIT_SHA_REF);
     }
 
     @VisibleForTesting
-    static Failure validateGitHubIssueRef(Link link) {
-        return GitHostSupport.validateRef(
-                GitHubIssueLink::parse,
-                GitHubIssueRef::parse,
-                GitHubRules::isExpectedIssue,
-                link, GITHUB_ISSUE_REF,
-                GitHubRules::getIssueMessage);
-    }
-
-    private static boolean isExpectedIssue(GitHubIssueLink expected) {
-        return expected.getType().equals(GitHubIssueLink.ISSUES_TYPE) && expected.getHost().equals("github.com");
-    }
-
-    private static String getIssueMessage(GitHubIssueLink expected, GitHubIssueRef found) {
-        return "Expecting GitHub issue ref " + (found.isShort() ? GitHubIssueRef.shortOf(expected) : GitHubIssueRef.fullOf(expected)) + ", found " + found;
-    }
+    static final Rule GITHUB_ISSUE_REF = GitHostRefRuleSupport
+            .builder(GitHubIssueLink::parse, GitHubIssueRef::parse)
+            .id("github-issue-ref")
+            .linkPredicate(expected -> isIssue(expected) && isGitHubHost(expected))
+            .message((expected, found) -> messageOf("GitHub issue ref", GitHubIssueRef.of(expected, found.getType()), found))
+            .build();
 
     @VisibleForTesting
-    static Failure validateGitHubPullRequestRef(Link link) {
-        return GitHostSupport.validateRef(
-                GitHubIssueLink::parse,
-                GitHubIssueRef::parse,
-                GitHubRules::isExpectedPullRequest,
-                link, GITHUB_PULL_REQUEST_REF,
-                GitHubRules::getPullRequestMessage);
-    }
-
-    private static boolean isExpectedPullRequest(GitHubIssueLink expected) {
-        return expected.getType().equals(GitHubIssueLink.PULL_REQUEST_TYPE) && expected.getHost().equals("github.com");
-    }
-
-    private static String getPullRequestMessage(GitHubIssueLink expected, GitHubIssueRef found) {
-        return "Expecting GitHub pull request ref " + (found.isShort() ? GitHubIssueRef.shortOf(expected) : GitHubIssueRef.fullOf(expected)) + ", found " + found;
-    }
+    static final Rule GITHUB_PULL_REQUEST_REF = GitHostRefRuleSupport
+            .builder(GitHubIssueLink::parse, GitHubIssueRef::parse)
+            .id("github-pull-request-ref")
+            .linkPredicate(expected -> isPullRequest(expected) && isGitHubHost(expected))
+            .message((expected, found) -> messageOf("GitHub pull request ref", GitHubIssueRef.of(expected, found.getType()), found))
+            .build();
 
     @VisibleForTesting
-    static Failure validateGitHubMentionRef(Link link) {
-        return GitHostSupport.validateRef(
-                GitHubMentionLink::parse,
-                GitHubMentionRef::parse,
-                GitHubRules::isExpectedMention,
-                link, GITHUB_MENTION_REF,
-                GitHubRules::getMentionMessage);
-    }
-
-    private static boolean isExpectedMention(GitHubMentionLink expected) {
-        return expected.getHost().equals("github.com");
-    }
-
-    private static String getMentionMessage(GitHubMentionLink expected, GitHubMentionRef found) {
-        return "Expecting GitHub mention ref " + GitHubMentionRef.of(expected) + ", found " + found;
-    }
+    static final Rule GITHUB_MENTION_REF = GitHostRefRuleSupport
+            .builder(GitHubMentionLink::parse, GitHubMentionRef::parse)
+            .id("github-mention-ref")
+            .linkPredicate(GitHubRules::isGitHubHost)
+            .message((expected, found) -> messageOf("GitHub mention ref", GitHubMentionRef.of(expected), found))
+            .build();
 
     @VisibleForTesting
-    static Failure validateGitHubCommitSHARef(Link link) {
-        return GitHostSupport.validateRef(
-                GitHubCommitSHALink::parse,
-                GitHubCommitSHARef::parse,
-                GitHubRules::isExpectedCommitSHA,
-                link, GITHUB_COMMIT_SHA_REF,
-                GitHubRules::getCommitSHAMessage);
+    static final Rule GITHUB_COMMIT_SHA_REF = GitHostRefRuleSupport
+            .builder(GitHubCommitSHALink::parse, GitHubCommitSHARef::parse)
+            .id("github-commit-sha-ref")
+            .linkPredicate(GitHubRules::isGitHubHost)
+            .message((expected, found) -> messageOf("GitHub commit SHA ref", GitHubCommitSHARef.of(expected, found.getType()), found))
+            .build();
+
+    private static boolean isGitHubHost(GitHostLink expected) {
+        return expected.getBase().getHost().equals("github.com");
     }
 
-    private static boolean isExpectedCommitSHA(GitHubCommitSHALink expected) {
-        return expected.getHost().equals("github.com");
+    private static boolean isIssue(GitHubIssueLink expected) {
+        return expected.getType().equals(GitHubIssueLink.ISSUES_TYPE);
     }
 
-    private static String getCommitSHAMessage(GitHubCommitSHALink expected, GitHubCommitSHARef found) {
-        return "Expecting GitHub commit SHA ref " + GitHubCommitSHARef.of(expected, found.getType()) + ", found " + found;
+    private static boolean isPullRequest(GitHubIssueLink expected) {
+        return expected.getType().equals(GitHubIssueLink.PULL_REQUEST_TYPE);
     }
 
-    @SuppressWarnings("unused")
-    @MightBeGenerated
-    @ServiceProvider
-    public static final class Batch implements RuleBatch {
-
-        @Override
-        public @NonNull Stream<Rule> getProviders() {
-            return Stream.of(GitHubRules.values());
-        }
+    private static String messageOf(String name, GitHostRef<?> expected, GitHostRef<?> found) {
+        return "Expecting " + name + " " + expected + ", found " + found;
     }
 }
