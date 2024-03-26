@@ -1,6 +1,6 @@
 package internal.heylogs.github;
 
-import internal.heylogs.GitHostLink;
+import internal.heylogs.URLExtractor;
 import org.junit.jupiter.api.Test;
 
 import static internal.heylogs.github.GitHubIssueLink.parse;
@@ -12,13 +12,47 @@ class GitHubIssueLinkTest {
     @Test
     public void testRepresentableAsString() {
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> parse("https://github.com/nbbrd/heylogs/issues/"));
+                .describedAs("missing owner")
+                .isThrownBy(() -> parse("https://github.com/heylogs/issues/173"))
+                .withMessage("Invalid path length: expecting [4], found 3");
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> parse("https://github.com/nbbrd/heylogs/173"));
+                .describedAs("invalid owner")
+                .isThrownBy(() -> parse("https://github.com/nbb%20rd/heylogs/issues/173"))
+                .withMessage("Invalid path item at index 0: expecting pattern '[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38}', found 'nbb rd'");
+
+        assertThatIllegalArgumentException()
+                .describedAs("missing repo")
+                .isThrownBy(() -> parse("https://github.com/nbbrd/issues/173"))
+                .withMessage("Invalid path length: expecting [4], found 3");
+
+        assertThatIllegalArgumentException()
+                .describedAs("invalid repo")
+                .isThrownBy(() -> parse("https://github.com/nbbrd/hey%20logs/issues/173"))
+                .withMessage("Invalid path item at index 1: expecting pattern '[a-z\\d._-]{1,100}', found 'hey logs'");
+
+        assertThatIllegalArgumentException()
+                .describedAs("missing type")
+                .isThrownBy(() -> parse("https://github.com/nbbrd/heylogs/173"))
+                .withMessage("Invalid path length: expecting [4], found 3");
+
+        assertThatIllegalArgumentException()
+                .describedAs("invalid type")
+                .isThrownBy(() -> parse("https://github.com/nbbrd/heylogs/isues/173"))
+                .withMessage("Invalid path item: expecting [issues, pull], found 'isues'");
+
+        assertThatIllegalArgumentException()
+                .describedAs("missing number")
+                .isThrownBy(() -> parse("https://github.com/nbbrd/heylogs/issues"))
+                .withMessage("Invalid path length: expecting [4], found 3");
+
+        assertThatIllegalArgumentException()
+                .describedAs("invalid number")
+                .isThrownBy(() -> parse("https://github.com/nbbrd/heylogs/issues/"))
+                .withMessage("Invalid path item at index 3: expecting pattern '\\d+', found ''");
 
         assertThat(parse("https://github.com/nbbrd/heylogs/issues/173"))
-                .returns(GitHostLink.urlOf("https://github.com"), GitHubIssueLink::getBase)
+                .returns(URLExtractor.urlOf("https://github.com"), GitHubIssueLink::getBase)
                 .returns("nbbrd", GitHubIssueLink::getOwner)
                 .returns("heylogs", GitHubIssueLink::getRepo)
                 .returns("issues", GitHubIssueLink::getType)
@@ -26,7 +60,7 @@ class GitHubIssueLinkTest {
                 .hasToString("https://github.com/nbbrd/heylogs/issues/173");
 
         assertThat(parse("https://github.com/nbbrd/heylogs/pull/217"))
-                .returns(GitHostLink.urlOf("https://github.com"), GitHubIssueLink::getBase)
+                .returns(URLExtractor.urlOf("https://github.com"), GitHubIssueLink::getBase)
                 .returns("nbbrd", GitHubIssueLink::getOwner)
                 .returns("heylogs", GitHubIssueLink::getRepo)
                 .returns("pull", GitHubIssueLink::getType)
@@ -35,7 +69,7 @@ class GitHubIssueLinkTest {
 
 
         assertThat(parse("https://localhost:8080/nbbrd/heylogs/issues/173"))
-                .returns(GitHostLink.urlOf("https://localhost:8080"), GitHubIssueLink::getBase)
+                .returns(URLExtractor.urlOf("https://localhost:8080"), GitHubIssueLink::getBase)
                 .returns("nbbrd", GitHubIssueLink::getOwner)
                 .returns("heylogs", GitHubIssueLink::getRepo)
                 .returns("issues", GitHubIssueLink::getType)

@@ -5,14 +5,15 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAsString;
 import nbbrd.design.StaticFactoryMethod;
+import nbbrd.io.http.URLQueryBuilder;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.net.URL;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static java.lang.Integer.parseInt;
+import static internal.heylogs.URLExtractor.*;
 
+// https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#mentioning-people-and-teams
 @RepresentableAsString
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -20,14 +21,24 @@ class GitHubMentionLink implements GitHostLink {
 
     @StaticFactoryMethod
     public static @NonNull GitHubMentionLink parse(@NonNull CharSequence text) {
-        Matcher m = PATTERN.matcher(text);
-        if (!m.matches()) throw new IllegalArgumentException(text.toString());
-        return new GitHubMentionLink(
-                GitHostLink.urlOf(m.group("protocol") + "://" + m.group("host") + (m.group("port") != null ? (":" + parseInt(m.group("port"))) : "")),
-                m.group("user"),
-                m.group("organization"),
-                m.group("teamName")
-        );
+        return parseURL(urlOf(text));
+    }
+
+    private static @NonNull GitHubMentionLink parseURL(@NonNull URL url) {
+        String[] pathArray = getPathArray(url);
+
+        checkPathLength(pathArray, 1, 4);
+
+        if (pathArray.length == 1) {
+            checkPathItem(pathArray, 0, USER);
+            return new GitHubMentionLink(baseOf(url), pathArray[0], null, null);
+        }
+
+        checkPathItem(pathArray, 0, "orgs");
+        checkPathItem(pathArray, 1, ORGANIZATION);
+        checkPathItem(pathArray, 2, "teams");
+        checkPathItem(pathArray, 3, TEAM);
+        return new GitHubMentionLink(baseOf(url), null, pathArray[1], pathArray[3]);
     }
 
     @NonNull URL base;
@@ -35,17 +46,19 @@ class GitHubMentionLink implements GitHostLink {
     @Nullable String organization;
     @Nullable String teamName;
 
+    @SuppressWarnings("DataFlowIssue")
     @Override
     public String toString() {
         return isUser()
-                ? (base + "/" + user)
-                : (base + "/orgs/" + organization + "/teams/" + teamName);
+                ? URLQueryBuilder.of(base).path(user).toString()
+                : URLQueryBuilder.of(base).path("orgs").path(organization).path("teams").path(teamName).toString();
     }
 
     public boolean isUser() {
         return user != null;
     }
 
-    // https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#mentioning-people-and-teams
-    private static final Pattern PATTERN = Pattern.compile("(?<protocol>https?)://(?<host>[^:/$]+)(?::(?<port>\\d+))?/(:?(?<user>[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38})|orgs/(?<organization>[^:/$]+)/teams/(?<teamName>[^:/$]+))");
+    private static final Pattern USER = Pattern.compile("[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38}");
+    private static final Pattern ORGANIZATION = Pattern.compile("[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38}");
+    private static final Pattern TEAM = Pattern.compile("[^:/$]+");
 }

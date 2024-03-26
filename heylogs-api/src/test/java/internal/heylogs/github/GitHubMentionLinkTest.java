@@ -1,6 +1,6 @@
 package internal.heylogs.github;
 
-import internal.heylogs.GitHostLink;
+import internal.heylogs.URLExtractor;
 import org.junit.jupiter.api.Test;
 
 import static internal.heylogs.github.GitHubMentionLink.parse;
@@ -18,7 +18,7 @@ class GitHubMentionLinkTest {
                 .isThrownBy(() -> parse("https://github.com/nbbrd/heylogs"));
 
         assertThat(parse("https://github.com/charphi"))
-                .returns(GitHostLink.urlOf("https://github.com"), GitHubMentionLink::getBase)
+                .returns(URLExtractor.urlOf("https://github.com"), GitHubMentionLink::getBase)
                 .returns("charphi", GitHubMentionLink::getUser)
                 .returns(null, GitHubMentionLink::getOrganization)
                 .returns(null, GitHubMentionLink::getTeamName)
@@ -31,7 +31,7 @@ class GitHubMentionLinkTest {
                 .isThrownBy(() -> parse("https://github.com/orgs/nbbrd"));
 
         assertThat(parse("https://github.com/orgs/nbbrd/teams/devs"))
-                .returns(GitHostLink.urlOf("https://github.com"), GitHubMentionLink::getBase)
+                .returns(URLExtractor.urlOf("https://github.com"), GitHubMentionLink::getBase)
                 .returns(null, GitHubMentionLink::getUser)
                 .returns("nbbrd", GitHubMentionLink::getOrganization)
                 .returns("devs", GitHubMentionLink::getTeamName)
