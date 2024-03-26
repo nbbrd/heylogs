@@ -34,6 +34,12 @@ public enum GitHubRules implements Rule {
         public Failure validate(@NonNull Node node) {
             return node instanceof Link ? validateGitHubMentionRef((Link) node) : NO_PROBLEM;
         }
+    },
+    GITHUB_COMMIT_SHA_REF {
+        @Override
+        public Failure validate(@NonNull Node node) {
+            return node instanceof Link ? validateGitHubCommitSHARef((Link) node) : NO_PROBLEM;
+        }
     };
 
     @Override
@@ -98,6 +104,24 @@ public enum GitHubRules implements Rule {
 
     private static String getMentionMessage(GitHubMentionLink expected, GitHubMentionRef found) {
         return "Expecting GitHub mention ref " + GitHubMentionRef.of(expected) + ", found " + found;
+    }
+
+    @VisibleForTesting
+    static Failure validateGitHubCommitSHARef(Link link) {
+        return GitHostSupport.validateRef(
+                GitHubCommitSHALink::parse,
+                GitHubCommitSHARef::parse,
+                GitHubRules::isExpectedCommitSHA,
+                link, GITHUB_COMMIT_SHA_REF,
+                GitHubRules::getCommitSHAMessage);
+    }
+
+    private static boolean isExpectedCommitSHA(GitHubCommitSHALink expected) {
+        return expected.getHost().equals("github.com");
+    }
+
+    private static String getCommitSHAMessage(GitHubCommitSHALink expected, GitHubCommitSHARef found) {
+        return "Expecting GitHub commit SHA ref " + GitHubCommitSHARef.of(expected, found.getType()) + ", found " + found;
     }
 
     @SuppressWarnings("unused")

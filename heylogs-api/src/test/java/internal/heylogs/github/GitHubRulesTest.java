@@ -43,6 +43,9 @@ public class GitHubRulesTest {
 
         assertThat(Nodes.of(Node.class).descendants(using("/InvalidGitHubMentionRef.md")).map(GITHUB_MENTION_REF::validate).filter(Objects::nonNull))
                 .hasSize(1);
+
+        assertThat(Nodes.of(Node.class).descendants(using("/InvalidGitHubCommitSHARef.md")).map(GITHUB_COMMIT_SHA_REF::validate).filter(Objects::nonNull))
+                .hasSize(1);
     }
 
     @Test
@@ -90,6 +93,22 @@ public class GitHubRulesTest {
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .contains(Failure.builder().rule(GITHUB_MENTION_REF).message("Expecting GitHub mention ref @charphi, found @user").line(2).column(1).build(), atIndex(0))
+                .hasSize(1);
+    }
+
+    @Test
+    public void testValidateGitHubCommitSHARef() {
+        assertThat(of(Link.class).descendants(using("/Main.md")))
+                .map(GitHubRules::validateGitHubCommitSHARef)
+                .isNotEmpty()
+                .filteredOn(Objects::nonNull)
+                .isEmpty();
+
+        assertThat(of(Link.class).descendants(using("/InvalidGitHubCommitSHARef.md")))
+                .map(GitHubRules::validateGitHubCommitSHARef)
+                .isNotEmpty()
+                .filteredOn(Objects::nonNull)
+                .contains(Failure.builder().rule(GITHUB_COMMIT_SHA_REF).message("Expecting GitHub commit SHA ref 862157d, found 0000000").line(2).column(1).build(), atIndex(0))
                 .hasSize(1);
     }
 }
