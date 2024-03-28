@@ -57,7 +57,7 @@ public class CheckerTest {
                 .isEqualToIgnoringNewLines(
                         "file1\n" +
                                 "  10:20  error  some message  rule1\n" +
-                                "\n" +
+                                "  \n" +
                                 "  1 problem\n"
                 );
     }

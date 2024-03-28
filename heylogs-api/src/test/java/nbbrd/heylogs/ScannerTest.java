@@ -66,10 +66,10 @@ class ScannerTest {
         assertThat(output.toString())
                 .isEqualToIgnoringNewLines(
                         "file1\n" +
-                                "  Found 1 releases\n" +
-                                "  Ranging from 2019-02-15 to 2019-02-15\n" +
+                                "  Found 1 releases                      \n" +
+                                "  Ranging from 2019-02-15 to 2019-02-15 \n" +
                                 "  Compatible with Semantic Versioning ()\n" +
-                                "  Has an unreleased version\n"
+                                "  Has an unreleased version             \n"
                 );
     }
 }
