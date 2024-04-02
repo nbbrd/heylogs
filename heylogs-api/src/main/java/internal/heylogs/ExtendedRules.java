@@ -7,12 +7,12 @@ import com.vladsch.flexmark.util.ast.Node;
 import lombok.NonNull;
 import nbbrd.design.MightBeGenerated;
 import nbbrd.design.VisibleForTesting;
-import nbbrd.heylogs.Failure;
 import nbbrd.heylogs.Nodes;
 import nbbrd.heylogs.Util;
 import nbbrd.heylogs.Version;
 import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleBatch;
+import nbbrd.heylogs.spi.RuleIssue;
 import nbbrd.heylogs.spi.RuleSeverity;
 import nbbrd.service.ServiceProvider;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -30,24 +30,24 @@ public enum ExtendedRules implements Rule {
 
     HTTPS {
         @Override
-        public Failure validate(@NonNull Node node) {
-            return node instanceof LinkNodeBase ? validateHttps((LinkNodeBase) node) : NO_PROBLEM;
+        public RuleIssue getRuleIssueOrNull(@NonNull Node node) {
+            return node instanceof LinkNodeBase ? validateHttps((LinkNodeBase) node) : NO_RULE_ISSUE;
         }
     },
     CONSISTENT_SEPARATOR {
         @Override
-        public @Nullable Failure validate(@NonNull Node node) {
-            return node instanceof Document ? validateConsistentSeparator((Document) node) : NO_PROBLEM;
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node) {
+            return node instanceof Document ? validateConsistentSeparator((Document) node) : NO_RULE_ISSUE;
         }
     };
 
     @Override
-    public @NonNull String getId() {
+    public @NonNull String getRuleId() {
         return nameToId(this);
     }
 
     @Override
-    public boolean isAvailable() {
+    public boolean isRuleAvailable() {
         return true;
     }
 
@@ -57,20 +57,19 @@ public enum ExtendedRules implements Rule {
     }
 
     @VisibleForTesting
-    static Failure validateHttps(LinkNodeBase link) {
+    static RuleIssue validateHttps(LinkNodeBase link) {
         return linkToURL(link)
                 .filter(url -> !url.getProtocol().equals("https"))
-                .map(ignore -> Failure
+                .map(ignore -> RuleIssue
                         .builder()
-                        .rule(HTTPS)
                         .message("Expecting HTTPS protocol")
                         .location(link)
                         .build())
-                .orElse(NO_PROBLEM);
+                .orElse(NO_RULE_ISSUE);
     }
 
     @VisibleForTesting
-    static Failure validateConsistentSeparator(Document doc) {
+    static RuleIssue validateConsistentSeparator(Document doc) {
         List<Character> separators = Nodes.of(Heading.class)
                 .descendants(doc)
                 .filter(Version::isVersionLevel)
@@ -81,13 +80,12 @@ public enum ExtendedRules implements Rule {
                 .collect(toList());
 
         return separators.size() > 1
-                ? Failure
+                ? RuleIssue
                 .builder()
-                .rule(CONSISTENT_SEPARATOR)
                 .message("Expecting consistent version-date separator " + Util.toUnicode(separators.get(0)) + ", found " + separators.stream().map(Util::toUnicode).collect(joining(", ", "[", "]")))
                 .location(doc)
                 .build()
-                : NO_PROBLEM;
+                : NO_RULE_ISSUE;
     }
 
     @SuppressWarnings("unused")

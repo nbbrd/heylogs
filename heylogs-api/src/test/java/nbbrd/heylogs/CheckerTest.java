@@ -2,6 +2,7 @@ package nbbrd.heylogs;
 
 import internal.heylogs.SemverRule;
 import nbbrd.heylogs.spi.Rule;
+import nbbrd.heylogs.spi.RuleIssue;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -25,13 +26,13 @@ public class CheckerTest {
         assertThat(Checker.ofServiceLoader())
                 .extracting(Checker::getRules, list(Rule.class))
                 .hasSizeGreaterThan(1)
-                .map(Rule::getId)
+                .map(Rule::getRuleId)
                 .doesNotContain("semver");
 
         assertThat(Checker.ofServiceLoader().toBuilder().rule(new SemverRule()).build())
                 .extracting(Checker::getRules, list(Rule.class))
                 .hasSizeGreaterThan(1)
-                .map(Rule::getId)
+                .map(Rule::getRuleId)
                 .contains("semver");
     }
 
@@ -53,7 +54,7 @@ public class CheckerTest {
                 .isThrownBy(() -> Checker.ofServiceLoader().toBuilder().formatId("other").build().formatFailures(new StringBuilder(), "", emptyList()));
 
         StringBuilder output = new StringBuilder();
-        Checker.ofServiceLoader().formatFailures(output, "file1", asList(Failure.builder().ruleId("rule1").ruleSeverity(ERROR).message("some message").line(10).column(20).build()));
+        Checker.ofServiceLoader().formatFailures(output, "file1", asList(Failure.builder().id("rule1").severity(ERROR).issue(RuleIssue.builder().message("some message").line(10).column(20).build()).build()));
         assertThat(output.toString())
                 .isEqualToIgnoringNewLines(
                         "file1\n" +

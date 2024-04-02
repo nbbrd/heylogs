@@ -48,8 +48,8 @@ public final class ListMojo extends HeylogsMojo {
         try {
             StringBuilder text = new StringBuilder();
             lister.format(text, Stream.concat(
-                    lister.getRules().stream().map(rule -> new Resource("rule", rule.getId())),
-                    lister.getFormats().stream().map(format -> new Resource("format", format.getId()))
+                    lister.getRules().stream().map(rule -> new Resource("rule", rule.getRuleId())),
+                    lister.getFormats().stream().map(format -> new Resource("format", format.getFormatId()))
             ).collect(toList()));
             new BufferedReader(new StringReader(text.toString())).lines().forEach(getLog()::info);
         } catch (IOException ex) {

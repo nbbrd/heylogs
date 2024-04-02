@@ -6,12 +6,15 @@ import nbbrd.heylogs.Failure;
 import nbbrd.heylogs.Resource;
 import nbbrd.heylogs.Status;
 import nbbrd.heylogs.spi.Format;
+import nbbrd.heylogs.spi.FormatType;
 import nbbrd.io.text.Formatter;
 import nbbrd.service.ServiceProvider;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import static java.lang.System.lineSeparator;
 import static java.util.Arrays.asList;
@@ -24,8 +27,18 @@ public final class StylishFormat implements Format {
     public static final String ID = "stylish";
 
     @Override
-    public @NonNull String getId() {
+    public @NonNull String getFormatId() {
         return ID;
+    }
+
+    @Override
+    public @NonNull String getFormatName() {
+        return "Human-readable output format.";
+    }
+
+    @Override
+    public @NonNull Set<FormatType> getSupportedFormatTypes() {
+        return EnumSet.allOf(FormatType.class);
     }
 
     @Override
@@ -34,23 +47,23 @@ public final class StylishFormat implements Format {
                 .<Failure>builder()
                 .column(getPositionFormatter(failures))
                 .column(getRuleSeverityFormatter())
-                .column(Formatter.of(Failure::getMessage))
-                .column(Formatter.of(Failure::getRuleId))
+                .column(Formatter.of(failure -> failure.getIssue().getMessage()))
+                .column(Formatter.of(Failure::getId))
                 .build()
                 .write(appendable, source, failures, getFailuresSummary(failures));
     }
 
     @MightBePromoted
     private static Formatter<Failure> getPositionFormatter(List<Failure> failures) {
-        int l = failures.stream().mapToInt(failure -> getNumberOfDigits(failure.getLine())).max().orElse(0);
-        int c = failures.stream().mapToInt(failure -> getNumberOfDigits(failure.getColumn())).max().orElse(0);
+        int l = failures.stream().mapToInt(failure -> getNumberOfDigits(failure.getIssue().getLine())).max().orElse(0);
+        int c = failures.stream().mapToInt(failure -> getNumberOfDigits(failure.getIssue().getColumn())).max().orElse(0);
         String format = "%" + l + "d:%-" + c + "d";
-        return Formatter.of(failure -> String.format(ROOT, format, failure.getLine(), failure.getColumn()));
+        return Formatter.of(failure -> String.format(ROOT, format, failure.getIssue().getLine(), failure.getIssue().getColumn()));
     }
 
     private static Formatter<Failure> getRuleSeverityFormatter() {
         return Formatter.of(failure -> {
-            switch (failure.getRuleSeverity()) {
+            switch (failure.getSeverity()) {
                 case OFF:
                     return "off";
                 case WARN:

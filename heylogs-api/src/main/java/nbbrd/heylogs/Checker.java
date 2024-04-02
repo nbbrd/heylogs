@@ -4,10 +4,7 @@ import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
 import lombok.NonNull;
 import nbbrd.design.StaticFactoryMethod;
-import nbbrd.heylogs.spi.Format;
-import nbbrd.heylogs.spi.FormatLoader;
-import nbbrd.heylogs.spi.Rule;
-import nbbrd.heylogs.spi.RuleLoader;
+import nbbrd.heylogs.spi.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -42,8 +39,13 @@ public class Checker {
 
     public @NonNull List<Failure> validate(@NonNull Document doc) {
         return Stream.concat(Stream.of(doc), Nodes.of(Node.class).descendants(doc))
-                .flatMap(node -> rules.stream().map(rule -> rule.validate(node)).filter(Objects::nonNull))
+                .flatMap(node -> rules.stream().map(rule -> validate(node, rule)).filter(Objects::nonNull))
                 .collect(Collectors.toList());
+    }
+
+    private static Failure validate(Node node, Rule rule) {
+        RuleIssue ruleIssueOrNull = rule.getRuleIssueOrNull(node);
+        return ruleIssueOrNull != null ? Failure.builder().rule(rule).issue(ruleIssueOrNull).build() : null;
     }
 
     public void formatFailures(@NonNull Appendable appendable, @NonNull String source, @NonNull List<Failure> failures) throws IOException {
@@ -52,7 +54,7 @@ public class Checker {
 
     private Format getFormatById() throws IOException {
         return formats.stream()
-                .filter(format -> formatId.equals(FIRST_FORMAT_AVAILABLE) || format.getId().equals(formatId))
+                .filter(format -> formatId.equals(FIRST_FORMAT_AVAILABLE) || format.getFormatId().equals(formatId))
                 .findFirst()
                 .orElseThrow(() -> new IOException("Cannot find format '" + formatId + "'"));
     }

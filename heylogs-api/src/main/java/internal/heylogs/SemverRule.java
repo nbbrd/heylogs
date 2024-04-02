@@ -4,9 +4,9 @@ import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.util.ast.Node;
 import lombok.NonNull;
 import nbbrd.design.VisibleForTesting;
-import nbbrd.heylogs.Failure;
 import nbbrd.heylogs.Version;
 import nbbrd.heylogs.spi.Rule;
+import nbbrd.heylogs.spi.RuleIssue;
 import nbbrd.heylogs.spi.RuleSeverity;
 import nbbrd.service.ServiceProvider;
 import org.semver4j.Semver;
@@ -15,18 +15,18 @@ import org.semver4j.Semver;
 public final class SemverRule implements Rule {
 
     @Override
-    public @NonNull String getId() {
+    public @NonNull String getRuleId() {
         return "semver";
     }
 
     @Override
-    public Failure validate(@NonNull Node node) {
-        return node instanceof Heading ? validateSemVer((Heading) node) : NO_PROBLEM;
+    public RuleIssue getRuleIssueOrNull(@NonNull Node node) {
+        return node instanceof Heading ? validateSemVer((Heading) node) : NO_RULE_ISSUE;
     }
 
     @Override
-    public boolean isAvailable() {
-        return Rule.isEnabled(System.getProperties(), getId());
+    public boolean isRuleAvailable() {
+        return Rule.isEnabled(System.getProperties(), getRuleId());
     }
 
     @Override
@@ -35,27 +35,26 @@ public final class SemverRule implements Rule {
     }
 
     @VisibleForTesting
-    Failure validateSemVer(Heading heading) {
+    RuleIssue validateSemVer(Heading heading) {
         if (!Version.isVersionLevel(heading)) {
-            return NO_PROBLEM;
+            return NO_RULE_ISSUE;
         }
 
         try {
             Version version = Version.parse(heading);
             if (version.isUnreleased()) {
-                return NO_PROBLEM;
+                return NO_RULE_ISSUE;
             }
             String ref = version.getRef();
             return Semver.isValid(ref)
-                    ? NO_PROBLEM
-                    : Failure
+                    ? NO_RULE_ISSUE
+                    : RuleIssue
                     .builder()
-                    .rule(this)
                     .message("Invalid semver format: '" + ref + "'")
                     .location(heading)
                     .build();
         } catch (IllegalArgumentException ex) {
-            return NO_PROBLEM;
+            return NO_RULE_ISSUE;
         }
     }
 }

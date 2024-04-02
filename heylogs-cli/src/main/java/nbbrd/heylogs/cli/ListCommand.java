@@ -52,8 +52,8 @@ public final class ListCommand implements Callable<Void> {
         try (Writer writer = newTextOutputSupport().newBufferedWriter(output.getFile())) {
             Lister lister = getLister();
             lister.format(writer, Stream.concat(
-                    lister.getRules().stream().map(rule -> new Resource("rule", rule.getId())),
-                    lister.getFormats().stream().map(format -> new Resource("format", format.getId()))
+                    lister.getRules().stream().map(rule -> new Resource("rule", rule.getRuleId())),
+                    lister.getFormats().stream().map(format -> new Resource("format", format.getFormatId()))
             ).collect(toList()));
         }
         return null;

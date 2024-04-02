@@ -10,6 +10,7 @@ import nbbrd.service.ServiceId;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 @ServiceDefinition(
         quantifier = Quantifier.MULTIPLE,
@@ -18,7 +19,11 @@ import java.util.List;
 public interface Format {
 
     @ServiceId(pattern = ServiceId.KEBAB_CASE)
-    @NonNull String getId();
+    @NonNull String getFormatId();
+
+    @NonNull String getFormatName();
+
+    @NonNull Set<FormatType> getSupportedFormatTypes();
 
     void formatFailures(@NonNull Appendable appendable, @NonNull String source, @NonNull List<Failure> failures) throws IOException;
 

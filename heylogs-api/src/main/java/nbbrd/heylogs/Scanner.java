@@ -85,7 +85,7 @@ public class Scanner {
 
     private Format getFormatById() throws IOException {
         return formats.stream()
-                .filter(format -> formatId.equals(FIRST_FORMAT_AVAILABLE) || format.getId().equals(formatId))
+                .filter(format -> formatId.equals(FIRST_FORMAT_AVAILABLE) || format.getFormatId().equals(formatId))
                 .findFirst()
                 .orElseThrow(() -> new IOException("Cannot find format '" + formatId + "'"));
     }

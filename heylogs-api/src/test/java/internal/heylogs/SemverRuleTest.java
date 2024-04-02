@@ -2,7 +2,7 @@ package internal.heylogs;
 
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.util.ast.Node;
-import nbbrd.heylogs.Failure;
+import nbbrd.heylogs.spi.RuleIssue;
 import nbbrd.service.ServiceId;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +16,7 @@ public class SemverRuleTest {
 
     @Test
     public void testIdPattern() {
-        assertThat(new SemverRule().getId())
+        assertThat(new SemverRule().getRuleId())
                 .matches(ServiceId.KEBAB_CASE);
     }
 
@@ -25,7 +25,7 @@ public class SemverRuleTest {
         SemverRule x = new SemverRule();
 
         assertThat(of(Node.class).descendants(using("/Main.md")))
-                .map(x::validate)
+                .map(x::getRuleIssueOrNull)
                 .filteredOn(Objects::nonNull)
                 .isEmpty();
     }
@@ -48,6 +48,6 @@ public class SemverRuleTest {
                 .map(x::validateSemVer)
                 .filteredOn(Objects::nonNull)
                 .hasSize(1)
-                .contains(Failure.builder().rule(x).message("Invalid semver format: '.1.0'").line(2).column(1).build());
+                .contains(RuleIssue.builder().message("Invalid semver format: '.1.0'").line(2).column(1).build());
     }
 }

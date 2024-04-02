@@ -5,7 +5,8 @@ import nbbrd.heylogs.Failure;
 import nbbrd.heylogs.Resource;
 import nbbrd.heylogs.Status;
 import nbbrd.heylogs.TimeRange;
-import nbbrd.heylogs.spi.RuleSeverity;
+import nbbrd.heylogs.spi.FormatType;
+import nbbrd.heylogs.spi.RuleIssue;
 import nbbrd.io.function.IOConsumer;
 import org.junit.jupiter.api.Test;
 
@@ -20,11 +21,26 @@ import static org.assertj.core.api.Assertions.assertThat;
 class StylishFormatTest {
 
     @Test
+    public void testSupportedTypes() {
+        StylishFormat x = new StylishFormat();
+
+        assertThat(x.getSupportedFormatTypes())
+                .containsExactlyInAnyOrder(FormatType.values());
+    }
+
+    @Test
+    public void testFormatName() {
+        StylishFormat x = new StylishFormat();
+
+        assertThat(x.getFormatName()).isNotBlank();
+    }
+
+    @Test
     public void testFormatFailures() {
         StylishFormat x = new StylishFormat();
 
-        Failure f1 = Failure.builder().ruleId("rule1").ruleSeverity(ERROR).message("boom").line(5).column(18).build();
-        Failure f2 = Failure.builder().ruleId("rule222").ruleSeverity(ERROR).message("hello world").line(35).column(2).build();
+        Failure f1 = Failure.builder().id("rule1").severity(ERROR).issue(RuleIssue.builder().message("boom").line(5).column(18).build()).build();
+        Failure f2 = Failure.builder().id("rule222").severity(ERROR).issue(RuleIssue.builder().message("hello world").line(35).column(2).build()).build();
 
         assertThat(stringOf(appendable -> x.formatFailures(appendable, "source1", emptyList())))
                 .isEqualToNormalizingNewlines(

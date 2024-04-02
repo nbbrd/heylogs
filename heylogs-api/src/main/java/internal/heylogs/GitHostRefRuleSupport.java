@@ -3,8 +3,8 @@ package internal.heylogs;
 import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.util.ast.Node;
 import lombok.NonNull;
-import nbbrd.heylogs.Failure;
 import nbbrd.heylogs.spi.Rule;
+import nbbrd.heylogs.spi.RuleIssue;
 import nbbrd.heylogs.spi.RuleSeverity;
 import nbbrd.io.text.Parser;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -35,12 +35,12 @@ public final class GitHostRefRuleSupport<L extends GitHostLink, R extends GitHos
     private final @NonNull BiFunction<L, R, String> message;
 
     @Override
-    public @NonNull String getId() {
+    public @NonNull String getRuleId() {
         return id;
     }
 
     @Override
-    public boolean isAvailable() {
+    public boolean isRuleAvailable() {
         return availability.test(System.getProperties());
     }
 
@@ -50,25 +50,23 @@ public final class GitHostRefRuleSupport<L extends GitHostLink, R extends GitHos
     }
 
     @Override
-    public @Nullable Failure validate(@NonNull Node node) {
-        return node instanceof Link ? validateLink((Link) node) : NO_PROBLEM;
+    public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node) {
+        return node instanceof Link ? validateLink((Link) node) : NO_RULE_ISSUE;
     }
 
-    private @Nullable Failure validateLink(@NonNull Link link) {
+    private @Nullable RuleIssue validateLink(@NonNull Link link) {
         L expected = Parser.of(linkParser).parse(link.getUrl());
         if (expected != null && linkPredicate.test(expected)) {
             R found = Parser.of(refParser).parse(link.getText());
             if (isNotCompatibleRef(found, expected)) {
-                return Failure
+                return RuleIssue
                         .builder()
-                        .ruleId(id)
-                        .ruleSeverity(severity)
                         .message(message.apply(expected, found))
                         .location(link)
                         .build();
             }
         }
-        return Rule.NO_PROBLEM;
+        return NO_RULE_ISSUE;
     }
 
     private static <T extends GitHostLink> boolean isNotCompatibleRef(GitHostRef<T> found, T expected) {
