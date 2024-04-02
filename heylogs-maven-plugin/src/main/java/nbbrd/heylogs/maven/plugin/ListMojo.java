@@ -1,15 +1,19 @@
 package nbbrd.heylogs.maven.plugin;
 
 import internal.heylogs.SemverRule;
-import nbbrd.heylogs.Checker;
-import nbbrd.heylogs.spi.Format;
-import nbbrd.heylogs.spi.Rule;
+import nbbrd.heylogs.Lister;
+import nbbrd.heylogs.Resource;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import static java.util.stream.Collectors.joining;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 @Mojo(name = "list", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
 public final class ListMojo extends HeylogsMojo {
@@ -18,17 +22,17 @@ public final class ListMojo extends HeylogsMojo {
     private boolean semver;
 
     @Override
-    public void execute() {
+    public void execute() throws MojoExecutionException {
         if (skip) {
             getLog().info("Listing has been skipped.");
             return;
         }
 
-        list(loadChecker());
+        list(loadLister());
     }
 
-    private Checker loadChecker() {
-        Checker.Builder result = Checker.ofServiceLoader()
+    private Lister loadLister() {
+        Lister.Builder result = Lister.ofServiceLoader()
                 .toBuilder();
         if (semver) {
             result.rule(new SemverRule());
@@ -36,8 +40,20 @@ public final class ListMojo extends HeylogsMojo {
         return result.build();
     }
 
-    private void list(Checker checker) {
-        getLog().info("Rules: " + checker.getRules().stream().map(Rule::getId).collect(joining(", ")));
-        getLog().info("Formats: " + checker.getFormats().stream().map(Format::getId).collect(joining(", ")));
+    private void list(Lister lister) throws MojoExecutionException {
+        writeResources(lister);
+    }
+
+    private void writeResources(Lister lister) throws MojoExecutionException {
+        try {
+            StringBuilder text = new StringBuilder();
+            lister.format(text, Stream.concat(
+                    lister.getRules().stream().map(rule -> new Resource("rule", rule.getId())),
+                    lister.getFormats().stream().map(format -> new Resource("format", format.getId()))
+            ).collect(toList()));
+            new BufferedReader(new StringReader(text.toString())).lines().forEach(getLog()::info);
+        } catch (IOException ex) {
+            throw new MojoExecutionException("Error while writing failures", ex);
+        }
     }
 }
