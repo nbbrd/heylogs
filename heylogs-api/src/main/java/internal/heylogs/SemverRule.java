@@ -7,6 +7,7 @@ import nbbrd.design.VisibleForTesting;
 import nbbrd.heylogs.Failure;
 import nbbrd.heylogs.Version;
 import nbbrd.heylogs.spi.Rule;
+import nbbrd.heylogs.spi.RuleSeverity;
 import nbbrd.service.ServiceProvider;
 import org.semver4j.Semver;
 
@@ -26,6 +27,11 @@ public final class SemverRule implements Rule {
     @Override
     public boolean isAvailable() {
         return Rule.isEnabled(System.getProperties(), getId());
+    }
+
+    @Override
+    public @NonNull RuleSeverity getRuleSeverity() {
+        return RuleSeverity.ERROR;
     }
 
     @VisibleForTesting

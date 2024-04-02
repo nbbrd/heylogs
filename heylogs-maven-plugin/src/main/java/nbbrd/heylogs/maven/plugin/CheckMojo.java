@@ -83,7 +83,7 @@ public final class CheckMojo extends HeylogsMojo {
         Document changelog = readChangelog(inputFile);
         List<Failure> failures = checker.validate(changelog);
         writeFailures(checker, failures);
-        if (!failures.isEmpty()) {
+        if (Failure.hasErrors(failures)) {
             throw new MojoExecutionException("Invalid changelog");
         }
     }

@@ -9,6 +9,7 @@ import java.io.IOException;
 import static _test.Sample.using;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static nbbrd.heylogs.spi.RuleSeverity.ERROR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIOException;
 import static org.assertj.core.api.InstanceOfAssertFactories.list;
@@ -52,7 +53,7 @@ public class CheckerTest {
                 .isThrownBy(() -> Checker.ofServiceLoader().toBuilder().formatId("other").build().formatFailures(new StringBuilder(), "", emptyList()));
 
         StringBuilder output = new StringBuilder();
-        Checker.ofServiceLoader().formatFailures(output, "file1", asList(Failure.builder().ruleId("rule1").message("some message").line(10).column(20).build()));
+        Checker.ofServiceLoader().formatFailures(output, "file1", asList(Failure.builder().ruleId("rule1").ruleSeverity(ERROR).message("some message").line(10).column(20).build()));
         assertThat(output.toString())
                 .isEqualToIgnoringNewLines(
                         "file1\n" +

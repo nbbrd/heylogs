@@ -13,6 +13,7 @@ import nbbrd.heylogs.Util;
 import nbbrd.heylogs.Version;
 import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleBatch;
+import nbbrd.heylogs.spi.RuleSeverity;
 import nbbrd.service.ServiceProvider;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -48,6 +49,11 @@ public enum ExtendedRules implements Rule {
     @Override
     public boolean isAvailable() {
         return true;
+    }
+
+    @Override
+    public @NonNull RuleSeverity getRuleSeverity() {
+        return RuleSeverity.ERROR;
     }
 
     @VisibleForTesting

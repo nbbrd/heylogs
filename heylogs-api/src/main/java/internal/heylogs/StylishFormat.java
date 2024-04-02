@@ -33,7 +33,7 @@ public final class StylishFormat implements Format {
         StylishWriter
                 .<Failure>builder()
                 .column(getPositionFormatter(failures))
-                .column(Formatter.onConstant("error"))
+                .column(getRuleSeverityFormatter())
                 .column(Formatter.of(Failure::getMessage))
                 .column(Formatter.of(Failure::getRuleId))
                 .build()
@@ -46,6 +46,21 @@ public final class StylishFormat implements Format {
         int c = failures.stream().mapToInt(failure -> getNumberOfDigits(failure.getColumn())).max().orElse(0);
         String format = "%" + l + "d:%-" + c + "d";
         return Formatter.of(failure -> String.format(ROOT, format, failure.getLine(), failure.getColumn()));
+    }
+
+    private static Formatter<Failure> getRuleSeverityFormatter() {
+        return Formatter.of(failure -> {
+            switch (failure.getRuleSeverity()) {
+                case OFF:
+                    return "off";
+                case WARN:
+                    return "warning";
+                case ERROR:
+                    return "error";
+                default:
+                    throw new RuntimeException();
+            }
+        });
     }
 
     @MightBePromoted

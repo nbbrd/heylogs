@@ -24,6 +24,8 @@ public interface Rule {
     @ServiceFilter
     boolean isAvailable();
 
+    @NonNull RuleSeverity getRuleSeverity();
+
     @Nullable Failure validate(@NonNull Node node);
 
     Failure NO_PROBLEM = null;

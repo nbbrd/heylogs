@@ -59,13 +59,15 @@ public final class CheckCommand implements Callable<Integer> {
             Checker checker = getChecker();
             MarkdownInputSupport markdown = newMarkdownInputSupport();
 
-            int failureCount = 0;
+            int returnCode = CommandLine.ExitCode.OK;
             for (Path file : input.getAllFiles(markdown::accept)) {
                 List<Failure> failures = checker.validate(markdown.readDocument(file));
                 checker.formatFailures(writer, markdown.getName(file), failures);
-                failureCount += failures.size();
+                if (returnCode == CommandLine.ExitCode.OK && Failure.hasErrors(failures)) {
+                    returnCode = CommandLine.ExitCode.SOFTWARE;
+                }
             }
-            return failureCount;
+            return returnCode;
         }
     }
 

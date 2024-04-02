@@ -12,6 +12,7 @@ import nbbrd.design.VisibleForTesting;
 import nbbrd.heylogs.*;
 import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleBatch;
+import nbbrd.heylogs.spi.RuleSeverity;
 import nbbrd.service.ServiceProvider;
 
 import java.util.Comparator;
@@ -71,6 +72,11 @@ public enum GuidingPrinciples implements Rule {
     @Override
     public boolean isAvailable() {
         return true;
+    }
+
+    @Override
+    public @NonNull RuleSeverity getRuleSeverity() {
+        return RuleSeverity.ERROR;
     }
 
     @VisibleForTesting

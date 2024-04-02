@@ -5,6 +5,7 @@ import nbbrd.heylogs.Failure;
 import nbbrd.heylogs.Resource;
 import nbbrd.heylogs.Status;
 import nbbrd.heylogs.TimeRange;
+import nbbrd.heylogs.spi.RuleSeverity;
 import nbbrd.io.function.IOConsumer;
 import org.junit.jupiter.api.Test;
 
@@ -13,6 +14,7 @@ import java.time.LocalDate;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static nbbrd.heylogs.spi.RuleSeverity.ERROR;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class StylishFormatTest {
@@ -21,8 +23,8 @@ class StylishFormatTest {
     public void testFormatFailures() {
         StylishFormat x = new StylishFormat();
 
-        Failure f1 = Failure.builder().ruleId("rule1").message("boom").line(5).column(18).build();
-        Failure f2 = Failure.builder().ruleId("rule222").message("hello world").line(35).column(2).build();
+        Failure f1 = Failure.builder().ruleId("rule1").ruleSeverity(ERROR).message("boom").line(5).column(18).build();
+        Failure f2 = Failure.builder().ruleId("rule222").ruleSeverity(ERROR).message("hello world").line(35).column(2).build();
 
         assertThat(stringOf(appendable -> x.formatFailures(appendable, "source1", emptyList())))
                 .isEqualToNormalizingNewlines(
