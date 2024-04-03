@@ -15,6 +15,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Improve list command output [#231](https://github.com/nbbrd/heylogs/issues/231)
 - Add error severity to failures [#17](https://github.com/nbbrd/heylogs/issues/17)
 
+### Changed
+
+- Refactor API and SPI (breaking changes)
+
 ## [0.7.2] - 2023-11-10
 
 ### Changed

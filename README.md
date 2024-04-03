@@ -3,12 +3,12 @@
 [![Download](https://img.shields.io/github/release/nbbrd/heylogs.svg)](https://github.com/nbbrd/heylogs/releases/latest)
 
 `heylogs` is a set of tools to deal with the [keep-a-changelog format](https://keepachangelog.com),
-a format designed to be human-readable.
+a changelog format designed to be human-readable.
 It can be used as a linter in interactive sessions and automations.
 
 Key points:
 
-- Available as a library, a [command-line tool](#installation) and a [Maven plugin](#maven-plugin)
+- Available as a [library](#library), a [command-line tool](#installation) and a [Maven plugin](#maven-plugin)
 - Java 8 minimum requirement
 
 Features:
@@ -17,11 +17,33 @@ Features:
 - Summarizes content
 - Extracts versions
 
+[ [Library](#library) | [Command-line tool](#command-line-tool) | [Maven plugin](#maven-plugin) | [Developing](#developing) | [Contributing](#contributing)  | [Licensing](#licensing) | [Related work](#related-work)]
+
+## Library
+
+`WIP`
+
 ## Command-line tool
 
-Heylogs CLI runs on any desktop operating system such as Microsoft Windows, 
+**Heylogs CLI** runs on any desktop operating system such as Microsoft Windows, 
 Solaris OS, Apple macOS, Ubuntu and other various Linux distributions. 
 It requires a Java SE Runtime Environment (JRE) version 8 or later to run on such as OpenJDK.
+
+It provides the following commands:
+
+| Name      | Description                     |
+|-----------|---------------------------------|
+| `scan`    | Summarize changelog content     |
+| `check`   | Check changelog format          |
+| `extract` | Extract versions from changelog |
+| `list`    | List available resources        |
+
+It follows the Unix philosophy of [“Do one thing and do it well“](https://en.wikipedia.org/wiki/Unix_philosophy#Do_One_Thing_and_Do_It_Well) by performing a single function and beeing composable.
+
+Composition example (download and scan a changelog):
+```bash
+curl -s https://raw.githubusercontent.com/olivierlacan/keep-a-changelog/main/CHANGELOG.md | heylogs scan -
+```
 
 ### Using in a GitHub action
 
@@ -111,9 +133,20 @@ To use the CLI without installing it:
 
 ## Maven plugin
 
-Heylogs is available as a Maven plugin and therefore may be part of the build process.
+**Heylogs Maven plugin** allows the tool to be part of a Maven build workflow.
 
-The following script checks the changelog on every build:
+It provides the following goals:
+
+| Name      | Description                     |
+|-----------|---------------------------------|
+| `scan`    | Summarize changelog content     |
+| `check`   | Check changelog format          |
+| `extract` | Extract versions from changelog |
+| `list`    | List available resources        |
+
+### Examples
+
+Check the changelog on every build:
 
 ```xml
 <plugin>
@@ -135,7 +168,7 @@ The following script checks the changelog on every build:
 </plugin>
 ```
 
-The following script extracts the latest version from the changelog during a release:
+Extract the latest version from the changelog during a release:
 
 ```xml
 <profile>
@@ -182,6 +215,13 @@ Any contribution is welcome and should be done through pull requests and/or issu
 
 The code of this project is licensed under
 the [European Union Public Licence (EUPL)](https://joinup.ec.europa.eu/page/eupl-text-11-12).
+
+## Related work
+
+This project is not the only one that deals with keep-a-changelog format.  
+Here is a non-exhaustive list of related work:
+
+- [clparse](https://github.com/marcaddeo/clparse)
 
 [WINDOWS]: https://img.shields.io/badge/-WINDOWS-068C09
 
