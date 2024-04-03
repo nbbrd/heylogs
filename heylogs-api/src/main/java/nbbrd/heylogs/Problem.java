@@ -9,7 +9,7 @@ import java.util.List;
 
 @lombok.Value
 @lombok.Builder
-public class Failure {
+public class Problem {
 
     @lombok.NonNull
     String id;
@@ -20,8 +20,8 @@ public class Failure {
     @lombok.NonNull
     RuleIssue issue;
 
-    public static boolean hasErrors(@NonNull List<Failure> failures) {
-        return failures.stream().anyMatch(failure -> failure.getSeverity().equals(RuleSeverity.ERROR));
+    public static boolean hasErrors(@NonNull List<Problem> problems) {
+        return problems.stream().anyMatch(problem -> problem.getSeverity().equals(RuleSeverity.ERROR));
     }
 
     public static final class Builder {

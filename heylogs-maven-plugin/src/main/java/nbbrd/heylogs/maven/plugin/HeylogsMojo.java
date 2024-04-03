@@ -3,15 +3,16 @@ package nbbrd.heylogs.maven.plugin;
 import com.vladsch.flexmark.formatter.Formatter;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
+import internal.heylogs.SemverRule;
+import nbbrd.heylogs.Heylogs;
+import nbbrd.io.function.IOConsumer;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 import java.nio.file.Files;
+import java.util.function.Consumer;
 
 abstract class HeylogsMojo extends AbstractMojo {
 
@@ -57,5 +58,25 @@ abstract class HeylogsMojo extends AbstractMojo {
             return !parentPom.exists();
         }
         return true;
+    }
+
+
+    protected static Heylogs initHeylogs(boolean semver) {
+        Heylogs.Builder result = Heylogs.ofServiceLoader()
+                .toBuilder();
+        if (semver) {
+            result.rule(new SemverRule());
+        }
+        return result.build();
+    }
+
+    protected static void log(IOConsumer<? super Appendable> consumer, Consumer<CharSequence> logger) throws MojoExecutionException {
+        try {
+            StringBuilder text = new StringBuilder();
+            consumer.acceptWithIO(text);
+            new BufferedReader(new StringReader(text.toString())).lines().forEach(logger);
+        } catch (IOException ex) {
+            throw new MojoExecutionException("Error while logging", ex);
+        }
     }
 }

@@ -133,7 +133,7 @@
                                                     </artifact>
                                                 </artifacts>
                                                 <java>
-                                                    <mainClass>nbbrd.heylogs.cli.HeylogsCommand</mainClass>
+                                                    <mainClass>nbbrd.heylogs.cli.MainCommand</mainClass>
                                                     <artifactId>heylogs-cli</artifactId>
                                                     <version>8</version>
                                                 </java>

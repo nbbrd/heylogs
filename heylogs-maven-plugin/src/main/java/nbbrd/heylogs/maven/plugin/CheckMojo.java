@@ -1,20 +1,16 @@
 package nbbrd.heylogs.maven.plugin;
 
 import com.vladsch.flexmark.util.ast.Document;
-import internal.heylogs.SemverRule;
 import internal.heylogs.StylishFormat;
-import nbbrd.heylogs.Checker;
-import nbbrd.heylogs.Failure;
+import nbbrd.heylogs.Heylogs;
+import nbbrd.heylogs.Problem;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.semver4j.Semver;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.List;
 
 import static java.util.Locale.ROOT;
@@ -49,7 +45,7 @@ public final class CheckMojo extends HeylogsMojo {
         }
 
         if (inputFile.exists()) {
-            check(loadChecker());
+            check();
         } else {
             if (isRootProject(projectBaseDir)) {
                 raiseErrorMissingChangelog();
@@ -69,32 +65,13 @@ public final class CheckMojo extends HeylogsMojo {
         }
     }
 
-    private Checker loadChecker() {
-        Checker.Builder result = Checker.ofServiceLoader()
-                .toBuilder()
-                .formatId(formatId);
-        if (semver) {
-            result.rule(new SemverRule());
-        }
-        return result.build();
-    }
-
-    private void check(Checker checker) throws MojoExecutionException {
+    private void check() throws MojoExecutionException {
+        Heylogs heylogs = initHeylogs(semver);
         Document changelog = readChangelog(inputFile);
-        List<Failure> failures = checker.validate(changelog);
-        writeFailures(checker, failures);
-        if (Failure.hasErrors(failures)) {
+        List<Problem> problems = heylogs.validate(changelog);
+        log(text -> heylogs.formatProblems(formatId, text, inputFile.toString(), problems), !problems.isEmpty() ? getLog()::error : getLog()::info);
+        if (Problem.hasErrors(problems)) {
             throw new MojoExecutionException("Invalid changelog");
-        }
-    }
-
-    private void writeFailures(Checker checker, List<Failure> failures) throws MojoExecutionException {
-        try {
-            StringBuilder text = new StringBuilder();
-            checker.formatFailures(text, inputFile.toString(), failures);
-            new BufferedReader(new StringReader(text.toString())).lines().forEach(!failures.isEmpty() ? getLog()::error : getLog()::info);
-        } catch (IOException ex) {
-            throw new MojoExecutionException("Error while writing failures", ex);
         }
     }
 }

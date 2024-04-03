@@ -10,11 +10,11 @@ import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class HeylogsCommandTest {
+public class MainCommandTest {
 
     @Test
     public void testHelp() {
-        CommandLine cmd = new CommandLine(new HeylogsCommand());
+        CommandLine cmd = new CommandLine(new MainCommand());
         CommandWatcher watcher = CommandWatcher.on(cmd);
 
         assertThat(cmd.execute()).isEqualTo(CommandLine.ExitCode.OK);
@@ -24,7 +24,7 @@ public class HeylogsCommandTest {
 
     @Test
     public void testContent(@TempDir Path temp) throws IOException {
-        CommandLine cmd = new CommandLine(new HeylogsCommand());
+        CommandLine cmd = new CommandLine(new MainCommand());
         CommandWatcher watcher = CommandWatcher.on(cmd);
 
         assertThat(cmd.execute("--version")).isEqualTo(CommandLine.ExitCode.OK);

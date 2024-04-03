@@ -1,7 +1,7 @@
 package internal.heylogs;
 
 import nbbrd.design.MightBePromoted;
-import nbbrd.heylogs.Failure;
+import nbbrd.heylogs.Problem;
 import nbbrd.heylogs.Resource;
 import nbbrd.heylogs.Status;
 import nbbrd.heylogs.TimeRange;
@@ -36,20 +36,20 @@ class StylishFormatTest {
     }
 
     @Test
-    public void testFormatFailures() {
+    public void testFormatProblems() {
         StylishFormat x = new StylishFormat();
 
-        Failure f1 = Failure.builder().id("rule1").severity(ERROR).issue(RuleIssue.builder().message("boom").line(5).column(18).build()).build();
-        Failure f2 = Failure.builder().id("rule222").severity(ERROR).issue(RuleIssue.builder().message("hello world").line(35).column(2).build()).build();
+        Problem f1 = Problem.builder().id("rule1").severity(ERROR).issue(RuleIssue.builder().message("boom").line(5).column(18).build()).build();
+        Problem f2 = Problem.builder().id("rule222").severity(ERROR).issue(RuleIssue.builder().message("hello world").line(35).column(2).build()).build();
 
-        assertThat(stringOf(appendable -> x.formatFailures(appendable, "source1", emptyList())))
+        assertThat(stringOf(appendable -> x.formatProblems(appendable, "source1", emptyList())))
                 .isEqualToNormalizingNewlines(
                         "source1\n"
                                 + "  \n"
                                 + "  No problem\n"
                 );
 
-        assertThat(stringOf(appendable -> x.formatFailures(appendable, "source2", singletonList(f1))))
+        assertThat(stringOf(appendable -> x.formatProblems(appendable, "source2", singletonList(f1))))
                 .isEqualToNormalizingNewlines(
                         "source2\n"
                                 + "  5:18  error  boom  rule1\n"
@@ -57,7 +57,7 @@ class StylishFormatTest {
                                 + "  1 problem\n"
                 );
 
-        assertThat(stringOf(appendable -> x.formatFailures(appendable, "source3", asList(f1, f2))))
+        assertThat(stringOf(appendable -> x.formatProblems(appendable, "source3", asList(f1, f2))))
                 .isEqualToNormalizingNewlines(
                         "source3\n"
                                 + "   5:18  error  boom         rule1  \n"

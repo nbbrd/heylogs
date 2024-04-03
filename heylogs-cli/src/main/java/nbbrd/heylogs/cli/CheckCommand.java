@@ -1,14 +1,13 @@
 package nbbrd.heylogs.cli;
 
-import internal.heylogs.SemverRule;
-import internal.heylogs.StylishFormat;
-import internal.heylogs.cli.FormatCandidates;
+import internal.heylogs.cli.FormatOptions;
+import internal.heylogs.cli.HeylogsOptions;
 import internal.heylogs.cli.MarkdownInputSupport;
 import internal.heylogs.cli.SpecialProperties;
 import nbbrd.console.picocli.FileOutputOptions;
 import nbbrd.console.picocli.MultiFileInputOptions;
-import nbbrd.heylogs.Checker;
-import nbbrd.heylogs.Failure;
+import nbbrd.heylogs.Heylogs;
+import nbbrd.heylogs.Problem;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -29,21 +28,11 @@ public final class CheckCommand implements Callable<Integer> {
     @CommandLine.Mixin
     private FileOutputOptions output;
 
-    @CommandLine.Option(
-            names = {"-s", "--semver"},
-            defaultValue = "false",
-            description = "Mention if this changelog follows Semantic Versioning."
-    )
-    private boolean semver;
+    @CommandLine.Mixin
+    private HeylogsOptions heylogsOptions;
 
-    @CommandLine.Option(
-            names = {"-f", "--format"},
-            paramLabel = "<name>",
-            defaultValue = StylishFormat.ID,
-            description = "Specify the format used to control the appearance of the result. Valid values: ${COMPLETION-CANDIDATES}.",
-            completionCandidates = FormatCandidates.class
-    )
-    private String formatId;
+    @CommandLine.Mixin
+    private FormatOptions formatOptions;
 
     @CommandLine.Option(
             names = {SpecialProperties.DEBUG_OPTION},
@@ -56,28 +45,18 @@ public final class CheckCommand implements Callable<Integer> {
     public Integer call() throws Exception {
         try (Writer writer = newTextOutputSupport().newBufferedWriter(output.getFile())) {
 
-            Checker checker = getChecker();
+            Heylogs heylogs = heylogsOptions.initHeylogs();
             MarkdownInputSupport markdown = newMarkdownInputSupport();
 
             int returnCode = CommandLine.ExitCode.OK;
             for (Path file : input.getAllFiles(markdown::accept)) {
-                List<Failure> failures = checker.validate(markdown.readDocument(file));
-                checker.formatFailures(writer, markdown.getName(file), failures);
-                if (returnCode == CommandLine.ExitCode.OK && Failure.hasErrors(failures)) {
+                List<Problem> problems = heylogs.validate(markdown.readDocument(file));
+                heylogs.formatProblems(formatOptions.getFormatId(), writer, markdown.getName(file), problems);
+                if (returnCode == CommandLine.ExitCode.OK && Problem.hasErrors(problems)) {
                     returnCode = CommandLine.ExitCode.SOFTWARE;
                 }
             }
             return returnCode;
         }
-    }
-
-    private Checker getChecker() {
-        Checker.Builder result = Checker.ofServiceLoader()
-                .toBuilder()
-                .formatId(formatId);
-        if (semver) {
-            result.rule(new SemverRule());
-        }
-        return result.build();
     }
 }

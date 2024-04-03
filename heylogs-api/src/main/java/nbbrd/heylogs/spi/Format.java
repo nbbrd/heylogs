@@ -1,7 +1,7 @@
 package nbbrd.heylogs.spi;
 
 import lombok.NonNull;
-import nbbrd.heylogs.Failure;
+import nbbrd.heylogs.Problem;
 import nbbrd.heylogs.Resource;
 import nbbrd.heylogs.Status;
 import nbbrd.service.Quantifier;
@@ -25,7 +25,7 @@ public interface Format {
 
     @NonNull Set<FormatType> getSupportedFormatTypes();
 
-    void formatFailures(@NonNull Appendable appendable, @NonNull String source, @NonNull List<Failure> failures) throws IOException;
+    void formatProblems(@NonNull Appendable appendable, @NonNull String source, @NonNull List<Problem> problems) throws IOException;
 
     void formatStatus(@NonNull Appendable appendable, @NonNull String source, @NonNull Status status) throws IOException;
 

@@ -2,7 +2,7 @@ package internal.heylogs;
 
 import lombok.NonNull;
 import nbbrd.design.MightBePromoted;
-import nbbrd.heylogs.Failure;
+import nbbrd.heylogs.Problem;
 import nbbrd.heylogs.Resource;
 import nbbrd.heylogs.Status;
 import nbbrd.heylogs.spi.Format;
@@ -42,28 +42,28 @@ public final class StylishFormat implements Format {
     }
 
     @Override
-    public void formatFailures(@NonNull Appendable appendable, @NonNull String source, @NonNull List<Failure> failures) throws IOException {
+    public void formatProblems(@NonNull Appendable appendable, @NonNull String source, @NonNull List<Problem> problems) throws IOException {
         StylishWriter
-                .<Failure>builder()
-                .column(getPositionFormatter(failures))
+                .<Problem>builder()
+                .column(getPositionFormatter(problems))
                 .column(getRuleSeverityFormatter())
-                .column(Formatter.of(failure -> failure.getIssue().getMessage()))
-                .column(Formatter.of(Failure::getId))
+                .column(Formatter.of(problem -> problem.getIssue().getMessage()))
+                .column(Formatter.of(Problem::getId))
                 .build()
-                .write(appendable, source, failures, getFailuresSummary(failures));
+                .write(appendable, source, problems, getProblemsSummary(problems));
     }
 
     @MightBePromoted
-    private static Formatter<Failure> getPositionFormatter(List<Failure> failures) {
-        int l = failures.stream().mapToInt(failure -> getNumberOfDigits(failure.getIssue().getLine())).max().orElse(0);
-        int c = failures.stream().mapToInt(failure -> getNumberOfDigits(failure.getIssue().getColumn())).max().orElse(0);
+    private static Formatter<Problem> getPositionFormatter(List<Problem> problems) {
+        int l = problems.stream().mapToInt(problem -> getNumberOfDigits(problem.getIssue().getLine())).max().orElse(0);
+        int c = problems.stream().mapToInt(problem -> getNumberOfDigits(problem.getIssue().getColumn())).max().orElse(0);
         String format = "%" + l + "d:%-" + c + "d";
-        return Formatter.of(failure -> String.format(ROOT, format, failure.getIssue().getLine(), failure.getIssue().getColumn()));
+        return Formatter.of(problem -> String.format(ROOT, format, problem.getIssue().getLine(), problem.getIssue().getColumn()));
     }
 
-    private static Formatter<Failure> getRuleSeverityFormatter() {
-        return Formatter.of(failure -> {
-            switch (failure.getSeverity()) {
+    private static Formatter<Problem> getRuleSeverityFormatter() {
+        return Formatter.of(problem -> {
+            switch (problem.getSeverity()) {
                 case OFF:
                     return "off";
                 case WARN:
@@ -81,7 +81,7 @@ public final class StylishFormat implements Format {
         return (int) (Math.log10(number) + 1);
     }
 
-    private String getFailuresSummary(List<Failure> list) {
+    private String getProblemsSummary(List<Problem> list) {
         switch (list.size()) {
             case 0:
                 return "No problem";
