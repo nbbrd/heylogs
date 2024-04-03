@@ -1,6 +1,7 @@
 package nbbrd.heylogs;
 
 import internal.heylogs.SemverRule;
+import internal.heylogs.StylishFormat;
 import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleIssue;
 import org.junit.jupiter.api.Test;
@@ -56,7 +57,7 @@ public class HeylogsTest {
                 .isThrownBy(() -> Heylogs.ofServiceLoader().formatProblems("other", new StringBuilder(), "", emptyList()));
 
         StringBuilder output = new StringBuilder();
-        Heylogs.ofServiceLoader().formatProblems(FIRST_FORMAT_AVAILABLE, output, "file1", asList(Problem.builder().id("rule1").severity(ERROR).issue(RuleIssue.builder().message("some message").line(10).column(20).build()).build()));
+        Heylogs.ofServiceLoader().formatProblems(StylishFormat.ID, output, "file1", asList(Problem.builder().id("rule1").severity(ERROR).issue(RuleIssue.builder().message("some message").line(10).column(20).build()).build()));
         assertThat(output.toString())
                 .isEqualToIgnoringNewLines(
                         "file1\n" +
@@ -112,7 +113,7 @@ public class HeylogsTest {
                 .isThrownBy(() -> Heylogs.ofServiceLoader().formatStatus("other", new StringBuilder(), "", Status.builder().build()));
 
         StringBuilder output = new StringBuilder();
-        Heylogs.ofServiceLoader().formatStatus(FIRST_FORMAT_AVAILABLE, output, "file1", new Status(
+        Heylogs.ofServiceLoader().formatStatus(StylishFormat.ID, output, "file1", new Status(
                 1,
                 TimeRange.of(LocalDate.of(2019, 2, 15), LocalDate.of(2019, 2, 15)),
                 true, " ()",

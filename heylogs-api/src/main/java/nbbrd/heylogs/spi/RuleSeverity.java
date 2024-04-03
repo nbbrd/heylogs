@@ -1,5 +1,14 @@
 package nbbrd.heylogs.spi;
 
+import lombok.NonNull;
+import nbbrd.design.RepresentableAsInt;
+import nbbrd.design.RepresentableAsString;
+import nbbrd.design.StaticFactoryMethod;
+
+import java.util.stream.Stream;
+
+//@RepresentableAsString
+@RepresentableAsInt(formatMethodName = "toCode", parseMethodName = "parseCode")
 @lombok.AllArgsConstructor
 public enum RuleSeverity {
 
@@ -18,6 +27,16 @@ public enum RuleSeverity {
      */
     ERROR(2);
 
-    @lombok.Getter
     private final int code;
+
+    public int toCode() {
+        return code;
+    }
+
+    @StaticFactoryMethod
+    public static @NonNull RuleSeverity parseCode(int code) {
+        return Stream.of(values()).filter(value -> value.code == code)
+                .findFirst()
+                .orElseThrow(IllegalArgumentException::new);
+    }
 }

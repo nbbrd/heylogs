@@ -14,6 +14,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Add check on GitHub commit SHAs [#223](https://github.com/nbbrd/heylogs/issues/223)
 - Improve list command output [#231](https://github.com/nbbrd/heylogs/issues/231)
 - Add error severity to failures [#17](https://github.com/nbbrd/heylogs/issues/17)
+- Add json formatting [#118](https://github.com/nbbrd/heylogs/issues/118)
 
 ### Changed
 
