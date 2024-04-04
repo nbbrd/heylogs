@@ -1,0 +1,15 @@
+[
+  {
+    "filePath": "source1",
+    "summary": {
+      "releaseCount": 0,
+      "timeRange": {
+        "from": "-999999999-01-01",
+        "to": "+999999999-12-31"
+      },
+      "compatibleWithSemver": false,
+      "semverDetails": "",
+      "hasUnreleasedSection": false
+    }
+  }
+]

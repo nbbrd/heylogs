@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 
 import static _test.Sample.using;
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static nbbrd.heylogs.Heylogs.FIRST_FORMAT_AVAILABLE;
 import static nbbrd.heylogs.spi.RuleSeverity.ERROR;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,14 +50,16 @@ public class HeylogsTest {
 
     @Test
     public void testFormatProblems() throws IOException {
-        assertThatIOException()
-                .isThrownBy(() -> Heylogs.builder().build().formatProblems(FIRST_FORMAT_AVAILABLE, new StringBuilder(), "", emptyList()));
+        List<Check> checks = singletonList(Check.builder().source("file1").problem(Problem.builder().id("rule1").severity(ERROR).issue(RuleIssue.builder().message("some message").line(10).column(20).build()).build()).build());
 
         assertThatIOException()
-                .isThrownBy(() -> Heylogs.ofServiceLoader().formatProblems("other", new StringBuilder(), "", emptyList()));
+                .isThrownBy(() -> Heylogs.builder().build().formatProblems(FIRST_FORMAT_AVAILABLE, new StringBuilder(), checks));
+
+        assertThatIOException()
+                .isThrownBy(() -> Heylogs.ofServiceLoader().formatProblems("other", new StringBuilder(), checks));
 
         StringBuilder output = new StringBuilder();
-        Heylogs.ofServiceLoader().formatProblems(StylishFormat.ID, output, "file1", asList(Problem.builder().id("rule1").severity(ERROR).issue(RuleIssue.builder().message("some message").line(10).column(20).build()).build()));
+        Heylogs.ofServiceLoader().formatProblems(StylishFormat.ID, output, checks);
         assertThat(output.toString())
                 .isEqualToIgnoringNewLines(
                         "file1\n" +
@@ -72,7 +74,7 @@ public class HeylogsTest {
         Heylogs x = Heylogs.ofServiceLoader();
 
         assertThat(x.scan(using("/Empty.md")))
-                .isEqualTo(new Status(
+                .isEqualTo(new Summary(
                         0,
                         TimeRange.ALL,
                         true, " ()",
@@ -80,7 +82,7 @@ public class HeylogsTest {
                 ));
 
         assertThat(x.scan(using("/Main.md")))
-                .isEqualTo(new Status(
+                .isEqualTo(new Summary(
                         13,
                         TimeRange.of(LocalDate.of(2014, 5, 31), LocalDate.of(2019, 2, 15)),
                         true, " (1 MAJOR, 4 MINOR, 7 PATCH)",
@@ -88,7 +90,7 @@ public class HeylogsTest {
                 ));
 
         assertThat(x.scan(using("/InvalidSemver.md")))
-                .isEqualTo(new Status(
+                .isEqualTo(new Summary(
                         2,
                         TimeRange.of(LocalDate.of(2019, 2, 15), LocalDate.of(2019, 2, 15)),
                         false, "",
@@ -96,7 +98,7 @@ public class HeylogsTest {
                 ));
 
         assertThat(x.scan(using("/InvalidVersion.md")))
-                .isEqualTo(new Status(
+                .isEqualTo(new Summary(
                         1,
                         TimeRange.of(LocalDate.of(2019, 2, 15), LocalDate.of(2019, 2, 15)),
                         true, " ()",
@@ -106,19 +108,21 @@ public class HeylogsTest {
 
     @Test
     public void testFormatStatus() throws IOException {
-        assertThatIOException()
-                .isThrownBy(() -> Heylogs.builder().build().formatStatus(FIRST_FORMAT_AVAILABLE, new StringBuilder(), "", Status.builder().build()));
-
-        assertThatIOException()
-                .isThrownBy(() -> Heylogs.ofServiceLoader().formatStatus("other", new StringBuilder(), "", Status.builder().build()));
-
-        StringBuilder output = new StringBuilder();
-        Heylogs.ofServiceLoader().formatStatus(StylishFormat.ID, output, "file1", new Status(
+        List<Scan> scans = singletonList(Scan.builder().source("file1").summary(new Summary(
                 1,
                 TimeRange.of(LocalDate.of(2019, 2, 15), LocalDate.of(2019, 2, 15)),
                 true, " ()",
                 true
-        ));
+        )).build());
+
+        assertThatIOException()
+                .isThrownBy(() -> Heylogs.builder().build().formatStatus(FIRST_FORMAT_AVAILABLE, new StringBuilder(), scans));
+
+        assertThatIOException()
+                .isThrownBy(() -> Heylogs.ofServiceLoader().formatStatus("other", new StringBuilder(), scans));
+
+        StringBuilder output = new StringBuilder();
+        Heylogs.ofServiceLoader().formatStatus(StylishFormat.ID, output, scans);
         assertThat(output.toString())
                 .isEqualToIgnoringNewLines(
                         "file1\n" +

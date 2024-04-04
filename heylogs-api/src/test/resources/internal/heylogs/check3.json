@@ -1,0 +1,21 @@
+[
+  {
+    "filePath": "source3",
+    "messages": [
+      {
+        "ruleId": "rule1",
+        "severity": 2,
+        "message": "boom",
+        "line": 5,
+        "column": 18
+      },
+      {
+        "ruleId": "rule222",
+        "severity": 2,
+        "message": "hello world",
+        "line": 35,
+        "column": 2
+      }
+    ]
+  }
+]

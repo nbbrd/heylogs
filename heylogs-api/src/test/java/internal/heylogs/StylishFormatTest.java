@@ -31,14 +31,14 @@ class StylishFormatTest {
     public void testFormatProblems() {
         Format x = new StylishFormat();
 
-        assertThat(writing(appendable -> x.formatProblems(appendable, "source1", emptyList())))
+        assertThat(writing(appendable -> x.formatProblems(appendable, singletonList(CHECK1))))
                 .isEqualToNormalizingNewlines(
                         "source1\n"
                                 + "  \n"
                                 + "  No problem\n"
                 );
 
-        assertThat(writing(appendable -> x.formatProblems(appendable, "source2", singletonList(PROBLEM1))))
+        assertThat(writing(appendable -> x.formatProblems(appendable, singletonList(CHECK2))))
                 .isEqualToNormalizingNewlines(
                         "source2\n"
                                 + "  5:18  error  boom  rule1\n"
@@ -46,7 +46,7 @@ class StylishFormatTest {
                                 + "  1 problem\n"
                 );
 
-        assertThat(writing(appendable -> x.formatProblems(appendable, "source3", asList(PROBLEM1, PROBLEM2))))
+        assertThat(writing(appendable -> x.formatProblems(appendable, singletonList(CHECK3))))
                 .isEqualToNormalizingNewlines(
                         "source3\n"
                                 + "   5:18  error  boom         rule1  \n"
@@ -60,14 +60,14 @@ class StylishFormatTest {
     public void testFormatStatus() {
         Format x = new StylishFormat();
 
-        assertThat(writing(appendable -> x.formatStatus(appendable, "source1", STATUS1)))
+        assertThat(writing(appendable -> x.formatStatus(appendable, singletonList(SCAN1))))
                 .isEqualToNormalizingNewlines(
                         "source1\n"
                                 + "  No release found         \n"
                                 + "  Has no unreleased version\n"
                 );
 
-        assertThat(writing(appendable -> x.formatStatus(appendable, "source2", STATUS2)))
+        assertThat(writing(appendable -> x.formatStatus(appendable, singletonList(SCAN2))))
                 .isEqualToNormalizingNewlines(
                         "source2\n"
                                 + "  Found 3 releases                      \n"

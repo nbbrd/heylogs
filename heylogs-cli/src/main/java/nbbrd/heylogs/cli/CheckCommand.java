@@ -6,13 +6,14 @@ import internal.heylogs.cli.MarkdownInputSupport;
 import internal.heylogs.cli.SpecialProperties;
 import nbbrd.console.picocli.FileOutputOptions;
 import nbbrd.console.picocli.MultiFileInputOptions;
+import nbbrd.heylogs.Check;
 import nbbrd.heylogs.Heylogs;
-import nbbrd.heylogs.Problem;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 import java.io.Writer;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -48,15 +49,16 @@ public final class CheckCommand implements Callable<Integer> {
             Heylogs heylogs = heylogsOptions.initHeylogs();
             MarkdownInputSupport markdown = newMarkdownInputSupport();
 
-            int returnCode = CommandLine.ExitCode.OK;
+            List<Check> list = new ArrayList<>();
             for (Path file : input.getAllFiles(markdown::accept)) {
-                List<Problem> problems = heylogs.validate(markdown.readDocument(file));
-                heylogs.formatProblems(formatOptions.getFormatId(), writer, markdown.getName(file), problems);
-                if (returnCode == CommandLine.ExitCode.OK && Problem.hasErrors(problems)) {
-                    returnCode = CommandLine.ExitCode.SOFTWARE;
-                }
+                list.add(Check
+                        .builder()
+                        .source(markdown.getName(file))
+                        .problems(heylogs.validate(markdown.readDocument(file)))
+                        .build());
             }
-            return returnCode;
+            heylogs.formatProblems(formatOptions.getFormatId(), writer, list);
+            return list.stream().anyMatch(Check::hasErrors) ? CommandLine.ExitCode.SOFTWARE : CommandLine.ExitCode.OK;
         }
     }
 }

@@ -1,9 +1,8 @@
 package nbbrd.heylogs.maven.plugin;
 
-import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.StylishFormat;
+import nbbrd.heylogs.Check;
 import nbbrd.heylogs.Heylogs;
-import nbbrd.heylogs.Problem;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -11,8 +10,8 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.semver4j.Semver;
 
 import java.io.File;
-import java.util.List;
 
+import static java.util.Collections.singletonList;
 import static java.util.Locale.ROOT;
 
 @Mojo(name = "check", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
@@ -67,10 +66,13 @@ public final class CheckMojo extends HeylogsMojo {
 
     private void check() throws MojoExecutionException {
         Heylogs heylogs = initHeylogs(semver);
-        Document changelog = readChangelog(inputFile);
-        List<Problem> problems = heylogs.validate(changelog);
-        log(text -> heylogs.formatProblems(formatId, text, inputFile.toString(), problems), !problems.isEmpty() ? getLog()::error : getLog()::info);
-        if (Problem.hasErrors(problems)) {
+        Check check = Check
+                .builder()
+                .source(inputFile.toString())
+                .problems(heylogs.validate(readChangelog(inputFile)))
+                .build();
+        log(text -> heylogs.formatProblems(formatId, text, singletonList(check)), check.hasErrors() ? getLog()::error : getLog()::info);
+        if (check.hasErrors()) {
             throw new MojoExecutionException("Invalid changelog");
         }
     }

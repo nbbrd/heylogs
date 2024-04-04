@@ -1,9 +1,9 @@
 package nbbrd.heylogs.spi;
 
 import lombok.NonNull;
-import nbbrd.heylogs.Problem;
 import nbbrd.heylogs.Resource;
-import nbbrd.heylogs.Status;
+import nbbrd.heylogs.Check;
+import nbbrd.heylogs.Scan;
 import nbbrd.service.Quantifier;
 import nbbrd.service.ServiceDefinition;
 import nbbrd.service.ServiceId;
@@ -25,9 +25,9 @@ public interface Format {
 
     @NonNull Set<FormatType> getSupportedFormatTypes();
 
-    void formatProblems(@NonNull Appendable appendable, @NonNull String source, @NonNull List<Problem> problems) throws IOException;
+    void formatProblems(@NonNull Appendable appendable, @NonNull List<Check> list) throws IOException;
 
-    void formatStatus(@NonNull Appendable appendable, @NonNull String source, @NonNull Status status) throws IOException;
+    void formatStatus(@NonNull Appendable appendable, @NonNull List<Scan> list) throws IOException;
 
-    void formatResources(@NonNull Appendable appendable, @NonNull List<Resource> resources) throws IOException;
+    void formatResources(@NonNull Appendable appendable, @NonNull List<Resource> list) throws IOException;
 }

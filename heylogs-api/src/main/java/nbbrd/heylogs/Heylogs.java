@@ -61,19 +61,19 @@ public class Heylogs {
         return ruleIssueOrNull != null ? Problem.builder().rule(rule).issue(ruleIssueOrNull).build() : null;
     }
 
-    public void formatProblems(@NonNull String formatId, @NonNull Appendable appendable, @NonNull String source, @NonNull List<Problem> problems) throws IOException {
-        getFormatById(formatId).formatProblems(appendable, source, problems);
+    public void formatProblems(@NonNull String formatId, @NonNull Appendable appendable, @NonNull List<Check> list) throws IOException {
+        getFormatById(formatId).formatProblems(appendable, list);
     }
 
-    public void formatStatus(@NonNull String formatId, @NonNull Appendable appendable, @NonNull String source, @NonNull Status status) throws IOException {
-        getFormatById(formatId).formatStatus(appendable, source, status);
+    public void formatStatus(@NonNull String formatId, @NonNull Appendable appendable, @NonNull List<Scan> list) throws IOException {
+        getFormatById(formatId).formatStatus(appendable, list);
     }
 
-    public void formatResources(@NonNull String formatId, @NonNull Appendable appendable, @NonNull List<Resource> resources) throws IOException {
-        getFormatById(formatId).formatResources(appendable, resources);
+    public void formatResources(@NonNull String formatId, @NonNull Appendable appendable, @NonNull List<Resource> list) throws IOException {
+        getFormatById(formatId).formatResources(appendable, list);
     }
 
-    public @NonNull Status scan(@NonNull Node document) {
+    public @NonNull Summary scan(@NonNull Node document) {
         Map<Boolean, List<Version>> versionByType = Nodes.of(Heading.class)
                 .descendants(document)
                 .filter(Version::isVersionLevel)
@@ -83,7 +83,7 @@ public class Heylogs {
 
         boolean compatibleWithSemver = isCompatibleWithSemver(versionByType.get(false));
 
-        return Status
+        return Summary
                 .builder()
                 .releaseCount(versionByType.get(false).size())
                 .timeRange(versionByType.get(false).stream().map(Version::getDate).collect(toTimeRange()).orElse(TimeRange.ALL))

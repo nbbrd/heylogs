@@ -2,9 +2,7 @@ package internal.heylogs;
 
 import lombok.NonNull;
 import nbbrd.design.MightBePromoted;
-import nbbrd.heylogs.Problem;
-import nbbrd.heylogs.Resource;
-import nbbrd.heylogs.Status;
+import nbbrd.heylogs.*;
 import nbbrd.heylogs.spi.Format;
 import nbbrd.heylogs.spi.FormatType;
 import nbbrd.io.text.Formatter;
@@ -42,21 +40,23 @@ public final class StylishFormat implements Format {
     }
 
     @Override
-    public void formatProblems(@NonNull Appendable appendable, @NonNull String source, @NonNull List<Problem> problems) throws IOException {
-        StylishWriter
+    public void formatProblems(@NonNull Appendable appendable, @NonNull List<Check> list) throws IOException {
+        StylishWriter<Problem> writer = StylishWriter
                 .<Problem>builder()
-                .column(getPositionFormatter(problems))
+                .column(getPositionFormatter(list))
                 .column(getRuleSeverityFormatter())
                 .column(Formatter.of(problem -> problem.getIssue().getMessage()))
                 .column(Formatter.of(Problem::getId))
-                .build()
-                .write(appendable, source, problems, getProblemsSummary(problems));
+                .build();
+        for (Check item : list) {
+            writer.write(appendable, item.getSource(), item.getProblems(), getProblemsSummary(item.getProblems()));
+        }
     }
 
     @MightBePromoted
-    private static Formatter<Problem> getPositionFormatter(List<Problem> problems) {
-        int l = problems.stream().mapToInt(problem -> getNumberOfDigits(problem.getIssue().getLine())).max().orElse(0);
-        int c = problems.stream().mapToInt(problem -> getNumberOfDigits(problem.getIssue().getColumn())).max().orElse(0);
+    private static Formatter<Problem> getPositionFormatter(List<Check> problems) {
+        int l = problems.stream().flatMap(o -> o.getProblems().stream()).mapToInt(problem -> getNumberOfDigits(problem.getIssue().getLine())).max().orElse(0);
+        int c = problems.stream().flatMap(o -> o.getProblems().stream()).mapToInt(problem -> getNumberOfDigits(problem.getIssue().getColumn())).max().orElse(0);
         String format = "%" + l + "d:%-" + c + "d";
         return Formatter.of(problem -> String.format(ROOT, format, problem.getIssue().getLine(), problem.getIssue().getColumn()));
     }
@@ -93,40 +93,42 @@ public final class StylishFormat implements Format {
     }
 
     @Override
-    public void formatStatus(@NonNull Appendable appendable, @NonNull String source, @NonNull Status status) throws IOException {
-        StylishWriter
+    public void formatStatus(@NonNull Appendable appendable, @NonNull List<Scan> list) throws IOException {
+        StylishWriter<String> writer = StylishWriter
                 .<String>builder()
                 .column(Formatter.onString())
-                .build()
-                .write(appendable, source, getStatusBody(status), null);
+                .build();
+        for (Scan item : list) {
+            writer.write(appendable, item.getSource(), getStatusBody(item.getSummary()), null);
+        }
     }
 
-    private List<String> getStatusBody(Status status) {
-        if (status.getReleaseCount() == 0) {
+    private List<String> getStatusBody(Summary summary) {
+        if (summary.getReleaseCount() == 0) {
             return asList(
                     "No release found",
-                    status.isHasUnreleasedSection() ? "Has an unreleased version" : "Has no unreleased version"
+                    summary.isHasUnreleasedSection() ? "Has an unreleased version" : "Has no unreleased version"
             );
         } else {
             return asList(
-                    String.format(ROOT, "Found %d releases", status.getReleaseCount()),
-                    String.format(ROOT, "Ranging from %s to %s", status.getTimeRange().getFrom(), status.getTimeRange().getTo()),
-                    status.isCompatibleWithSemver()
-                            ? "Compatible with Semantic Versioning" + status.getSemverDetails()
+                    String.format(ROOT, "Found %d releases", summary.getReleaseCount()),
+                    String.format(ROOT, "Ranging from %s to %s", summary.getTimeRange().getFrom(), summary.getTimeRange().getTo()),
+                    summary.isCompatibleWithSemver()
+                            ? "Compatible with Semantic Versioning" + summary.getSemverDetails()
                             : "Not compatible with Semantic Versioning",
-                    status.isHasUnreleasedSection() ? "Has an unreleased version" : "Has no unreleased version"
+                    summary.isHasUnreleasedSection() ? "Has an unreleased version" : "Has no unreleased version"
             );
         }
     }
 
     @Override
-    public void formatResources(@NonNull Appendable appendable, @NonNull List<Resource> resources) throws IOException {
+    public void formatResources(@NonNull Appendable appendable, @NonNull List<Resource> list) throws IOException {
         StylishWriter
                 .<Resource>builder()
                 .column(Formatter.of(Resource::getType))
                 .column(Formatter.of(Resource::getId))
                 .build()
-                .write(appendable, "Resources", resources, getResourcesSummary(resources));
+                .write(appendable, "Resources", list, getResourcesSummary(list));
     }
 
     private String getResourcesSummary(List<Resource> list) {

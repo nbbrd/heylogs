@@ -15,25 +15,25 @@ class JsonFormatTest {
     public void testFormatProblems() {
         Format x = new JsonFormat();
 
-        assertThat(writing(appendable -> x.formatProblems(appendable, "source1", emptyList())))
-                .isEqualToNormalizingNewlines(contentOf(JsonFormatTest.class, "problems1.json"));
+        assertThat(writing(appendable -> x.formatProblems(appendable, singletonList(CHECK1))))
+                .isEqualToNormalizingNewlines(contentOf(JsonFormatTest.class, "check1.json"));
 
-        assertThat(writing(appendable -> x.formatProblems(appendable, "source2", singletonList(PROBLEM1))))
-                .isEqualToNormalizingNewlines(contentOf(JsonFormatTest.class, "problems2.json"));
+        assertThat(writing(appendable -> x.formatProblems(appendable, singletonList(CHECK2))))
+                .isEqualToNormalizingNewlines(contentOf(JsonFormatTest.class, "check2.json"));
 
-        assertThat(writing(appendable -> x.formatProblems(appendable, "source3", asList(PROBLEM1, PROBLEM2))))
-                .isEqualToNormalizingNewlines(contentOf(JsonFormatTest.class, "problems3.json"));
+        assertThat(writing(appendable -> x.formatProblems(appendable, singletonList(CHECK3))))
+                .isEqualToNormalizingNewlines(contentOf(JsonFormatTest.class, "check3.json"));
     }
 
     @Test
     public void testFormatStatus() {
         Format x = new JsonFormat();
 
-        assertThat(writing(appendable -> x.formatStatus(appendable, "source1", STATUS1)))
-                .isEqualToNormalizingNewlines(contentOf(JsonFormatTest.class, "status1.json"));
+        assertThat(writing(appendable -> x.formatStatus(appendable, singletonList(SCAN1))))
+                .isEqualToNormalizingNewlines(contentOf(JsonFormatTest.class, "scan1.json"));
 
-        assertThat(writing(appendable -> x.formatStatus(appendable, "source2", STATUS2)))
-                .isEqualToNormalizingNewlines(contentOf(JsonFormatTest.class, "status2.json"));
+        assertThat(writing(appendable -> x.formatStatus(appendable, singletonList(SCAN2))))
+                .isEqualToNormalizingNewlines(contentOf(JsonFormatTest.class, "scan2.json"));
     }
 
     @Test

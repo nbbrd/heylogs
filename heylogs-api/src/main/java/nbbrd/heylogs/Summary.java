@@ -2,7 +2,7 @@ package nbbrd.heylogs;
 
 @lombok.Value
 @lombok.Builder
-public class Status {
+public class Summary {
 
     @lombok.Builder.Default
     int releaseCount = 0;

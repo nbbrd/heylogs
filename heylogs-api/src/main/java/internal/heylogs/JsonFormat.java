@@ -3,10 +3,7 @@ package internal.heylogs;
 import com.google.gson.*;
 import lombok.NonNull;
 import nbbrd.design.MightBeGenerated;
-import nbbrd.heylogs.Problem;
-import nbbrd.heylogs.Resource;
-import nbbrd.heylogs.Status;
-import nbbrd.heylogs.TimeRange;
+import nbbrd.heylogs.*;
 import nbbrd.heylogs.spi.Format;
 import nbbrd.heylogs.spi.FormatType;
 import nbbrd.heylogs.spi.RuleIssue;
@@ -43,58 +40,46 @@ public final class JsonFormat implements Format {
     }
 
     @Override
-    public void formatProblems(@NonNull Appendable appendable, @NonNull String source, @NonNull List<Problem> problems) throws IOException {
+    public void formatProblems(@NonNull Appendable appendable, @NonNull List<Check> list) throws IOException {
         try {
-            GSON.toJson(new FileProblems(source, problems), appendable);
+            GSON.toJson(list, appendable);
         } catch (JsonIOException ex) {
             throw new IOException(ex);
         }
     }
 
     @Override
-    public void formatStatus(@NonNull Appendable appendable, @NonNull String source, @NonNull Status status) throws IOException {
+    public void formatStatus(@NonNull Appendable appendable, @NonNull List<Scan> list) throws IOException {
         try {
-            GSON.toJson(new FileStatus(source, status), appendable);
+            GSON.toJson(list, appendable);
         } catch (JsonIOException ex) {
             throw new IOException(ex);
         }
     }
 
     @Override
-    public void formatResources(@NonNull Appendable appendable, @NonNull List<Resource> resources) throws IOException {
+    public void formatResources(@NonNull Appendable appendable, @NonNull List<Resource> list) throws IOException {
         try {
-            GSON.toJson(resources, appendable);
+            GSON.toJson(list, appendable);
         } catch (JsonIOException ex) {
             throw new IOException(ex);
         }
-    }
-
-    @lombok.Value
-    public static class FileProblems {
-        String source;
-        List<Problem> problems;
-    }
-
-    @lombok.Value
-    public static class FileStatus {
-        String source;
-        Status status;
     }
 
     private static final Gson GSON = new GsonBuilder()
-            .registerTypeAdapter(FileProblems.class, (JsonSerializer<FileProblems>) JsonFormat::serializeProblems)
-            .registerTypeAdapter(FileProblems.class, (JsonDeserializer<FileProblems>) JsonFormat::deserializeProblems)
+            .registerTypeAdapter(Check.class, (JsonSerializer<Check>) JsonFormat::serializeCheck)
+            .registerTypeAdapter(Check.class, (JsonDeserializer<Check>) JsonFormat::deserializeCheck)
             .registerTypeAdapter(Problem.class, (JsonSerializer<Problem>) JsonFormat::serializeProblem)
             .registerTypeAdapter(Problem.class, (JsonDeserializer<Problem>) JsonFormat::deserializeProblem)
-            .registerTypeAdapter(FileStatus.class, (JsonSerializer<FileStatus>) JsonFormat::serializeStatuses)
-            .registerTypeAdapter(FileStatus.class, (JsonDeserializer<FileStatus>) JsonFormat::deserializeStatuses)
+            .registerTypeAdapter(Scan.class, (JsonSerializer<Scan>) JsonFormat::serializeScan)
+            .registerTypeAdapter(Scan.class, (JsonDeserializer<Scan>) JsonFormat::deserializeScan)
             .registerTypeAdapter(TimeRange.class, (JsonSerializer<TimeRange>) JsonFormat::serializeTimeRange)
             .registerTypeAdapter(TimeRange.class, (JsonDeserializer<TimeRange>) JsonFormat::deserializeTimeRange)
             .setPrettyPrinting()
             .create();
 
     @MightBeGenerated
-    private static JsonElement serializeProblems(FileProblems src, Type typeOfSrc, JsonSerializationContext context) {
+    private static JsonElement serializeCheck(Check src, Type typeOfSrc, JsonSerializationContext context) {
         JsonObject result = new JsonObject();
         result.addProperty("filePath", src.getSource());
         JsonArray messages = new JsonArray();
@@ -104,12 +89,13 @@ public final class JsonFormat implements Format {
     }
 
     @MightBeGenerated
-    private static FileProblems deserializeProblems(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+    private static Check deserializeCheck(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
         JsonObject x = json.getAsJsonObject();
-        return new FileProblems(
-                x.get("filePath").getAsString(),
-                x.get("messages").getAsJsonArray().asList().stream().map(e -> deserializeProblem(e, Problem.class, context)).collect(toList())
-        );
+        return Check
+                .builder()
+                .source(x.get("filePath").getAsString())
+                .problems(x.get("messages").getAsJsonArray().asList().stream().map(e -> deserializeProblem(e, Problem.class, context)).collect(toList()))
+                .build();
     }
 
     @MightBeGenerated
@@ -140,20 +126,21 @@ public final class JsonFormat implements Format {
     }
 
     @MightBeGenerated
-    private static JsonElement serializeStatuses(FileStatus src, Type typeOfSrc, JsonSerializationContext context) {
+    private static JsonElement serializeScan(Scan src, Type typeOfSrc, JsonSerializationContext context) {
         JsonObject result = new JsonObject();
         result.addProperty("filePath", src.getSource());
-        result.add("status", context.serialize(src.getStatus()));
+        result.add("summary", context.serialize(src.getSummary()));
         return result;
     }
 
     @MightBeGenerated
-    private static FileStatus deserializeStatuses(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+    private static Scan deserializeScan(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
         JsonObject x = json.getAsJsonObject();
-        return new FileStatus(
-                x.get("filePath").getAsString(),
-                context.deserialize(x.get("messages"), Status.class)
-        );
+        return Scan
+                .builder()
+                .source(x.get("filePath").getAsString())
+                .summary(context.deserialize(x.get("messages"), Summary.class))
+                .build();
     }
 
     @MightBeGenerated

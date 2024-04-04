@@ -1,14 +1,16 @@
 package nbbrd.heylogs.maven.plugin;
 
-import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.StylishFormat;
 import nbbrd.heylogs.Heylogs;
+import nbbrd.heylogs.Scan;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
+
+import static java.util.Collections.singletonList;
 
 @Mojo(name = "scan", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
 public final class ScanMojo extends HeylogsMojo {
@@ -42,7 +44,11 @@ public final class ScanMojo extends HeylogsMojo {
 
     private void scan() throws MojoExecutionException {
         Heylogs heylogs = initHeylogs(false);
-        Document changelog = readChangelog(inputFile);
-        log(appendable -> heylogs.formatStatus(formatId, appendable, inputFile.toString(), heylogs.scan(changelog)), getLog()::info);
+        Scan scan = Scan
+                .builder()
+                .source(inputFile.toString())
+                .summary(heylogs.scan(readChangelog(inputFile)))
+                .build();
+        log(appendable -> heylogs.formatStatus(formatId, appendable, singletonList(scan)), getLog()::info);
     }
 }
