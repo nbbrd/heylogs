@@ -5,9 +5,20 @@ import com.vladsch.flexmark.formatter.Formatter;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
+import nbbrd.heylogs.Problem;
+import nbbrd.heylogs.Resource;
+import nbbrd.heylogs.Status;
+import nbbrd.heylogs.TimeRange;
+import nbbrd.heylogs.spi.RuleIssue;
+import nbbrd.io.function.IOConsumer;
+import org.assertj.core.util.URLs;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.util.Objects;
+
+import static nbbrd.heylogs.spi.RuleSeverity.ERROR;
 
 public class Sample {
 
@@ -35,5 +46,32 @@ public class Sample {
         Document doc = new Document(null, BasedSequence.NULL);
         doc.appendChild(heading);
         return FORMATTER.render(doc).trim();
+    }
+
+    public static final Problem PROBLEM1 = Problem.builder().id("rule1").severity(ERROR).issue(RuleIssue.builder().message("boom").line(5).column(18).build()).build();
+    public static final Problem PROBLEM2 = Problem.builder().id("rule222").severity(ERROR).issue(RuleIssue.builder().message("hello world").line(35).column(2).build()).build();
+
+    public static final Status STATUS1 = Status.builder().build();
+    public static final Status STATUS2 = Status
+            .builder()
+            .compatibleWithSemver(true)
+            .releaseCount(3)
+            .hasUnreleasedSection(true)
+            .semverDetails("XXX")
+            .timeRange(TimeRange.of(LocalDate.of(2010, 1, 1), LocalDate.of(2011, 1, 1)))
+            .build();
+
+    public static final Resource RESOURCE1 = new Resource("a", "hello");
+    public static final Resource RESOURCE2 = new Resource("world", "b");
+
+    //@MightBePromoted
+    public static String writing(IOConsumer<? super Appendable> content) {
+        StringBuilder result = new StringBuilder();
+        content.asUnchecked().accept(result);
+        return result.toString();
+    }
+
+    public static String contentOf(Class<?> anchor, String resourceName) {
+        return URLs.contentOf(Objects.requireNonNull(anchor.getResource(resourceName)), StandardCharsets.UTF_8);
     }
 }

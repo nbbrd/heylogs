@@ -1,0 +1,13 @@
+{
+  "filePath": "source2",
+  "status": {
+    "releaseCount": 3,
+    "timeRange": {
+      "from": "2010-01-01",
+      "to": "2011-01-01"
+    },
+    "compatibleWithSemver": true,
+    "semverDetails": "XXX",
+    "hasUnreleasedSection": true
+  }
+}

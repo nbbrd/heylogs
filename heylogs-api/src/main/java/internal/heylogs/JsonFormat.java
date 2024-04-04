@@ -20,6 +20,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
+import static java.util.stream.Collectors.toList;
+
 @ServiceProvider
 public final class JsonFormat implements Format {
 
@@ -68,24 +70,47 @@ public final class JsonFormat implements Format {
     }
 
     @lombok.Value
-    private static class FileProblems {
-        String filePath;
-        List<Problem> messages;
+    public static class FileProblems {
+        String source;
+        List<Problem> problems;
     }
 
     @lombok.Value
-    private static class FileStatus {
-        String filePath;
+    public static class FileStatus {
+        String source;
         Status status;
     }
 
     private static final Gson GSON = new GsonBuilder()
+            .registerTypeAdapter(FileProblems.class, (JsonSerializer<FileProblems>) JsonFormat::serializeProblems)
+            .registerTypeAdapter(FileProblems.class, (JsonDeserializer<FileProblems>) JsonFormat::deserializeProblems)
             .registerTypeAdapter(Problem.class, (JsonSerializer<Problem>) JsonFormat::serializeProblem)
             .registerTypeAdapter(Problem.class, (JsonDeserializer<Problem>) JsonFormat::deserializeProblem)
+            .registerTypeAdapter(FileStatus.class, (JsonSerializer<FileStatus>) JsonFormat::serializeStatuses)
+            .registerTypeAdapter(FileStatus.class, (JsonDeserializer<FileStatus>) JsonFormat::deserializeStatuses)
             .registerTypeAdapter(TimeRange.class, (JsonSerializer<TimeRange>) JsonFormat::serializeTimeRange)
             .registerTypeAdapter(TimeRange.class, (JsonDeserializer<TimeRange>) JsonFormat::deserializeTimeRange)
             .setPrettyPrinting()
             .create();
+
+    @MightBeGenerated
+    private static JsonElement serializeProblems(FileProblems src, Type typeOfSrc, JsonSerializationContext context) {
+        JsonObject result = new JsonObject();
+        result.addProperty("filePath", src.getSource());
+        JsonArray messages = new JsonArray();
+        src.getProblems().stream().map(message -> serializeProblem(message, Problem.class, context)).forEach(messages::add);
+        result.add("messages", messages);
+        return result;
+    }
+
+    @MightBeGenerated
+    private static FileProblems deserializeProblems(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+        JsonObject x = json.getAsJsonObject();
+        return new FileProblems(
+                x.get("filePath").getAsString(),
+                x.get("messages").getAsJsonArray().asList().stream().map(e -> deserializeProblem(e, Problem.class, context)).collect(toList())
+        );
+    }
 
     @MightBeGenerated
     private static JsonElement serializeProblem(Problem src, Type typeOfSrc, JsonSerializationContext context) {
@@ -112,6 +137,23 @@ public final class JsonFormat implements Format {
                         .column(x.get("column").getAsInt())
                         .build())
                 .build();
+    }
+
+    @MightBeGenerated
+    private static JsonElement serializeStatuses(FileStatus src, Type typeOfSrc, JsonSerializationContext context) {
+        JsonObject result = new JsonObject();
+        result.addProperty("filePath", src.getSource());
+        result.add("status", context.serialize(src.getStatus()));
+        return result;
+    }
+
+    @MightBeGenerated
+    private static FileStatus deserializeStatuses(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+        JsonObject x = json.getAsJsonObject();
+        return new FileStatus(
+                x.get("filePath").getAsString(),
+                context.deserialize(x.get("messages"), Status.class)
+        );
     }
 
     @MightBeGenerated

@@ -1,0 +1,10 @@
+[
+  {
+    "type": "a",
+    "id": "hello"
+  },
+  {
+    "type": "world",
+    "id": "b"
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "filePath": "source2",
+  "messages": [
+    {
+      "ruleId": "rule1",
+      "severity": 2,
+      "message": "boom",
+      "line": 5,
+      "column": 18
+    }
+  ]
+}

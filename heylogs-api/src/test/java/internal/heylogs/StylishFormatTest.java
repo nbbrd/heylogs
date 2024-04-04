@@ -1,28 +1,20 @@
 package internal.heylogs;
 
-import nbbrd.design.MightBePromoted;
-import nbbrd.heylogs.Problem;
-import nbbrd.heylogs.Resource;
-import nbbrd.heylogs.Status;
-import nbbrd.heylogs.TimeRange;
+import nbbrd.heylogs.spi.Format;
 import nbbrd.heylogs.spi.FormatType;
-import nbbrd.heylogs.spi.RuleIssue;
-import nbbrd.io.function.IOConsumer;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
-
+import static _test.Sample.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static nbbrd.heylogs.spi.RuleSeverity.ERROR;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class StylishFormatTest {
 
     @Test
     public void testSupportedTypes() {
-        StylishFormat x = new StylishFormat();
+        Format x = new StylishFormat();
 
         assertThat(x.getSupportedFormatTypes())
                 .containsExactlyInAnyOrder(FormatType.values());
@@ -30,26 +22,23 @@ class StylishFormatTest {
 
     @Test
     public void testFormatName() {
-        StylishFormat x = new StylishFormat();
+        Format x = new StylishFormat();
 
         assertThat(x.getFormatName()).isNotBlank();
     }
 
     @Test
     public void testFormatProblems() {
-        StylishFormat x = new StylishFormat();
+        Format x = new StylishFormat();
 
-        Problem f1 = Problem.builder().id("rule1").severity(ERROR).issue(RuleIssue.builder().message("boom").line(5).column(18).build()).build();
-        Problem f2 = Problem.builder().id("rule222").severity(ERROR).issue(RuleIssue.builder().message("hello world").line(35).column(2).build()).build();
-
-        assertThat(stringOf(appendable -> x.formatProblems(appendable, "source1", emptyList())))
+        assertThat(writing(appendable -> x.formatProblems(appendable, "source1", emptyList())))
                 .isEqualToNormalizingNewlines(
                         "source1\n"
                                 + "  \n"
                                 + "  No problem\n"
                 );
 
-        assertThat(stringOf(appendable -> x.formatProblems(appendable, "source2", singletonList(f1))))
+        assertThat(writing(appendable -> x.formatProblems(appendable, "source2", singletonList(PROBLEM1))))
                 .isEqualToNormalizingNewlines(
                         "source2\n"
                                 + "  5:18  error  boom  rule1\n"
@@ -57,7 +46,7 @@ class StylishFormatTest {
                                 + "  1 problem\n"
                 );
 
-        assertThat(stringOf(appendable -> x.formatProblems(appendable, "source3", asList(f1, f2))))
+        assertThat(writing(appendable -> x.formatProblems(appendable, "source3", asList(PROBLEM1, PROBLEM2))))
                 .isEqualToNormalizingNewlines(
                         "source3\n"
                                 + "   5:18  error  boom         rule1  \n"
@@ -69,25 +58,16 @@ class StylishFormatTest {
 
     @Test
     public void testFormatStatus() {
-        StylishFormat x = new StylishFormat();
+        Format x = new StylishFormat();
 
-        Status s1 = Status.builder().build();
-        assertThat(stringOf(appendable -> x.formatStatus(appendable, "source1", s1)))
+        assertThat(writing(appendable -> x.formatStatus(appendable, "source1", STATUS1)))
                 .isEqualToNormalizingNewlines(
                         "source1\n"
                                 + "  No release found         \n"
                                 + "  Has no unreleased version\n"
                 );
 
-        Status s2 = Status
-                .builder()
-                .compatibleWithSemver(true)
-                .releaseCount(3)
-                .hasUnreleasedSection(true)
-                .semverDetails("XXX")
-                .timeRange(TimeRange.of(LocalDate.of(2010, 1, 1), LocalDate.of(2011, 1, 1)))
-                .build();
-        assertThat(stringOf(appendable -> x.formatStatus(appendable, "source2", s2)))
+        assertThat(writing(appendable -> x.formatStatus(appendable, "source2", STATUS2)))
                 .isEqualToNormalizingNewlines(
                         "source2\n"
                                 + "  Found 3 releases                      \n"
@@ -99,19 +79,16 @@ class StylishFormatTest {
 
     @Test
     public void testFormatResource() {
-        StylishFormat x = new StylishFormat();
+        Format x = new StylishFormat();
 
-        Resource r1 = new Resource("a", "hello");
-        Resource r2 = new Resource("world", "b");
-
-        assertThat(stringOf(appendable -> x.formatResources(appendable, emptyList())))
+        assertThat(writing(appendable -> x.formatResources(appendable, emptyList())))
                 .isEqualToNormalizingNewlines(
                         "Resources\n"
                                 + "  \n"
                                 + "  No resource found\n"
                 );
 
-        assertThat(stringOf(appendable -> x.formatResources(appendable, singletonList(r1))))
+        assertThat(writing(appendable -> x.formatResources(appendable, singletonList(RESOURCE1))))
                 .isEqualToNormalizingNewlines(
                         "Resources\n"
                                 + "  a  hello\n"
@@ -119,7 +96,7 @@ class StylishFormatTest {
                                 + "  1 resource found\n"
                 );
 
-        assertThat(stringOf(appendable -> x.formatResources(appendable, asList(r1, r2))))
+        assertThat(writing(appendable -> x.formatResources(appendable, asList(RESOURCE1, RESOURCE2))))
                 .isEqualToNormalizingNewlines(
                         "Resources\n"
                                 + "  a      hello\n"
@@ -127,12 +104,5 @@ class StylishFormatTest {
                                 + "  \n"
                                 + "  2 resources found\n"
                 );
-    }
-
-    @MightBePromoted
-    private static String stringOf(IOConsumer<? super Appendable> consumer) {
-        StringBuilder result = new StringBuilder();
-        consumer.asUnchecked().accept(result);
-        return result.toString();
     }
 }
