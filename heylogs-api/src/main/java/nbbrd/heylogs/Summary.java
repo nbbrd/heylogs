@@ -1,5 +1,7 @@
 package nbbrd.heylogs;
 
+import java.util.List;
+
 @lombok.Value
 @lombok.Builder
 public class Summary {
@@ -10,11 +12,8 @@ public class Summary {
     @lombok.Builder.Default
     TimeRange timeRange = TimeRange.ALL;
 
-    @lombok.Builder.Default
-    boolean compatibleWithSemver = false;
-
-    @lombok.Builder.Default
-    String semverDetails = "";
+    @lombok.Singular
+    List<String> compatibilities;
 
     @lombok.Builder.Default
     boolean hasUnreleasedSection = false;

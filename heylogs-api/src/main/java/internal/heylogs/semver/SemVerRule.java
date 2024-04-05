@@ -1,4 +1,4 @@
-package internal.heylogs;
+package internal.heylogs.semver;
 
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.util.ast.Node;
@@ -12,7 +12,7 @@ import nbbrd.service.ServiceProvider;
 import org.semver4j.Semver;
 
 @ServiceProvider
-public final class SemverRule implements Rule {
+public final class SemVerRule implements Rule {
 
     @Override
     public @NonNull String getRuleId() {

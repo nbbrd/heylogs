@@ -1,6 +1,6 @@
 package internal.heylogs.cli;
 
-import internal.heylogs.SemverRule;
+import internal.heylogs.semver.SemVerRule;
 import nbbrd.heylogs.Heylogs;
 import picocli.CommandLine;
 
@@ -18,7 +18,7 @@ public class HeylogsOptions {
         Heylogs.Builder result = Heylogs.ofServiceLoader()
                 .toBuilder();
         if (semver) {
-            result.rule(new SemverRule());
+            result.rule(new SemVerRule());
         }
         return result.build();
     }

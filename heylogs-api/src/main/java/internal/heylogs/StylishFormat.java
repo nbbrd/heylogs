@@ -118,9 +118,9 @@ public final class StylishFormat implements Format {
             return asList(
                     String.format(ROOT, "Found %d releases", summary.getReleaseCount()),
                     String.format(ROOT, "Ranging from %s to %s", summary.getTimeRange().getFrom(), summary.getTimeRange().getTo()),
-                    summary.isCompatibleWithSemver()
-                            ? "Compatible with Semantic Versioning" + summary.getSemverDetails()
-                            : "Not compatible with Semantic Versioning",
+                    summary.getCompatibilities().isEmpty()
+                            ? "Not compatible with known versioning"
+                            : "Compatible with " + String.join(", ", summary.getCompatibilities()),
                     summary.isHasUnreleasedSection() ? "Has an unreleased version" : "Has no unreleased version"
             );
         }

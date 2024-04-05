@@ -4,21 +4,18 @@ import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
 import lombok.NonNull;
+import nbbrd.design.MightBePromoted;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.spi.*;
-import org.semver4j.Semver;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static nbbrd.heylogs.TimeRange.toTimeRange;
 import static nbbrd.heylogs.Util.illegalArgumentToNull;
@@ -33,6 +30,7 @@ public class Heylogs {
                 .builder()
                 .rules(RuleLoader.load())
                 .formats(FormatLoader.load())
+                .versionings(VersioningLoader.load())
                 .build();
     }
 
@@ -44,15 +42,22 @@ public class Heylogs {
     @lombok.Singular
     List<Format> formats;
 
+    @NonNull
+    @lombok.Singular
+    List<Versioning> versionings;
+
     public @NonNull List<Problem> validate(@NonNull Document doc) {
-        return Stream.concat(Stream.of(doc), Nodes.of(Node.class).descendants(doc))
+        return concat(Stream.of(doc), Nodes.of(Node.class).descendants(doc))
                 .flatMap(node -> rules.stream().map(rule -> getProblemOrNull(node, rule)).filter(Objects::nonNull))
                 .collect(toList());
     }
 
     public @NonNull List<Resource> getResources() {
-        return Stream
-                .concat(rules.stream().map(Heylogs::asResource), formats.stream().map(Heylogs::asResource))
+        return concat(
+                rules.stream().map(Heylogs::asResource),
+                formats.stream().map(Heylogs::asResource),
+                versionings.stream().map(Heylogs::asResource)
+        )
                 .sorted(comparing(Resource::getType).thenComparing(Resource::getCategory).thenComparing(Resource::getId))
                 .collect(toList());
     }
@@ -74,6 +79,16 @@ public class Heylogs {
                 .category(format.getFormatCategory())
                 .id(format.getFormatId())
                 .name(format.getFormatName())
+                .build();
+    }
+
+    private static Resource asResource(Versioning versioning) {
+        return Resource
+                .builder()
+                .type("versioning")
+                .category("main")
+                .id(versioning.getVersioningId())
+                .name(versioning.getVersioningName())
                 .build();
     }
 
@@ -102,35 +117,22 @@ public class Heylogs {
                 .filter(Objects::nonNull)
                 .collect(Collectors.partitioningBy(Version::isUnreleased));
 
-        boolean compatibleWithSemver = isCompatibleWithSemver(versionByType.get(false));
+        List<String> compatibilities = getCompatibilities(versionByType.get(false));
 
         return Summary
                 .builder()
                 .releaseCount(versionByType.get(false).size())
                 .timeRange(versionByType.get(false).stream().map(Version::getDate).collect(toTimeRange()).orElse(TimeRange.ALL))
-                .compatibleWithSemver(compatibleWithSemver)
-                .semverDetails(compatibleWithSemver ? getSemverDetails(versionByType.get(false)) : "")
+                .compatibilities(compatibilities)
                 .hasUnreleasedSection(versionByType.containsKey(true))
                 .build();
     }
 
-    private static boolean isCompatibleWithSemver(List<Version> releases) {
-        return releases.stream().map(Version::getRef).allMatch(Semver::isValid);
-    }
-
-    private static String getSemverDetails(List<Version> releases) {
-        List<Semver> semvers = releases.stream().map(Version::getRef).map(Semver::parse).collect(toList());
-
-        TreeMap<Semver.VersionDiff, List<Semver.VersionDiff>> diffs = IntStream.range(1, semvers.size())
-                .mapToObj(i -> semvers.get(i).diff(semvers.get(i - 1)))
-                .collect(groupingBy((Semver.VersionDiff o) -> o, TreeMap::new, toList()));
-
-        return diffs
-                .descendingMap()
-                .entrySet()
-                .stream()
-                .map(entry -> entry.getValue().size() + " " + entry.getKey().toString())
-                .collect(Collectors.joining(", ", " (", ")"));
+    private List<String> getCompatibilities(List<Version> releases) {
+        return versionings.stream()
+                .filter(versioning -> releases.stream().allMatch(release -> versioning.isValidVersion(release.getRef())))
+                .map(Versioning::getVersioningName)
+                .collect(toList());
     }
 
     private Format getFormatById(String formatId) throws IOException {
@@ -141,4 +143,14 @@ public class Heylogs {
     }
 
     public static final String FIRST_FORMAT_AVAILABLE = "";
+
+    @MightBePromoted
+    @SafeVarargs
+    private static <T> Stream<T> concat(Stream<T> first, Stream<T>... rest) {
+        Stream<T> result = first;
+        for (Stream<T> next : rest) {
+            result = Stream.concat(result, next);
+        }
+        return result;
+    }
 }

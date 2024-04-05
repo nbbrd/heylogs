@@ -1,4 +1,4 @@
-package internal.heylogs;
+package internal.heylogs.semver;
 
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.util.ast.Node;
@@ -12,17 +12,17 @@ import static _test.Sample.using;
 import static nbbrd.heylogs.Nodes.of;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SemverRuleTest {
+public class SemVerRuleTest {
 
     @Test
     public void testIdPattern() {
-        assertThat(new SemverRule().getRuleId())
+        assertThat(new SemVerRule().getRuleId())
                 .matches(ServiceId.KEBAB_CASE);
     }
 
     @Test
     public void testSample() {
-        SemverRule x = new SemverRule();
+        SemVerRule x = new SemVerRule();
 
         assertThat(of(Node.class).descendants(using("/Main.md")))
                 .map(x::getRuleIssueOrNull)
@@ -32,7 +32,7 @@ public class SemverRuleTest {
 
     @Test
     public void testValidateSemVer() {
-        SemverRule x = new SemverRule();
+        SemVerRule x = new SemVerRule();
 
         assertThat(of(Heading.class).descendants(using("/Main.md")))
                 .map(x::validateSemVer)

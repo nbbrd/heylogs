@@ -3,7 +3,7 @@ package nbbrd.heylogs.maven.plugin;
 import com.vladsch.flexmark.formatter.Formatter;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
-import internal.heylogs.SemverRule;
+import internal.heylogs.semver.SemVerRule;
 import nbbrd.heylogs.Heylogs;
 import nbbrd.io.function.IOConsumer;
 import org.apache.maven.plugin.AbstractMojo;
@@ -65,7 +65,7 @@ abstract class HeylogsMojo extends AbstractMojo {
         Heylogs.Builder result = Heylogs.ofServiceLoader()
                 .toBuilder();
         if (semver) {
-            result.rule(new SemverRule());
+            result.rule(new SemVerRule());
         }
         return result.build();
     }

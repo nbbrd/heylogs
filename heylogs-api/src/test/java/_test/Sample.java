@@ -55,10 +55,9 @@ public class Sample {
     public static final Summary SUMMARY_1 = Summary.builder().build();
     public static final Summary SUMMARY_2 = Summary
             .builder()
-            .compatibleWithSemver(true)
+            .compatibility("Strange Versioning")
             .releaseCount(3)
             .hasUnreleasedSection(true)
-            .semverDetails("XXX")
             .timeRange(TimeRange.of(LocalDate.of(2010, 1, 1), LocalDate.of(2011, 1, 1)))
             .build();
 

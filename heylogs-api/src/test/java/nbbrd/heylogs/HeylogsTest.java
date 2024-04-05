@@ -1,16 +1,18 @@
 package nbbrd.heylogs;
 
-import internal.heylogs.SemverRule;
 import internal.heylogs.StylishFormat;
+import internal.heylogs.semver.SemVerRule;
 import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleIssue;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 
 import static _test.Sample.using;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static nbbrd.heylogs.Heylogs.FIRST_FORMAT_AVAILABLE;
 import static nbbrd.heylogs.spi.RuleSeverity.ERROR;
@@ -32,7 +34,7 @@ public class HeylogsTest {
                 .map(Rule::getRuleId)
                 .doesNotContain("semver");
 
-        assertThat(Heylogs.ofServiceLoader().toBuilder().rule(new SemverRule()).build())
+        assertThat(Heylogs.ofServiceLoader().toBuilder().rule(new SemVerRule()).build())
                 .extracting(Heylogs::getRules, list(Rule.class))
                 .hasSizeGreaterThan(1)
                 .map(Rule::getRuleId)
@@ -77,7 +79,7 @@ public class HeylogsTest {
                 .isEqualTo(new Summary(
                         0,
                         TimeRange.ALL,
-                        true, " ()",
+                        Arrays.asList("Semantic Versioning"),
                         true
                 ));
 
@@ -85,7 +87,7 @@ public class HeylogsTest {
                 .isEqualTo(new Summary(
                         13,
                         TimeRange.of(LocalDate.of(2014, 5, 31), LocalDate.of(2019, 2, 15)),
-                        true, " (1 MAJOR, 4 MINOR, 7 PATCH)",
+                        Arrays.asList("Semantic Versioning"),
                         true
                 ));
 
@@ -93,7 +95,7 @@ public class HeylogsTest {
                 .isEqualTo(new Summary(
                         2,
                         TimeRange.of(LocalDate.of(2019, 2, 15), LocalDate.of(2019, 2, 15)),
-                        false, "",
+                        emptyList(),
                         true
                 ));
 
@@ -101,7 +103,7 @@ public class HeylogsTest {
                 .isEqualTo(new Summary(
                         1,
                         TimeRange.of(LocalDate.of(2019, 2, 15), LocalDate.of(2019, 2, 15)),
-                        true, " ()",
+                        Arrays.asList("Semantic Versioning"),
                         true
                 ));
     }
@@ -111,7 +113,7 @@ public class HeylogsTest {
         List<Scan> scans = singletonList(Scan.builder().source("file1").summary(new Summary(
                 1,
                 TimeRange.of(LocalDate.of(2019, 2, 15), LocalDate.of(2019, 2, 15)),
-                true, " ()",
+                Arrays.asList("Semantic Versioning"),
                 true
         )).build());
 
@@ -126,10 +128,10 @@ public class HeylogsTest {
         assertThat(output.toString())
                 .isEqualToIgnoringNewLines(
                         "file1\n" +
-                                "  Found 1 releases                      \n" +
-                                "  Ranging from 2019-02-15 to 2019-02-15 \n" +
-                                "  Compatible with Semantic Versioning ()\n" +
-                                "  Has an unreleased version             \n"
+                                "  Found 1 releases                     \n" +
+                                "  Ranging from 2019-02-15 to 2019-02-15\n" +
+                                "  Compatible with Semantic Versioning  \n" +
+                                "  Has an unreleased version            \n"
                 );
     }
 }
