@@ -1,6 +1,6 @@
 package internal.heylogs.github;
 
-import internal.heylogs.GitHostRef;
+import nbbrd.heylogs.spi.ForgeRef;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAsString;
@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 @RepresentableAsString
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class GitHubCommitSHARef implements GitHostRef<GitHubCommitSHALink> {
+class GitHubCommitSHARef implements ForgeRef<GitHubCommitSHALink> {
 
     public enum Type {HASH, OWNER_HASH, OWNER_REPO_HASH}
 

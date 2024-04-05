@@ -1,11 +1,8 @@
-package internal.heylogs;
+package nbbrd.heylogs.spi;
 
 import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.util.ast.Node;
 import lombok.NonNull;
-import nbbrd.heylogs.spi.Rule;
-import nbbrd.heylogs.spi.RuleIssue;
-import nbbrd.heylogs.spi.RuleSeverity;
 import nbbrd.io.text.Parser;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -15,7 +12,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @lombok.Builder(toBuilder = true)
-public final class GitHostRefRuleSupport<L extends GitHostLink, R extends GitHostRef<L>> implements Rule {
+public final class ForgeRefRuleSupport<L extends ForgeLink, R extends ForgeRef<L>> implements Rule {
 
     private final @NonNull String id;
 
@@ -83,11 +80,11 @@ public final class GitHostRefRuleSupport<L extends GitHostLink, R extends GitHos
         return NO_RULE_ISSUE;
     }
 
-    private static <T extends GitHostLink> boolean isNotCompatibleRef(GitHostRef<T> found, T expected) {
+    private static <T extends ForgeLink> boolean isNotCompatibleRef(ForgeRef<T> found, T expected) {
         return found != null && !found.isCompatibleWith(expected);
     }
 
-    public static <L extends GitHostLink, R extends GitHostRef<L>> @NonNull Builder<L, R> builder(
+    public static <L extends ForgeLink, R extends ForgeRef<L>> @NonNull Builder<L, R> builder(
             Function<? super CharSequence, L> linkParser,
             Function<? super CharSequence, R> refParser
     ) {

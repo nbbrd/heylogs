@@ -1,10 +1,10 @@
-package internal.heylogs;
+package nbbrd.heylogs.spi;
 
 import lombok.NonNull;
 
 import java.net.URL;
 
-public interface GitHostLink {
+public interface ForgeLink {
 
     @NonNull URL getBase();
 }

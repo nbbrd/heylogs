@@ -31,6 +31,7 @@ public class Heylogs {
                 .rules(RuleLoader.load())
                 .formats(FormatLoader.load())
                 .versionings(VersioningLoader.load())
+                .forges(ForgeLoader.load())
                 .build();
     }
 
@@ -46,6 +47,10 @@ public class Heylogs {
     @lombok.Singular
     List<Versioning> versionings;
 
+    @NonNull
+    @lombok.Singular
+    List<Forge> forges;
+
     public @NonNull List<Problem> validate(@NonNull Document doc) {
         return concat(Stream.of(doc), Nodes.of(Node.class).descendants(doc))
                 .flatMap(node -> rules.stream().map(rule -> getProblemOrNull(node, rule)).filter(Objects::nonNull))
@@ -56,7 +61,8 @@ public class Heylogs {
         return concat(
                 rules.stream().map(Heylogs::asResource),
                 formats.stream().map(Heylogs::asResource),
-                versionings.stream().map(Heylogs::asResource)
+                versionings.stream().map(Heylogs::asResource),
+                forges.stream().map(Heylogs::asResource)
         )
                 .sorted(comparing(Resource::getType).thenComparing(Resource::getCategory).thenComparing(Resource::getId))
                 .collect(toList());
@@ -89,6 +95,16 @@ public class Heylogs {
                 .category("main")
                 .id(versioning.getVersioningId())
                 .name(versioning.getVersioningName())
+                .build();
+    }
+
+    private static Resource asResource(Forge forge) {
+        return Resource
+                .builder()
+                .type("forge")
+                .category("main")
+                .id(forge.getForgeId())
+                .name(forge.getForgeName())
                 .build();
     }
 

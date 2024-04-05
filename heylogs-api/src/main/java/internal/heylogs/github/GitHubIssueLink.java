@@ -1,6 +1,6 @@
 package internal.heylogs.github;
 
-import internal.heylogs.GitHostLink;
+import nbbrd.heylogs.spi.ForgeLink;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAsString;
@@ -17,7 +17,7 @@ import static java.lang.Integer.parseInt;
 @RepresentableAsString
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class GitHubIssueLink implements GitHostLink {
+class GitHubIssueLink implements ForgeLink {
 
     public static final String ISSUES_TYPE = "issues";
     public static final String PULL_REQUEST_TYPE = "pull";

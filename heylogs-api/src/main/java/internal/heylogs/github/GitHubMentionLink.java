@@ -1,6 +1,6 @@
 package internal.heylogs.github;
 
-import internal.heylogs.GitHostLink;
+import nbbrd.heylogs.spi.ForgeLink;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAsString;
@@ -17,7 +17,7 @@ import static internal.heylogs.URLExtractor.*;
 @RepresentableAsString
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class GitHubMentionLink implements GitHostLink {
+class GitHubMentionLink implements ForgeLink {
 
     @StaticFactoryMethod
     public static @NonNull GitHubMentionLink parse(@NonNull CharSequence text) {

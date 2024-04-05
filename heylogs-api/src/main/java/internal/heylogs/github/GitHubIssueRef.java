@@ -1,6 +1,6 @@
 package internal.heylogs.github;
 
-import internal.heylogs.GitHostRef;
+import nbbrd.heylogs.spi.ForgeRef;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAsString;
@@ -15,7 +15,7 @@ import static java.lang.Integer.parseInt;
 @RepresentableAsString
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class GitHubIssueRef implements GitHostRef<GitHubIssueLink> {
+class GitHubIssueRef implements ForgeRef<GitHubIssueLink> {
 
     public enum Type {NUMBER, OWNER_REPO_NUMBER}
 
