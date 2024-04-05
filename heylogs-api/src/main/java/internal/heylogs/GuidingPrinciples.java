@@ -36,11 +36,21 @@ public enum GuidingPrinciples implements Rule {
         public RuleIssue getRuleIssueOrNull(@NonNull Node node) {
             return node instanceof Document ? validateForHumans((Document) node) : NO_RULE_ISSUE;
         }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "For humans validation";
+        }
     },
     ALL_H2_CONTAIN_A_VERSION {
         @Override
         public RuleIssue getRuleIssueOrNull(@NonNull Node node) {
             return node instanceof Heading ? validateAllH2ContainAVersion((Heading) node) : NO_RULE_ISSUE;
+        }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "All H2 contain a version";
         }
     },
     TYPE_OF_CHANGES_GROUPED {
@@ -48,11 +58,21 @@ public enum GuidingPrinciples implements Rule {
         public RuleIssue getRuleIssueOrNull(@NonNull Node node) {
             return node instanceof Heading ? validateTypeOfChangesGrouped((Heading) node) : NO_RULE_ISSUE;
         }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "Type of changes grouped";
+        }
     },
     LINKABLE {
         @Override
         public RuleIssue getRuleIssueOrNull(@NonNull Node node) {
             return node instanceof Heading ? validateLinkable((Heading) node) : NO_RULE_ISSUE;
+        }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "Linkable";
         }
     },
     LATEST_VERSION_FIRST {
@@ -60,11 +80,21 @@ public enum GuidingPrinciples implements Rule {
         public RuleIssue getRuleIssueOrNull(@NonNull Node node) {
             return node instanceof Document ? validateLatestVersionFirst((Document) node) : NO_RULE_ISSUE;
         }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "Latest version first";
+        }
     },
     DATE_DISPLAYED {
         @Override
         public RuleIssue getRuleIssueOrNull(@NonNull Node node) {
             return NO_RULE_ISSUE;
+        }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "Date displayed";
         }
     };
 

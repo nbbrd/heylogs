@@ -7,4 +7,5 @@ public class Resource {
 
     @NonNull String type;
     @NonNull String id;
+    @NonNull String name;
 }

@@ -19,6 +19,8 @@ public final class GitHostRefRuleSupport<L extends GitHostLink, R extends GitHos
 
     private final @NonNull String id;
 
+    private final @NonNull String name;
+
     @lombok.Builder.Default
     private final @NonNull Predicate<Properties> availability = properties -> true;
 
@@ -37,6 +39,11 @@ public final class GitHostRefRuleSupport<L extends GitHostLink, R extends GitHos
     @Override
     public @NonNull String getRuleId() {
         return id;
+    }
+
+    @Override
+    public @NonNull String getRuleName() {
+        return name;
     }
 
     @Override

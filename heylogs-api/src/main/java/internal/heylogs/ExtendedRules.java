@@ -33,11 +33,21 @@ public enum ExtendedRules implements Rule {
         public RuleIssue getRuleIssueOrNull(@NonNull Node node) {
             return node instanceof LinkNodeBase ? validateHttps((LinkNodeBase) node) : NO_RULE_ISSUE;
         }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "HTTPS";
+        }
     },
     CONSISTENT_SEPARATOR {
         @Override
         public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node) {
             return node instanceof Document ? validateConsistentSeparator((Document) node) : NO_RULE_ISSUE;
+        }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "Consistent separator";
         }
     };
 

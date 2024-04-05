@@ -31,7 +31,7 @@ public final class StylishFormat implements Format {
 
     @Override
     public @NonNull String getFormatName() {
-        return "Human-readable output format.";
+        return "Human-readable output";
     }
 
     @Override
@@ -127,6 +127,7 @@ public final class StylishFormat implements Format {
                 .<Resource>builder()
                 .column(Formatter.of(Resource::getType))
                 .column(Formatter.of(Resource::getId))
+                .column(Formatter.of(Resource::getName))
                 .build()
                 .write(appendable, "Resources", list, getResourcesSummary(list));
     }

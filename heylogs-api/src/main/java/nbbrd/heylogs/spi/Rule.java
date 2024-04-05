@@ -20,6 +20,8 @@ public interface Rule {
     @ServiceId(pattern = ServiceId.KEBAB_CASE)
     @NonNull String getRuleId();
 
+    @NonNull String getRuleName();
+
     @ServiceFilter
     boolean isRuleAvailable();
 

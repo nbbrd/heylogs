@@ -31,7 +31,7 @@ public final class JsonFormat implements Format {
 
     @Override
     public @NonNull String getFormatName() {
-        return "Outputs JSON-serialized results.";
+        return "JSON-serialized output";
     }
 
     @Override

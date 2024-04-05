@@ -1,10 +1,12 @@
 [
   {
     "type": "a",
-    "id": "hello"
+    "id": "hello",
+    "name": "(A) Hello"
   },
   {
     "type": "world",
-    "id": "b"
+    "id": "b",
+    "name": "World (B)"
   }
 ]

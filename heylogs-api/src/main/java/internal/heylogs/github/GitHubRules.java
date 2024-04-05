@@ -23,6 +23,7 @@ public final class GitHubRules implements RuleBatch {
     static final Rule GITHUB_ISSUE_REF = GitHostRefRuleSupport
             .builder(GitHubIssueLink::parse, GitHubIssueRef::parse)
             .id("github-issue-ref")
+            .name("GitHub issue ref")
             .linkPredicate(expected -> isIssue(expected) && isGitHubHost(expected))
             .message((expected, found) -> messageOf("GitHub issue ref", GitHubIssueRef.of(expected, found.getType()), found))
             .build();
@@ -31,6 +32,7 @@ public final class GitHubRules implements RuleBatch {
     static final Rule GITHUB_PULL_REQUEST_REF = GitHostRefRuleSupport
             .builder(GitHubIssueLink::parse, GitHubIssueRef::parse)
             .id("github-pull-request-ref")
+            .name("GitHub pull request ref")
             .linkPredicate(expected -> isPullRequest(expected) && isGitHubHost(expected))
             .message((expected, found) -> messageOf("GitHub pull request ref", GitHubIssueRef.of(expected, found.getType()), found))
             .build();
@@ -39,6 +41,7 @@ public final class GitHubRules implements RuleBatch {
     static final Rule GITHUB_MENTION_REF = GitHostRefRuleSupport
             .builder(GitHubMentionLink::parse, GitHubMentionRef::parse)
             .id("github-mention-ref")
+            .name("GitHub mention ref")
             .linkPredicate(GitHubRules::isGitHubHost)
             .message((expected, found) -> messageOf("GitHub mention ref", GitHubMentionRef.of(expected), found))
             .build();
@@ -47,6 +50,7 @@ public final class GitHubRules implements RuleBatch {
     static final Rule GITHUB_COMMIT_SHA_REF = GitHostRefRuleSupport
             .builder(GitHubCommitSHALink::parse, GitHubCommitSHARef::parse)
             .id("github-commit-sha-ref")
+            .name("GitHub commit SHA ref")
             .linkPredicate(GitHubRules::isGitHubHost)
             .message((expected, found) -> messageOf("GitHub commit SHA ref", GitHubCommitSHARef.of(expected, found.getType()), found))
             .build();

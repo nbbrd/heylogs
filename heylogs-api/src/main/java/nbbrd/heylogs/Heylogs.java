@@ -51,8 +51,8 @@ public class Heylogs {
 
     public @NonNull List<Resource> getResources() {
         return Stream.concat(
-                rules.stream().map(rule -> new Resource("rule", rule.getRuleId())),
-                formats.stream().map(format -> new Resource("format", format.getFormatId()))
+                rules.stream().map(rule -> new Resource("rule", rule.getRuleId(), rule.getRuleName())),
+                formats.stream().map(format -> new Resource("format", format.getFormatId(), format.getFormatName()))
         ).collect(toList());
     }
 
