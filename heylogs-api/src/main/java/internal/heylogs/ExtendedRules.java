@@ -57,6 +57,11 @@ public enum ExtendedRules implements Rule {
     }
 
     @Override
+    public @NonNull String getRuleCategory() {
+        return "extension";
+    }
+
+    @Override
     public boolean isRuleAvailable() {
         return true;
     }

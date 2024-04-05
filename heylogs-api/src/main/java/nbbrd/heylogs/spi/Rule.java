@@ -22,6 +22,8 @@ public interface Rule {
 
     @NonNull String getRuleName();
 
+    @NonNull String getRuleCategory();
+
     @ServiceFilter
     boolean isRuleAvailable();
 

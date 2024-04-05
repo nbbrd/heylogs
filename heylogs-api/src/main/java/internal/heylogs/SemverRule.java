@@ -25,6 +25,11 @@ public final class SemverRule implements Rule {
     }
 
     @Override
+    public @NonNull String getRuleCategory() {
+        return "versioning";
+    }
+
+    @Override
     public RuleIssue getRuleIssueOrNull(@NonNull Node node) {
         return node instanceof Heading ? validateSemVer((Heading) node) : NO_RULE_ISSUE;
     }

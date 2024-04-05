@@ -65,8 +65,8 @@ public class Sample {
     public static final Scan SCAN1 = Scan.builder().source("source1").summary(SUMMARY_1).build();
     public static final Scan SCAN2 = Scan.builder().source("source2").summary(SUMMARY_2).build();
 
-    public static final Resource RESOURCE1 = new Resource("a", "hello", "(A) Hello");
-    public static final Resource RESOURCE2 = new Resource("world", "b", "World (B)");
+    public static final Resource RESOURCE1 = Resource.builder().type("a").category("stuff").id("hello").name("(A) Hello").build();
+    public static final Resource RESOURCE2 = Resource.builder().type("world").category("stuff").id("b").name("World (B)").build();
 
     //@MightBePromoted
     public static String writing(IOConsumer<? super Appendable> content) {

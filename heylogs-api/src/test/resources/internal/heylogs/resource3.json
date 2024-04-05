@@ -1,11 +1,13 @@
 [
   {
     "type": "a",
+    "category": "stuff",
     "id": "hello",
     "name": "(A) Hello"
   },
   {
     "type": "world",
+    "category": "stuff",
     "id": "b",
     "name": "World (B)"
   }

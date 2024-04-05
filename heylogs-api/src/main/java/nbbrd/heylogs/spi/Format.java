@@ -23,6 +23,8 @@ public interface Format {
 
     @NonNull String getFormatName();
 
+    @NonNull String getFormatCategory();
+
     @NonNull Set<FormatType> getSupportedFormatTypes();
 
     void formatProblems(@NonNull Appendable appendable, @NonNull List<Check> list) throws IOException;

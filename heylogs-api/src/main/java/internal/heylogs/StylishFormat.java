@@ -35,6 +35,11 @@ public final class StylishFormat implements Format {
     }
 
     @Override
+    public @NonNull String getFormatCategory() {
+        return "interaction";
+    }
+
+    @Override
     public @NonNull Set<FormatType> getSupportedFormatTypes() {
         return EnumSet.allOf(FormatType.class);
     }
@@ -126,6 +131,7 @@ public final class StylishFormat implements Format {
         StylishWriter
                 .<Resource>builder()
                 .column(Formatter.of(Resource::getType))
+                .column(Formatter.of(Resource::getCategory))
                 .column(Formatter.of(Resource::getId))
                 .column(Formatter.of(Resource::getName))
                 .build()

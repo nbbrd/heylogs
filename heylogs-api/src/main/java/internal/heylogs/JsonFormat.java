@@ -35,6 +35,11 @@ public final class JsonFormat implements Format {
     }
 
     @Override
+    public @NonNull String getFormatCategory() {
+        return "automation";
+    }
+
+    @Override
     public @NonNull Set<FormatType> getSupportedFormatTypes() {
         return EnumSet.allOf(FormatType.class);
     }

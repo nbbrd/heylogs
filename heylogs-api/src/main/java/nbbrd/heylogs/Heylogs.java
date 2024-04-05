@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static nbbrd.heylogs.TimeRange.toTimeRange;
@@ -50,10 +51,30 @@ public class Heylogs {
     }
 
     public @NonNull List<Resource> getResources() {
-        return Stream.concat(
-                rules.stream().map(rule -> new Resource("rule", rule.getRuleId(), rule.getRuleName())),
-                formats.stream().map(format -> new Resource("format", format.getFormatId(), format.getFormatName()))
-        ).collect(toList());
+        return Stream
+                .concat(rules.stream().map(Heylogs::asResource), formats.stream().map(Heylogs::asResource))
+                .sorted(comparing(Resource::getType).thenComparing(Resource::getCategory).thenComparing(Resource::getId))
+                .collect(toList());
+    }
+
+    private static Resource asResource(Rule rule) {
+        return Resource
+                .builder()
+                .type("rule")
+                .category(rule.getRuleCategory())
+                .id(rule.getRuleId())
+                .name(rule.getRuleName())
+                .build();
+    }
+
+    private static Resource asResource(Format format) {
+        return Resource
+                .builder()
+                .type("format")
+                .category(format.getFormatCategory())
+                .id(format.getFormatId())
+                .name(format.getFormatName())
+                .build();
     }
 
     private static Problem getProblemOrNull(Node node, Rule rule) {

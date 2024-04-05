@@ -39,7 +39,7 @@ public enum GuidingPrinciples implements Rule {
 
         @Override
         public @NonNull String getRuleName() {
-            return "For humans validation";
+            return "For humans";
         }
     },
     ALL_H2_CONTAIN_A_VERSION {
@@ -101,6 +101,11 @@ public enum GuidingPrinciples implements Rule {
     @Override
     public @NonNull String getRuleId() {
         return nameToId(this);
+    }
+
+    @Override
+    public @NonNull String getRuleCategory() {
+        return "main";
     }
 
     @Override
