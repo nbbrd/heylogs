@@ -5,6 +5,7 @@ import com.vladsch.flexmark.ast.LinkNodeBase;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
 import lombok.NonNull;
+import nbbrd.design.DirectImpl;
 import nbbrd.design.MightBeGenerated;
 import nbbrd.design.VisibleForTesting;
 import nbbrd.heylogs.Nodes;
@@ -104,6 +105,7 @@ public enum ExtendedRules implements Rule {
     }
 
     @SuppressWarnings("unused")
+    @DirectImpl
     @MightBeGenerated
     @ServiceProvider
     public static final class Batch implements RuleBatch {

@@ -2,6 +2,7 @@ package internal.heylogs;
 
 import com.google.gson.*;
 import lombok.NonNull;
+import nbbrd.design.DirectImpl;
 import nbbrd.design.MightBeGenerated;
 import nbbrd.heylogs.*;
 import nbbrd.heylogs.spi.Format;
@@ -19,6 +20,7 @@ import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
 
+@DirectImpl
 @ServiceProvider
 public final class JsonFormat implements Format {
 

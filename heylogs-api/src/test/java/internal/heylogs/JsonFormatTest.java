@@ -1,6 +1,7 @@
 package internal.heylogs;
 
 import nbbrd.heylogs.spi.Format;
+import nbbrd.heylogs.spi.FormatLoader;
 import org.junit.jupiter.api.Test;
 
 import static _test.Sample.*;
@@ -10,6 +11,12 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class JsonFormatTest {
+
+    @Test
+    public void testIdPattern() {
+        assertThat(new JsonFormat().getFormatId())
+                .matches(FormatLoader.ID_PATTERN);
+    }
 
     @Test
     public void testFormatProblems() {

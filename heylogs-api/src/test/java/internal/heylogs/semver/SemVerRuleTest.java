@@ -3,7 +3,7 @@ package internal.heylogs.semver;
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.util.ast.Node;
 import nbbrd.heylogs.spi.RuleIssue;
-import nbbrd.service.ServiceId;
+import nbbrd.heylogs.spi.RuleLoader;
 import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
@@ -17,7 +17,7 @@ public class SemVerRuleTest {
     @Test
     public void testIdPattern() {
         assertThat(new SemVerRule().getRuleId())
-                .matches(ServiceId.KEBAB_CASE);
+                .matches(RuleLoader.ID_PATTERN);
     }
 
     @Test

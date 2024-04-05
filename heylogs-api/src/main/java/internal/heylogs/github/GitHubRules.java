@@ -4,6 +4,7 @@ import internal.heylogs.GitHostLink;
 import internal.heylogs.GitHostRef;
 import internal.heylogs.GitHostRefRuleSupport;
 import lombok.NonNull;
+import nbbrd.design.DirectImpl;
 import nbbrd.design.VisibleForTesting;
 import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleBatch;
@@ -11,6 +12,7 @@ import nbbrd.service.ServiceProvider;
 
 import java.util.stream.Stream;
 
+@DirectImpl
 @ServiceProvider
 public final class GitHubRules implements RuleBatch {
 

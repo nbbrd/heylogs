@@ -6,11 +6,10 @@ import com.vladsch.flexmark.util.ast.Node;
 import nbbrd.heylogs.Nodes;
 import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleIssue;
-import nbbrd.service.ServiceId;
+import nbbrd.heylogs.spi.RuleLoader;
 import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 import static _test.Sample.using;
 import static internal.heylogs.github.GitHubRules.*;
@@ -25,7 +24,7 @@ public class GitHubRulesTest {
     public void testIdPattern() {
         assertThat(new GitHubRules().getProviders())
                 .extracting(Rule::getRuleId)
-                .allMatch(Pattern.compile(ServiceId.KEBAB_CASE).asPredicate());
+                .allMatch(RuleLoader.ID_PATTERN.asPredicate());
     }
 
     @Test

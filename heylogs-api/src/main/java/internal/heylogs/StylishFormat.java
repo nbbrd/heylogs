@@ -1,6 +1,7 @@
 package internal.heylogs;
 
 import lombok.NonNull;
+import nbbrd.design.DirectImpl;
 import nbbrd.design.MightBePromoted;
 import nbbrd.heylogs.*;
 import nbbrd.heylogs.spi.Format;
@@ -19,6 +20,7 @@ import static java.util.Arrays.asList;
 import static java.util.Locale.ROOT;
 
 // https://eslint.org/docs/latest/user-guide/formatters/#stylish
+@DirectImpl
 @ServiceProvider
 public final class StylishFormat implements Format {
 

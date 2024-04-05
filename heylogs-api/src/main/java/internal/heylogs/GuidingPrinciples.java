@@ -7,6 +7,7 @@ import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
 import lombok.NonNull;
+import nbbrd.design.DirectImpl;
 import nbbrd.design.MightBeGenerated;
 import nbbrd.design.VisibleForTesting;
 import nbbrd.heylogs.Changelog;
@@ -264,6 +265,7 @@ public enum GuidingPrinciples implements Rule {
     }
 
     @SuppressWarnings("unused")
+    @DirectImpl
     @MightBeGenerated
     @ServiceProvider
     public static final class Batch implements RuleBatch {

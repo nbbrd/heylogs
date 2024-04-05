@@ -1,6 +1,7 @@
 package internal.heylogs;
 
 import nbbrd.heylogs.spi.Format;
+import nbbrd.heylogs.spi.FormatLoader;
 import nbbrd.heylogs.spi.FormatType;
 import org.junit.jupiter.api.Test;
 
@@ -11,6 +12,12 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class StylishFormatTest {
+
+    @Test
+    public void testIdPattern() {
+        assertThat(new StylishFormat().getFormatId())
+                .matches(FormatLoader.ID_PATTERN);
+    }
 
     @Test
     public void testSupportedTypes() {
