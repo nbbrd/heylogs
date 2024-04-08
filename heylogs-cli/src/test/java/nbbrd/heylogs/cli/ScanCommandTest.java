@@ -13,11 +13,11 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CheckCommandTest {
+public class ScanCommandTest {
 
     @Test
     public void testHelp() {
-        CommandLine cmd = new CommandLine(new CheckCommand());
+        CommandLine cmd = new CommandLine(new ScanCommand());
         CommandWatcher watcher = CommandWatcher.on(cmd);
 
         assertThat(cmd.execute("--help")).isEqualTo(CommandLine.ExitCode.USAGE);
@@ -27,7 +27,7 @@ public class CheckCommandTest {
 
     @Test
     public void testValidContent(@TempDir Path temp) throws IOException {
-        CommandLine cmd = new CommandLine(new CheckCommand());
+        CommandLine cmd = new CommandLine(new ScanCommand());
         CommandWatcher watcher = CommandWatcher.on(cmd);
 
         Path src = temp.resolve("src.md");
@@ -42,12 +42,12 @@ public class CheckCommandTest {
 
         assertThat(out)
                 .content(UTF_8)
-                .contains("No problem");
+                .contains("No release found");
     }
 
     @Test
     public void testInvalidContent(@TempDir Path temp) throws IOException {
-        CommandLine cmd = new CommandLine(new CheckCommand());
+        CommandLine cmd = new CommandLine(new ScanCommand());
         CommandWatcher watcher = CommandWatcher.on(cmd);
 
         Path src = temp.resolve("src.md");
@@ -56,12 +56,12 @@ public class CheckCommandTest {
         Path out = temp.resolve("out.txt");
 
         assertThat(cmd.execute(src.toString(), "-o", out.toString()))
-                .isEqualTo(CommandLine.ExitCode.SOFTWARE);
+                .isEqualTo(CommandLine.ExitCode.OK);
         assertThat(watcher.getOut()).isEmpty();
         assertThat(watcher.getErr()).isEmpty();
 
         assertThat(out)
                 .content(UTF_8)
-                .contains("Missing Changelog heading");
+                .contains("No release found");
     }
 }

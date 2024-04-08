@@ -1,11 +1,7 @@
 package nbbrd.heylogs.cli;
 
-import internal.heylogs.cli.FormatOptions;
-import internal.heylogs.cli.HeylogsOptions;
-import internal.heylogs.cli.MarkdownInputSupport;
-import internal.heylogs.cli.SpecialProperties;
+import internal.heylogs.cli.*;
 import nbbrd.console.picocli.FileOutputOptions;
-import nbbrd.console.picocli.MultiFileInputOptions;
 import nbbrd.heylogs.Check;
 import nbbrd.heylogs.Heylogs;
 import picocli.CommandLine;
@@ -24,7 +20,7 @@ import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
 public final class CheckCommand implements Callable<Integer> {
 
     @CommandLine.Mixin
-    private MultiFileInputOptions input;
+    private MultiChangelogInputOptions input;
 
     @CommandLine.Mixin
     private FileOutputOptions output;

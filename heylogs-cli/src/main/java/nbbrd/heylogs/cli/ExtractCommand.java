@@ -1,6 +1,7 @@
 package nbbrd.heylogs.cli;
 
 import com.vladsch.flexmark.util.ast.Document;
+import internal.heylogs.cli.ChangelogInputParameters;
 import internal.heylogs.cli.SpecialProperties;
 import nbbrd.console.picocli.FileInputParameters;
 import nbbrd.console.picocli.FileOutputOptions;
@@ -21,7 +22,7 @@ import static internal.heylogs.cli.MarkdownOutputSupport.newMarkdownOutputSuppor
 public final class ExtractCommand implements Callable<Void> {
 
     @CommandLine.Mixin
-    private FileInputParameters input;
+    private ChangelogInputParameters input;
 
     @CommandLine.Mixin
     private FileOutputOptions output;
