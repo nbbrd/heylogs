@@ -10,10 +10,8 @@ import nbbrd.io.text.Formatter;
 import nbbrd.service.ServiceProvider;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 
 import static java.lang.System.lineSeparator;
 import static java.util.Locale.ROOT;
@@ -47,16 +45,14 @@ public final class StylishFormat implements Format {
 
     @Override
     public void formatProblems(@NonNull Appendable appendable, @NonNull List<Check> list) throws IOException {
-        StylishWriter<Problem> writer = StylishWriter
+        StylishWriter
                 .<Problem>builder()
                 .column(getPositionFormatter(list))
                 .column(getRuleSeverityFormatter())
                 .column(Formatter.of(problem -> problem.getIssue().getMessage()))
                 .column(Formatter.of(Problem::getId))
-                .build();
-        for (Check item : list) {
-            writer.write(appendable, item.getSource(), item.getProblems(), getProblemsSummary(item.getProblems()));
-        }
+                .build()
+                .writeAll(appendable, list, Check::getSource, Check::getProblems, item -> getProblemsSummary(item.getProblems()));
     }
 
     @MightBePromoted
@@ -100,13 +96,11 @@ public final class StylishFormat implements Format {
 
     @Override
     public void formatStatus(@NonNull Appendable appendable, @NonNull List<Scan> list) throws IOException {
-        StylishWriter<String> writer = StylishWriter
+        StylishWriter
                 .<String>builder()
                 .column(Formatter.onString())
-                .build();
-        for (Scan item : list) {
-            writer.write(appendable, item.getSource(), getStatusBody(item.getSummary()), null);
-        }
+                .build()
+                .writeAll(appendable, list, Scan::getSource, item -> getStatusBody(item.getSummary()), ignore -> null);
     }
 
     private List<String> getStatusBody(Summary summary) {
@@ -164,6 +158,20 @@ public final class StylishFormat implements Format {
 
         @lombok.Singular
         List<Formatter<T>> columns;
+
+        public <X> void writeAll(Appendable appendable, List<X> list,
+                                 Function<X, CharSequence> header, Function<X, List<T>> body, Function<X, CharSequence> footer) throws IOException {
+            Iterator<X> iterator = list.iterator();
+            if (iterator.hasNext()) {
+                final X first = iterator.next();
+                write(appendable, header.apply(first), body.apply(first), footer.apply(first));
+                while (iterator.hasNext()) {
+                    appendable.append(separator);
+                    X next = iterator.next();
+                    write(appendable, header.apply(next), body.apply(next), footer.apply(next));
+                }
+            }
+        }
 
         public void write(Appendable appendable, CharSequence header, List<T> body, CharSequence footer) throws IOException {
             writeHeader(appendable, header);
