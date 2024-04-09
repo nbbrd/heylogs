@@ -3,6 +3,7 @@ package nbbrd.heylogs;
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
+import internal.heylogs.ChangelogNodes;
 import internal.heylogs.GuidingPrinciples;
 import lombok.NonNull;
 import nbbrd.design.MightBePromoted;
@@ -12,9 +13,7 @@ import nbbrd.heylogs.spi.*;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
@@ -122,26 +121,29 @@ public class Heylogs {
     }
 
     public @NonNull Summary scan(@NonNull Node document) {
-        boolean valid = !getProblemStream(document, asList(GuidingPrinciples.values())).findFirst().isPresent();
+        if (getProblemStream(document, asList(GuidingPrinciples.values())).findFirst().isPresent())
+            return Summary.builder().valid(false).build();
 
-        if (!valid) return Summary.builder().valid(false).build();
-
-        Map<Boolean, List<Version>> versionByType = Nodes.of(Heading.class)
+        List<Version> releases = Nodes.of(Heading.class)
                 .descendants(document)
                 .filter(Version::isVersionLevel)
                 .map(illegalArgumentToNull(Version::parse))
                 .filter(Objects::nonNull)
-                .collect(Collectors.partitioningBy(Version::isUnreleased));
+                .filter(version -> !version.isUnreleased())
+                .collect(toList());
 
-        List<String> compatibilities = getCompatibilities(versionByType.get(false));
+        long unreleasedChanges = ChangelogNodes.getUnreleasedHeading(document)
+                .map(ChangelogNodes::getBulletListsByTypeOfChange)
+                .map(o -> o.values().stream().mapToLong(List::size).sum())
+                .orElse(0L);
 
         return Summary
                 .builder()
                 .valid(true)
-                .releaseCount(versionByType.get(false).size())
-                .timeRange(versionByType.get(false).stream().map(Version::getDate).collect(toTimeRange()).orElse(TimeRange.ALL))
-                .compatibilities(compatibilities)
-                .hasUnreleasedSection(versionByType.containsKey(true))
+                .releaseCount(releases.size())
+                .timeRange(releases.stream().map(Version::getDate).collect(toTimeRange()).orElse(TimeRange.ALL))
+                .compatibilities(getCompatibilities(releases))
+                .unreleasedChanges((int) unreleasedChanges)
                 .build();
     }
 

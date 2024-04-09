@@ -79,7 +79,7 @@ public class HeylogsTest {
                         .valid(false)
                         .releaseCount(0)
                         .timeRange(TimeRange.ALL)
-                        .hasUnreleasedSection(false)
+                        .unreleasedChanges(0)
                         .build()
                 );
 
@@ -90,7 +90,7 @@ public class HeylogsTest {
                         .releaseCount(13)
                         .timeRange(TimeRange.of(LocalDate.of(2014, 5, 31), LocalDate.of(2019, 2, 15)))
                         .compatibility("Semantic Versioning")
-                        .hasUnreleasedSection(true)
+                        .unreleasedChanges(2)
                         .build()
                 );
 
@@ -100,7 +100,7 @@ public class HeylogsTest {
                         .valid(true)
                         .releaseCount(2)
                         .timeRange(TimeRange.of(LocalDate.of(2019, 2, 15), LocalDate.of(2019, 2, 15)))
-                        .hasUnreleasedSection(true)
+                        .unreleasedChanges(0)
                         .build()
                 );
 
@@ -110,7 +110,7 @@ public class HeylogsTest {
                         .valid(false)
                         .releaseCount(0)
                         .timeRange(TimeRange.ALL)
-                        .hasUnreleasedSection(false)
+                        .unreleasedChanges(0)
                         .build()
                 );
     }
@@ -128,7 +128,7 @@ public class HeylogsTest {
                                         .releaseCount(1)
                                         .timeRange(TimeRange.of(LocalDate.of(2019, 2, 15), LocalDate.of(2019, 2, 15)))
                                         .compatibility("Semantic Versioning")
-                                        .hasUnreleasedSection(true)
+                                        .unreleasedChanges(3)
                                         .build())
                         .build());
 
@@ -147,7 +147,7 @@ public class HeylogsTest {
                                 "  Found 1 releases                     \n" +
                                 "  Ranging from 2019-02-15 to 2019-02-15\n" +
                                 "  Compatible with Semantic Versioning  \n" +
-                                "  Has an unreleased version            \n"
+                                "  Has 3 unreleased changes             \n"
                 );
     }
 }

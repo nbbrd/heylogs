@@ -58,7 +58,7 @@ public class Sample {
             .valid(true)
             .compatibility("Strange Versioning")
             .releaseCount(3)
-            .hasUnreleasedSection(true)
+            .unreleasedChanges(3)
             .timeRange(TimeRange.of(LocalDate.of(2010, 1, 1), LocalDate.of(2011, 1, 1)))
             .build();
 

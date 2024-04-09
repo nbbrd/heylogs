@@ -11,7 +11,7 @@
       "compatibilities": [
         "Strange Versioning"
       ],
-      "hasUnreleasedSection": true
+      "unreleasedChanges": 3
     }
   }
 ]

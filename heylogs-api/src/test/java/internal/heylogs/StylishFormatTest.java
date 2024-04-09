@@ -80,7 +80,7 @@ class StylishFormatTest {
                                 + "  Found 3 releases                     \n"
                                 + "  Ranging from 2010-01-01 to 2011-01-01\n"
                                 + "  Compatible with Strange Versioning   \n"
-                                + "  Has an unreleased version            \n"
+                                + "  Has 3 unreleased changes             \n"
                 );
     }
 

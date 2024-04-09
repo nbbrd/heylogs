@@ -24,6 +24,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Refactor API and SPI (breaking changes)
 - Set CHANGELOG.md as default value for input file in command line [#237](https://github.com/nbbrd/heylogs/issues/237)
 
+### Fixed
+
+- Fix scan of unreleased version [#228](https://github.com/nbbrd/heylogs/issues/228)
+
 ## [0.7.2] - 2023-11-10
 
 ### Changed

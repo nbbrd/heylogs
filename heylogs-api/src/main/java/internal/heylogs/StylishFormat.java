@@ -115,15 +115,14 @@ public final class StylishFormat implements Format {
             result.add("Valid changelog");
             if (summary.getReleaseCount() == 0) {
                 result.add("No release found");
-                result.add(summary.isHasUnreleasedSection() ? "Has an unreleased version" : "Has no unreleased version");
             } else {
                 result.add(String.format(ROOT, "Found %d releases", summary.getReleaseCount()));
                 result.add(String.format(ROOT, "Ranging from %s to %s", summary.getTimeRange().getFrom(), summary.getTimeRange().getTo()));
                 result.add(summary.getCompatibilities().isEmpty()
                         ? "Not compatible with known versioning"
                         : "Compatible with " + String.join(", ", summary.getCompatibilities()));
-                result.add(summary.isHasUnreleasedSection() ? "Has an unreleased version" : "Has no unreleased version");
             }
+            result.add(summary.getUnreleasedChanges() > 0 ? ("Has " + summary.getUnreleasedChanges() + " unreleased changes") : "Has no unreleased changes");
         } else {
             result.add("Invalid changelog");
         }

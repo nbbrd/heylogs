@@ -18,5 +18,5 @@ public class Summary {
     List<String> compatibilities;
 
     @lombok.Builder.Default
-    boolean hasUnreleasedSection = false;
+    int unreleasedChanges = 0;
 }
