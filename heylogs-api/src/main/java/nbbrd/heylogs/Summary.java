@@ -6,6 +6,8 @@ import java.util.List;
 @lombok.Builder
 public class Summary {
 
+    boolean valid;
+
     @lombok.Builder.Default
     int releaseCount = 0;
 

@@ -3,9 +3,11 @@ package nbbrd.heylogs;
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
+import internal.heylogs.GuidingPrinciples;
 import lombok.NonNull;
 import nbbrd.design.MightBePromoted;
 import nbbrd.design.StaticFactoryMethod;
+import nbbrd.design.VisibleForTesting;
 import nbbrd.heylogs.spi.*;
 
 import java.io.IOException;
@@ -15,6 +17,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Arrays.asList;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 import static nbbrd.heylogs.TimeRange.toTimeRange;
@@ -52,9 +55,7 @@ public class Heylogs {
     List<Forge> forges;
 
     public @NonNull List<Problem> validate(@NonNull Document doc) {
-        return concat(Stream.of(doc), Nodes.of(Node.class).descendants(doc))
-                .flatMap(node -> rules.stream().map(rule -> getProblemOrNull(node, rule)).filter(Objects::nonNull))
-                .collect(toList());
+        return getProblemStream(doc, rules).collect(toList());
     }
 
     public @NonNull List<Resource> getResources() {
@@ -108,11 +109,6 @@ public class Heylogs {
                 .build();
     }
 
-    private static Problem getProblemOrNull(Node node, Rule rule) {
-        RuleIssue ruleIssueOrNull = rule.getRuleIssueOrNull(node);
-        return ruleIssueOrNull != null ? Problem.builder().rule(rule).issue(ruleIssueOrNull).build() : null;
-    }
-
     public void formatProblems(@NonNull String formatId, @NonNull Appendable appendable, @NonNull List<Check> list) throws IOException {
         getFormatById(formatId).formatProblems(appendable, list);
     }
@@ -126,6 +122,10 @@ public class Heylogs {
     }
 
     public @NonNull Summary scan(@NonNull Node document) {
+        boolean valid = !getProblemStream(document, asList(GuidingPrinciples.values())).findFirst().isPresent();
+
+        if (!valid) return Summary.builder().valid(false).build();
+
         Map<Boolean, List<Version>> versionByType = Nodes.of(Heading.class)
                 .descendants(document)
                 .filter(Version::isVersionLevel)
@@ -137,6 +137,7 @@ public class Heylogs {
 
         return Summary
                 .builder()
+                .valid(true)
                 .releaseCount(versionByType.get(false).size())
                 .timeRange(versionByType.get(false).stream().map(Version::getDate).collect(toTimeRange()).orElse(TimeRange.ALL))
                 .compatibilities(compatibilities)
@@ -156,6 +157,17 @@ public class Heylogs {
                 .filter(format -> formatId.equals(FIRST_FORMAT_AVAILABLE) || format.getFormatId().equals(formatId))
                 .findFirst()
                 .orElseThrow(() -> new IOException("Cannot find format '" + formatId + "'"));
+    }
+
+    @VisibleForTesting
+    static Stream<Problem> getProblemStream(Node root, List<Rule> rules) {
+        return Nodes.walk(root)
+                .flatMap(node -> rules.stream().map(rule -> getProblemOrNull(node, rule)).filter(Objects::nonNull));
+    }
+
+    private static Problem getProblemOrNull(Node node, Rule rule) {
+        RuleIssue ruleIssueOrNull = rule.getRuleIssueOrNull(node);
+        return ruleIssueOrNull != null ? Problem.builder().rule(rule).issue(ruleIssueOrNull).build() : null;
     }
 
     public static final String FIRST_FORMAT_AVAILABLE = "";

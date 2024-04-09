@@ -8,11 +8,9 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 
 import static _test.Sample.using;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static nbbrd.heylogs.Heylogs.FIRST_FORMAT_AVAILABLE;
 import static nbbrd.heylogs.spi.RuleSeverity.ERROR;
@@ -76,46 +74,63 @@ public class HeylogsTest {
         Heylogs x = Heylogs.ofServiceLoader();
 
         assertThat(x.scan(using("/Empty.md")))
-                .isEqualTo(new Summary(
-                        0,
-                        TimeRange.ALL,
-                        Arrays.asList("Semantic Versioning"),
-                        true
-                ));
+                .isEqualTo(Summary
+                        .builder()
+                        .valid(false)
+                        .releaseCount(0)
+                        .timeRange(TimeRange.ALL)
+                        .hasUnreleasedSection(false)
+                        .build()
+                );
 
         assertThat(x.scan(using("/Main.md")))
-                .isEqualTo(new Summary(
-                        13,
-                        TimeRange.of(LocalDate.of(2014, 5, 31), LocalDate.of(2019, 2, 15)),
-                        Arrays.asList("Semantic Versioning"),
-                        true
-                ));
+                .isEqualTo(Summary
+                        .builder()
+                        .valid(true)
+                        .releaseCount(13)
+                        .timeRange(TimeRange.of(LocalDate.of(2014, 5, 31), LocalDate.of(2019, 2, 15)))
+                        .compatibility("Semantic Versioning")
+                        .hasUnreleasedSection(true)
+                        .build()
+                );
 
         assertThat(x.scan(using("/InvalidSemver.md")))
-                .isEqualTo(new Summary(
-                        2,
-                        TimeRange.of(LocalDate.of(2019, 2, 15), LocalDate.of(2019, 2, 15)),
-                        emptyList(),
-                        true
-                ));
+                .isEqualTo(Summary
+                        .builder()
+                        .valid(true)
+                        .releaseCount(2)
+                        .timeRange(TimeRange.of(LocalDate.of(2019, 2, 15), LocalDate.of(2019, 2, 15)))
+                        .hasUnreleasedSection(true)
+                        .build()
+                );
 
         assertThat(x.scan(using("/InvalidVersion.md")))
-                .isEqualTo(new Summary(
-                        1,
-                        TimeRange.of(LocalDate.of(2019, 2, 15), LocalDate.of(2019, 2, 15)),
-                        Arrays.asList("Semantic Versioning"),
-                        true
-                ));
+                .isEqualTo(Summary
+                        .builder()
+                        .valid(false)
+                        .releaseCount(0)
+                        .timeRange(TimeRange.ALL)
+                        .hasUnreleasedSection(false)
+                        .build()
+                );
     }
 
     @Test
     public void testFormatStatus() throws IOException {
-        List<Scan> scans = singletonList(Scan.builder().source("file1").summary(new Summary(
-                1,
-                TimeRange.of(LocalDate.of(2019, 2, 15), LocalDate.of(2019, 2, 15)),
-                Arrays.asList("Semantic Versioning"),
-                true
-        )).build());
+        List<Scan> scans = singletonList(
+                Scan
+                        .builder()
+                        .source("file1")
+                        .summary(
+                                Summary
+                                        .builder()
+                                        .valid(true)
+                                        .releaseCount(1)
+                                        .timeRange(TimeRange.of(LocalDate.of(2019, 2, 15), LocalDate.of(2019, 2, 15)))
+                                        .compatibility("Semantic Versioning")
+                                        .hasUnreleasedSection(true)
+                                        .build())
+                        .build());
 
         assertThatIOException()
                 .isThrownBy(() -> Heylogs.builder().build().formatStatus(FIRST_FORMAT_AVAILABLE, new StringBuilder(), scans));
@@ -128,6 +143,7 @@ public class HeylogsTest {
         assertThat(output.toString())
                 .isEqualToIgnoringNewLines(
                         "file1\n" +
+                                "  Valid changelog                      \n" +
                                 "  Found 1 releases                     \n" +
                                 "  Ranging from 2019-02-15 to 2019-02-15\n" +
                                 "  Compatible with Semantic Versioning  \n" +

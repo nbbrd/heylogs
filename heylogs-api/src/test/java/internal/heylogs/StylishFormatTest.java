@@ -70,13 +70,13 @@ class StylishFormatTest {
         assertThat(writing(appendable -> x.formatStatus(appendable, singletonList(SCAN1))))
                 .isEqualToNormalizingNewlines(
                         "source1\n"
-                                + "  No release found         \n"
-                                + "  Has no unreleased version\n"
+                                + "  Invalid changelog\n"
                 );
 
         assertThat(writing(appendable -> x.formatStatus(appendable, singletonList(SCAN2))))
                 .isEqualToNormalizingNewlines(
                         "source2\n"
+                                + "  Valid changelog                      \n"
                                 + "  Found 3 releases                     \n"
                                 + "  Ranging from 2010-01-01 to 2011-01-01\n"
                                 + "  Compatible with Strange Versioning   \n"

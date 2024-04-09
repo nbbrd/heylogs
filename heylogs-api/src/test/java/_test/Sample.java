@@ -55,6 +55,7 @@ public class Sample {
     public static final Summary SUMMARY_1 = Summary.builder().build();
     public static final Summary SUMMARY_2 = Summary
             .builder()
+            .valid(true)
             .compatibility("Strange Versioning")
             .releaseCount(3)
             .hasUnreleasedSection(true)

@@ -16,7 +16,8 @@ import static nbbrd.heylogs.Nodes.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Index.atIndex;
 
-public class GuidingPrinciplesTest {
+public class
+GuidingPrinciplesTest {
 
     @Test
     public void testIdPattern() {
@@ -61,9 +62,9 @@ public class GuidingPrinciplesTest {
                 .map(GuidingPrinciples::validateAllH2ContainAVersion)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains(RuleIssue.builder().message("Invalid date format").line(2).column(1).build(), atIndex(0))
-                .contains(RuleIssue.builder().message("Missing date part").line(3).column(1).build(), atIndex(1))
-                .contains(RuleIssue.builder().message("Missing ref link").line(4).column(1).build(), atIndex(2))
+                .contains(RuleIssue.builder().message("Invalid date format").line(4).column(1).build(), atIndex(0))
+                .contains(RuleIssue.builder().message("Missing date part").line(5).column(1).build(), atIndex(1))
+                .contains(RuleIssue.builder().message("Missing ref link").line(6).column(1).build(), atIndex(2))
                 .hasSize(3);
 
     }
@@ -115,6 +116,6 @@ public class GuidingPrinciplesTest {
                 .isEqualTo(RuleIssue.builder().message("Versions not sorted").line(3).column(1).build());
 
         assertThat(validateLatestVersionFirst(using("/InvalidVersion.md")))
-                .isEqualTo(RuleIssue.builder().message("Versions not sorted").line(5).column(1).build());
+                .isEqualTo(RuleIssue.builder().message("Versions not sorted").line(7).column(1).build());
     }
 }

@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Set;
 
 import static java.lang.System.lineSeparator;
-import static java.util.Arrays.asList;
 import static java.util.Locale.ROOT;
 
 // https://eslint.org/docs/latest/user-guide/formatters/#stylish
@@ -111,21 +110,24 @@ public final class StylishFormat implements Format {
     }
 
     private List<String> getStatusBody(Summary summary) {
-        if (summary.getReleaseCount() == 0) {
-            return asList(
-                    "No release found",
-                    summary.isHasUnreleasedSection() ? "Has an unreleased version" : "Has no unreleased version"
-            );
+        List<String> result = new ArrayList<>();
+        if (summary.isValid()) {
+            result.add("Valid changelog");
+            if (summary.getReleaseCount() == 0) {
+                result.add("No release found");
+                result.add(summary.isHasUnreleasedSection() ? "Has an unreleased version" : "Has no unreleased version");
+            } else {
+                result.add(String.format(ROOT, "Found %d releases", summary.getReleaseCount()));
+                result.add(String.format(ROOT, "Ranging from %s to %s", summary.getTimeRange().getFrom(), summary.getTimeRange().getTo()));
+                result.add(summary.getCompatibilities().isEmpty()
+                        ? "Not compatible with known versioning"
+                        : "Compatible with " + String.join(", ", summary.getCompatibilities()));
+                result.add(summary.isHasUnreleasedSection() ? "Has an unreleased version" : "Has no unreleased version");
+            }
         } else {
-            return asList(
-                    String.format(ROOT, "Found %d releases", summary.getReleaseCount()),
-                    String.format(ROOT, "Ranging from %s to %s", summary.getTimeRange().getFrom(), summary.getTimeRange().getTo()),
-                    summary.getCompatibilities().isEmpty()
-                            ? "Not compatible with known versioning"
-                            : "Compatible with " + String.join(", ", summary.getCompatibilities()),
-                    summary.isHasUnreleasedSection() ? "Has an unreleased version" : "Has no unreleased version"
-            );
+            result.add("Invalid changelog");
         }
+        return result;
     }
 
     @Override

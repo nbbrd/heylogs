@@ -62,6 +62,6 @@ public class ScanCommandTest {
 
         assertThat(out)
                 .content(UTF_8)
-                .contains("No release found");
+                .contains("Invalid changelog");
     }
 }

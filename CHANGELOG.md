@@ -17,6 +17,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Add json formatting [#118](https://github.com/nbbrd/heylogs/issues/118)
 - Add versioning extension point [#235](https://github.com/nbbrd/heylogs/issues/235)
 - Add forge extension point [#236](https://github.com/nbbrd/heylogs/issues/236)
+- Add basic rule check before scanning and extracting [#243](https://github.com/nbbrd/heylogs/issues/243)
 
 ### Changed
 

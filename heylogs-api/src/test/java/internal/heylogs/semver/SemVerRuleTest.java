@@ -48,6 +48,6 @@ public class SemVerRuleTest {
                 .map(x::validateSemVer)
                 .filteredOn(Objects::nonNull)
                 .hasSize(1)
-                .contains(RuleIssue.builder().message("Invalid semver format: '.1.0'").line(2).column(1).build());
+                .contains(RuleIssue.builder().message("Invalid semver format: '.1.0'").line(4).column(1).build());
     }
 }

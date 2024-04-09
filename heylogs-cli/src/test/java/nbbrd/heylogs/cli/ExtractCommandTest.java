@@ -56,12 +56,11 @@ public class ExtractCommandTest {
         Path out = temp.resolve("out.txt");
 
         assertThat(cmd.execute(src.toString(), "-o", out.toString()))
-                .isEqualTo(CommandLine.ExitCode.OK); // FIXME: should not be ok
+                .isEqualTo(CommandLine.ExitCode.SOFTWARE);
         assertThat(watcher.getOut()).isEmpty();
         assertThat(watcher.getErr()).isEmpty();
 
         assertThat(out)
-                .content(UTF_8)
-                .contains("");
+                .doesNotExist();
     }
 }

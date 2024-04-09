@@ -2,6 +2,7 @@
   {
     "filePath": "source2",
     "summary": {
+      "valid": true,
       "releaseCount": 3,
       "timeRange": {
         "from": "2010-01-01",
