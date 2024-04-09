@@ -1,5 +1,6 @@
 package nbbrd.heylogs;
 
+import java.net.URL;
 import java.util.List;
 
 @lombok.Value
@@ -19,4 +20,10 @@ public class Summary {
 
     @lombok.Builder.Default
     int unreleasedChanges = 0;
+
+    @lombok.Builder.Default
+    String forgeName = null;
+
+    @lombok.Builder.Default
+    URL forgeURL = null;
 }

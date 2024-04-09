@@ -1,10 +1,13 @@
 package nbbrd.heylogs;
 
 import com.vladsch.flexmark.ast.Heading;
+import com.vladsch.flexmark.ast.util.ReferenceRepository;
+import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
 import internal.heylogs.ChangelogNodes;
 import internal.heylogs.GuidingPrinciples;
+import internal.heylogs.URLExtractor;
 import lombok.NonNull;
 import nbbrd.design.MightBePromoted;
 import nbbrd.design.StaticFactoryMethod;
@@ -14,6 +17,7 @@ import nbbrd.heylogs.spi.*;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
@@ -137,6 +141,9 @@ public class Heylogs {
                 .map(o -> o.values().stream().mapToLong(List::size).sum())
                 .orElse(0L);
 
+        Optional<String> forgeURL = getLatestVersionURL(document);
+        Optional<String> forgeName = forgeURL.flatMap(this::getForgeName);
+
         return Summary
                 .builder()
                 .valid(true)
@@ -144,7 +151,25 @@ public class Heylogs {
                 .timeRange(releases.stream().map(Version::getDate).collect(toTimeRange()).orElse(TimeRange.ALL))
                 .compatibilities(getCompatibilities(releases))
                 .unreleasedChanges((int) unreleasedChanges)
+                .forgeName(forgeName.orElse(null))
+                .forgeURL(forgeURL.map(URLExtractor::urlOf).map(URLExtractor::baseOf).orElse(null))
                 .build();
+    }
+
+    private Optional<String> getForgeName(String url) {
+        return forges.stream().filter(forge -> forge.isCompareLink(url)).map(Forge::getForgeName).findFirst();
+    }
+
+    private static Optional<String> getLatestVersionURL(Node document) {
+        return Nodes.of(Heading.class)
+                .descendants(document)
+                .filter(Version::isVersionLevel)
+                .map(heading -> {
+                    ReferenceRepository repository = Parser.REFERENCES.get(heading.getDocument());
+                    String normalizeRef = repository.normalizeKey(Version.parse(heading).getRef());
+                    return Objects.requireNonNull(repository.get(normalizeRef)).getUrl().toString();
+                })
+                .findFirst();
     }
 
     private List<String> getCompatibilities(List<Version> releases) {

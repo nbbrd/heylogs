@@ -76,11 +76,12 @@ class StylishFormatTest {
         assertThat(writing(appendable -> x.formatStatus(appendable, singletonList(SCAN2))))
                 .isEqualToNormalizingNewlines(
                         "source2\n"
-                                + "  Valid changelog                      \n"
-                                + "  Found 3 releases                     \n"
-                                + "  Ranging from 2010-01-01 to 2011-01-01\n"
-                                + "  Compatible with Strange Versioning   \n"
-                                + "  Has 3 unreleased changes             \n"
+                                + "  Valid changelog                          \n"
+                                + "  Found 3 releases                         \n"
+                                + "  Ranging from 2010-01-01 to 2011-01-01    \n"
+                                + "  Compatible with Strange Versioning       \n"
+                                + "  Forged with unknown forge at unknown host\n"
+                                + "  Has 3 unreleased changes                 \n"
                 );
     }
 

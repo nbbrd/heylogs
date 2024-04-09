@@ -10,6 +10,7 @@ import nbbrd.io.text.Formatter;
 import nbbrd.service.ServiceProvider;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.*;
 import java.util.function.Function;
 
@@ -116,6 +117,8 @@ public final class StylishFormat implements Format {
                         ? "Not compatible with known versioning"
                         : "Compatible with " + String.join(", ", summary.getCompatibilities()));
             }
+            result.add("Forged with " + Optional.ofNullable(summary.getForgeName()).orElse("unknown forge")
+                    + " at " + Optional.ofNullable(summary.getForgeURL()).map(URL::getHost).orElse("unknown host"));
             result.add(summary.getUnreleasedChanges() > 0 ? ("Has " + summary.getUnreleasedChanges() + " unreleased changes") : "Has no unreleased changes");
         } else {
             result.add("Invalid changelog");

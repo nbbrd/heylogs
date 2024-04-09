@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static _test.Sample.using;
+import static internal.heylogs.URLExtractor.urlOf;
 import static java.util.Collections.singletonList;
 import static nbbrd.heylogs.Heylogs.FIRST_FORMAT_AVAILABLE;
 import static nbbrd.heylogs.spi.RuleSeverity.ERROR;
@@ -91,6 +92,8 @@ public class HeylogsTest {
                         .timeRange(TimeRange.of(LocalDate.of(2014, 5, 31), LocalDate.of(2019, 2, 15)))
                         .compatibility("Semantic Versioning")
                         .unreleasedChanges(2)
+                        .forgeName("GitHub")
+                        .forgeURL(urlOf("https://github.com"))
                         .build()
                 );
 
@@ -101,6 +104,8 @@ public class HeylogsTest {
                         .releaseCount(2)
                         .timeRange(TimeRange.of(LocalDate.of(2019, 2, 15), LocalDate.of(2019, 2, 15)))
                         .unreleasedChanges(0)
+                        .forgeName("GitHub")
+                        .forgeURL(urlOf("https://github.com"))
                         .build()
                 );
 
@@ -129,6 +134,8 @@ public class HeylogsTest {
                                         .timeRange(TimeRange.of(LocalDate.of(2019, 2, 15), LocalDate.of(2019, 2, 15)))
                                         .compatibility("Semantic Versioning")
                                         .unreleasedChanges(3)
+                                        .forgeName("GitStuff")
+                                        .forgeURL(urlOf("https://localhost:8080/hello"))
                                         .build())
                         .build());
 
@@ -147,6 +154,7 @@ public class HeylogsTest {
                                 "  Found 1 releases                     \n" +
                                 "  Ranging from 2019-02-15 to 2019-02-15\n" +
                                 "  Compatible with Semantic Versioning  \n" +
+                                "  Forged with GitStuff at localhost    \n" +
                                 "  Has 3 unreleased changes             \n"
                 );
     }
