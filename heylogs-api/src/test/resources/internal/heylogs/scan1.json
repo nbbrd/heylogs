@@ -1,0 +1,15 @@
+[
+  {
+    "filePath": "source1",
+    "summary": {
+      "valid": false,
+      "releaseCount": 0,
+      "timeRange": {
+        "from": "-999999999-01-01",
+        "to": "+999999999-12-31"
+      },
+      "compatibilities": [],
+      "unreleasedChanges": 0
+    }
+  }
+]

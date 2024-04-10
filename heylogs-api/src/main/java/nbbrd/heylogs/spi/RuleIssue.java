@@ -1,15 +1,11 @@
-package nbbrd.heylogs;
+package nbbrd.heylogs.spi;
 
 import com.vladsch.flexmark.util.ast.Node;
 import lombok.NonNull;
-import nbbrd.heylogs.spi.Rule;
 
 @lombok.Value
 @lombok.Builder
-public class Failure {
-
-    @lombok.NonNull
-    String ruleId;
+public class RuleIssue {
 
     @lombok.NonNull
     String message;
@@ -19,10 +15,6 @@ public class Failure {
     int column;
 
     public static final class Builder {
-
-        public @NonNull Builder rule(@NonNull Rule rule) {
-            return ruleId(rule.getId());
-        }
 
         public @NonNull Builder location(@NonNull Node location) {
             return line(location.getStartLineNumber() + 1)

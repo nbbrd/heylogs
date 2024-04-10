@@ -1,15 +1,11 @@
 package nbbrd.heylogs.maven.plugin;
 
-import internal.heylogs.SemverRule;
-import nbbrd.heylogs.Checker;
-import nbbrd.heylogs.spi.Format;
-import nbbrd.heylogs.spi.Rule;
+import internal.heylogs.StylishFormat;
+import nbbrd.heylogs.Heylogs;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-
-import static java.util.stream.Collectors.joining;
 
 @Mojo(name = "list", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
 public final class ListMojo extends HeylogsMojo {
@@ -17,27 +13,21 @@ public final class ListMojo extends HeylogsMojo {
     @Parameter(defaultValue = "false", property = "heylogs.semver")
     private boolean semver;
 
+    @Parameter(defaultValue = StylishFormat.ID, property = "heylogs.format.id")
+    private String formatId;
+
     @Override
-    public void execute() {
+    public void execute() throws MojoExecutionException {
         if (skip) {
             getLog().info("Listing has been skipped.");
             return;
         }
 
-        list(loadChecker());
+        list();
     }
 
-    private Checker loadChecker() {
-        Checker.Builder result = Checker.ofServiceLoader()
-                .toBuilder();
-        if (semver) {
-            result.rule(new SemverRule());
-        }
-        return result.build();
-    }
-
-    private void list(Checker checker) {
-        getLog().info("Rules: " + checker.getRules().stream().map(Rule::getId).collect(joining(", ")));
-        getLog().info("Formats: " + checker.getFormats().stream().map(Format::getId).collect(joining(", ")));
+    private void list() throws MojoExecutionException {
+        Heylogs heylogs = initHeylogs(semver);
+        log(appendable -> heylogs.formatResources(formatId, appendable, heylogs.getResources()), getLog()::info);
     }
 }

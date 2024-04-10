@@ -7,6 +7,34 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.8.0] - 2024-04-10
+
+This release adds rules for GitHub references and the ability to integrate Heylogs into an automated workflow thanks to json output.
+The commands have been refined to improve overall consistency.
+A major refactoring has also been done to allow for the next features.
+
+### Added
+
+- Add check on GitHub Pull Request links [#173](https://github.com/nbbrd/heylogs/issues/173)
+- Add check on GitHub mentions of people and teams [#157](https://github.com/nbbrd/heylogs/issues/157)
+- Add check on GitHub commit SHAs [#223](https://github.com/nbbrd/heylogs/issues/223)
+- Improve list command output [#231](https://github.com/nbbrd/heylogs/issues/231)
+- Add error severity to failures [#17](https://github.com/nbbrd/heylogs/issues/17)
+- Add json formatting [#118](https://github.com/nbbrd/heylogs/issues/118)
+- Add versioning extension point [#235](https://github.com/nbbrd/heylogs/issues/235)
+- Add forge extension point [#236](https://github.com/nbbrd/heylogs/issues/236)
+- Add basic rule check before scanning and extracting [#243](https://github.com/nbbrd/heylogs/issues/243)
+- Add scan for forge [#227](https://github.com/nbbrd/heylogs/issues/227)
+
+### Changed
+
+- Refactor API and SPI (breaking changes)
+- Set CHANGELOG.md as default value for input file in command line [#237](https://github.com/nbbrd/heylogs/issues/237)
+
+### Fixed
+
+- Fix scan of unreleased version [#228](https://github.com/nbbrd/heylogs/issues/228)
+
 ## [0.7.2] - 2023-11-10
 
 ### Changed
@@ -116,7 +144,8 @@ This release improves extension points and also aligns features of Maven plugin 
 
 - Initial release
 
-[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.7.2...HEAD
+[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/nbbrd/heylogs/compare/v0.7.2...v0.8.0
 [0.7.2]: https://github.com/nbbrd/heylogs/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/nbbrd/heylogs/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/nbbrd/heylogs/compare/v0.6.0...v0.7.0

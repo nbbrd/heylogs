@@ -1,26 +1,30 @@
 package nbbrd.heylogs.cli;
 
-import internal.heylogs.SemverRule;
+import internal.heylogs.cli.FormatOptions;
+import internal.heylogs.cli.HeylogsOptions;
 import internal.heylogs.cli.SpecialProperties;
-import nbbrd.heylogs.Checker;
-import nbbrd.heylogs.spi.Format;
-import nbbrd.heylogs.spi.Rule;
+import nbbrd.console.picocli.FileOutputOptions;
+import nbbrd.heylogs.Heylogs;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.concurrent.Callable;
 
-import static java.util.stream.Collectors.joining;
+import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
 
 @Command(name = "list", description = "List available resources.")
 public final class ListCommand implements Callable<Void> {
 
-    @CommandLine.Option(
-            names = {"-s", "--semver"},
-            defaultValue = "false",
-            description = "Mention if this changelog follows Semantic Versioning."
-    )
-    private boolean semver;
+    @CommandLine.Mixin
+    private FileOutputOptions output;
+
+    @CommandLine.Mixin
+    private HeylogsOptions heylogsOptions;
+
+    @CommandLine.Mixin
+    private FormatOptions formatOptions;
 
     @CommandLine.Option(
             names = {SpecialProperties.DEBUG_OPTION},
@@ -30,19 +34,11 @@ public final class ListCommand implements Callable<Void> {
     private boolean debug;
 
     @Override
-    public Void call() {
-        Checker checker = getChecker();
-        System.out.println("Rules: " + checker.getRules().stream().map(Rule::getId).collect(joining(", ")));
-        System.out.println("Formats: " + checker.getFormats().stream().map(Format::getId).collect(joining(", ")));
-        return null;
-    }
-
-    private Checker getChecker() {
-        Checker.Builder result = Checker.ofServiceLoader()
-                .toBuilder();
-        if (semver) {
-            result.rule(new SemverRule());
+    public Void call() throws IOException {
+        try (Writer writer = newTextOutputSupport().newBufferedWriter(output.getFile())) {
+            Heylogs heylogs = heylogsOptions.initHeylogs();
+            heylogs.formatResources(formatOptions.getFormatId(), writer, heylogs.getResources());
         }
-        return result.build();
+        return null;
     }
 }

@@ -1,18 +1,16 @@
 package nbbrd.heylogs.maven.plugin;
 
-import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.StylishFormat;
-import nbbrd.heylogs.Scanner;
-import nbbrd.heylogs.Status;
+import nbbrd.heylogs.Heylogs;
+import nbbrd.heylogs.Scan;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
+
+import static java.util.Collections.singletonList;
 
 @Mojo(name = "scan", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
 public final class ScanMojo extends HeylogsMojo {
@@ -34,7 +32,7 @@ public final class ScanMojo extends HeylogsMojo {
         }
 
         if (inputFile.exists()) {
-            scan(loadScanner());
+            scan();
         } else {
             if (isRootProject(projectBaseDir)) {
                 raiseErrorMissingChangelog();
@@ -44,26 +42,13 @@ public final class ScanMojo extends HeylogsMojo {
         }
     }
 
-    private Scanner loadScanner() {
-        return Scanner.ofServiceLoader()
-                .toBuilder()
-                .formatId(formatId)
+    private void scan() throws MojoExecutionException {
+        Heylogs heylogs = initHeylogs(false);
+        Scan scan = Scan
+                .builder()
+                .source(inputFile.toString())
+                .summary(heylogs.scan(readChangelog(inputFile)))
                 .build();
-    }
-
-    private void scan(Scanner scanner) throws MojoExecutionException {
-        Document changelog = readChangelog(inputFile);
-        Status status = scanner.scan(changelog);
-        writeStatus(status, scanner);
-    }
-
-    private void writeStatus(Status status, Scanner scanner) throws MojoExecutionException {
-        try {
-            StringBuilder text = new StringBuilder();
-            scanner.formatStatus(text, inputFile.toString(), status);
-            new BufferedReader(new StringReader(text.toString())).lines().forEach(getLog()::info);
-        } catch (IOException ex) {
-            throw new MojoExecutionException("Error while writing status", ex);
-        }
+        log(appendable -> heylogs.formatStatus(formatId, appendable, singletonList(scan)), getLog()::info);
     }
 }

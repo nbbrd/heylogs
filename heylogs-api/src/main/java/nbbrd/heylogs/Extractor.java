@@ -5,6 +5,7 @@ import com.vladsch.flexmark.ast.RefNode;
 import com.vladsch.flexmark.ast.Reference;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
+import internal.heylogs.GuidingPrinciples;
 import lombok.NonNull;
 
 import java.time.LocalDate;
@@ -13,6 +14,8 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import static java.util.Arrays.asList;
 
 @lombok.Value
 @lombok.Builder(toBuilder = true)
@@ -54,7 +57,11 @@ public class Extractor {
         return contains(Version.parse(heading));
     }
 
-    public void extract(@NonNull Document root) {
+    public void extract(@NonNull Document root) throws IllegalArgumentException {
+        if (Heylogs.getProblemStream(root, asList(GuidingPrinciples.values())).findFirst().isPresent()) {
+            throw new IllegalArgumentException("Invalid changelog");
+        }
+
         int found = 0;
         boolean keep = false;
 

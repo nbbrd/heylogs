@@ -1,28 +1,28 @@
 package internal.heylogs;
 
 import com.vladsch.flexmark.ast.Heading;
-import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.ast.LinkNodeBase;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
 import lombok.NonNull;
+import nbbrd.design.DirectImpl;
 import nbbrd.design.MightBeGenerated;
 import nbbrd.design.VisibleForTesting;
-import nbbrd.heylogs.Failure;
 import nbbrd.heylogs.Nodes;
 import nbbrd.heylogs.Util;
 import nbbrd.heylogs.Version;
 import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleBatch;
-import nbbrd.io.text.Parser;
+import nbbrd.heylogs.spi.RuleIssue;
+import nbbrd.heylogs.spi.RuleSeverity;
 import nbbrd.service.ServiceProvider;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.net.URL;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Stream;
 
+import static internal.heylogs.RuleSupport.linkToURL;
+import static internal.heylogs.RuleSupport.nameToId;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static nbbrd.heylogs.Util.illegalArgumentToNull;
@@ -31,91 +31,61 @@ public enum ExtendedRules implements Rule {
 
     HTTPS {
         @Override
-        public Failure validate(@NonNull Node node) {
-            return node instanceof LinkNodeBase ? validateHttps((LinkNodeBase) node) : NO_PROBLEM;
+        public RuleIssue getRuleIssueOrNull(@NonNull Node node) {
+            return node instanceof LinkNodeBase ? validateHttps((LinkNodeBase) node) : NO_RULE_ISSUE;
         }
-    },
-    GITHUB_ISSUE_REF {
+
         @Override
-        public Failure validate(@NonNull Node node) {
-            return node instanceof Link ? validateGitHubIssueRef((Link) node) : NO_PROBLEM;
+        public @NonNull String getRuleName() {
+            return "HTTPS";
         }
     },
     CONSISTENT_SEPARATOR {
         @Override
-        public @Nullable Failure validate(@NonNull Node node) {
-            return node instanceof Document ? validateConsistentSeparator((Document) node) : NO_PROBLEM;
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node) {
+            return node instanceof Document ? validateConsistentSeparator((Document) node) : NO_RULE_ISSUE;
+        }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "Consistent separator";
         }
     };
 
     @Override
-    public @NonNull String getId() {
-        return name().toLowerCase(Locale.ROOT).replace('_', '-');
+    public @NonNull String getRuleId() {
+        return nameToId(this);
     }
 
     @Override
-    public boolean isAvailable() {
+    public @NonNull String getRuleCategory() {
+        return "extension";
+    }
+
+    @Override
+    public boolean isRuleAvailable() {
         return true;
     }
 
+    @Override
+    public @NonNull RuleSeverity getRuleSeverity() {
+        return RuleSeverity.ERROR;
+    }
+
     @VisibleForTesting
-    static Failure validateHttps(LinkNodeBase link) {
-        return Parser
-                .onURL()
-                .parseValue(link.getUrl())
+    static RuleIssue validateHttps(LinkNodeBase link) {
+        return linkToURL(link)
                 .filter(url -> !url.getProtocol().equals("https"))
-                .map(ignore -> Failure
+                .map(ignore -> RuleIssue
                         .builder()
-                        .rule(HTTPS)
                         .message("Expecting HTTPS protocol")
                         .location(link)
                         .build())
-                .orElse(NO_PROBLEM);
+                .orElse(NO_RULE_ISSUE);
     }
 
     @VisibleForTesting
-    static Failure validateGitHubIssueRef(Link link) {
-        int expected = getGitHubIssueRefFromURL(link);
-        int found = getGitHubIssueRefFromText(link);
-        return expected != NO_ISSUE_REF && found != NO_ISSUE_REF && expected != found
-                ? Failure
-                .builder()
-                .rule(GITHUB_ISSUE_REF)
-                .message("Expecting GitHub issue ref " + expected + ", found " + found)
-                .location(link)
-                .build()
-                : NO_PROBLEM;
-    }
-
-    private static int getGitHubIssueRefFromURL(Link link) {
-        URL url = Parser.onURL().parse(link.getUrl());
-        if (url != null && url.getHost().equals("github.com")) {
-            int index = url.getPath().indexOf("/issues/");
-            if (index != -1) {
-                return Parser
-                        .onInteger()
-                        .parseValue(url.getPath().substring(index + 8))
-                        .orElse(NO_ISSUE_REF);
-            }
-        }
-        return NO_ISSUE_REF;
-    }
-
-    private static int getGitHubIssueRefFromText(Link link) {
-        String text = link.getText().toString();
-        if (text.startsWith("#")) {
-            return Parser
-                    .onInteger()
-                    .parseValue(text.substring(1))
-                    .orElse(NO_ISSUE_REF);
-        }
-        return NO_ISSUE_REF;
-    }
-
-    private static final int NO_ISSUE_REF = -1;
-
-    @VisibleForTesting
-    static Failure validateConsistentSeparator(Document doc) {
+    static RuleIssue validateConsistentSeparator(Document doc) {
         List<Character> separators = Nodes.of(Heading.class)
                 .descendants(doc)
                 .filter(Version::isVersionLevel)
@@ -126,21 +96,22 @@ public enum ExtendedRules implements Rule {
                 .collect(toList());
 
         return separators.size() > 1
-                ? Failure
+                ? RuleIssue
                 .builder()
-                .rule(CONSISTENT_SEPARATOR)
                 .message("Expecting consistent version-date separator " + Util.toUnicode(separators.get(0)) + ", found " + separators.stream().map(Util::toUnicode).collect(joining(", ", "[", "]")))
                 .location(doc)
                 .build()
-                : NO_PROBLEM;
+                : NO_RULE_ISSUE;
     }
 
+    @SuppressWarnings("unused")
+    @DirectImpl
     @MightBeGenerated
     @ServiceProvider
     public static final class Batch implements RuleBatch {
 
         @Override
-        public Stream<Rule> getProviders() {
+        public @NonNull Stream<Rule> getProviders() {
             return Stream.of(ExtendedRules.values());
         }
     }

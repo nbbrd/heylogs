@@ -1,0 +1,17 @@
+[
+  {
+    "filePath": "source2",
+    "summary": {
+      "valid": true,
+      "releaseCount": 3,
+      "timeRange": {
+        "from": "2010-01-01",
+        "to": "2011-01-01"
+      },
+      "compatibilities": [
+        "Strange Versioning"
+      ],
+      "unreleasedChanges": 3
+    }
+  }
+]

@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.github.nbbrd.heylogs</groupId>
         <artifactId>heylogs-parent</artifactId>
-        <version>0.7.2</version>
+        <version>0.8.0</version>
     </parent>
 
     <artifactId>heylogs-bom</artifactId>
@@ -42,7 +42,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
-                <version>1.5.0</version>
+                <version>1.6.0</version>
                 <configuration>
                     <flattenMode>bom</flattenMode>
                     <outputDirectory>${project.build.directory}</outputDirectory>
@@ -94,7 +94,6 @@
                     <plugin>
                         <groupId>org.jreleaser</groupId>
                         <artifactId>jreleaser-maven-plugin</artifactId>
-                        <version>1.9.0</version>
                         <executions>
                             <execution>
                                 <id>release-assets</id>
@@ -134,7 +133,7 @@
                                                     </artifact>
                                                 </artifacts>
                                                 <java>
-                                                    <mainClass>nbbrd.heylogs.cli.HeylogsCommand</mainClass>
+                                                    <mainClass>nbbrd.heylogs.cli.MainCommand</mainClass>
                                                     <artifactId>heylogs-cli</artifactId>
                                                     <version>8</version>
                                                 </java>

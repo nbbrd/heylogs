@@ -2,7 +2,6 @@ package nbbrd.heylogs.spi;
 
 import com.vladsch.flexmark.util.ast.Node;
 import lombok.NonNull;
-import nbbrd.heylogs.Failure;
 import nbbrd.service.Quantifier;
 import nbbrd.service.ServiceDefinition;
 import nbbrd.service.ServiceFilter;
@@ -14,19 +13,25 @@ import java.util.Properties;
 
 @ServiceDefinition(
         quantifier = Quantifier.MULTIPLE,
-        batch = true
+        batchType = RuleBatch.class
 )
 public interface Rule {
 
-    @ServiceId
-    @NonNull String getId();
+    @ServiceId(pattern = ServiceId.KEBAB_CASE)
+    @NonNull String getRuleId();
+
+    @NonNull String getRuleName();
+
+    @NonNull String getRuleCategory();
 
     @ServiceFilter
-    boolean isAvailable();
+    boolean isRuleAvailable();
 
-    @Nullable Failure validate(@NonNull Node node);
+    @NonNull RuleSeverity getRuleSeverity();
 
-    Failure NO_PROBLEM = null;
+    @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node);
+
+    RuleIssue NO_RULE_ISSUE = null;
 
     String ENABLE_KEY = "heylogs.rule.enable";
 

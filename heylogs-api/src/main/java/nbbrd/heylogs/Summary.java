@@ -1,8 +1,13 @@
 package nbbrd.heylogs;
 
+import java.net.URL;
+import java.util.List;
+
 @lombok.Value
 @lombok.Builder
-public class Status {
+public class Summary {
+
+    boolean valid;
 
     @lombok.Builder.Default
     int releaseCount = 0;
@@ -10,12 +15,15 @@ public class Status {
     @lombok.Builder.Default
     TimeRange timeRange = TimeRange.ALL;
 
-    @lombok.Builder.Default
-    boolean compatibleWithSemver = false;
+    @lombok.Singular
+    List<String> compatibilities;
 
     @lombok.Builder.Default
-    String semverDetails = "";
+    int unreleasedChanges = 0;
 
     @lombok.Builder.Default
-    boolean hasUnreleasedSection = false;
+    String forgeName = null;
+
+    @lombok.Builder.Default
+    URL forgeURL = null;
 }

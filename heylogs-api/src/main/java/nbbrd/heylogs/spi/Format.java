@@ -1,25 +1,35 @@
 package nbbrd.heylogs.spi;
 
 import lombok.NonNull;
-import nbbrd.heylogs.Failure;
-import nbbrd.heylogs.Status;
+import nbbrd.heylogs.Resource;
+import nbbrd.heylogs.Check;
+import nbbrd.heylogs.Scan;
 import nbbrd.service.Quantifier;
 import nbbrd.service.ServiceDefinition;
 import nbbrd.service.ServiceId;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 @ServiceDefinition(
         quantifier = Quantifier.MULTIPLE,
-        batch = true
+        batchType = FormatBatch.class
 )
 public interface Format {
 
-    @ServiceId
-    @NonNull String getId();
+    @ServiceId(pattern = ServiceId.KEBAB_CASE)
+    @NonNull String getFormatId();
 
-    void formatFailures(@NonNull Appendable appendable, @NonNull String source, @NonNull List<Failure> failures) throws IOException;
+    @NonNull String getFormatName();
 
-    void formatStatus(@NonNull Appendable appendable, @NonNull String source, @NonNull Status status) throws IOException;
+    @NonNull String getFormatCategory();
+
+    @NonNull Set<FormatType> getSupportedFormatTypes();
+
+    void formatProblems(@NonNull Appendable appendable, @NonNull List<Check> list) throws IOException;
+
+    void formatStatus(@NonNull Appendable appendable, @NonNull List<Scan> list) throws IOException;
+
+    void formatResources(@NonNull Appendable appendable, @NonNull List<Resource> list) throws IOException;
 }

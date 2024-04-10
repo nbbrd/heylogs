@@ -1,22 +1,18 @@
 package nbbrd.heylogs.maven.plugin;
 
-import com.vladsch.flexmark.util.ast.Document;
-import internal.heylogs.SemverRule;
 import internal.heylogs.StylishFormat;
-import nbbrd.heylogs.Checker;
-import nbbrd.heylogs.Failure;
+import internal.heylogs.semver.SemVer;
+import nbbrd.heylogs.Check;
+import nbbrd.heylogs.Heylogs;
+import nbbrd.heylogs.spi.Versioning;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.semver4j.Semver;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.List;
 
+import static java.util.Collections.singletonList;
 import static java.util.Locale.ROOT;
 
 @Mojo(name = "check", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
@@ -45,11 +41,11 @@ public final class CheckMojo extends HeylogsMojo {
         }
 
         if (semver) {
-            checkSemanticVersioning();
+            checkVersioning(new SemVer());
         }
 
         if (inputFile.exists()) {
-            check(loadChecker());
+            check();
         } else {
             if (isRootProject(projectBaseDir)) {
                 raiseErrorMissingChangelog();
@@ -59,42 +55,26 @@ public final class CheckMojo extends HeylogsMojo {
         }
     }
 
-    private void checkSemanticVersioning() throws MojoExecutionException {
-        getLog().info("Using Semantic Versioning specification");
-        if (Semver.isValid(projectVersion)) {
+    private void checkVersioning(Versioning versioning) throws MojoExecutionException {
+        getLog().info("Using " + versioning.getVersioningName() + " (" + versioning.getVersioningId() + ")");
+        if (versioning.isValidVersion(projectVersion)) {
             getLog().info("Valid project version");
         } else {
-            getLog().error(String.format(ROOT, "Invalid project version: '%s' must follow Semantic Versioning specification (https://semver.org/)", projectVersion));
+            getLog().error(String.format(ROOT, "Invalid project version: '%s' must follow %s", projectVersion, versioning.getVersioningName()));
             throw new MojoExecutionException("Invalid project version. See above for details.");
         }
     }
 
-    private Checker loadChecker() {
-        Checker.Builder result = Checker.ofServiceLoader()
-                .toBuilder()
-                .formatId(formatId);
-        if (semver) {
-            result.rule(new SemverRule());
-        }
-        return result.build();
-    }
-
-    private void check(Checker checker) throws MojoExecutionException {
-        Document changelog = readChangelog(inputFile);
-        List<Failure> failures = checker.validate(changelog);
-        writeFailures(checker, failures);
-        if (!failures.isEmpty()) {
+    private void check() throws MojoExecutionException {
+        Heylogs heylogs = initHeylogs(semver);
+        Check check = Check
+                .builder()
+                .source(inputFile.toString())
+                .problems(heylogs.validate(readChangelog(inputFile)))
+                .build();
+        log(text -> heylogs.formatProblems(formatId, text, singletonList(check)), check.hasErrors() ? getLog()::error : getLog()::info);
+        if (check.hasErrors()) {
             throw new MojoExecutionException("Invalid changelog");
-        }
-    }
-
-    private void writeFailures(Checker checker, List<Failure> failures) throws MojoExecutionException {
-        try {
-            StringBuilder text = new StringBuilder();
-            checker.formatFailures(text, inputFile.toString(), failures);
-            new BufferedReader(new StringReader(text.toString())).lines().forEach(!failures.isEmpty() ? getLog()::error : getLog()::info);
-        } catch (IOException ex) {
-            throw new MojoExecutionException("Error while writing failures", ex);
         }
     }
 }

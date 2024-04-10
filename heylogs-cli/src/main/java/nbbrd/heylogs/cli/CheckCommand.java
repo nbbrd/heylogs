@@ -1,19 +1,15 @@
 package nbbrd.heylogs.cli;
 
-import internal.heylogs.SemverRule;
-import internal.heylogs.StylishFormat;
-import internal.heylogs.cli.FormatCandidates;
-import internal.heylogs.cli.MarkdownInputSupport;
-import internal.heylogs.cli.SpecialProperties;
+import internal.heylogs.cli.*;
 import nbbrd.console.picocli.FileOutputOptions;
-import nbbrd.console.picocli.MultiFileInputOptions;
-import nbbrd.heylogs.Checker;
-import nbbrd.heylogs.Failure;
+import nbbrd.heylogs.Check;
+import nbbrd.heylogs.Heylogs;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 import java.io.Writer;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -24,26 +20,16 @@ import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
 public final class CheckCommand implements Callable<Integer> {
 
     @CommandLine.Mixin
-    private MultiFileInputOptions input;
+    private MultiChangelogInputOptions input;
 
     @CommandLine.Mixin
     private FileOutputOptions output;
 
-    @CommandLine.Option(
-            names = {"-s", "--semver"},
-            defaultValue = "false",
-            description = "Mention if this changelog follows Semantic Versioning."
-    )
-    private boolean semver;
+    @CommandLine.Mixin
+    private HeylogsOptions heylogsOptions;
 
-    @CommandLine.Option(
-            names = {"-f", "--format"},
-            paramLabel = "<name>",
-            defaultValue = StylishFormat.ID,
-            description = "Specify the format used to control the appearance of the result. Valid values: ${COMPLETION-CANDIDATES}.",
-            completionCandidates = FormatCandidates.class
-    )
-    private String formatId;
+    @CommandLine.Mixin
+    private FormatOptions formatOptions;
 
     @CommandLine.Option(
             names = {SpecialProperties.DEBUG_OPTION},
@@ -56,26 +42,19 @@ public final class CheckCommand implements Callable<Integer> {
     public Integer call() throws Exception {
         try (Writer writer = newTextOutputSupport().newBufferedWriter(output.getFile())) {
 
-            Checker checker = getChecker();
+            Heylogs heylogs = heylogsOptions.initHeylogs();
             MarkdownInputSupport markdown = newMarkdownInputSupport();
 
-            int failureCount = 0;
+            List<Check> list = new ArrayList<>();
             for (Path file : input.getAllFiles(markdown::accept)) {
-                List<Failure> failures = checker.validate(markdown.readDocument(file));
-                checker.formatFailures(writer, markdown.getName(file), failures);
-                failureCount += failures.size();
+                list.add(Check
+                        .builder()
+                        .source(markdown.getName(file))
+                        .problems(heylogs.validate(markdown.readDocument(file)))
+                        .build());
             }
-            return failureCount;
+            heylogs.formatProblems(formatOptions.getFormatId(), writer, list);
+            return list.stream().anyMatch(Check::hasErrors) ? CommandLine.ExitCode.SOFTWARE : CommandLine.ExitCode.OK;
         }
-    }
-
-    private Checker getChecker() {
-        Checker.Builder result = Checker.ofServiceLoader()
-                .toBuilder()
-                .formatId(formatId);
-        if (semver) {
-            result.rule(new SemverRule());
-        }
-        return result.build();
     }
 }

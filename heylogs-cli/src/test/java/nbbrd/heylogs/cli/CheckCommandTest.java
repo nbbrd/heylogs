@@ -20,7 +20,7 @@ public class CheckCommandTest {
         CommandLine cmd = new CommandLine(new CheckCommand());
         CommandWatcher watcher = CommandWatcher.on(cmd);
 
-        assertThat(cmd.execute()).isEqualTo(CommandLine.ExitCode.USAGE);
+        assertThat(cmd.execute("--help")).isEqualTo(CommandLine.ExitCode.USAGE);
         assertThat(watcher.getOut()).isEmpty();
         assertThat(watcher.getErr()).isNotEmpty();
     }
@@ -31,9 +31,9 @@ public class CheckCommandTest {
         CommandWatcher watcher = CommandWatcher.on(cmd);
 
         Path src = temp.resolve("src.md");
-        Path out = temp.resolve("out.txt");
-
         Files.write(src, singletonList("# Changelog"));
+
+        Path out = temp.resolve("out.txt");
 
         assertThat(cmd.execute(src.toString(), "-o", out.toString()))
                 .isEqualTo(CommandLine.ExitCode.OK);
@@ -51,9 +51,9 @@ public class CheckCommandTest {
         CommandWatcher watcher = CommandWatcher.on(cmd);
 
         Path src = temp.resolve("src.md");
-        Path out = temp.resolve("out.txt");
-
         Files.write(src, singletonList("Changelog"));
+
+        Path out = temp.resolve("out.txt");
 
         assertThat(cmd.execute(src.toString(), "-o", out.toString()))
                 .isEqualTo(CommandLine.ExitCode.SOFTWARE);

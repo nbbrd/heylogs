@@ -11,7 +11,7 @@ public final class FormatCandidates implements Iterable<String> {
     public Iterator<String> iterator() {
         return FormatLoader.load()
                 .stream()
-                .map(Format::getId)
+                .map(Format::getFormatId)
                 .iterator();
     }
 }

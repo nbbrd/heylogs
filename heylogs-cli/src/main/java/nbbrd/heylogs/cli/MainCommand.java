@@ -14,7 +14,7 @@ import java.util.concurrent.Callable;
 
 @Command(
         name = About.NAME,
-        versionProvider = HeylogsCommand.ManifestVersionProvider.class,
+        versionProvider = MainCommand.ManifestVersionProvider.class,
         scope = CommandLine.ScopeType.INHERIT,
         sortOptions = false,
         mixinStandardHelpOptions = true,
@@ -34,7 +34,7 @@ import java.util.concurrent.Callable;
                 "%nMore info at https://github.com/nbbrd/heylogs"
         }
 )
-public final class HeylogsCommand implements Callable<Void> {
+public final class MainCommand implements Callable<Void> {
 
     public static void main(String[] args) {
         SpecialProperties specialProperties = SpecialProperties.parse(args);
@@ -52,10 +52,10 @@ public final class HeylogsCommand implements Callable<Void> {
         specialProperties.apply(System.getProperties());
 
         try (AnsiConsole ignore = AnsiConsole.windowsInstall()) {
-            CommandLine cmd = new CommandLine(new HeylogsCommand());
+            CommandLine cmd = new CommandLine(new MainCommand());
             cmd.setCaseInsensitiveEnumValuesAllowed(true);
             cmd.setDefaultValueProvider(new CommandLine.PropertiesDefaultProvider(properties));
-            cmd.setExecutionExceptionHandler(new PrintAndLogExceptionHandler(HeylogsCommand.class, specialProperties.isDebugRequired()));
+            cmd.setExecutionExceptionHandler(new PrintAndLogExceptionHandler(MainCommand.class, specialProperties.isDebugRequired()));
             return cmd.execute(args);
         }
     }
