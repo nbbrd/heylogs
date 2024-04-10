@@ -7,6 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.8.0] - 2024-04-10
+
+This release adds rules for GitHub references and the ability to integrate Heylogs into an automated workflow thanks to json output.
+The commands have been refined to improve overall consistency.
+A major refactoring has also been done to allow for the next features.
+
 ### Added
 
 - Add check on GitHub Pull Request links [#173](https://github.com/nbbrd/heylogs/issues/173)
@@ -138,7 +144,8 @@ This release improves extension points and also aligns features of Maven plugin 
 
 - Initial release
 
-[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.7.2...HEAD
+[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/nbbrd/heylogs/compare/v0.7.2...v0.8.0
 [0.7.2]: https://github.com/nbbrd/heylogs/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/nbbrd/heylogs/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/nbbrd/heylogs/compare/v0.6.0...v0.7.0
