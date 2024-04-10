@@ -40,9 +40,12 @@ It provides the following commands:
 
 It follows the Unix philosophy of [“Do one thing and do it well“](https://en.wikipedia.org/wiki/Unix_philosophy#Do_One_Thing_and_Do_It_Well) by performing a single function and beeing composable.
 
-Composition example (download and scan a changelog):
+Composition example:  
+1. download a changelog (`curl`)
+2. summarize its content as json (`heylogs`)
+3. colorize the output (`bat`).
 ```bash
-curl -s https://raw.githubusercontent.com/olivierlacan/keep-a-changelog/main/CHANGELOG.md | heylogs scan -
+curl -s https://raw.githubusercontent.com/olivierlacan/keep-a-changelog/main/CHANGELOG.md | heylogs scan - -f json | bat -l json
 ```
 
 ### Using in a GitHub action
