@@ -11,6 +11,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Fix NoSuchFileException when output parent directories are nonexistent [#342](https://github.com/nbbrd/java-console-properties/issues/342)
 - Fix file ordering in MultiFileInput [#343](https://github.com/nbbrd/java-console-properties/issues/343)
+- Fix forge URL in summary [#248](https://github.com/nbbrd/heylogs/issues/248)
 
 ## [0.8.0] - 2024-04-10
 

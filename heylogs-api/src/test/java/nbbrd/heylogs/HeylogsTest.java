@@ -93,7 +93,7 @@ public class HeylogsTest {
                         .compatibility("Semantic Versioning")
                         .unreleasedChanges(2)
                         .forgeName("GitHub")
-                        .forgeURL(urlOf("https://github.com"))
+                        .forgeURL(urlOf("https://github.com/olivierlacan/keep-a-changelog"))
                         .build()
                 );
 
@@ -105,7 +105,7 @@ public class HeylogsTest {
                         .timeRange(TimeRange.of(LocalDate.of(2019, 2, 15), LocalDate.of(2019, 2, 15)))
                         .unreleasedChanges(0)
                         .forgeName("GitHub")
-                        .forgeURL(urlOf("https://github.com"))
+                        .forgeURL(urlOf("https://github.com/olivierlacan/keep-a-changelog"))
                         .build()
                 );
 

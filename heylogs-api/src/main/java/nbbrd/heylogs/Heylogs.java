@@ -15,6 +15,7 @@ import nbbrd.design.VisibleForTesting;
 import nbbrd.heylogs.spi.*;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -142,7 +143,7 @@ public class Heylogs {
                 .orElse(0L);
 
         Optional<String> forgeURL = getLatestVersionURL(document);
-        Optional<String> forgeName = forgeURL.flatMap(this::getForgeName);
+        Forge forgeOrNull = forgeURL.flatMap(this::getForge).orElse(null);
 
         return Summary
                 .builder()
@@ -151,13 +152,17 @@ public class Heylogs {
                 .timeRange(releases.stream().map(Version::getDate).collect(toTimeRange()).orElse(TimeRange.ALL))
                 .compatibilities(getCompatibilities(releases))
                 .unreleasedChanges((int) unreleasedChanges)
-                .forgeName(forgeName.orElse(null))
-                .forgeURL(forgeURL.map(URLExtractor::urlOf).map(URLExtractor::baseOf).orElse(null))
+                .forgeName(forgeOrNull != null ? forgeOrNull.getForgeName() : null)
+                .forgeURL(forgeURL.map(x -> getBaseURL(forgeOrNull, x)).orElse(null))
                 .build();
     }
 
-    private Optional<String> getForgeName(String url) {
-        return forges.stream().filter(forge -> forge.isCompareLink(url)).map(Forge::getForgeName).findFirst();
+    private URL getBaseURL(Forge forgeOrNull, CharSequence url) {
+        return forgeOrNull != null ? forgeOrNull.getBaseURL(url) : URLExtractor.baseOf(URLExtractor.urlOf(url));
+    }
+
+    private Optional<Forge> getForge(String url) {
+        return forges.stream().filter(forge -> forge.isCompareLink(url)).findFirst();
     }
 
     private static Optional<String> getLatestVersionURL(Node document) {
