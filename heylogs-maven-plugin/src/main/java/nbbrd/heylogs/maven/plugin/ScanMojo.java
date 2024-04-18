@@ -1,5 +1,6 @@
 package nbbrd.heylogs.maven.plugin;
 
+import internal.heylogs.StylishFormat;
 import nbbrd.heylogs.Heylogs;
 import nbbrd.heylogs.Scan;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -14,16 +15,16 @@ import java.io.Writer;
 import static internal.heylogs.maven.plugin.HeylogsParameters.*;
 import static java.util.Collections.singletonList;
 
-@Mojo(name = "scan", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
+@Mojo(name = "scan", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true, requiresProject = false)
 public final class ScanMojo extends HeylogsMojo {
 
-    @Parameter(defaultValue = DEFAULT_INPUT_FILE, property = INPUT_FILE_PROPERTY)
+    @Parameter(defaultValue = WORKING_DIR_CHANGELOG, property = INPUT_FILE_PROPERTY)
     private File inputFile;
 
-    @Parameter(defaultValue = DEFAULT_OUTPUT_FILE, property = OUTPUT_FILE_PROPERTY)
+    @Parameter(defaultValue = MOJO_LOG_FILE, property = OUTPUT_FILE_PROPERTY)
     private File outputFile;
 
-    @Parameter(defaultValue = DEFAULT_FORMAT_ID, property = FORMAT_ID_PROPERTY)
+    @Parameter(defaultValue = StylishFormat.ID, property = FORMAT_ID_PROPERTY)
     private String formatId;
 
     @Override
@@ -36,7 +37,7 @@ public final class ScanMojo extends HeylogsMojo {
         if (inputFile.exists()) {
             scan();
         } else {
-            if (isRootProject(projectBaseDir)) {
+            if (isRootProject()) {
                 raiseErrorMissingChangelog();
             } else {
                 notifyMissingChangelog();

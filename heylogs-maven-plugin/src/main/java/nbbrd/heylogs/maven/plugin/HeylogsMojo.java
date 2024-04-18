@@ -23,10 +23,14 @@ abstract class HeylogsMojo extends AbstractMojo {
     protected boolean skip;
 
     @Parameter(defaultValue = "${project.version}", readonly = true)
-    protected String projectVersion;
+    private String projectVersion;
 
     @Parameter(defaultValue = "${project.basedir}", readonly = true)
-    protected File projectBaseDir;
+    private File projectBaseDir;
+
+    protected String getProjectVersionOrNull() {
+        return projectVersion;
+    }
 
     protected void raiseErrorMissingChangelog() throws MojoExecutionException {
         getLog().error("Missing changelog");
@@ -60,7 +64,10 @@ abstract class HeylogsMojo extends AbstractMojo {
         }
     }
 
-    protected static boolean isRootProject(File projectBaseDir) {
+    protected boolean isRootProject() {
+        if (projectBaseDir == null) {
+            return true;
+        }
         File parentDir = projectBaseDir.getParentFile();
         if (parentDir != null) {
             File parentPom = new File(parentDir, "pom.xml");

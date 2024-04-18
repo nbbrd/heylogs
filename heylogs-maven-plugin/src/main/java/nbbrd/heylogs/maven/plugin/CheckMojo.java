@@ -1,5 +1,6 @@
 package nbbrd.heylogs.maven.plugin;
 
+import internal.heylogs.StylishFormat;
 import internal.heylogs.semver.SemVer;
 import nbbrd.heylogs.Check;
 import nbbrd.heylogs.Heylogs;
@@ -17,19 +18,19 @@ import static internal.heylogs.maven.plugin.HeylogsParameters.*;
 import static java.util.Collections.singletonList;
 import static java.util.Locale.ROOT;
 
-@Mojo(name = "check", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
+@Mojo(name = "check", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true, requiresProject = false)
 public final class CheckMojo extends HeylogsMojo {
 
-    @Parameter(defaultValue = DEFAULT_INPUT_FILE, property = INPUT_FILE_PROPERTY)
+    @Parameter(defaultValue = WORKING_DIR_CHANGELOG, property = INPUT_FILE_PROPERTY)
     private File inputFile;
 
-    @Parameter(defaultValue = DEFAULT_OUTPUT_FILE, property = OUTPUT_FILE_PROPERTY)
+    @Parameter(defaultValue = MOJO_LOG_FILE, property = OUTPUT_FILE_PROPERTY)
     private File outputFile;
 
     @Parameter(defaultValue = "false", property = "heylogs.semver")
     private boolean semver;
 
-    @Parameter(defaultValue = DEFAULT_FORMAT_ID, property = FORMAT_ID_PROPERTY)
+    @Parameter(defaultValue = StylishFormat.ID, property = FORMAT_ID_PROPERTY)
     private String formatId;
 
     @Override
@@ -40,13 +41,13 @@ public final class CheckMojo extends HeylogsMojo {
         }
 
         if (semver) {
-            checkVersioning(new SemVer());
+            checkVersioning(new SemVer(), getProjectVersionOrNull());
         }
 
         if (inputFile.exists()) {
             check();
         } else {
-            if (isRootProject(projectBaseDir)) {
+            if (isRootProject()) {
                 raiseErrorMissingChangelog();
             } else {
                 notifyMissingChangelog();
@@ -54,9 +55,11 @@ public final class CheckMojo extends HeylogsMojo {
         }
     }
 
-    private void checkVersioning(Versioning versioning) throws MojoExecutionException {
+    private void checkVersioning(Versioning versioning, String projectVersion) throws MojoExecutionException {
         getLog().info("Using " + versioning.getVersioningName() + " (" + versioning.getVersioningId() + ")");
-        if (versioning.isValidVersion(projectVersion)) {
+        if (projectVersion == null) {
+            getLog().warn("Cannot find project version");
+        } else if (versioning.isValidVersion(projectVersion)) {
             getLog().info("Valid project version");
         } else {
             getLog().error(String.format(ROOT, "Invalid project version: '%s' must follow %s", projectVersion, versioning.getVersioningName()));

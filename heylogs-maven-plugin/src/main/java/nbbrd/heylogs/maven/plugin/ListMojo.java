@@ -1,5 +1,6 @@
 package nbbrd.heylogs.maven.plugin;
 
+import internal.heylogs.StylishFormat;
 import nbbrd.heylogs.Heylogs;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -12,16 +13,16 @@ import java.io.Writer;
 
 import static internal.heylogs.maven.plugin.HeylogsParameters.*;
 
-@Mojo(name = "list", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
+@Mojo(name = "list", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true, requiresProject = false)
 public final class ListMojo extends HeylogsMojo {
 
-    @Parameter(defaultValue = DEFAULT_OUTPUT_FILE, property = OUTPUT_FILE_PROPERTY)
+    @Parameter(defaultValue = MOJO_LOG_FILE, property = OUTPUT_FILE_PROPERTY)
     private File outputFile;
 
     @Parameter(defaultValue = "false", property = "heylogs.semver")
     private boolean semver;
 
-    @Parameter(defaultValue = DEFAULT_FORMAT_ID, property = FORMAT_ID_PROPERTY)
+    @Parameter(defaultValue = StylishFormat.ID, property = FORMAT_ID_PROPERTY)
     private String formatId;
 
     @Override

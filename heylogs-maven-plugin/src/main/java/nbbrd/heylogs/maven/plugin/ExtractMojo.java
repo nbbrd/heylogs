@@ -15,10 +15,10 @@ import static internal.heylogs.maven.plugin.HeylogsParameters.*;
 import static internal.heylogs.maven.plugin.MojoFunction.onLocalDate;
 import static internal.heylogs.maven.plugin.MojoFunction.onPattern;
 
-@Mojo(name = "extract", defaultPhase = LifecyclePhase.GENERATE_RESOURCES, threadSafe = true)
+@Mojo(name = "extract", defaultPhase = LifecyclePhase.GENERATE_RESOURCES, threadSafe = true, requiresProject = false)
 public final class ExtractMojo extends HeylogsMojo {
 
-    @Parameter(defaultValue = DEFAULT_INPUT_FILE, property = INPUT_FILE_PROPERTY)
+    @Parameter(defaultValue = WORKING_DIR_CHANGELOG, property = INPUT_FILE_PROPERTY)
     private File inputFile;
 
     @Parameter(defaultValue = "${project.build.directory}/CHANGELOG.md", property = OUTPUT_FILE_PROPERTY)
