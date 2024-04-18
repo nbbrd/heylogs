@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.8.1] - 2024-04-18
+
 ### Fixed
 
 - Fix NoSuchFileException when output parent directories are nonexistent [#342](https://github.com/nbbrd/java-console-properties/issues/342)
@@ -152,7 +154,8 @@ This release improves extension points and also aligns features of Maven plugin 
 
 - Initial release
 
-[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.8.1...HEAD
+[0.8.1]: https://github.com/nbbrd/heylogs/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/nbbrd/heylogs/compare/v0.7.2...v0.8.0
 [0.7.2]: https://github.com/nbbrd/heylogs/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/nbbrd/heylogs/compare/v0.7.0...v0.7.1
