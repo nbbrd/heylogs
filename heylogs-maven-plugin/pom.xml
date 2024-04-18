@@ -59,6 +59,10 @@
             <groupId>${project.groupId}</groupId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.nbbrd.java-console-properties</groupId>
+            <artifactId>java-console-properties</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

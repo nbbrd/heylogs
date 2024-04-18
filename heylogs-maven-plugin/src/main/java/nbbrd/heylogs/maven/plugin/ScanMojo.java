@@ -1,6 +1,5 @@
 package nbbrd.heylogs.maven.plugin;
 
-import internal.heylogs.StylishFormat;
 import nbbrd.heylogs.Heylogs;
 import nbbrd.heylogs.Scan;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -9,20 +8,23 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.Writer;
 
+import static internal.heylogs.maven.plugin.HeylogsParameters.*;
 import static java.util.Collections.singletonList;
 
 @Mojo(name = "scan", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
 public final class ScanMojo extends HeylogsMojo {
 
-    @Parameter(defaultValue = "${project.basedir}/CHANGELOG.md", property = "heylogs.input.file")
+    @Parameter(defaultValue = DEFAULT_INPUT_FILE, property = INPUT_FILE_PROPERTY)
     private File inputFile;
 
-    @Parameter(defaultValue = StylishFormat.ID, property = "heylogs.format.id")
-    private String formatId;
+    @Parameter(defaultValue = DEFAULT_OUTPUT_FILE, property = OUTPUT_FILE_PROPERTY)
+    private File outputFile;
 
-    @Parameter(defaultValue = "${project.basedir}", readonly = true)
-    private File projectBaseDir;
+    @Parameter(defaultValue = DEFAULT_FORMAT_ID, property = FORMAT_ID_PROPERTY)
+    private String formatId;
 
     @Override
     public void execute() throws MojoExecutionException {
@@ -44,11 +46,17 @@ public final class ScanMojo extends HeylogsMojo {
 
     private void scan() throws MojoExecutionException {
         Heylogs heylogs = initHeylogs(false);
+
         Scan scan = Scan
                 .builder()
                 .source(inputFile.toString())
                 .summary(heylogs.scan(readChangelog(inputFile)))
                 .build();
-        log(appendable -> heylogs.formatStatus(formatId, appendable, singletonList(scan)), getLog()::info);
+
+        try (Writer writer = newWriter(outputFile, getLog()::info)) {
+            heylogs.formatStatus(formatId, writer, singletonList(scan));
+        } catch (IOException ex) {
+            throw new MojoExecutionException("Error while writing", ex);
+        }
     }
 }
