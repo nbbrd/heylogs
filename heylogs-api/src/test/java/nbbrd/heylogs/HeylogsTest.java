@@ -150,12 +150,12 @@ public class HeylogsTest {
         assertThat(output.toString())
                 .isEqualToIgnoringNewLines(
                         "file1\n" +
-                                "  Valid changelog                      \n" +
-                                "  Found 1 releases                     \n" +
-                                "  Ranging from 2019-02-15 to 2019-02-15\n" +
-                                "  Compatible with Semantic Versioning  \n" +
-                                "  Forged with GitStuff at localhost    \n" +
-                                "  Has 3 unreleased changes             \n"
+                                "  Valid changelog                                     \n" +
+                                "  Found 1 releases                                    \n" +
+                                "  Ranging from 2019-02-15 to 2019-02-15               \n" +
+                                "  Compatible with Semantic Versioning                 \n" +
+                                "  Forged with GitStuff at https://localhost:8080/hello\n" +
+                                "  Has 3 unreleased changes                            \n"
                 );
     }
 }
