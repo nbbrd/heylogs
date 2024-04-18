@@ -118,7 +118,7 @@ public final class StylishFormat implements Format {
                         : "Compatible with " + String.join(", ", summary.getCompatibilities()));
             }
             result.add("Forged with " + Optional.ofNullable(summary.getForgeName()).orElse("unknown forge")
-                    + " at " + Optional.ofNullable(summary.getForgeURL()).map(URL::getHost).orElse("unknown host"));
+                    + " at " + Optional.ofNullable(summary.getForgeURL()).map(URL::toString).orElse("unknown URL"));
             result.add(summary.getUnreleasedChanges() > 0 ? ("Has " + summary.getUnreleasedChanges() + " unreleased changes") : "Has no unreleased changes");
         } else {
             result.add("Invalid changelog");

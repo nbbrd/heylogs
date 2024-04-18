@@ -11,16 +11,17 @@ import org.apache.maven.plugins.annotations.Parameter;
 import java.io.File;
 import java.util.Objects;
 
+import static internal.heylogs.maven.plugin.HeylogsParameters.*;
 import static internal.heylogs.maven.plugin.MojoFunction.onLocalDate;
 import static internal.heylogs.maven.plugin.MojoFunction.onPattern;
 
-@Mojo(name = "extract", defaultPhase = LifecyclePhase.GENERATE_RESOURCES, threadSafe = true)
+@Mojo(name = "extract", defaultPhase = LifecyclePhase.GENERATE_RESOURCES, threadSafe = true, requiresProject = false)
 public final class ExtractMojo extends HeylogsMojo {
 
-    @Parameter(defaultValue = "${project.basedir}/CHANGELOG.md", property = "heylogs.input.file")
+    @Parameter(defaultValue = WORKING_DIR_CHANGELOG, property = INPUT_FILE_PROPERTY)
     private File inputFile;
 
-    @Parameter(defaultValue = "${project.build.directory}/CHANGELOG.md", property = "heylogs.output.file")
+    @Parameter(defaultValue = "${project.build.directory}/CHANGELOG.md", property = OUTPUT_FILE_PROPERTY)
     private File outputFile;
 
     @Parameter(defaultValue = "${project.version}", property = "heylogs.ref")

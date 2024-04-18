@@ -93,7 +93,7 @@ public class HeylogsTest {
                         .compatibility("Semantic Versioning")
                         .unreleasedChanges(2)
                         .forgeName("GitHub")
-                        .forgeURL(urlOf("https://github.com"))
+                        .forgeURL(urlOf("https://github.com/olivierlacan/keep-a-changelog"))
                         .build()
                 );
 
@@ -105,7 +105,7 @@ public class HeylogsTest {
                         .timeRange(TimeRange.of(LocalDate.of(2019, 2, 15), LocalDate.of(2019, 2, 15)))
                         .unreleasedChanges(0)
                         .forgeName("GitHub")
-                        .forgeURL(urlOf("https://github.com"))
+                        .forgeURL(urlOf("https://github.com/olivierlacan/keep-a-changelog"))
                         .build()
                 );
 
@@ -150,12 +150,12 @@ public class HeylogsTest {
         assertThat(output.toString())
                 .isEqualToIgnoringNewLines(
                         "file1\n" +
-                                "  Valid changelog                      \n" +
-                                "  Found 1 releases                     \n" +
-                                "  Ranging from 2019-02-15 to 2019-02-15\n" +
-                                "  Compatible with Semantic Versioning  \n" +
-                                "  Forged with GitStuff at localhost    \n" +
-                                "  Has 3 unreleased changes             \n"
+                                "  Valid changelog                                     \n" +
+                                "  Found 1 releases                                    \n" +
+                                "  Ranging from 2019-02-15 to 2019-02-15               \n" +
+                                "  Compatible with Semantic Versioning                 \n" +
+                                "  Forged with GitStuff at https://localhost:8080/hello\n" +
+                                "  Has 3 unreleased changes                            \n"
                 );
     }
 }

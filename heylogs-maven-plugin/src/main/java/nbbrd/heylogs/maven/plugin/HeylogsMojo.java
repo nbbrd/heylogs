@@ -4,8 +4,8 @@ import com.vladsch.flexmark.formatter.Formatter;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.semver.SemVerRule;
+import nbbrd.design.MightBePromoted;
 import nbbrd.heylogs.Heylogs;
-import nbbrd.io.function.IOConsumer;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -14,10 +14,23 @@ import java.io.*;
 import java.nio.file.Files;
 import java.util.function.Consumer;
 
+import static internal.heylogs.maven.plugin.HeylogsParameters.isMojoLogFile;
+import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
+
 abstract class HeylogsMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "false", property = "heylogs.skip")
     protected boolean skip;
+
+    @Parameter(defaultValue = "${project.version}", readonly = true)
+    private String projectVersion;
+
+    @Parameter(defaultValue = "${project.basedir}", readonly = true)
+    private File projectBaseDir;
+
+    protected String getProjectVersionOrNull() {
+        return projectVersion;
+    }
 
     protected void raiseErrorMissingChangelog() throws MojoExecutionException {
         getLog().error("Missing changelog");
@@ -51,7 +64,10 @@ abstract class HeylogsMojo extends AbstractMojo {
         }
     }
 
-    protected static boolean isRootProject(File projectBaseDir) {
+    protected boolean isRootProject() {
+        if (projectBaseDir == null) {
+            return true;
+        }
         File parentDir = projectBaseDir.getParentFile();
         if (parentDir != null) {
             File parentPom = new File(parentDir, "pom.xml");
@@ -70,13 +86,23 @@ abstract class HeylogsMojo extends AbstractMojo {
         return result.build();
     }
 
-    protected static void log(IOConsumer<? super Appendable> consumer, Consumer<CharSequence> logger) throws MojoExecutionException {
-        try {
-            StringBuilder text = new StringBuilder();
-            consumer.acceptWithIO(text);
-            new BufferedReader(new StringReader(text.toString())).lines().forEach(logger);
-        } catch (IOException ex) {
-            throw new MojoExecutionException("Error while logging", ex);
+    @MightBePromoted
+    protected static Writer newWriter(File outputFile, Consumer<CharSequence> logger) throws IOException {
+        return isMojoLogFile(outputFile)
+                ? new MojoLogWriter(logger)
+                : newTextOutputSupport().newBufferedWriter(outputFile.toPath());
+    }
+
+    @MightBePromoted
+    @lombok.AllArgsConstructor
+    private static final class MojoLogWriter extends StringWriter {
+
+        private final Consumer<CharSequence> logger;
+
+        @Override
+        public void close() throws IOException {
+            super.close();
+            new BufferedReader(new StringReader(toString())).lines().forEach(logger);
         }
     }
 }
