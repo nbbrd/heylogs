@@ -10,6 +10,10 @@ jobs:
       matrix:
         java: [ 8, 21 ]
         os: [ ubuntu-latest, macOS-latest, windows-latest ]
+        exclude:
+          - os: macos-latest
+            java: 8
+            arch: arm
 
     name: JDK${{ matrix.java }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
