@@ -18,7 +18,7 @@ Features:
 - Summarizes content
 - Extracts versions
 
-[ [Library](#library) | [Command-line tool](#command-line-tool) | [Maven plugin](#maven-plugin) | [Developing](#developing) | [Contributing](#contributing)  | [Licensing](#licensing) | [Related work](#related-work)]
+[ [Library](#library) | [Command-line tool](#command-line-tool) | [Maven plugin](#maven-plugin) | [Badges](#badges) | [Developing](#developing) | [Contributing](#contributing)  | [Licensing](#licensing) | [Related work](#related-work)]
 
 ## Library
 
@@ -196,6 +196,16 @@ Extract the latest version from the changelog during a release:
     </build>
 </profile>
 ```
+
+## Badges
+
+Heylogs make it possible to generate nice badges using a [GitHub workflow](https://github.com/nbbrd/heylogs/blob/develop/.github/workflows/heylogs.yml) and the [shields.io API](https://shields.io/badges/endpoint-badge).  
+Here are some examples:
+
+![Endpoint Badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fnbbrd%2Fheylogs%2Fbadges%2Funreleased-changes.json)  
+![Endpoint Badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fnbbrd%2Fheylogs%2Fbadges%2Funreleased-changes.json&label=changelog)  
+![Endpoint Badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fnbbrd%2Fheylogs%2Fbadges%2Funreleased-changes.json&label=changelog&logo=none)  
+![Endpoint Badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fnbbrd%2Fheylogs%2Fbadges%2Funreleased-changes.json&label=%20)
 
 ## Developing
 
