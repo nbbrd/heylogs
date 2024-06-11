@@ -1,6 +1,7 @@
 # heylogs
 
 [![Download](https://img.shields.io/github/release/nbbrd/heylogs.svg)](https://github.com/nbbrd/heylogs/releases/latest)
+[![Changes](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fnbbrd%2Fheylogs%2Fbadges%2Funreleased-changes.json)](https://github.com/nbbrd/heylogs/blob/develop/CHANGELOG.md)
 
 `heylogs` is a set of tools to deal with the [keep-a-changelog format](https://keepachangelog.com),
 a changelog format designed to be human-readable.
