@@ -8,6 +8,7 @@ import com.vladsch.flexmark.util.ast.Node;
 import internal.heylogs.ChangelogNodes;
 import internal.heylogs.GuidingPrinciples;
 import internal.heylogs.URLExtractor;
+import internal.heylogs.VersionNode;
 import lombok.NonNull;
 import nbbrd.design.MightBePromoted;
 import nbbrd.design.StaticFactoryMethod;
@@ -157,8 +158,38 @@ public class Heylogs {
                 .build();
     }
 
+    public void release(@NonNull Document document, @NonNull Version newVersion, @NonNull String versionTagPrefix) {
+        Forge forge = lookupForge(document)
+                .orElseThrow(() -> new IllegalArgumentException("Cannot determine forge"));
+
+        ReferenceRepository repository = Parser.REFERENCES.get(document);
+
+        List<VersionNode> versions = VersionNode.allOf(document, repository);
+
+        VersionNode unreleased = VersionNode.getUnreleased(versions)
+                .orElseThrow(() -> new IllegalArgumentException("Cannot locate unreleased header"));
+
+        URL releaseURL = forge.getCompareLink(unreleased.getURL(), versionTagPrefix + newVersion.getRef());
+        VersionNode release = VersionNode.of(newVersion, releaseURL);
+
+        URL updatedURL = forge.getCompareLink(releaseURL, "HEAD");
+        VersionNode updated = VersionNode.of(unreleased.getVersion(), updatedURL);
+
+        repository.putRawKey(release.getReference().getReference(), release.getReference());
+        repository.putRawKey(updated.getReference().getReference(), updated.getReference());
+
+        unreleased.getHeading().appendChild(release.getHeading());
+        unreleased.getReference().insertAfter(release.getReference());
+        unreleased.getReference().insertBefore(updated.getReference());
+        unreleased.getReference().unlink();
+    }
+
     private URL getBaseURL(Forge forgeOrNull, CharSequence url) {
         return forgeOrNull != null ? forgeOrNull.getBaseURL(url) : URLExtractor.baseOf(URLExtractor.urlOf(url));
+    }
+
+    private Optional<Forge> lookupForge(Node document) {
+        return getLatestVersionURL(document).flatMap(this::getForge);
     }
 
     private Optional<Forge> getForge(String url) {

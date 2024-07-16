@@ -1,5 +1,6 @@
 package internal.heylogs.github;
 
+import internal.heylogs.URLExtractor;
 import lombok.NonNull;
 import nbbrd.design.DirectImpl;
 import nbbrd.heylogs.spi.Forge;
@@ -42,5 +43,10 @@ public final class GitHub implements Forge {
         } catch (MalformedURLException ex) {
             throw new UncheckedIOException(ex);
         }
+    }
+
+    @Override
+    public @NonNull URL getCompareLink(@NonNull URL latest, @NonNull String nextTag) {
+        return URLExtractor.urlOf(GitHubCompareLink.parse(latest.toString()).derive(nextTag).toString());
     }
 }

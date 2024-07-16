@@ -27,6 +27,7 @@ import java.util.concurrent.Callable;
                 ScanCommand.class,
                 CheckCommand.class,
                 ExtractCommand.class,
+                ReleaseCommand.class,
                 ListCommand.class
         },
         description = {

@@ -1,5 +1,7 @@
 package nbbrd.heylogs;
 
+import _test.Sample;
+import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.StylishFormat;
 import internal.heylogs.semver.SemVerRule;
 import nbbrd.heylogs.spi.Rule;
@@ -15,8 +17,7 @@ import static internal.heylogs.URLExtractor.urlOf;
 import static java.util.Collections.singletonList;
 import static nbbrd.heylogs.Heylogs.FIRST_FORMAT_AVAILABLE;
 import static nbbrd.heylogs.spi.RuleSeverity.ERROR;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIOException;
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.InstanceOfAssertFactories.list;
 
 public class HeylogsTest {
@@ -157,5 +158,43 @@ public class HeylogsTest {
                                 "  Forged with GitStuff at https://localhost:8080/hello\n" +
                                 "  Has 3 unreleased changes                            \n"
                 );
+    }
+
+    @Test
+    void testRelease() {
+        Heylogs x = Heylogs.ofServiceLoader();
+        Version v123 = Version.of("1.2.3", Version.HYPHEN, LocalDate.of(2010, 1, 1));
+
+        assertThatIllegalArgumentException().isThrownBy(() -> releaseToString(x, using("/Empty.md"), v123))
+                .withMessageContaining("Cannot determine forge");
+
+        assertThat(releaseToString(x, using("/Main.md"), v123))
+                .contains(
+                        "## [Unreleased]",
+                        "## [1.2.3] - 2010-01-01",
+                        "[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.2.3...HEAD",
+                        "[1.2.3]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.0...v1.2.3")
+                .doesNotContain("[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.0...HEAD");
+
+        assertThat(releaseToString(x, using("/UnreleasedChanges.md"), v123))
+                .contains(
+                        "## [Unreleased]",
+                        "## [1.2.3] - 2010-01-01",
+                        "[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.2.3...HEAD",
+                        "[1.2.3]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.0...v1.2.3")
+                .doesNotContain("[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.0...HEAD");
+
+        assertThat(releaseToString(x, using("/FirstRelease.md"), v123))
+                .contains(
+                        "## [Unreleased]",
+                        "## [1.2.3] - 2010-01-01",
+                        "[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.2.3...HEAD",
+                        "[1.2.3]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.2.3...v1.2.3")
+                .doesNotContain("[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/HEAD...HEAD");
+    }
+
+    private static String releaseToString(Heylogs heylogs, Document doc, Version version) {
+        heylogs.release(doc, version, "v");
+        return Sample.FORMATTER.render(doc);
     }
 }

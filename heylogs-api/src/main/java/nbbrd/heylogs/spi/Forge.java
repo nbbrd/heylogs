@@ -23,4 +23,7 @@ public interface Forge {
 
     @NonNull
     URL getBaseURL(@NonNull CharSequence text);
+
+    @NonNull
+    URL getCompareLink(@NonNull URL latest, @NonNull String nextTag);
 }

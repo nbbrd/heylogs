@@ -35,11 +35,16 @@ class GitHubCompareLink implements ForgeLink {
         return new GitHubCompareLink(baseOf(url), pathArray[0], pathArray[1], pathArray[2], pathArray[3]);
     }
 
-    @NonNull URL base;
-    @NonNull String owner;
-    @NonNull String repo;
-    @NonNull String type;
-    @NonNull String oid;
+    @NonNull
+    URL base;
+    @NonNull
+    String owner;
+    @NonNull
+    String repo;
+    @NonNull
+    String type;
+    @NonNull
+    String oid;
 
     @Override
     public String toString() {
@@ -49,4 +54,14 @@ class GitHubCompareLink implements ForgeLink {
     private static final Pattern OWNER = Pattern.compile("[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38}");
     private static final Pattern REPO = Pattern.compile("[a-z\\d._-]{1,100}");
     private static final Pattern OID = Pattern.compile(".+\\.{3}.+");
+
+    public GitHubCompareLink derive(String tag) {
+        return new GitHubCompareLink(base, owner, repo, type, getOid(tag));
+    }
+
+    private String getOid(String tag) {
+        return oid.endsWith("...HEAD")
+                ? oid.startsWith("HEAD...") ? (tag + "..." + tag) : (oid.substring(0, oid.length() - 4) + tag)
+                : (oid.substring(oid.indexOf("...") + 3) + "..." + tag);
+    }
 }
