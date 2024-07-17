@@ -2,7 +2,7 @@ package internal.heylogs.maven.plugin;
 
 import lombok.NonNull;
 import nbbrd.design.StaticFactoryMethod;
-import nbbrd.heylogs.Extractor;
+import nbbrd.heylogs.Filter;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import java.time.LocalDate;
@@ -31,6 +31,6 @@ public interface MojoFunction<X, Y> {
 
     @StaticFactoryMethod
     static @NonNull MojoFunction<String, LocalDate> onLocalDate(@NonNull String errorMessage) {
-        return of(Extractor::parseLocalDate, errorMessage);
+        return of(Filter::parseLocalDate, errorMessage);
     }
 }

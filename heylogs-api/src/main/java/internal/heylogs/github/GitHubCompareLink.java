@@ -2,6 +2,7 @@ package internal.heylogs.github;
 
 import lombok.AccessLevel;
 import lombok.NonNull;
+import nbbrd.design.RepresentableAs;
 import nbbrd.design.RepresentableAsString;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.spi.ForgeLink;
@@ -14,16 +15,18 @@ import static internal.heylogs.URLExtractor.*;
 
 // https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-comparing-branches-in-pull-requests#three-dot-and-two-dot-git-diff-comparisons
 @RepresentableAsString
+@RepresentableAs(URL.class)
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
 class GitHubCompareLink implements ForgeLink {
 
     @StaticFactoryMethod
     public static @NonNull GitHubCompareLink parse(@NonNull CharSequence text) {
-        return parseURL(urlOf(text));
+        return parse(urlOf(text));
     }
 
-    private static @NonNull GitHubCompareLink parseURL(@NonNull URL url) {
+    @StaticFactoryMethod
+    public static @NonNull GitHubCompareLink parse(@NonNull URL url) {
         String[] pathArray = getPathArray(url);
 
         checkPathLength(pathArray, 4);
@@ -51,12 +54,20 @@ class GitHubCompareLink implements ForgeLink {
         return URLQueryBuilder.of(base).path(owner).path(repo).path(type).path(oid).toString();
     }
 
+    public URL toURL() {
+        return urlOf(toString());
+    }
+
     private static final Pattern OWNER = Pattern.compile("[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38}");
     private static final Pattern REPO = Pattern.compile("[a-z\\d._-]{1,100}");
     private static final Pattern OID = Pattern.compile(".+\\.{3}.+");
 
     public GitHubCompareLink derive(String tag) {
         return new GitHubCompareLink(base, owner, repo, type, getOid(tag));
+    }
+
+    public URL getProjectURL() {
+        return urlOf(URLQueryBuilder.of(base).path(owner).path(repo).toString());
     }
 
     private String getOid(String tag) {

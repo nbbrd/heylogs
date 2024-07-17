@@ -10,9 +10,9 @@ import nbbrd.heylogs.Version;
 
 import java.net.URL;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
-import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 
 @lombok.Value
@@ -33,26 +33,26 @@ public class VersionNode {
                 ChangelogNodes.newReference(version, url));
     }
 
-    public static List<VersionNode> allOf(Document doc, ReferenceRepository repository) {
-        return Nodes.of(Heading.class).descendants(doc)
+    public static List<VersionNode> allOf(Document document, ReferenceRepository repository) {
+        return Nodes.of(Heading.class)
+                .descendants(document)
                 .filter(Version::isVersionLevel)
                 .map(heading -> {
-                    Version version = Version.parse(heading);
-                    return new VersionNode(heading, version, repository.getFromRaw(version.getRef()));
+                    try {
+                        Version version = Version.parse(heading);
+                        return new VersionNode(heading, version, Objects.requireNonNull(repository.getFromRaw(version.getRef())));
+                    } catch (RuntimeException ex) {
+                        return null;
+                    }
                 })
+                .filter(Objects::nonNull)
                 .collect(toList());
     }
 
-    public static Optional<VersionNode> getUnreleased(List<VersionNode> list) {
+    public static Optional<VersionNode> findUnreleased(List<VersionNode> list) {
         return list.stream()
                 .filter(versionNode -> versionNode.getVersion().isUnreleased())
                 .findFirst();
-    }
-
-    public static Optional<VersionNode> getLatest(List<VersionNode> list) {
-        return list.stream()
-                .filter(versionNode -> !versionNode.getVersion().isUnreleased())
-                .max(comparing(item -> item.getVersion().getDate()));
     }
 
     public URL getURL() {

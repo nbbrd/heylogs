@@ -7,6 +7,9 @@ import java.util.List;
 @lombok.Builder
 public class Summary {
 
+    public static final Summary INVALID = Summary.builder().valid(false).build();
+    public static final Summary EMPTY = Summary.builder().valid(true).build();
+
     boolean valid;
 
     @lombok.Builder.Default

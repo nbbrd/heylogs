@@ -72,8 +72,7 @@ public final class ReleaseCommand implements Callable<Void> {
     }
 
     private Document release(Document document) {
-        Heylogs heylogs = heylogsOptions.initHeylogs();
-        heylogs.release(document, Version.of(ref, '-', date), tagPrefix);
+        heylogsOptions.initHeylogs().release(document, Version.of(ref, '-', date), tagPrefix);
         return document;
     }
 

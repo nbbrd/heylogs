@@ -1,15 +1,10 @@
 package internal.heylogs.github;
 
-import internal.heylogs.URLExtractor;
 import lombok.NonNull;
 import nbbrd.design.DirectImpl;
 import nbbrd.heylogs.spi.Forge;
-import nbbrd.io.http.URLQueryBuilder;
-import nbbrd.io.text.Parser;
 import nbbrd.service.ServiceProvider;
 
-import java.io.UncheckedIOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 @DirectImpl
@@ -27,26 +22,22 @@ public final class GitHub implements Forge {
     }
 
     @Override
-    public boolean isCompareLink(@NonNull CharSequence text) {
-        return Parser.of(GitHubCompareLink::parse).parseValue(text).isPresent();
-    }
-
-    @Override
-    public @NonNull URL getBaseURL(@NonNull CharSequence text) {
-        GitHubCompareLink compareLink = GitHubCompareLink.parse(text);
+    public boolean isCompareLink(@NonNull URL url) {
         try {
-            return URLQueryBuilder
-                    .of(compareLink.getBase())
-                    .path(compareLink.getOwner())
-                    .path(compareLink.getRepo())
-                    .build();
-        } catch (MalformedURLException ex) {
-            throw new UncheckedIOException(ex);
+            GitHubCompareLink.parse(url);
+            return true;
+        } catch (IllegalArgumentException ex) {
+            return false;
         }
     }
 
     @Override
-    public @NonNull URL getCompareLink(@NonNull URL latest, @NonNull String nextTag) {
-        return URLExtractor.urlOf(GitHubCompareLink.parse(latest.toString()).derive(nextTag).toString());
+    public @NonNull URL getProjectURL(@NonNull URL url) {
+        return GitHubCompareLink.parse(url).getProjectURL();
+    }
+
+    @Override
+    public @NonNull URL deriveCompareLink(@NonNull URL latest, @NonNull String nextTag) {
+        return GitHubCompareLink.parse(latest).derive(nextTag).toURL();
     }
 }

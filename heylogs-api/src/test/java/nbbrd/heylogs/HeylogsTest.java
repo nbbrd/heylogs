@@ -11,10 +11,12 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.function.Function;
 
 import static _test.Sample.using;
 import static internal.heylogs.URLExtractor.urlOf;
 import static java.util.Collections.singletonList;
+import static nbbrd.heylogs.Filter.builder;
 import static nbbrd.heylogs.Heylogs.FIRST_FORMAT_AVAILABLE;
 import static nbbrd.heylogs.spi.RuleSeverity.ERROR;
 import static org.assertj.core.api.Assertions.*;
@@ -161,12 +163,54 @@ public class HeylogsTest {
     }
 
     @Test
+    public void testExtract() {
+        Heylogs x = Heylogs.ofServiceLoader();
+
+        Function<Filter, String> usingMain = extractor -> {
+            Document doc = using("/Main.md");
+            x.extract(doc, extractor);
+            return Sample.FORMATTER.render(doc);
+        };
+
+        assertThat(builder().ref("1.1.0").build())
+                .extracting(usingMain, STRING)
+                .isEqualTo(
+                        "## [1.1.0] - 2019-02-15\n" +
+                                "\n" +
+                                "### Added\n" +
+                                "\n" +
+                                "- Danish translation from [@frederikspang](https://github.com/frederikspang).\n" +
+                                "- Georgian translation from [@tatocaster](https://github.com/tatocaster).\n" +
+                                "- Changelog inconsistency section in Bad Practices\n" +
+                                "\n" +
+                                "### Changed\n" +
+                                "\n" +
+                                "- Fixed typos in Italian translation from [@lorenzo-arena](https://github.com/lorenzo-arena).\n" +
+                                "- Fixed typos in Indonesian translation from [@ekojs](https://github.com/ekojs).\n" +
+                                "\n" +
+                                "[1.1.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.0...v1.1.0\n" +
+                                "\n");
+
+        assertThat(builder().ref("1.1.0").ignoreContent(true).build())
+                .extracting(usingMain, STRING)
+                .isEqualTo(
+                        "## [1.1.0] - 2019-02-15\n" +
+                                "\n" +
+                                "[1.1.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.0...v1.1.0\n" +
+                                "\n");
+
+        assertThat(builder().ref("zzz").build())
+                .extracting(usingMain, STRING)
+                .isEmpty();
+    }
+
+    @Test
     void testRelease() {
         Heylogs x = Heylogs.ofServiceLoader();
         Version v123 = Version.of("1.2.3", Version.HYPHEN, LocalDate.of(2010, 1, 1));
 
         assertThatIllegalArgumentException().isThrownBy(() -> releaseToString(x, using("/Empty.md"), v123))
-                .withMessageContaining("Cannot determine forge");
+                .withMessageContaining("Invalid changelog");
 
         assertThat(releaseToString(x, using("/Main.md"), v123))
                 .contains(

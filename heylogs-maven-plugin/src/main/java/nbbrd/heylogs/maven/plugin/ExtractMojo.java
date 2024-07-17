@@ -1,7 +1,8 @@
 package nbbrd.heylogs.maven.plugin;
 
 import com.vladsch.flexmark.util.ast.Document;
-import nbbrd.heylogs.Extractor;
+import nbbrd.heylogs.Filter;
+import nbbrd.heylogs.Heylogs;
 import nbbrd.heylogs.TimeRange;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -54,11 +55,11 @@ public final class ExtractMojo extends HeylogsMojo {
             throw new MojoExecutionException("Changelog not found");
         }
 
-        extract(loadExtractor());
+        extract(loadFilter());
     }
 
-    private Extractor loadExtractor() throws MojoExecutionException {
-        return Extractor
+    private Filter loadFilter() throws MojoExecutionException {
+        return Filter
                 .builder()
                 .ref(Objects.toString(ref, ""))
                 .unreleasedPattern(onPattern("Invalid unreleased pattern").applyWithMojo(unreleasedPattern))
@@ -71,11 +72,13 @@ public final class ExtractMojo extends HeylogsMojo {
                 .build();
     }
 
-    private void extract(Extractor extractor) throws MojoExecutionException {
+    private void extract(Filter filter) throws MojoExecutionException {
+        Heylogs heylogs = initHeylogs(false);
+
         Document changelog = readChangelog(inputFile);
 
-        getLog().info("Extracting with " + extractor);
-        extractor.extract(changelog);
+        getLog().info("Extracting with " + filter);
+        heylogs.extract(changelog, filter);
 
         writeChangelog(changelog, outputFile);
     }

@@ -2,10 +2,11 @@ package nbbrd.heylogs.cli;
 
 import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.cli.ChangelogInputParameters;
+import internal.heylogs.cli.HeylogsOptions;
 import internal.heylogs.cli.SpecialProperties;
-import nbbrd.console.picocli.FileInputParameters;
 import nbbrd.console.picocli.FileOutputOptions;
-import nbbrd.heylogs.Extractor;
+import nbbrd.heylogs.Filter;
+import nbbrd.heylogs.Heylogs;
 import nbbrd.heylogs.TimeRange;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -32,14 +33,14 @@ public final class ExtractCommand implements Callable<Void> {
             paramLabel = "<ref>",
             description = "Filter versions by name."
     )
-    private String ref = Extractor.DEFAULT.getRef();
+    private String ref = Filter.DEFAULT.getRef();
 
     @CommandLine.Option(
             names = {"-u", "--unreleased"},
             paramLabel = "<pattern>",
             description = "Assume that versions that match this pattern are unreleased."
     )
-    private Pattern unreleasedPattern = Extractor.DEFAULT.getUnreleasedPattern();
+    private Pattern unreleasedPattern = Filter.DEFAULT.getUnreleasedPattern();
 
     @CommandLine.Option(
             names = {"-f", "--from"},
@@ -47,7 +48,7 @@ public final class ExtractCommand implements Callable<Void> {
             description = "Filter versions by min date (included).",
             converter = LenientDateConverter.class
     )
-    private LocalDate from = Extractor.DEFAULT.getTimeRange().getFrom();
+    private LocalDate from = Filter.DEFAULT.getTimeRange().getFrom();
 
     @CommandLine.Option(
             names = {"-t", "--to"},
@@ -55,19 +56,22 @@ public final class ExtractCommand implements Callable<Void> {
             description = "Filter versions by max date (included).",
             converter = LenientDateConverter.class
     )
-    private LocalDate to = Extractor.DEFAULT.getTimeRange().getTo();
+    private LocalDate to = Filter.DEFAULT.getTimeRange().getTo();
 
     @CommandLine.Option(
             names = {"-l", "--limit"},
             description = "Limit the number of versions."
     )
-    private int limit = Extractor.DEFAULT.getLimit();
+    private int limit = Filter.DEFAULT.getLimit();
 
     @CommandLine.Option(
             names = "--ignore-content",
             description = "Ignore versions content, keep headers only."
     )
     private boolean ignoreContent = false;
+
+    @CommandLine.Mixin
+    private HeylogsOptions heylogsOptions;
 
     @CommandLine.Option(
             names = {SpecialProperties.DEBUG_OPTION},
@@ -87,7 +91,7 @@ public final class ExtractCommand implements Callable<Void> {
     }
 
     private Document extract(Document document) {
-        getExtractor().extract(document);
+        heylogsOptions.initHeylogs().extract(document, getFilter());
         return document;
     }
 
@@ -95,8 +99,8 @@ public final class ExtractCommand implements Callable<Void> {
         newMarkdownOutputSupport().writeDocument(output.getFile(), document);
     }
 
-    public Extractor getExtractor() {
-        return Extractor
+    public Filter getFilter() {
+        return Filter
                 .builder()
                 .ref(ref)
                 .unreleasedPattern(unreleasedPattern)
@@ -110,7 +114,7 @@ public final class ExtractCommand implements Callable<Void> {
 
         @Override
         public LocalDate convert(String value) {
-            return Extractor.parseLocalDate(value);
+            return Filter.parseLocalDate(value);
         }
     }
 }
