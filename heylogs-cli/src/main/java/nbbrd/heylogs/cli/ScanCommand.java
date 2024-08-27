@@ -50,7 +50,7 @@ public final class ScanCommand implements Callable<Void> {
                 list.add(Scan
                         .builder()
                         .source(markdown.getName(file))
-                        .summary(heylogs.scan(markdown.readDocument(file)))
+                        .summary(heylogs.scanContent(markdown.readDocument(file)))
                         .build());
             }
             heylogs.formatStatus(formatOptions.getFormatId(), writer, list);

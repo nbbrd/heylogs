@@ -37,7 +37,7 @@ public final class ListCommand implements Callable<Void> {
     public Void call() throws IOException {
         try (Writer writer = newTextOutputSupport().newBufferedWriter(output.getFile())) {
             Heylogs heylogs = heylogsOptions.initHeylogs();
-            heylogs.formatResources(formatOptions.getFormatId(), writer, heylogs.getResources());
+            heylogs.formatResources(formatOptions.getFormatId(), writer, heylogs.listResources());
         }
         return null;
     }

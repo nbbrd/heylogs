@@ -73,7 +73,7 @@ public final class CheckMojo extends HeylogsMojo {
         Check check = Check
                 .builder()
                 .source(inputFile.toString())
-                .problems(heylogs.validate(readChangelog(inputFile)))
+                .problems(heylogs.checkFormat(readChangelog(inputFile)))
                 .build();
 
         try (Writer writer = newWriter(outputFile, check.hasErrors() ? getLog()::error : getLog()::info)) {

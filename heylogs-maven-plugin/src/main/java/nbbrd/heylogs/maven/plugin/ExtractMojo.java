@@ -78,7 +78,7 @@ public final class ExtractMojo extends HeylogsMojo {
         Document changelog = readChangelog(inputFile);
 
         getLog().info("Extracting with " + filter);
-        heylogs.extract(changelog, filter);
+        heylogs.extractVersions(changelog, filter);
 
         writeChangelog(changelog, outputFile);
     }

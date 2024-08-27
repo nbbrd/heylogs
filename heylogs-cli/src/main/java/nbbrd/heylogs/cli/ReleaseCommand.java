@@ -5,7 +5,6 @@ import internal.heylogs.cli.ChangelogInputParameters;
 import internal.heylogs.cli.HeylogsOptions;
 import internal.heylogs.cli.SpecialProperties;
 import nbbrd.console.picocli.FileOutputOptions;
-import nbbrd.heylogs.Heylogs;
 import nbbrd.heylogs.Version;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -72,7 +71,7 @@ public final class ReleaseCommand implements Callable<Void> {
     }
 
     private Document release(Document document) {
-        heylogsOptions.initHeylogs().release(document, Version.of(ref, '-', date), tagPrefix);
+        heylogsOptions.initHeylogs().releaseChanges(document, Version.of(ref, '-', date), tagPrefix);
         return document;
     }
 

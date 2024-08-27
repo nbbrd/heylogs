@@ -50,7 +50,7 @@ public final class CheckCommand implements Callable<Integer> {
                 list.add(Check
                         .builder()
                         .source(markdown.getName(file))
-                        .problems(heylogs.validate(markdown.readDocument(file)))
+                        .problems(heylogs.checkFormat(markdown.readDocument(file)))
                         .build());
             }
             heylogs.formatProblems(formatOptions.getFormatId(), writer, list);

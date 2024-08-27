@@ -39,7 +39,7 @@ public final class ListMojo extends HeylogsMojo {
         Heylogs heylogs = initHeylogs(semver);
 
         try (Writer writer = newWriter(outputFile, getLog()::info)) {
-            heylogs.formatResources(formatId, writer, heylogs.getResources());
+            heylogs.formatResources(formatId, writer, heylogs.listResources());
         } catch (IOException ex) {
             throw new MojoExecutionException("Error while writing", ex);
         }

@@ -60,71 +60,11 @@ public class Heylogs {
     @lombok.Singular
     List<Forge> forges;
 
-    public @NonNull List<Problem> validate(@NonNull Document document) {
+    public @NonNull List<Problem> checkFormat(@NonNull Document document) {
         return problemStreamOf(document, rules).collect(toList());
     }
 
-    public @NonNull List<Resource> getResources() {
-        return concat(
-                rules.stream().map(Resource::of),
-                formats.stream().map(Resource::of),
-                versionings.stream().map(Resource::of),
-                forges.stream().map(Resource::of)
-        ).sorted(Resource.DEFAULT_COMPARATOR).collect(toList());
-    }
-
-    public void formatProblems(@NonNull String formatId, @NonNull Appendable appendable, @NonNull List<Check> list) throws IOException {
-        getFormatById(formatId).formatProblems(appendable, list);
-    }
-
-    public void formatStatus(@NonNull String formatId, @NonNull Appendable appendable, @NonNull List<Scan> list) throws IOException {
-        getFormatById(formatId).formatStatus(appendable, list);
-    }
-
-    public void formatResources(@NonNull String formatId, @NonNull Appendable appendable, @NonNull List<Resource> list) throws IOException {
-        getFormatById(formatId).formatResources(appendable, list);
-    }
-
-    public @NonNull Summary scan(@NonNull Document document) {
-        if (isNotValidAgainstGuidingPrinciples(document)) {
-            return Summary.INVALID;
-        }
-
-        ReferenceRepository repository = Parser.REFERENCES.get(document);
-        List<VersionNode> versions = VersionNode.allOf(document, repository);
-
-        if (versions.isEmpty()) {
-            return Summary.EMPTY;
-        }
-
-        List<Version> releases = versions
-                .stream()
-                .map(VersionNode::getVersion)
-                .filter(version -> !version.isUnreleased())
-                .collect(toList());
-
-        long unreleasedChanges = VersionNode.findUnreleased(versions)
-                .map(VersionNode::getHeading)
-                .map(ChangelogNodes::getBulletListsByTypeOfChange)
-                .map(o -> o.values().stream().mapToLong(List::size).sum())
-                .orElse(0L);
-
-        VersionNode first = versions.get(0);
-        Forge forgeOrNull = findForge(first).orElse(null);
-
-        return Summary
-                .builder()
-                .valid(true)
-                .releaseCount(releases.size())
-                .timeRange(releases.stream().map(Version::getDate).collect(toTimeRange()).orElse(TimeRange.ALL))
-                .compatibilities(versioningStreamOf(versionings, releases).map(Versioning::getVersioningName).collect(toList()))
-                .unreleasedChanges((int) unreleasedChanges)
-                .forgeName(forgeOrNull != null ? forgeOrNull.getForgeName() : null)
-                .forgeURL(getBaseURL(forgeOrNull, first.getURL()))
-                .build();
-    }
-
-    public void extract(@NonNull Document document, @NonNull Filter filter) {
+    public void extractVersions(@NonNull Document document, @NonNull Filter filter) {
         if (isNotValidAgainstGuidingPrinciples(document)) {
             throw new IllegalArgumentException("Invalid changelog");
         }
@@ -172,7 +112,16 @@ public class Heylogs {
                 .forEach(Node::unlink);
     }
 
-    public void release(@NonNull Document document, @NonNull Version newVersion, @NonNull String versionTagPrefix) {
+    public @NonNull List<Resource> listResources() {
+        return concat(
+                rules.stream().map(Resource::of),
+                formats.stream().map(Resource::of),
+                versionings.stream().map(Resource::of),
+                forges.stream().map(Resource::of)
+        ).sorted(Resource.DEFAULT_COMPARATOR).collect(toList());
+    }
+
+    public void releaseChanges(@NonNull Document document, @NonNull Version newVersion, @NonNull String versionTagPrefix) {
         if (isNotValidAgainstGuidingPrinciples(document)) {
             throw new IllegalArgumentException("Invalid changelog");
         }
@@ -199,6 +148,57 @@ public class Heylogs {
         unreleased.getReference().insertAfter(release.getReference());
         unreleased.getReference().insertBefore(updated.getReference());
         unreleased.getReference().unlink();
+    }
+
+    public @NonNull Summary scanContent(@NonNull Document document) {
+        if (isNotValidAgainstGuidingPrinciples(document)) {
+            return Summary.INVALID;
+        }
+
+        ReferenceRepository repository = Parser.REFERENCES.get(document);
+        List<VersionNode> versions = VersionNode.allOf(document, repository);
+
+        if (versions.isEmpty()) {
+            return Summary.EMPTY;
+        }
+
+        List<Version> releases = versions
+                .stream()
+                .map(VersionNode::getVersion)
+                .filter(version -> !version.isUnreleased())
+                .collect(toList());
+
+        long unreleasedChanges = VersionNode.findUnreleased(versions)
+                .map(VersionNode::getHeading)
+                .map(ChangelogNodes::getBulletListsByTypeOfChange)
+                .map(o -> o.values().stream().mapToLong(List::size).sum())
+                .orElse(0L);
+
+        VersionNode first = versions.get(0);
+        Forge forgeOrNull = findForge(first).orElse(null);
+
+        return Summary
+                .builder()
+                .valid(true)
+                .releaseCount(releases.size())
+                .timeRange(releases.stream().map(Version::getDate).collect(toTimeRange()).orElse(TimeRange.ALL))
+                .compatibilities(versioningStreamOf(versionings, releases).map(Versioning::getVersioningName).collect(toList()))
+                .unreleasedChanges((int) unreleasedChanges)
+                .forgeName(forgeOrNull != null ? forgeOrNull.getForgeName() : null)
+                .forgeURL(getBaseURL(forgeOrNull, first.getURL()))
+                .build();
+    }
+
+    public void formatProblems(@NonNull String formatId, @NonNull Appendable appendable, @NonNull List<Check> list) throws IOException {
+        getFormatById(formatId).formatProblems(appendable, list);
+    }
+
+    public void formatStatus(@NonNull String formatId, @NonNull Appendable appendable, @NonNull List<Scan> list) throws IOException {
+        getFormatById(formatId).formatStatus(appendable, list);
+    }
+
+    public void formatResources(@NonNull String formatId, @NonNull Appendable appendable, @NonNull List<Resource> list) throws IOException {
+        getFormatById(formatId).formatResources(appendable, list);
     }
 
     private URL getBaseURL(Forge forgeOrNull, URL url) {

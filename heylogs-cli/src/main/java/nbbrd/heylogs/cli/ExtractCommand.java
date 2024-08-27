@@ -6,7 +6,6 @@ import internal.heylogs.cli.HeylogsOptions;
 import internal.heylogs.cli.SpecialProperties;
 import nbbrd.console.picocli.FileOutputOptions;
 import nbbrd.heylogs.Filter;
-import nbbrd.heylogs.Heylogs;
 import nbbrd.heylogs.TimeRange;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -91,7 +90,7 @@ public final class ExtractCommand implements Callable<Void> {
     }
 
     private Document extract(Document document) {
-        heylogsOptions.initHeylogs().extract(document, getFilter());
+        heylogsOptions.initHeylogs().extractVersions(document, getFilter());
         return document;
     }
 

@@ -44,12 +44,146 @@ public class HeylogsTest {
     }
 
     @Test
-    public void testValidate() {
-        assertThat(Heylogs.builder().build().validate(using("/InvalidVersion.md")))
+    public void testCheckFormat() {
+        assertThat(Heylogs.builder().build().checkFormat(using("/InvalidVersion.md")))
                 .isEmpty();
 
-        assertThat(Heylogs.ofServiceLoader().validate(using("/InvalidVersion.md")))
+        assertThat(Heylogs.ofServiceLoader().checkFormat(using("/InvalidVersion.md")))
                 .isNotEmpty();
+    }
+
+    @Test
+    public void testExtractVersions() {
+        Heylogs x = Heylogs.ofServiceLoader();
+
+        Function<Filter, String> usingMain = extractor -> {
+            Document doc = using("/Main.md");
+            x.extractVersions(doc, extractor);
+            return Sample.FORMATTER.render(doc);
+        };
+
+        assertThat(builder().ref("1.1.0").build())
+                .extracting(usingMain, STRING)
+                .isEqualTo(
+                        "## [1.1.0] - 2019-02-15\n" +
+                                "\n" +
+                                "### Added\n" +
+                                "\n" +
+                                "- Danish translation from [@frederikspang](https://github.com/frederikspang).\n" +
+                                "- Georgian translation from [@tatocaster](https://github.com/tatocaster).\n" +
+                                "- Changelog inconsistency section in Bad Practices\n" +
+                                "\n" +
+                                "### Changed\n" +
+                                "\n" +
+                                "- Fixed typos in Italian translation from [@lorenzo-arena](https://github.com/lorenzo-arena).\n" +
+                                "- Fixed typos in Indonesian translation from [@ekojs](https://github.com/ekojs).\n" +
+                                "\n" +
+                                "[1.1.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.0...v1.1.0\n" +
+                                "\n");
+
+        assertThat(builder().ref("1.1.0").ignoreContent(true).build())
+                .extracting(usingMain, STRING)
+                .isEqualTo(
+                        "## [1.1.0] - 2019-02-15\n" +
+                                "\n" +
+                                "[1.1.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.0...v1.1.0\n" +
+                                "\n");
+
+        assertThat(builder().ref("zzz").build())
+                .extracting(usingMain, STRING)
+                .isEmpty();
+    }
+
+    @Test
+    public void testListResources() {
+        assertThat(Heylogs.builder().build().listResources())
+                .isEmpty();
+
+        assertThat(Heylogs.ofServiceLoader().listResources())
+                .isNotEmpty();
+    }
+
+    @Test
+    public void testReleaseChanges() {
+        Heylogs x = Heylogs.ofServiceLoader();
+        Version v123 = Version.of("1.2.3", Version.HYPHEN, LocalDate.of(2010, 1, 1));
+
+        assertThatIllegalArgumentException().isThrownBy(() -> releaseChangesToString(x, using("/Empty.md"), v123))
+                .withMessageContaining("Invalid changelog");
+
+        assertThat(releaseChangesToString(x, using("/Main.md"), v123))
+                .contains(
+                        "## [Unreleased]",
+                        "## [1.2.3] - 2010-01-01",
+                        "[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.2.3...HEAD",
+                        "[1.2.3]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.0...v1.2.3")
+                .doesNotContain("[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.0...HEAD");
+
+        assertThat(releaseChangesToString(x, using("/UnreleasedChanges.md"), v123))
+                .contains(
+                        "## [Unreleased]",
+                        "## [1.2.3] - 2010-01-01",
+                        "[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.2.3...HEAD",
+                        "[1.2.3]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.0...v1.2.3")
+                .doesNotContain("[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.0...HEAD");
+
+        assertThat(releaseChangesToString(x, using("/FirstRelease.md"), v123))
+                .contains(
+                        "## [Unreleased]",
+                        "## [1.2.3] - 2010-01-01",
+                        "[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.2.3...HEAD",
+                        "[1.2.3]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.2.3...v1.2.3")
+                .doesNotContain("[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/HEAD...HEAD");
+    }
+
+    @Test
+    public void testScanContent() {
+        Heylogs x = Heylogs.ofServiceLoader();
+
+        assertThat(x.scanContent(using("/Empty.md")))
+                .isEqualTo(Summary
+                        .builder()
+                        .valid(false)
+                        .releaseCount(0)
+                        .timeRange(TimeRange.ALL)
+                        .unreleasedChanges(0)
+                        .build()
+                );
+
+        assertThat(x.scanContent(using("/Main.md")))
+                .isEqualTo(Summary
+                        .builder()
+                        .valid(true)
+                        .releaseCount(13)
+                        .timeRange(TimeRange.of(LocalDate.of(2014, 5, 31), LocalDate.of(2019, 2, 15)))
+                        .compatibility("Semantic Versioning")
+                        .unreleasedChanges(2)
+                        .forgeName("GitHub")
+                        .forgeURL(urlOf("https://github.com/olivierlacan/keep-a-changelog"))
+                        .build()
+                );
+
+        assertThat(x.scanContent(using("/InvalidSemver.md")))
+                .isEqualTo(Summary
+                        .builder()
+                        .valid(true)
+                        .releaseCount(2)
+                        .timeRange(TimeRange.of(LocalDate.of(2019, 2, 15), LocalDate.of(2019, 2, 15)))
+                        .unreleasedChanges(0)
+                        .forgeName("GitHub")
+                        .forgeURL(urlOf("https://github.com/olivierlacan/keep-a-changelog"))
+                        .build()
+                );
+
+        assertThat(x.scanContent(using("/InvalidVersion.md")))
+                .isEqualTo(Summary
+                        .builder()
+                        .valid(false)
+                        .releaseCount(0)
+                        .timeRange(TimeRange.ALL)
+                        .unreleasedChanges(0)
+                        .build()
+                );
     }
 
     @Test
@@ -70,56 +204,6 @@ public class HeylogsTest {
                                 "  10:20  error  some message  rule1\n" +
                                 "  \n" +
                                 "  1 problem\n"
-                );
-    }
-
-    @Test
-    void testScan() {
-        Heylogs x = Heylogs.ofServiceLoader();
-
-        assertThat(x.scan(using("/Empty.md")))
-                .isEqualTo(Summary
-                        .builder()
-                        .valid(false)
-                        .releaseCount(0)
-                        .timeRange(TimeRange.ALL)
-                        .unreleasedChanges(0)
-                        .build()
-                );
-
-        assertThat(x.scan(using("/Main.md")))
-                .isEqualTo(Summary
-                        .builder()
-                        .valid(true)
-                        .releaseCount(13)
-                        .timeRange(TimeRange.of(LocalDate.of(2014, 5, 31), LocalDate.of(2019, 2, 15)))
-                        .compatibility("Semantic Versioning")
-                        .unreleasedChanges(2)
-                        .forgeName("GitHub")
-                        .forgeURL(urlOf("https://github.com/olivierlacan/keep-a-changelog"))
-                        .build()
-                );
-
-        assertThat(x.scan(using("/InvalidSemver.md")))
-                .isEqualTo(Summary
-                        .builder()
-                        .valid(true)
-                        .releaseCount(2)
-                        .timeRange(TimeRange.of(LocalDate.of(2019, 2, 15), LocalDate.of(2019, 2, 15)))
-                        .unreleasedChanges(0)
-                        .forgeName("GitHub")
-                        .forgeURL(urlOf("https://github.com/olivierlacan/keep-a-changelog"))
-                        .build()
-                );
-
-        assertThat(x.scan(using("/InvalidVersion.md")))
-                .isEqualTo(Summary
-                        .builder()
-                        .valid(false)
-                        .releaseCount(0)
-                        .timeRange(TimeRange.ALL)
-                        .unreleasedChanges(0)
-                        .build()
                 );
     }
 
@@ -162,83 +246,8 @@ public class HeylogsTest {
                 );
     }
 
-    @Test
-    public void testExtract() {
-        Heylogs x = Heylogs.ofServiceLoader();
-
-        Function<Filter, String> usingMain = extractor -> {
-            Document doc = using("/Main.md");
-            x.extract(doc, extractor);
-            return Sample.FORMATTER.render(doc);
-        };
-
-        assertThat(builder().ref("1.1.0").build())
-                .extracting(usingMain, STRING)
-                .isEqualTo(
-                        "## [1.1.0] - 2019-02-15\n" +
-                                "\n" +
-                                "### Added\n" +
-                                "\n" +
-                                "- Danish translation from [@frederikspang](https://github.com/frederikspang).\n" +
-                                "- Georgian translation from [@tatocaster](https://github.com/tatocaster).\n" +
-                                "- Changelog inconsistency section in Bad Practices\n" +
-                                "\n" +
-                                "### Changed\n" +
-                                "\n" +
-                                "- Fixed typos in Italian translation from [@lorenzo-arena](https://github.com/lorenzo-arena).\n" +
-                                "- Fixed typos in Indonesian translation from [@ekojs](https://github.com/ekojs).\n" +
-                                "\n" +
-                                "[1.1.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.0...v1.1.0\n" +
-                                "\n");
-
-        assertThat(builder().ref("1.1.0").ignoreContent(true).build())
-                .extracting(usingMain, STRING)
-                .isEqualTo(
-                        "## [1.1.0] - 2019-02-15\n" +
-                                "\n" +
-                                "[1.1.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.0...v1.1.0\n" +
-                                "\n");
-
-        assertThat(builder().ref("zzz").build())
-                .extracting(usingMain, STRING)
-                .isEmpty();
-    }
-
-    @Test
-    void testRelease() {
-        Heylogs x = Heylogs.ofServiceLoader();
-        Version v123 = Version.of("1.2.3", Version.HYPHEN, LocalDate.of(2010, 1, 1));
-
-        assertThatIllegalArgumentException().isThrownBy(() -> releaseToString(x, using("/Empty.md"), v123))
-                .withMessageContaining("Invalid changelog");
-
-        assertThat(releaseToString(x, using("/Main.md"), v123))
-                .contains(
-                        "## [Unreleased]",
-                        "## [1.2.3] - 2010-01-01",
-                        "[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.2.3...HEAD",
-                        "[1.2.3]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.0...v1.2.3")
-                .doesNotContain("[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.0...HEAD");
-
-        assertThat(releaseToString(x, using("/UnreleasedChanges.md"), v123))
-                .contains(
-                        "## [Unreleased]",
-                        "## [1.2.3] - 2010-01-01",
-                        "[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.2.3...HEAD",
-                        "[1.2.3]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.0...v1.2.3")
-                .doesNotContain("[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.0...HEAD");
-
-        assertThat(releaseToString(x, using("/FirstRelease.md"), v123))
-                .contains(
-                        "## [Unreleased]",
-                        "## [1.2.3] - 2010-01-01",
-                        "[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.2.3...HEAD",
-                        "[1.2.3]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.2.3...v1.2.3")
-                .doesNotContain("[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/HEAD...HEAD");
-    }
-
-    private static String releaseToString(Heylogs heylogs, Document doc, Version version) {
-        heylogs.release(doc, version, "v");
+    private static String releaseChangesToString(Heylogs heylogs, Document doc, Version version) {
+        heylogs.releaseChanges(doc, version, "v");
         return Sample.FORMATTER.render(doc);
     }
 }
