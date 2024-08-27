@@ -1,6 +1,7 @@
 package nbbrd.heylogs.maven.plugin;
 
 import com.vladsch.flexmark.util.ast.Document;
+import internal.heylogs.maven.plugin.MojoFunction;
 import nbbrd.heylogs.Filter;
 import nbbrd.heylogs.Heylogs;
 import nbbrd.heylogs.TimeRange;
@@ -10,11 +11,12 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
+import java.time.LocalDate;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import static internal.heylogs.maven.plugin.HeylogsParameters.*;
-import static internal.heylogs.maven.plugin.MojoFunction.onLocalDate;
-import static internal.heylogs.maven.plugin.MojoFunction.onPattern;
+import static internal.heylogs.maven.plugin.MojoFunction.of;
 
 @Mojo(name = "extract", defaultPhase = LifecyclePhase.GENERATE_RESOURCES, threadSafe = true, requiresProject = false)
 public final class ExtractMojo extends HeylogsMojo {
@@ -62,11 +64,8 @@ public final class ExtractMojo extends HeylogsMojo {
         return Filter
                 .builder()
                 .ref(Objects.toString(ref, ""))
-                .unreleasedPattern(onPattern("Invalid unreleased pattern").applyWithMojo(unreleasedPattern))
-                .timeRange(TimeRange.of(
-                        onLocalDate("Invalid format for 'from' parameter").applyWithMojo(from),
-                        onLocalDate("Invalid format for 'to' parameter").applyWithMojo(to))
-                )
+                .unreleasedPattern(UNRELEASED_PATTERN_PARSER.applyWithMojo(unreleasedPattern))
+                .timeRange(TimeRange.of(FROM_PARSER.applyWithMojo(from), TO_PARSER.applyWithMojo(to)))
                 .limit(limit)
                 .ignoreContent(ignoreContent)
                 .build();
@@ -82,4 +81,8 @@ public final class ExtractMojo extends HeylogsMojo {
 
         writeChangelog(changelog, outputFile);
     }
+
+    private static final MojoFunction<String, Pattern> UNRELEASED_PATTERN_PARSER = of(Pattern::compile, "Invalid unreleased pattern");
+    private static final MojoFunction<String, LocalDate> FROM_PARSER = of(Filter::parseLocalDate, "Invalid format for 'from' parameter");
+    private static final MojoFunction<String, LocalDate> TO_PARSER = of(Filter::parseLocalDate, "Invalid format for 'to' parameter");
 }
