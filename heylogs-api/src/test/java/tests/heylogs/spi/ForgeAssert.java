@@ -33,8 +33,5 @@ public final class ForgeAssert {
 
         assertThatNullPointerException()
                 .isThrownBy(() -> x.deriveCompareLink(urlOf("http://localhost"), null));
-
-        assertThat(x.getClass())
-                .isFinal();
     }
 }

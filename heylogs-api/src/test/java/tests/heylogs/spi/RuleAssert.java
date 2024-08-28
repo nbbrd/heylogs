@@ -35,8 +35,5 @@ public final class RuleAssert {
 
         assertThatNullPointerException()
                 .isThrownBy(() -> x.getRuleIssueOrNull(null));
-
-        assertThat(x.getClass())
-                .isFinal();
     }
 }

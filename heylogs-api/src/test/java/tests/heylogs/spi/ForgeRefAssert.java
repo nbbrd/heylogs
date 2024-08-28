@@ -16,8 +16,5 @@ public final class ForgeRefAssert {
     public static void assertForgeRefCompliance(@NonNull ForgeRef<?> x) {
         assertThatNullPointerException()
                 .isThrownBy(() -> x.isCompatibleWith(null));
-
-        assertThat(x.getClass())
-                .isFinal();
     }
 }

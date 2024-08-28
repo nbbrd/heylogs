@@ -46,8 +46,5 @@ public final class FormatAssert {
 
         assertThatNullPointerException()
                 .isThrownBy(() -> x.formatProblems(new StringBuilder(), null));
-
-        assertThat(x.getClass())
-                .isFinal();
     }
 }

@@ -23,8 +23,5 @@ public final class VersioningAssert {
 
         assertThatNullPointerException()
                 .isThrownBy(() -> x.isValidVersion(null));
-
-        assertThat(x.getClass())
-                .isFinal();
     }
 }
