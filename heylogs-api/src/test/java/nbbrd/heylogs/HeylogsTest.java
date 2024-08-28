@@ -1,22 +1,24 @@
 package nbbrd.heylogs;
 
-import tests.heylogs.api.Sample;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
 import internal.heylogs.StylishFormat;
 import lombok.NonNull;
+import nbbrd.design.MightBePromoted;
+import nbbrd.heylogs.spi.Forge;
 import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleIssue;
 import nbbrd.heylogs.spi.RuleSeverity;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.jupiter.api.Test;
+import tests.heylogs.api.Sample;
 
 import java.io.IOException;
+import java.net.URL;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Function;
 
-import static tests.heylogs.api.Sample.using;
 import static internal.heylogs.URLExtractor.urlOf;
 import static java.util.Collections.singletonList;
 import static nbbrd.heylogs.Filter.builder;
@@ -24,6 +26,7 @@ import static nbbrd.heylogs.Heylogs.FIRST_FORMAT_AVAILABLE;
 import static nbbrd.heylogs.spi.RuleSeverity.ERROR;
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.InstanceOfAssertFactories.list;
+import static tests.heylogs.api.Sample.using;
 
 public class HeylogsTest {
 
@@ -108,7 +111,11 @@ public class HeylogsTest {
 
     @Test
     public void testReleaseChanges() {
-        Heylogs x = Heylogs.ofServiceLoader();
+        Heylogs x = Heylogs.ofServiceLoader()
+                .toBuilder()
+                .forge(new MockedForge())
+                .build();
+
         Version v123 = Version.of("1.2.3", Version.HYPHEN, LocalDate.of(2010, 1, 1));
 
         assertThatIllegalArgumentException().isThrownBy(() -> releaseChangesToString(x, using("/Empty.md"), v123))
@@ -141,7 +148,10 @@ public class HeylogsTest {
 
     @Test
     public void testScanContent() {
-        Heylogs x = Heylogs.ofServiceLoader();
+        Heylogs x = Heylogs.ofServiceLoader()
+                .toBuilder()
+                .forge(new MockedForge())
+                .build();
 
         assertThat(x.scanContent(using("/Empty.md")))
                 .isEqualTo(Summary
@@ -155,15 +165,15 @@ public class HeylogsTest {
 
         assertThat(x.scanContent(using("/Main.md")))
                 .isEqualTo(Summary
-                        .builder()
-                        .valid(true)
-                        .releaseCount(13)
-                        .timeRange(TimeRange.of(LocalDate.of(2014, 5, 31), LocalDate.of(2019, 2, 15)))
+                                .builder()
+                                .valid(true)
+                                .releaseCount(13)
+                                .timeRange(TimeRange.of(LocalDate.of(2014, 5, 31), LocalDate.of(2019, 2, 15)))
 //                        .compatibility("Semantic Versioning")
-                        .unreleasedChanges(2)
-                        .forgeName("GitHub")
-                        .forgeURL(urlOf("https://github.com/olivierlacan/keep-a-changelog"))
-                        .build()
+                                .unreleasedChanges(2)
+                                .forgeName("GitHub")
+                                .forgeURL(urlOf("https://github.com/olivierlacan/keep-a-changelog"))
+                                .build()
                 );
 
         assertThat(x.scanContent(using("/InvalidSemver.md")))
@@ -284,6 +294,43 @@ public class HeylogsTest {
         @Override
         public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node) {
             return null;
+        }
+    }
+
+    private static final class MockedForge implements Forge {
+
+        @Override
+        public @NonNull String getForgeId() {
+            return "github";
+        }
+
+        @Override
+        public @NonNull String getForgeName() {
+            return "GitHub";
+        }
+
+        @Override
+        public boolean isCompareLink(@NonNull URL url) {
+            return true;
+        }
+
+        @Override
+        public @NonNull URL getProjectURL(@NonNull URL url) {
+            return urlOf("https://github.com/olivierlacan/keep-a-changelog");
+        }
+
+        @Override
+        public @NonNull URL deriveCompareLink(@NonNull URL latest, @NonNull String nextTag) {
+            String urlAsString = latest.toString();
+            int oidIndex = urlAsString.lastIndexOf("/") + 1;
+            return urlOf(urlAsString.substring(0, oidIndex) + deriveOID(nextTag, urlAsString.substring(oidIndex)));
+        }
+
+        @MightBePromoted
+        private static String deriveOID(String nextTag, String oid) {
+            return oid.endsWith("...HEAD")
+                    ? oid.startsWith("HEAD...") ? (nextTag + "..." + nextTag) : (oid.substring(0, oid.length() - 4) + nextTag)
+                    : (oid.substring(oid.indexOf("...") + 3) + "..." + nextTag);
         }
     }
 }

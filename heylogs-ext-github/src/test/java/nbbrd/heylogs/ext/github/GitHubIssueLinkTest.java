@@ -1,13 +1,19 @@
-package internal.heylogs.github;
+package nbbrd.heylogs.ext.github;
 
 import internal.heylogs.URLExtractor;
 import org.junit.jupiter.api.Test;
 
-import static internal.heylogs.github.GitHubIssueLink.parse;
+import static nbbrd.heylogs.ext.github.GitHubIssueLink.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static tests.heylogs.spi.ForgeLinkAssert.assertForgeLinkCompliance;
 
 class GitHubIssueLinkTest {
+
+    @Test
+    public void testCompliance() {
+        assertForgeLinkCompliance(parse("https://github.com/nbbrd/heylogs/issues/173"));
+    }
 
     @Test
     public void testRepresentableAsString() {

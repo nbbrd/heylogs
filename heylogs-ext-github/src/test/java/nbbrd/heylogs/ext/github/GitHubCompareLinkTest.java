@@ -1,13 +1,19 @@
-package internal.heylogs.github;
+package nbbrd.heylogs.ext.github;
 
 import org.junit.jupiter.api.Test;
 
 import static internal.heylogs.URLExtractor.urlOf;
-import static internal.heylogs.github.GitHubCompareLink.parse;
+import static nbbrd.heylogs.ext.github.GitHubCompareLink.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static tests.heylogs.spi.ForgeLinkAssert.assertForgeLinkCompliance;
 
 class GitHubCompareLinkTest {
+
+    @Test
+    public void testCompliance() {
+        assertForgeLinkCompliance(parse("https://github.com/nbbrd/heylogs/compare/v0.7.2...HEAD"));
+    }
 
     @Test
     public void testRepresentableAsString() {

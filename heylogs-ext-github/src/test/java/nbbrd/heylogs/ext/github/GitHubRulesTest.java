@@ -1,30 +1,28 @@
-package internal.heylogs.github;
+package nbbrd.heylogs.ext.github;
 
-import tests.heylogs.api.Sample;
 import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.util.ast.Node;
 import nbbrd.heylogs.Nodes;
 import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleIssue;
-import nbbrd.heylogs.spi.RuleLoader;
 import org.junit.jupiter.api.Test;
+import tests.heylogs.api.Sample;
 
 import java.util.Objects;
 
-import static tests.heylogs.api.Sample.using;
-import static internal.heylogs.github.GitHubRules.*;
 import static java.util.stream.Collectors.toList;
 import static nbbrd.heylogs.Nodes.of;
+import static nbbrd.heylogs.ext.github.GitHubRules.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Index.atIndex;
+import static tests.heylogs.api.Sample.using;
+import static tests.heylogs.spi.RuleAssert.assertRuleCompliance;
 
 public class GitHubRulesTest {
 
     @Test
-    public void testIdPattern() {
-        assertThat(new GitHubRules().getProviders())
-                .extracting(Rule::getRuleId)
-                .allMatch(RuleLoader.ID_PATTERN.asPredicate());
+    public void testCompliance() {
+        assertRuleCompliance(new GitHubRules());
     }
 
     @Test

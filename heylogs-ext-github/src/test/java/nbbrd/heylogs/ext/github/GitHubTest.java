@@ -1,25 +1,18 @@
-package internal.heylogs.github;
+package nbbrd.heylogs.ext.github;
 
 import nbbrd.heylogs.spi.Forge;
-import nbbrd.heylogs.spi.ForgeLoader;
 import org.junit.jupiter.api.Test;
 
 import static internal.heylogs.URLExtractor.urlOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static tests.heylogs.spi.ForgeAssert.assertForgeCompliance;
 
 class GitHubTest {
 
     @Test
-    void testGetForgeId() {
-        assertThat(new GitHub().getForgeId())
-                .matches(ForgeLoader.ID_PATTERN);
-    }
-
-    @Test
-    void testGetForgeName() {
-        assertThat(new GitHub().getForgeName())
-                .isNotBlank();
+    void testCompliance() {
+        assertForgeCompliance(new GitHub());
     }
 
     @Test

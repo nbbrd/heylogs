@@ -1,4 +1,4 @@
-package internal.heylogs.github;
+package nbbrd.heylogs.ext.github;
 
 import lombok.NonNull;
 import nbbrd.design.DirectImpl;

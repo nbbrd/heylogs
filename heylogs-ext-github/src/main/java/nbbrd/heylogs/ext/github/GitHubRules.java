@@ -1,4 +1,4 @@
-package internal.heylogs.github;
+package nbbrd.heylogs.ext.github;
 
 import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.ForgeRef;

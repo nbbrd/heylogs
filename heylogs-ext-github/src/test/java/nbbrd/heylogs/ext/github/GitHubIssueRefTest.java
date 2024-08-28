@@ -1,11 +1,17 @@
-package internal.heylogs.github;
+package nbbrd.heylogs.ext.github;
 
 import org.junit.jupiter.api.Test;
 
-import static internal.heylogs.github.GitHubIssueRef.*;
+import static nbbrd.heylogs.ext.github.GitHubIssueRef.*;
 import static org.assertj.core.api.Assertions.*;
+import static tests.heylogs.spi.ForgeRefAssert.assertForgeRefCompliance;
 
 class GitHubIssueRefTest {
+
+    @Test
+    public void testCompliance() {
+        assertForgeRefCompliance(parse("#173"));
+    }
 
     @Test
     public void testRepresentableAsString() {

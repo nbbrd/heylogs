@@ -2,6 +2,7 @@ package tests.heylogs.spi;
 
 import lombok.NonNull;
 import nbbrd.heylogs.spi.Rule;
+import nbbrd.heylogs.spi.RuleBatch;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
@@ -10,6 +11,10 @@ public final class RuleAssert {
 
     private RuleAssert() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
+
+    public static void assertRuleCompliance(@NonNull RuleBatch x) {
+        x.getProviders().forEach(RuleAssert::assertRuleCompliance);
     }
 
     @SuppressWarnings("DataFlowIssue")

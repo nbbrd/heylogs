@@ -1,12 +1,18 @@
-package internal.heylogs.github;
+package nbbrd.heylogs.ext.github;
 
 import org.junit.jupiter.api.Test;
 
-import static internal.heylogs.github.GitHubCommitSHARef.of;
-import static internal.heylogs.github.GitHubCommitSHARef.parse;
+import static nbbrd.heylogs.ext.github.GitHubCommitSHARef.of;
+import static nbbrd.heylogs.ext.github.GitHubCommitSHARef.parse;
 import static org.assertj.core.api.Assertions.*;
+import static tests.heylogs.spi.ForgeRefAssert.assertForgeRefCompliance;
 
 class GitHubCommitSHARefTest {
+
+    @Test
+    public void testCompliance() {
+        assertForgeRefCompliance(parse("862157d"));
+    }
 
     @Test
     public void testRepresentableAsString() {

@@ -1,13 +1,19 @@
-package internal.heylogs.github;
+package nbbrd.heylogs.ext.github;
 
 import org.junit.jupiter.api.Test;
 
 import static internal.heylogs.URLExtractor.urlOf;
-import static internal.heylogs.github.GitHubCommitSHALink.parse;
+import static nbbrd.heylogs.ext.github.GitHubCommitSHALink.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static tests.heylogs.spi.ForgeLinkAssert.assertForgeLinkCompliance;
 
 class GitHubCommitSHALinkTest {
+
+    @Test
+    public void testCompliance() {
+        assertForgeLinkCompliance(parse("https://github.com/nbbrd/heylogs/commit/862157d164a8afa1fdd3295c89ceb394efbcb82d"));
+    }
 
     @Test
     public void testRepresentableAsString() {

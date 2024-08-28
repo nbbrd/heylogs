@@ -1,12 +1,18 @@
-package internal.heylogs.github;
+package nbbrd.heylogs.ext.github;
 
 import org.junit.jupiter.api.Test;
 
-import static internal.heylogs.github.GitHubMentionRef.of;
-import static internal.heylogs.github.GitHubMentionRef.parse;
+import static nbbrd.heylogs.ext.github.GitHubMentionRef.of;
+import static nbbrd.heylogs.ext.github.GitHubMentionRef.parse;
 import static org.assertj.core.api.Assertions.*;
+import static tests.heylogs.spi.ForgeRefAssert.assertForgeRefCompliance;
 
 class GitHubMentionRefTest {
+
+    @Test
+    public void testCompliance() {
+        assertForgeRefCompliance(parse("@charphi"));
+    }
 
     @Test
     public void testRepresentableAsString() {
