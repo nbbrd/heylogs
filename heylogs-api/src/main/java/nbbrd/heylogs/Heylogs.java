@@ -1,6 +1,8 @@
 package nbbrd.heylogs;
 
 import com.vladsch.flexmark.ast.Heading;
+import com.vladsch.flexmark.ast.RefNode;
+import com.vladsch.flexmark.ast.Reference;
 import com.vladsch.flexmark.ast.util.ReferenceRepository;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
@@ -8,24 +10,24 @@ import com.vladsch.flexmark.util.ast.Node;
 import internal.heylogs.ChangelogNodes;
 import internal.heylogs.GuidingPrinciples;
 import internal.heylogs.URLExtractor;
+import internal.heylogs.VersionNode;
 import lombok.NonNull;
 import nbbrd.design.MightBePromoted;
 import nbbrd.design.StaticFactoryMethod;
-import nbbrd.design.VisibleForTesting;
 import nbbrd.heylogs.spi.*;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static internal.heylogs.RuleSupport.problemStreamOf;
+import static internal.heylogs.VersioningSupport.versioningStreamOf;
 import static java.util.Arrays.asList;
-import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 import static nbbrd.heylogs.TimeRange.toTimeRange;
-import static nbbrd.heylogs.Util.illegalArgumentToNull;
 
 @lombok.Value
 @lombok.Builder(toBuilder = true)
@@ -58,58 +60,132 @@ public class Heylogs {
     @lombok.Singular
     List<Forge> forges;
 
-    public @NonNull List<Problem> validate(@NonNull Document doc) {
-        return getProblemStream(doc, rules).collect(toList());
+    public @NonNull List<Problem> checkFormat(@NonNull Document document) {
+        return problemStreamOf(document, rules).collect(toList());
     }
 
-    public @NonNull List<Resource> getResources() {
+    public void extractVersions(@NonNull Document document, @NonNull Filter filter) {
+        if (isNotValidAgainstGuidingPrinciples(document)) {
+            throw new IllegalArgumentException("Invalid changelog");
+        }
+
+        int found = 0;
+        boolean keep = false;
+
+        List<String> refNodes = new ArrayList<>();
+        List<Reference> references = new ArrayList<>();
+
+        for (Node current : document.getChildren()) {
+
+            boolean versionHeading = current instanceof Heading
+                    && Version.isVersionLevel((Heading) current);
+
+            if (versionHeading) {
+                if (found >= filter.getLimit() || !filter.contains(Version.parse((Heading) current))) {
+                    keep = false;
+                } else {
+                    found++;
+                    keep = true;
+                }
+            }
+
+            if (keep) {
+                Nodes.of(RefNode.class)
+                        .descendants(current)
+                        .map(node -> node.getReference().toString())
+                        .forEach(refNodes::add);
+                if (versionHeading && filter.isIgnoreContent()) {
+                    keep = false;
+                }
+            } else {
+                if (current instanceof Reference) {
+                    references.add((Reference) current);
+                } else {
+                    current.unlink();
+                }
+            }
+        }
+
+        references
+                .stream()
+                .filter(reference -> !refNodes.contains(reference.getReference().toString()))
+                .forEach(Node::unlink);
+    }
+
+    public @NonNull List<Resource> listResources() {
         return concat(
-                rules.stream().map(Heylogs::asResource),
-                formats.stream().map(Heylogs::asResource),
-                versionings.stream().map(Heylogs::asResource),
-                forges.stream().map(Heylogs::asResource)
-        )
-                .sorted(comparing(Resource::getType).thenComparing(Resource::getCategory).thenComparing(Resource::getId))
+                rules.stream().map(Resource::of),
+                formats.stream().map(Resource::of),
+                versionings.stream().map(Resource::of),
+                forges.stream().map(Resource::of)
+        ).sorted(Resource.DEFAULT_COMPARATOR).collect(toList());
+    }
+
+    public void releaseChanges(@NonNull Document document, @NonNull Version newVersion, @NonNull String versionTagPrefix) {
+        if (isNotValidAgainstGuidingPrinciples(document)) {
+            throw new IllegalArgumentException("Invalid changelog");
+        }
+
+        ReferenceRepository repository = Parser.REFERENCES.get(document);
+        List<VersionNode> versions = VersionNode.allOf(document, repository);
+
+        VersionNode unreleased = VersionNode.findUnreleased(versions)
+                .orElseThrow(() -> new IllegalArgumentException("Cannot locate unreleased header"));
+
+        Forge forge = findForge(unreleased)
+                .orElseThrow(() -> new IllegalArgumentException("Cannot determine forge"));
+
+        URL releaseURL = forge.deriveCompareLink(unreleased.getURL(), versionTagPrefix + newVersion.getRef());
+        VersionNode release = VersionNode.of(newVersion, releaseURL);
+
+        URL updatedURL = forge.deriveCompareLink(releaseURL, "HEAD");
+        VersionNode updated = VersionNode.of(unreleased.getVersion(), updatedURL);
+
+        repository.putRawKey(release.getReference().getReference(), release.getReference());
+        repository.putRawKey(updated.getReference().getReference(), updated.getReference());
+
+        unreleased.getHeading().appendChild(release.getHeading());
+        unreleased.getReference().insertAfter(release.getReference());
+        unreleased.getReference().insertBefore(updated.getReference());
+        unreleased.getReference().unlink();
+    }
+
+    public @NonNull Summary scanContent(@NonNull Document document) {
+        if (isNotValidAgainstGuidingPrinciples(document)) {
+            return Summary.INVALID;
+        }
+
+        ReferenceRepository repository = Parser.REFERENCES.get(document);
+        List<VersionNode> versions = VersionNode.allOf(document, repository);
+
+        if (versions.isEmpty()) {
+            return Summary.EMPTY;
+        }
+
+        List<Version> releases = versions
+                .stream()
+                .map(VersionNode::getVersion)
+                .filter(version -> !version.isUnreleased())
                 .collect(toList());
-    }
 
-    private static Resource asResource(Rule rule) {
-        return Resource
-                .builder()
-                .type("rule")
-                .category(rule.getRuleCategory())
-                .id(rule.getRuleId())
-                .name(rule.getRuleName())
-                .build();
-    }
+        long unreleasedChanges = VersionNode.findUnreleased(versions)
+                .map(VersionNode::getHeading)
+                .map(ChangelogNodes::getBulletListsByTypeOfChange)
+                .map(o -> o.values().stream().mapToLong(List::size).sum())
+                .orElse(0L);
 
-    private static Resource asResource(Format format) {
-        return Resource
-                .builder()
-                .type("format")
-                .category(format.getFormatCategory())
-                .id(format.getFormatId())
-                .name(format.getFormatName())
-                .build();
-    }
+        VersionNode first = versions.get(0);
+        Forge forgeOrNull = findForge(first).orElse(null);
 
-    private static Resource asResource(Versioning versioning) {
-        return Resource
+        return Summary
                 .builder()
-                .type("versioning")
-                .category("main")
-                .id(versioning.getVersioningId())
-                .name(versioning.getVersioningName())
-                .build();
-    }
-
-    private static Resource asResource(Forge forge) {
-        return Resource
-                .builder()
-                .type("forge")
-                .category("main")
-                .id(forge.getForgeId())
-                .name(forge.getForgeName())
+                .valid(true)
+                .releaseCount(releases.size())
+                .timeRange(releases.stream().map(Version::getDate).collect(toTimeRange()).orElse(TimeRange.ALL))
+                .compatibilities(versioningStreamOf(versionings, releases).map(Versioning::getVersioningName).collect(toList()))
+                .unreleasedChanges((int) unreleasedChanges)
+                .forgeName(forgeOrNull != null ? forgeOrNull.getForgeName() : null)
+                .forgeURL(getBaseURL(forgeOrNull, first.getURL()))
                 .build();
     }
 
@@ -125,63 +201,14 @@ public class Heylogs {
         getFormatById(formatId).formatResources(appendable, list);
     }
 
-    public @NonNull Summary scan(@NonNull Node document) {
-        if (getProblemStream(document, asList(GuidingPrinciples.values())).findFirst().isPresent())
-            return Summary.builder().valid(false).build();
-
-        List<Version> releases = Nodes.of(Heading.class)
-                .descendants(document)
-                .filter(Version::isVersionLevel)
-                .map(illegalArgumentToNull(Version::parse))
-                .filter(Objects::nonNull)
-                .filter(version -> !version.isUnreleased())
-                .collect(toList());
-
-        long unreleasedChanges = ChangelogNodes.getUnreleasedHeading(document)
-                .map(ChangelogNodes::getBulletListsByTypeOfChange)
-                .map(o -> o.values().stream().mapToLong(List::size).sum())
-                .orElse(0L);
-
-        Optional<String> forgeURL = getLatestVersionURL(document);
-        Forge forgeOrNull = forgeURL.flatMap(this::getForge).orElse(null);
-
-        return Summary
-                .builder()
-                .valid(true)
-                .releaseCount(releases.size())
-                .timeRange(releases.stream().map(Version::getDate).collect(toTimeRange()).orElse(TimeRange.ALL))
-                .compatibilities(getCompatibilities(releases))
-                .unreleasedChanges((int) unreleasedChanges)
-                .forgeName(forgeOrNull != null ? forgeOrNull.getForgeName() : null)
-                .forgeURL(forgeURL.map(x -> getBaseURL(forgeOrNull, x)).orElse(null))
-                .build();
+    private URL getBaseURL(Forge forgeOrNull, URL url) {
+        return forgeOrNull != null ? forgeOrNull.getProjectURL(url) : URLExtractor.baseOf(url);
     }
 
-    private URL getBaseURL(Forge forgeOrNull, CharSequence url) {
-        return forgeOrNull != null ? forgeOrNull.getBaseURL(url) : URLExtractor.baseOf(URLExtractor.urlOf(url));
-    }
-
-    private Optional<Forge> getForge(String url) {
-        return forges.stream().filter(forge -> forge.isCompareLink(url)).findFirst();
-    }
-
-    private static Optional<String> getLatestVersionURL(Node document) {
-        return Nodes.of(Heading.class)
-                .descendants(document)
-                .filter(Version::isVersionLevel)
-                .map(heading -> {
-                    ReferenceRepository repository = Parser.REFERENCES.get(heading.getDocument());
-                    String normalizeRef = repository.normalizeKey(Version.parse(heading).getRef());
-                    return Objects.requireNonNull(repository.get(normalizeRef)).getUrl().toString();
-                })
+    private Optional<Forge> findForge(VersionNode node) {
+        return forges.stream()
+                .filter(forge -> forge.isCompareLink(node.getURL()))
                 .findFirst();
-    }
-
-    private List<String> getCompatibilities(List<Version> releases) {
-        return versionings.stream()
-                .filter(versioning -> releases.stream().allMatch(release -> versioning.isValidVersion(release.getRef())))
-                .map(Versioning::getVersioningName)
-                .collect(toList());
     }
 
     private Format getFormatById(String formatId) throws IOException {
@@ -191,18 +218,11 @@ public class Heylogs {
                 .orElseThrow(() -> new IOException("Cannot find format '" + formatId + "'"));
     }
 
-    @VisibleForTesting
-    static Stream<Problem> getProblemStream(Node root, List<Rule> rules) {
-        return Nodes.walk(root)
-                .flatMap(node -> rules.stream().map(rule -> getProblemOrNull(node, rule)).filter(Objects::nonNull));
-    }
-
-    private static Problem getProblemOrNull(Node node, Rule rule) {
-        RuleIssue ruleIssueOrNull = rule.getRuleIssueOrNull(node);
-        return ruleIssueOrNull != null ? Problem.builder().rule(rule).issue(ruleIssueOrNull).build() : null;
-    }
-
     public static final String FIRST_FORMAT_AVAILABLE = "";
+
+    private static boolean isNotValidAgainstGuidingPrinciples(Document document) {
+        return problemStreamOf(document, asList(GuidingPrinciples.values())).findFirst().isPresent();
+    }
 
     @MightBePromoted
     @SafeVarargs

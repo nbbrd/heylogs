@@ -16,7 +16,7 @@ import java.util.concurrent.Callable;
 import static internal.heylogs.cli.MarkdownInputSupport.newMarkdownInputSupport;
 import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
 
-@Command(name = "check", description = "Check changelog format.")
+@Command(name = "check", description = "Check format.")
 public final class CheckCommand implements Callable<Integer> {
 
     @CommandLine.Mixin
@@ -50,7 +50,7 @@ public final class CheckCommand implements Callable<Integer> {
                 list.add(Check
                         .builder()
                         .source(markdown.getName(file))
-                        .problems(heylogs.validate(markdown.readDocument(file)))
+                        .problems(heylogs.checkFormat(markdown.readDocument(file)))
                         .build());
             }
             heylogs.formatProblems(formatOptions.getFormatId(), writer, list);

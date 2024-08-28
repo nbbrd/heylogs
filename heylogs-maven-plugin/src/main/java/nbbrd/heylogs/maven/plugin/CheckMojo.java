@@ -1,9 +1,9 @@
 package nbbrd.heylogs.maven.plugin;
 
 import internal.heylogs.StylishFormat;
-import internal.heylogs.semver.SemVer;
 import nbbrd.heylogs.Check;
 import nbbrd.heylogs.Heylogs;
+import nbbrd.heylogs.ext.semver.SemVer;
 import nbbrd.heylogs.spi.Versioning;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -73,7 +73,7 @@ public final class CheckMojo extends HeylogsMojo {
         Check check = Check
                 .builder()
                 .source(inputFile.toString())
-                .problems(heylogs.validate(readChangelog(inputFile)))
+                .problems(heylogs.checkFormat(readChangelog(inputFile)))
                 .build();
 
         try (Writer writer = newWriter(outputFile, check.hasErrors() ? getLog()::error : getLog()::info)) {

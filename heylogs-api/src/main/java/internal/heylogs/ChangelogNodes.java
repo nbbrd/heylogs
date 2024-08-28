@@ -3,11 +3,14 @@ package internal.heylogs;
 import com.vladsch.flexmark.ast.BulletList;
 import com.vladsch.flexmark.ast.BulletListItem;
 import com.vladsch.flexmark.ast.Heading;
+import com.vladsch.flexmark.ast.Reference;
 import com.vladsch.flexmark.util.ast.Node;
+import com.vladsch.flexmark.util.sequence.BasedSequence;
 import nbbrd.heylogs.Nodes;
 import nbbrd.heylogs.TypeOfChange;
 import nbbrd.heylogs.Version;
 
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -63,5 +66,9 @@ public final class ChangelogNodes {
                 .map(BulletList.class::cast)
                 .flatMap(Nodes.of(BulletListItem.class)::descendants)
                 .collect(toList());
+    }
+
+    public static Reference newReference(Version newVersion, URL newURL) {
+        return new Reference(BasedSequence.of("[" + newVersion.getRef() + "]: " + newURL), null, null);
     }
 }

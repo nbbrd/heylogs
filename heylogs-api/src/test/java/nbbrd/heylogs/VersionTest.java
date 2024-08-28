@@ -1,13 +1,13 @@
 package nbbrd.heylogs;
 
-import _test.Sample;
+import tests.heylogs.api.Sample;
 import com.vladsch.flexmark.ast.Heading;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
-import static _test.Sample.asHeading;
-import static _test.Sample.using;
+import static tests.heylogs.api.Sample.asHeading;
+import static tests.heylogs.api.Sample.using;
 import static nbbrd.heylogs.Version.*;
 import static org.assertj.core.api.Assertions.*;
 

@@ -1,6 +1,7 @@
 # heylogs
 
 [![Download](https://img.shields.io/github/release/nbbrd/heylogs.svg)](https://github.com/nbbrd/heylogs/releases/latest)
+[![Changes](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fnbbrd%2Fheylogs%2Fbadges%2Funreleased-changes.json)](https://github.com/nbbrd/heylogs/blob/develop/CHANGELOG.md)
 
 `heylogs` is a set of tools to deal with the [keep-a-changelog format](https://keepachangelog.com),
 a changelog format designed to be human-readable.
@@ -16,10 +17,39 @@ Features:
 - Checks format
 - Summarizes content
 - Extracts versions
+- Modify content
 
-[ [Library](#library) | [Command-line tool](#command-line-tool) | [Maven plugin](#maven-plugin) | [Developing](#developing) | [Contributing](#contributing)  | [Licensing](#licensing) | [Related work](#related-work)]
+[ [Library](#library) | [Command-line tool](#command-line-tool) | [Maven plugin](#maven-plugin) | [Badges](#badges) | [Developing](#developing) | [Contributing](#contributing)  | [Licensing](#licensing) | [Related work](#related-work)]
 
 ## Library
+
+Heylogs is available as a Java library.  
+_Note that the API is currently in beta and might change frequently._
+
+```xml
+<dependencies>
+   <dependency>
+      <groupId>com.github.nbbrd.heylogs</groupId>
+      <artifactId>heylogs-api</artifactId>
+      <version>_VERSION_</version>
+   </dependency>
+   <dependency>
+      <groupId>com.github.nbbrd.heylogs</groupId>
+      <artifactId>heylogs-ext-github</artifactId>
+      <version>_VERSION_</version>
+      <scope>runtime</scope>
+   </dependency>
+   ...
+</dependencies>
+```
+
+The API is straightforward and has a single point of entry:
+```java
+Heylogs heylogs = Heylogs.ofServiceLoader();
+Document flexmarkDocument = parseFileWithFlexmark(file);
+List<Problem> problems = heylogs.checkFormat(flexmarkDocument);
+...
+```
 
 `WIP`
 
@@ -31,12 +61,13 @@ It requires a Java SE Runtime Environment (JRE) version 8 or later to run on suc
 
 It provides the following commands:
 
-| Name      | Description                     |
-|-----------|---------------------------------|
-| `scan`    | Summarize changelog content     |
-| `check`   | Check changelog format          |
-| `extract` | Extract versions from changelog |
-| `list`    | List available resources        |
+| Name      | Description       |
+|-----------|-------------------|
+| `check`   | Check format      |
+| `scan`    | Summarize content |
+| `extract` | Extract versions  |
+| `release` | Release changes   |
+| `list`    | List resources    |
 
 It follows the Unix philosophy of [“Do one thing and do it well“](https://en.wikipedia.org/wiki/Unix_philosophy#Do_One_Thing_and_Do_It_Well) by performing a single function and beeing composable.
 
@@ -140,12 +171,13 @@ To use the CLI without installing it:
 
 It provides the following goals:
 
-| Name      | Description                     |
-|-----------|---------------------------------|
-| `scan`    | Summarize changelog content     |
-| `check`   | Check changelog format          |
-| `extract` | Extract versions from changelog |
-| `list`    | List available resources        |
+| Name      | Description       |
+|-----------|-------------------|
+| `check`   | Check format      |
+| `scan`    | Summarize content |
+| `extract` | Extract versions  |
+| `release` | Release changes   |
+| `list`    | List resources    |
 
 ### Examples
 
@@ -195,6 +227,16 @@ Extract the latest version from the changelog during a release:
     </build>
 </profile>
 ```
+
+## Badges
+
+Heylogs make it possible to generate nice badges using a [GitHub workflow](https://github.com/nbbrd/heylogs/blob/develop/.github/workflows/heylogs.yml) and the [shields.io API](https://shields.io/badges/endpoint-badge).  
+Here are some examples:
+
+![Endpoint Badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fnbbrd%2Fheylogs%2Fbadges%2Funreleased-changes.json)  
+![Endpoint Badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fnbbrd%2Fheylogs%2Fbadges%2Funreleased-changes.json&label=changelog)  
+![Endpoint Badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fnbbrd%2Fheylogs%2Fbadges%2Funreleased-changes.json&label=changelog&logo=none)  
+![Endpoint Badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fnbbrd%2Fheylogs%2Fbadges%2Funreleased-changes.json&label=%20)
 
 ## Developing
 

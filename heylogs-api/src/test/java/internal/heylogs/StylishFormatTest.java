@@ -5,13 +5,19 @@ import nbbrd.heylogs.spi.FormatLoader;
 import nbbrd.heylogs.spi.FormatType;
 import org.junit.jupiter.api.Test;
 
-import static _test.Sample.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static tests.heylogs.api.Sample.*;
+import static tests.heylogs.spi.FormatAssert.assertFormatCompliance;
 
 class StylishFormatTest {
+
+    @Test
+    public void testCompliance() {
+        assertFormatCompliance(new StylishFormat());
+    }
 
     @Test
     public void testIdPattern() {

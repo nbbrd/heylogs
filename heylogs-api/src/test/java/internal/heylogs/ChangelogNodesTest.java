@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
-import static _test.Sample.asHeading;
-import static _test.Sample.using;
+import static tests.heylogs.api.Sample.asHeading;
+import static tests.heylogs.api.Sample.using;
 import static internal.heylogs.ChangelogNodes.*;
 import static org.assertj.core.api.Assertions.assertThat;
 

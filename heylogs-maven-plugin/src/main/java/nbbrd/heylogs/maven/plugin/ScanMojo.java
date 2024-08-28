@@ -51,7 +51,7 @@ public final class ScanMojo extends HeylogsMojo {
         Scan scan = Scan
                 .builder()
                 .source(inputFile.toString())
-                .summary(heylogs.scan(readChangelog(inputFile)))
+                .summary(heylogs.scanContent(readChangelog(inputFile)))
                 .build();
 
         try (Writer writer = newWriter(outputFile, getLog()::info)) {

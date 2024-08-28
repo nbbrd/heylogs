@@ -4,7 +4,7 @@ import com.vladsch.flexmark.ast.Heading;
 import internal.heylogs.ChangelogNodes;
 import org.junit.jupiter.api.Test;
 
-import static _test.Sample.using;
+import static tests.heylogs.api.Sample.using;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class NodesTest {

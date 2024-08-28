@@ -1,13 +1,9 @@
 package internal.heylogs.maven.plugin;
 
 import lombok.NonNull;
-import nbbrd.design.StaticFactoryMethod;
-import nbbrd.heylogs.Extractor;
 import org.apache.maven.plugin.MojoExecutionException;
 
-import java.time.LocalDate;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 
 @FunctionalInterface
 public interface MojoFunction<X, Y> {
@@ -22,15 +18,5 @@ public interface MojoFunction<X, Y> {
                 throw new MojoExecutionException(errorMessage, ex);
             }
         };
-    }
-
-    @StaticFactoryMethod
-    static @NonNull MojoFunction<String, Pattern> onPattern(@NonNull String errorMessage) {
-        return of(Pattern::compile, errorMessage);
-    }
-
-    @StaticFactoryMethod
-    static @NonNull MojoFunction<String, LocalDate> onLocalDate(@NonNull String errorMessage) {
-        return of(Extractor::parseLocalDate, errorMessage);
     }
 }

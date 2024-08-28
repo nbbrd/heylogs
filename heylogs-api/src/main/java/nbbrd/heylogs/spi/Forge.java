@@ -19,8 +19,11 @@ public interface Forge {
     @NonNull
     String getForgeName();
 
-    boolean isCompareLink(@NonNull CharSequence text);
+    boolean isCompareLink(@NonNull URL url);
 
     @NonNull
-    URL getBaseURL(@NonNull CharSequence text);
+    URL getProjectURL(@NonNull URL url);
+
+    @NonNull
+    URL deriveCompareLink(@NonNull URL latest, @NonNull String nextTag);
 }

@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.github.nbbrd.heylogs</groupId>
         <artifactId>heylogs-parent</artifactId>
-        <version>0.8.1</version>
+        <version>0.9.0</version>
     </parent>
 
     <artifactId>heylogs-bom</artifactId>
@@ -25,7 +25,29 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <artifactId>heylogs-api</artifactId>
+                <groupId>${project.groupId}</groupId>
+                <version>${project.version}</version>
+                <classifier>tests</classifier>
+                <type>test-jar</type>
+            </dependency>
+            <dependency>
                 <artifactId>heylogs-cli</artifactId>
+                <groupId>${project.groupId}</groupId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <artifactId>heylogs-ext-github</artifactId>
+                <groupId>${project.groupId}</groupId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <artifactId>heylogs-ext-json</artifactId>
+                <groupId>${project.groupId}</groupId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <artifactId>heylogs-ext-semver</artifactId>
                 <groupId>${project.groupId}</groupId>
                 <version>${project.version}</version>
             </dependency>

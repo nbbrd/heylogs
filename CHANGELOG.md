@@ -7,6 +7,19 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.9.0] - 2024-08-28
+
+This release adds a release command that greatly improves the use of heylogs in automations.  
+It also brings some code refactoring to split the code into more manageable parts.
+
+### Added
+
+- Add release command to promote the Unreleased section into a new release version section [#10](https://github.com/nbbrd/heylogs/issues/10)
+
+### Changed
+
+- Improve code modularization
+
 ## [0.8.1] - 2024-04-18
 
 ### Fixed
@@ -154,7 +167,8 @@ This release improves extension points and also aligns features of Maven plugin 
 
 - Initial release
 
-[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.8.1...HEAD
+[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/nbbrd/heylogs/compare/v0.8.1...v0.9.0
 [0.8.1]: https://github.com/nbbrd/heylogs/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/nbbrd/heylogs/compare/v0.7.2...v0.8.0
 [0.7.2]: https://github.com/nbbrd/heylogs/compare/v0.7.1...v0.7.2
