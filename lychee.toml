@@ -1,1 +1,1 @@
-exclude_path = ["heylogs-api/src/test/resources/.*","heylogs-ext-github/src/test/resources/.*","heylogs-ext-semver/src/test/resources/.*"]
+exclude_path = ["heylogs-api/src/test/resources/Main.md","heylogs-ext-github/src/test/resources/Main.md","heylogs-ext-semver/src/test/resources/Main.md"]
