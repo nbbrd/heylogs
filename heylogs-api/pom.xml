@@ -73,11 +73,6 @@
             <groupId>com.github.nbbrd.java-io-util</groupId>
             <artifactId>java-io-http</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.11.0</version>
-        </dependency>
 
         <!-- test only -->
         <dependency>

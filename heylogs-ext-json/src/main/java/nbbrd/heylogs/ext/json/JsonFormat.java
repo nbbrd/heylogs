@@ -1,4 +1,4 @@
-package internal.heylogs;
+package nbbrd.heylogs.ext.json;
 
 import com.google.gson.*;
 import lombok.NonNull;

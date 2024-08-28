@@ -244,6 +244,7 @@
         <module>heylogs-maven-plugin</module>
         <module>heylogs-bom</module>
         <module>heylogs-ext-github</module>
+        <module>heylogs-ext-json</module>
         <module>heylogs-ext-semver</module>
     </modules>
 

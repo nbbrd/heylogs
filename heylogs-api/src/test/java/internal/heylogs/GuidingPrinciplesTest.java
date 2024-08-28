@@ -2,28 +2,25 @@ package internal.heylogs;
 
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.util.ast.Node;
-import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleIssue;
-import nbbrd.heylogs.spi.RuleLoader;
 import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
 
-import static tests.heylogs.api.Sample.using;
 import static internal.heylogs.GuidingPrinciples.validateForHumans;
 import static internal.heylogs.GuidingPrinciples.validateLatestVersionFirst;
 import static nbbrd.heylogs.Nodes.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Index.atIndex;
+import static tests.heylogs.api.Sample.using;
+import static tests.heylogs.spi.RuleAssert.assertRuleCompliance;
 
 public class
 GuidingPrinciplesTest {
 
     @Test
-    public void testIdPattern() {
-        assertThat(GuidingPrinciples.values())
-                .extracting(Rule::getRuleId)
-                .allMatch(RuleLoader.ID_PATTERN.asPredicate());
+    public void testCompliance() {
+        assertRuleCompliance(new GuidingPrinciples.Batch());
     }
 
     @Test
