@@ -7,6 +7,17 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+This release adds a release command that greatly improves the use of heylogs in automations.  
+It also brings some code refactoring to split the code into more manageable parts.
+
+### Added
+
+- Add release command to promote the Unreleased section into a new release version section [#10](https://github.com/nbbrd/heylogs/issues/10)
+
+### Changed
+
+- Improve code modularization
+
 ## [0.8.1] - 2024-04-18
 
 ### Fixed

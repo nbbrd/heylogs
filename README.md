@@ -17,10 +17,39 @@ Features:
 - Checks format
 - Summarizes content
 - Extracts versions
+- Modify content
 
 [ [Library](#library) | [Command-line tool](#command-line-tool) | [Maven plugin](#maven-plugin) | [Badges](#badges) | [Developing](#developing) | [Contributing](#contributing)  | [Licensing](#licensing) | [Related work](#related-work)]
 
 ## Library
+
+Heylogs is available as a Java library.  
+_Note that the API is currently in beta and might change frequently._
+
+```xml
+<dependencies>
+   <dependency>
+      <groupId>com.github.nbbrd.heylogs</groupId>
+      <artifactId>heylogs-api</artifactId>
+      <version>_VERSION_</version>
+   </dependency>
+   <dependency>
+      <groupId>com.github.nbbrd.heylogs</groupId>
+      <artifactId>heylogs-ext-github</artifactId>
+      <version>_VERSION_</version>
+      <scope>runtime</scope>
+   </dependency>
+   ...
+</dependencies>
+```
+
+The API is straightforward and has a single point of entry:
+```java
+Heylogs heylogs = Heylogs.ofServiceLoader();
+Document flexmarkDocument = parseFileWithFlexmark(file);
+List<Problem> problems = heylogs.checkFormat(flexmarkDocument);
+...
+```
 
 `WIP`
 
@@ -37,6 +66,7 @@ It provides the following commands:
 | `check`   | Check format      |
 | `scan`    | Summarize content |
 | `extract` | Extract versions  |
+| `release` | Release changes   |
 | `list`    | List resources    |
 
 It follows the Unix philosophy of [“Do one thing and do it well“](https://en.wikipedia.org/wiki/Unix_philosophy#Do_One_Thing_and_Do_It_Well) by performing a single function and beeing composable.
@@ -146,6 +176,7 @@ It provides the following goals:
 | `check`   | Check format      |
 | `scan`    | Summarize content |
 | `extract` | Extract versions  |
+| `release` | Release changes   |
 | `list`    | List resources    |
 
 ### Examples
