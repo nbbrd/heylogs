@@ -1,4 +1,4 @@
-package _test;
+package tests.heylogs.api;
 
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.formatter.Formatter;

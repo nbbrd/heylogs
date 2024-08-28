@@ -1,11 +1,14 @@
 package nbbrd.heylogs;
 
-import _test.Sample;
+import tests.heylogs.api.Sample;
 import com.vladsch.flexmark.util.ast.Document;
+import com.vladsch.flexmark.util.ast.Node;
 import internal.heylogs.StylishFormat;
-import internal.heylogs.semver.SemVerRule;
+import lombok.NonNull;
 import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleIssue;
+import nbbrd.heylogs.spi.RuleSeverity;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -13,7 +16,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Function;
 
-import static _test.Sample.using;
+import static tests.heylogs.api.Sample.using;
 import static internal.heylogs.URLExtractor.urlOf;
 import static java.util.Collections.singletonList;
 import static nbbrd.heylogs.Filter.builder;
@@ -36,11 +39,11 @@ public class HeylogsTest {
                 .map(Rule::getRuleId)
                 .doesNotContain("semver");
 
-        assertThat(Heylogs.ofServiceLoader().toBuilder().rule(new SemVerRule()).build())
+        assertThat(Heylogs.ofServiceLoader().toBuilder().rule(new MockedRule()).build())
                 .extracting(Heylogs::getRules, list(Rule.class))
                 .hasSizeGreaterThan(1)
                 .map(Rule::getRuleId)
-                .contains("semver");
+                .contains("mocked");
     }
 
     @Test
@@ -156,7 +159,7 @@ public class HeylogsTest {
                         .valid(true)
                         .releaseCount(13)
                         .timeRange(TimeRange.of(LocalDate.of(2014, 5, 31), LocalDate.of(2019, 2, 15)))
-                        .compatibility("Semantic Versioning")
+//                        .compatibility("Semantic Versioning")
                         .unreleasedChanges(2)
                         .forgeName("GitHub")
                         .forgeURL(urlOf("https://github.com/olivierlacan/keep-a-changelog"))
@@ -249,5 +252,38 @@ public class HeylogsTest {
     private static String releaseChangesToString(Heylogs heylogs, Document doc, Version version) {
         heylogs.releaseChanges(doc, version, "v");
         return Sample.FORMATTER.render(doc);
+    }
+
+    private static final class MockedRule implements Rule {
+
+        @Override
+        public @NonNull String getRuleId() {
+            return "mocked";
+        }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "";
+        }
+
+        @Override
+        public @NonNull String getRuleCategory() {
+            return "";
+        }
+
+        @Override
+        public boolean isRuleAvailable() {
+            return false;
+        }
+
+        @Override
+        public @NonNull RuleSeverity getRuleSeverity() {
+            return RuleSeverity.OFF;
+        }
+
+        @Override
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node) {
+            return null;
+        }
     }
 }

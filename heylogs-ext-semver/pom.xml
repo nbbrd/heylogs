@@ -10,24 +10,8 @@
         <version>0.8.2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>heylogs-api</artifactId>
+    <artifactId>heylogs-ext-semver</artifactId>
     <packaging>jar</packaging>
-
-    <name>heylogs-api</name>
-    <description>Keep-a-changelog tool - API</description>
-    <url>https://github.com/nbbrd/heylogs</url>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.github.nbbrd.java-io-util</groupId>
-                <artifactId>java-io-bom</artifactId>
-                <version>0.0.30</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <dependencies>
         <!-- compile only -->
@@ -54,10 +38,14 @@
 
         <!-- compile and runtime -->
         <dependency>
-            <groupId>com.vladsch.flexmark</groupId>
-            <artifactId>flexmark</artifactId>
-            <!-- last version for Java8 -->
-            <version>0.62.2</version>
+            <artifactId>heylogs-api</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.semver4j</groupId>
+            <artifactId>semver4j</artifactId>
+            <version>5.3.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.jetbrains</groupId>
@@ -65,21 +53,16 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>com.github.nbbrd.java-io-util</groupId>
-            <artifactId>java-io-base</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.github.nbbrd.java-io-util</groupId>
-            <artifactId>java-io-http</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.11.0</version>
-        </dependency>
 
         <!-- test only -->
+        <dependency>
+            <artifactId>heylogs-api</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <version>${project.version}</version>
+            <classifier>tests</classifier>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
@@ -91,25 +74,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                        <configuration>
-                            <includes>
-                                <include>tests/**</include>
-                            </includes>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>

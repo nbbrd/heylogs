@@ -1,6 +1,6 @@
 package internal.heylogs.github;
 
-import _test.Sample;
+import tests.heylogs.api.Sample;
 import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.util.ast.Node;
 import nbbrd.heylogs.Nodes;
@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
 
-import static _test.Sample.using;
+import static tests.heylogs.api.Sample.using;
 import static internal.heylogs.github.GitHubRules.*;
 import static java.util.stream.Collectors.toList;
 import static nbbrd.heylogs.Nodes.of;

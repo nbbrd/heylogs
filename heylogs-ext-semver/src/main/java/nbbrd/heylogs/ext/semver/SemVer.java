@@ -1,4 +1,4 @@
-package internal.heylogs.semver;
+package nbbrd.heylogs.ext.semver;
 
 import lombok.NonNull;
 import nbbrd.design.DirectImpl;

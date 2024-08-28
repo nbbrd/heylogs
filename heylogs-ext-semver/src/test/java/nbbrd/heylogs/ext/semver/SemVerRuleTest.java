@@ -1,23 +1,22 @@
-package internal.heylogs.semver;
+package nbbrd.heylogs.ext.semver;
 
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.util.ast.Node;
 import nbbrd.heylogs.spi.RuleIssue;
-import nbbrd.heylogs.spi.RuleLoader;
 import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
 
-import static _test.Sample.using;
 import static nbbrd.heylogs.Nodes.of;
 import static org.assertj.core.api.Assertions.assertThat;
+import static tests.heylogs.api.Sample.using;
+import static tests.heylogs.spi.RuleAssert.assertRuleCompliance;
 
 public class SemVerRuleTest {
 
     @Test
-    public void testIdPattern() {
-        assertThat(new SemVerRule().getRuleId())
-                .matches(RuleLoader.ID_PATTERN);
+    public void testCompliance() {
+        assertRuleCompliance(new SemVerRule());
     }
 
     @Test

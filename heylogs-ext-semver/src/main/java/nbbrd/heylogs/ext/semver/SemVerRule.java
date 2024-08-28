@@ -1,4 +1,4 @@
-package internal.heylogs.semver;
+package nbbrd.heylogs.ext.semver;
 
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.util.ast.Node;

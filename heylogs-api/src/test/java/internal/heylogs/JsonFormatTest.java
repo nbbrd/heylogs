@@ -4,7 +4,7 @@ import nbbrd.heylogs.spi.Format;
 import nbbrd.heylogs.spi.FormatLoader;
 import org.junit.jupiter.api.Test;
 
-import static _test.Sample.*;
+import static tests.heylogs.api.Sample.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;

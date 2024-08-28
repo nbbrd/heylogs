@@ -1,9 +1,9 @@
 package nbbrd.heylogs.maven.plugin;
 
 import internal.heylogs.StylishFormat;
-import internal.heylogs.semver.SemVer;
 import nbbrd.heylogs.Check;
 import nbbrd.heylogs.Heylogs;
+import nbbrd.heylogs.ext.semver.SemVer;
 import nbbrd.heylogs.spi.Versioning;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;

@@ -243,6 +243,7 @@
         <module>heylogs-cli</module>
         <module>heylogs-maven-plugin</module>
         <module>heylogs-bom</module>
+        <module>heylogs-ext-semver</module>
     </modules>
 
     <profiles>

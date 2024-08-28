@@ -1,7 +1,7 @@
 package internal.heylogs.cli;
 
-import internal.heylogs.semver.SemVerRule;
 import nbbrd.heylogs.Heylogs;
+import nbbrd.heylogs.ext.semver.SemVerRule;
 import picocli.CommandLine;
 
 @lombok.Getter

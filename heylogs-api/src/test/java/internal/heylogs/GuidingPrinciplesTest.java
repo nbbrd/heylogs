@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
 
-import static _test.Sample.using;
+import static tests.heylogs.api.Sample.using;
 import static internal.heylogs.GuidingPrinciples.validateForHumans;
 import static internal.heylogs.GuidingPrinciples.validateLatestVersionFirst;
 import static nbbrd.heylogs.Nodes.of;
