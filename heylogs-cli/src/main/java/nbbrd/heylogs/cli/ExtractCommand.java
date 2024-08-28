@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 import static internal.heylogs.cli.MarkdownInputSupport.newMarkdownInputSupport;
 import static internal.heylogs.cli.MarkdownOutputSupport.newMarkdownOutputSupport;
 
-@Command(name = "extract", description = "Extract versions from changelog.")
+@Command(name = "extract", description = "Extract versions.")
 public final class ExtractCommand implements Callable<Void> {
 
     @CommandLine.Mixin

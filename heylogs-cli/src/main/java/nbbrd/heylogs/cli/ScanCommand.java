@@ -16,7 +16,7 @@ import java.util.concurrent.Callable;
 import static internal.heylogs.cli.MarkdownInputSupport.newMarkdownInputSupport;
 import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
 
-@Command(name = "scan", description = "Summarize changelog content.")
+@Command(name = "scan", description = "Summarize content.")
 public final class ScanCommand implements Callable<Void> {
 
     @CommandLine.Mixin

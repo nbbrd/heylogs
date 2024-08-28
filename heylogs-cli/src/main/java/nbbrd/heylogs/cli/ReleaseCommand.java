@@ -17,7 +17,7 @@ import java.util.concurrent.Callable;
 import static internal.heylogs.cli.MarkdownInputSupport.newMarkdownInputSupport;
 import static internal.heylogs.cli.MarkdownOutputSupport.newMarkdownOutputSupport;
 
-@Command(name = "release", description = "Release unreleased changes in changelog.")
+@Command(name = "release", description = "Release changes.")
 public final class ReleaseCommand implements Callable<Void> {
 
     @CommandLine.Mixin

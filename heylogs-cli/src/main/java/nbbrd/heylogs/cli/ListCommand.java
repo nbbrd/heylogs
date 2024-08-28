@@ -14,7 +14,7 @@ import java.util.concurrent.Callable;
 
 import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
 
-@Command(name = "list", description = "List available resources.")
+@Command(name = "list", description = "List resources.")
 public final class ListCommand implements Callable<Void> {
 
     @CommandLine.Mixin

@@ -32,12 +32,12 @@ It requires a Java SE Runtime Environment (JRE) version 8 or later to run on suc
 
 It provides the following commands:
 
-| Name      | Description                     |
-|-----------|---------------------------------|
-| `scan`    | Summarize changelog content     |
-| `check`   | Check changelog format          |
-| `extract` | Extract versions from changelog |
-| `list`    | List available resources        |
+| Name      | Description       |
+|-----------|-------------------|
+| `check`   | Check format      |
+| `scan`    | Summarize content |
+| `extract` | Extract versions  |
+| `list`    | List resources    |
 
 It follows the Unix philosophy of [“Do one thing and do it well“](https://en.wikipedia.org/wiki/Unix_philosophy#Do_One_Thing_and_Do_It_Well) by performing a single function and beeing composable.
 
@@ -141,12 +141,12 @@ To use the CLI without installing it:
 
 It provides the following goals:
 
-| Name      | Description                     |
-|-----------|---------------------------------|
-| `scan`    | Summarize changelog content     |
-| `check`   | Check changelog format          |
-| `extract` | Extract versions from changelog |
-| `list`    | List available resources        |
+| Name      | Description       |
+|-----------|-------------------|
+| `check`   | Check format      |
+| `scan`    | Summarize content |
+| `extract` | Extract versions  |
+| `list`    | List resources    |
 
 ### Examples
 
