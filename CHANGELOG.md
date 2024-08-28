@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix missing javadoc resources
+
 ## [0.9.0] - 2024-08-28
 
 This release adds a release command that greatly improves the use of heylogs in automations.  
