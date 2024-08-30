@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.util.function.Function;
 
-import static nbbrd.heylogs.Filter.builder;
 import static nbbrd.heylogs.Filter.parseLocalDate;
 import static nbbrd.heylogs.Version.HYPHEN;
 import static org.assertj.core.api.Assertions.*;
@@ -15,43 +14,43 @@ public class FilterTest {
 
     @Test
     public void testRef() {
-        assertThat(builder().build())
+        assertThat(Filter.builder().build())
                 .describedAs("Empty reference")
                 .is(containing(unreleased))
                 .is(containing(v1_1_0))
                 .is(containing(v1_0_0));
 
-        assertThat(builder().ref("Unreleased").build())
+        assertThat(Filter.builder().ref("Unreleased").build())
                 .describedAs("Full reference")
                 .is(containing(unreleased))
                 .isNot(containing(v1_1_0))
                 .isNot(containing(v1_0_0));
 
-        assertThat(builder().ref("1.1.0").build())
+        assertThat(Filter.builder().ref("1.1.0").build())
                 .describedAs("Full reference")
                 .isNot(containing(unreleased))
                 .is(containing(v1_1_0))
                 .isNot(containing(v1_0_0));
 
-        assertThat(builder().ref("rel").build())
+        assertThat(Filter.builder().ref("rel").build())
                 .describedAs("Partial reference")
                 .is(containing(unreleased))
                 .isNot(containing(v1_1_0))
                 .isNot(containing(v1_0_0));
 
-        assertThat(builder().ref("1.").build())
+        assertThat(Filter.builder().ref("1.").build())
                 .describedAs("Partial reference")
                 .isNot(containing(unreleased))
                 .is(containing(v1_1_0))
                 .is(containing(v1_0_0));
 
-        assertThat(builder().ref("other").build())
+        assertThat(Filter.builder().ref("other").build())
                 .describedAs("Unknown reference")
                 .isNot(containing(unreleased))
                 .isNot(containing(v1_1_0))
                 .isNot(containing(v1_0_0));
 
-        assertThat(builder().ref("other-SNAPSHOT").build())
+        assertThat(Filter.builder().ref("other-SNAPSHOT").build())
                 .describedAs("Matching unreleased pattern reference")
                 .is(containing(unreleased))
                 .isNot(containing(v1_1_0))
@@ -60,7 +59,7 @@ public class FilterTest {
 
     @Test
     public void testTimeRange() {
-        Function<TimeRange, Filter> onTimeRange = o -> builder().timeRange(o).build();
+        Function<TimeRange, Filter> onTimeRange = o -> Filter.builder().timeRange(o).build();
 
         assertThat(TimeRange.ALL)
                 .extracting(onTimeRange)

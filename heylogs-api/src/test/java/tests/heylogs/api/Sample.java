@@ -9,36 +9,32 @@ import nbbrd.heylogs.spi.RuleIssue;
 import nbbrd.io.function.IOConsumer;
 import org.assertj.core.util.URLs;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.Objects;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static nbbrd.heylogs.spi.RuleSeverity.ERROR;
+import static nbbrd.io.function.IOFunction.unchecked;
 
 public class Sample {
 
     public static Document using(String name) {
-        try (InputStream stream = Sample.class.getResourceAsStream(name)) {
-            if (stream == null) {
-                throw new IllegalArgumentException("Missing resource '" + name + "'");
-            }
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
-                return FlexmarkIO.newParser().parseReader(reader);
-            }
-        } catch (IOException ex) {
-            throw new UncheckedIOException(ex);
-        }
+        return unchecked((String x) -> FlexmarkIO.newTextParser().parseResource(Sample.class, x, UTF_8))
+                .apply(name);
     }
 
     public static Heading asHeading(String text) {
-        return (Heading) FlexmarkIO.newParser().parse(text).getChildOfType(Heading.class);
+        return unchecked(FlexmarkIO.newTextParser()::parseChars)
+                .andThen(doc -> (Heading) doc.getChildOfType(Heading.class))
+                .apply(text);
     }
 
     public static String asText(Heading heading) {
         Document doc = new Document(null, BasedSequence.NULL);
         doc.appendChild(heading);
-        return FlexmarkIO.newFormatter().render(doc).trim();
+        return unchecked(FlexmarkIO.newTextFormatter()::formatToString)
+                .andThen(String::trim)
+                .apply(doc);
     }
 
     public static final Problem PROBLEM1 = Problem.builder().id("rule1").severity(ERROR).issue(RuleIssue.builder().message("boom").line(5).column(18).build()).build();
@@ -72,6 +68,6 @@ public class Sample {
     }
 
     public static String contentOf(Class<?> anchor, String resourceName) {
-        return URLs.contentOf(Objects.requireNonNull(anchor.getResource(resourceName)), StandardCharsets.UTF_8);
+        return URLs.contentOf(Objects.requireNonNull(anchor.getResource(resourceName)), UTF_8);
     }
 }

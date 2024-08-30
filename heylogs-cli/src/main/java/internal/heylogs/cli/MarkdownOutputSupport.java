@@ -1,6 +1,5 @@
 package internal.heylogs.cli;
 
-import com.vladsch.flexmark.formatter.Formatter;
 import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.FlexmarkIO;
 import lombok.AccessLevel;
@@ -10,7 +9,6 @@ import nbbrd.console.picocli.text.TextOutputSupport;
 import nbbrd.design.StaticFactoryMethod;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.nio.file.Path;
 
 @lombok.Getter
@@ -24,11 +22,7 @@ public class MarkdownOutputSupport extends TextOutputSupport {
         return CommandSupporter.create(MarkdownOutputSupport::new, supporters);
     }
 
-    private @NonNull Formatter formatter = FlexmarkIO.newFormatter();
-
     public void writeDocument(Path file, Document document) throws IOException {
-        try (Writer writer = newBufferedWriter(file)) {
-            formatter.render(document, writer);
-        }
+        FlexmarkIO.newTextFormatter().formatWriter(document, () -> newBufferedWriter(file));
     }
 }
