@@ -1,7 +1,7 @@
 package internal.heylogs.cli;
 
-import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
+import internal.heylogs.FlexmarkIO;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.console.picocli.CommandSupporter;
@@ -9,7 +9,6 @@ import nbbrd.console.picocli.text.TextInputSupport;
 import nbbrd.design.StaticFactoryMethod;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
 import java.util.Locale;
@@ -25,12 +24,8 @@ public class MarkdownInputSupport extends TextInputSupport implements DirectoryS
         return CommandSupporter.create(MarkdownInputSupport::new, supporters);
     }
 
-    private @NonNull Parser parser = Parser.builder().build();
-
     public Document readDocument(Path file) throws IOException {
-        try (Reader reader = newBufferedReader(file)) {
-            return parser.parseReader(reader);
-        }
+        return FlexmarkIO.newTextParser().parseReader(() -> newBufferedReader(file));
     }
 
     public String getName(Path file) {

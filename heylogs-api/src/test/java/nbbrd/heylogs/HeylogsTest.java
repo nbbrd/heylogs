@@ -2,6 +2,7 @@ package nbbrd.heylogs;
 
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
+import internal.heylogs.FlexmarkIO;
 import internal.heylogs.StylishFormat;
 import lombok.NonNull;
 import nbbrd.design.MightBePromoted;
@@ -11,7 +12,6 @@ import nbbrd.heylogs.spi.RuleIssue;
 import nbbrd.heylogs.spi.RuleSeverity;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.jupiter.api.Test;
-import tests.heylogs.api.Sample;
 
 import java.io.IOException;
 import java.net.URL;
@@ -21,9 +21,9 @@ import java.util.function.Function;
 
 import static internal.heylogs.URLExtractor.urlOf;
 import static java.util.Collections.singletonList;
-import static nbbrd.heylogs.Filter.builder;
 import static nbbrd.heylogs.Heylogs.FIRST_FORMAT_AVAILABLE;
 import static nbbrd.heylogs.spi.RuleSeverity.ERROR;
+import static nbbrd.io.function.IOFunction.unchecked;
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.InstanceOfAssertFactories.list;
 import static tests.heylogs.api.Sample.using;
@@ -62,13 +62,9 @@ public class HeylogsTest {
     public void testExtractVersions() {
         Heylogs x = Heylogs.ofServiceLoader();
 
-        Function<Filter, String> usingMain = extractor -> {
-            Document doc = using("/Main.md");
-            x.extractVersions(doc, extractor);
-            return Sample.FORMATTER.render(doc);
-        };
+        Function<Filter, String> usingMain = extractor -> extractVersionsToString(x, using("/Main.md"), extractor);
 
-        assertThat(builder().ref("1.1.0").build())
+        assertThat(Filter.builder().ref("1.1.0").build())
                 .extracting(usingMain, STRING)
                 .isEqualTo(
                         "## [1.1.0] - 2019-02-15\n" +
@@ -84,18 +80,16 @@ public class HeylogsTest {
                                 "- Fixed typos in Italian translation from [@lorenzo-arena](https://github.com/lorenzo-arena).\n" +
                                 "- Fixed typos in Indonesian translation from [@ekojs](https://github.com/ekojs).\n" +
                                 "\n" +
-                                "[1.1.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.0...v1.1.0\n" +
-                                "\n");
+                                "[1.1.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.0...v1.1.0\n");
 
-        assertThat(builder().ref("1.1.0").ignoreContent(true).build())
+        assertThat(Filter.builder().ref("1.1.0").ignoreContent(true).build())
                 .extracting(usingMain, STRING)
                 .isEqualTo(
                         "## [1.1.0] - 2019-02-15\n" +
                                 "\n" +
-                                "[1.1.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.0...v1.1.0\n" +
-                                "\n");
+                                "[1.1.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.0...v1.1.0\n");
 
-        assertThat(builder().ref("zzz").build())
+        assertThat(Filter.builder().ref("zzz").build())
                 .extracting(usingMain, STRING)
                 .isEmpty();
     }
@@ -127,7 +121,8 @@ public class HeylogsTest {
                         "## [1.2.3] - 2010-01-01",
                         "[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.2.3...HEAD",
                         "[1.2.3]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.0...v1.2.3")
-                .doesNotContain("[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.0...HEAD");
+                .doesNotContain("[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.0...HEAD")
+                .endsWith("[0.0.1]: https://github.com/olivierlacan/keep-a-changelog/releases/tag/v0.0.1\n");
 
         assertThat(releaseChangesToString(x, using("/UnreleasedChanges.md"), v123))
                 .contains(
@@ -135,7 +130,8 @@ public class HeylogsTest {
                         "## [1.2.3] - 2010-01-01",
                         "[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.2.3...HEAD",
                         "[1.2.3]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.0...v1.2.3")
-                .doesNotContain("[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.0...HEAD");
+                .doesNotContain("[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.0...HEAD")
+                .endsWith("[1.1.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.0...v1.1.0\n");
 
         assertThat(releaseChangesToString(x, using("/FirstRelease.md"), v123))
                 .contains(
@@ -143,7 +139,8 @@ public class HeylogsTest {
                         "## [1.2.3] - 2010-01-01",
                         "[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.2.3...HEAD",
                         "[1.2.3]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.2.3...v1.2.3")
-                .doesNotContain("[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/HEAD...HEAD");
+                .doesNotContain("[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/HEAD...HEAD")
+                .endsWith("[1.2.3]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.2.3...v1.2.3\n");
     }
 
     @Test
@@ -259,9 +256,14 @@ public class HeylogsTest {
                 );
     }
 
+    private static String extractVersionsToString(Heylogs heylogs, Document doc, Filter extractor) {
+        heylogs.extractVersions(doc, extractor);
+        return unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc);
+    }
+
     private static String releaseChangesToString(Heylogs heylogs, Document doc, Version version) {
         heylogs.releaseChanges(doc, version, "v");
-        return Sample.FORMATTER.render(doc);
+        return unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc);
     }
 
     private static final class MockedRule implements Rule {

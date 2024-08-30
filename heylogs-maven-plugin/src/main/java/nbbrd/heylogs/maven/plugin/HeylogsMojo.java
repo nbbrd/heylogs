@@ -1,8 +1,7 @@
 package nbbrd.heylogs.maven.plugin;
 
-import com.vladsch.flexmark.formatter.Formatter;
-import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
+import internal.heylogs.FlexmarkIO;
 import nbbrd.design.MightBePromoted;
 import nbbrd.heylogs.Heylogs;
 import nbbrd.heylogs.ext.semver.SemVerRule;
@@ -15,6 +14,7 @@ import java.nio.file.Files;
 import java.util.function.Consumer;
 
 import static internal.heylogs.maven.plugin.HeylogsParameters.isMojoLogFile;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
 
 abstract class HeylogsMojo extends AbstractMojo {
@@ -43,9 +43,8 @@ abstract class HeylogsMojo extends AbstractMojo {
 
     protected Document readChangelog(File inputFile) throws MojoExecutionException {
         getLog().info("Reading changelog " + inputFile);
-        Parser parser = Parser.builder().build();
-        try (Reader reader = Files.newBufferedReader(inputFile.toPath())) {
-            return parser.parseReader(reader);
+        try {
+            return FlexmarkIO.newTextParser().parseFile(inputFile, UTF_8);
         } catch (IOException ex) {
             throw new MojoExecutionException("Failed to read changelog", ex);
         }
@@ -53,12 +52,9 @@ abstract class HeylogsMojo extends AbstractMojo {
 
     protected void writeChangelog(Document document, File outputFile) throws MojoExecutionException {
         getLog().info("Writing changelog " + outputFile);
-        Formatter formatter = Formatter.builder().build();
         try {
             Files.createDirectories(outputFile.getParentFile().toPath());
-            try (Writer writer = Files.newBufferedWriter(outputFile.toPath())) {
-                formatter.render(document, writer);
-            }
+            FlexmarkIO.newTextFormatter().formatFile(document, outputFile, UTF_8);
         } catch (IOException ex) {
             throw new MojoExecutionException("Failed to write changelog", ex);
         }
