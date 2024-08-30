@@ -3,6 +3,7 @@ package nbbrd.heylogs.maven.plugin;
 import com.vladsch.flexmark.formatter.Formatter;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
+import internal.heylogs.FlexmarkIO;
 import nbbrd.design.MightBePromoted;
 import nbbrd.heylogs.Heylogs;
 import nbbrd.heylogs.ext.semver.SemVerRule;
@@ -43,7 +44,7 @@ abstract class HeylogsMojo extends AbstractMojo {
 
     protected Document readChangelog(File inputFile) throws MojoExecutionException {
         getLog().info("Reading changelog " + inputFile);
-        Parser parser = Parser.builder().build();
+        Parser parser = FlexmarkIO.newParser();
         try (Reader reader = Files.newBufferedReader(inputFile.toPath())) {
             return parser.parseReader(reader);
         } catch (IOException ex) {
@@ -53,7 +54,7 @@ abstract class HeylogsMojo extends AbstractMojo {
 
     protected void writeChangelog(Document document, File outputFile) throws MojoExecutionException {
         getLog().info("Writing changelog " + outputFile);
-        Formatter formatter = Formatter.builder().build();
+        Formatter formatter = FlexmarkIO.newFormatter();
         try {
             Files.createDirectories(outputFile.getParentFile().toPath());
             try (Writer writer = Files.newBufferedWriter(outputFile.toPath())) {
