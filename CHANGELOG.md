@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Modernize use of NIO API
+
 ## [0.9.2] - 2024-08-30
 
 - Fix blank line at the end of file [#299](https://github.com/nbbrd/heylogs/issues/299)

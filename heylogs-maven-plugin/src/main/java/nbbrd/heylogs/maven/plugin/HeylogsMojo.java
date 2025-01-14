@@ -66,7 +66,7 @@ abstract class HeylogsMojo extends AbstractMojo {
         }
         File parentDir = projectBaseDir.getParentFile();
         if (parentDir != null) {
-            File parentPom = new File(parentDir, "pom.xml");
+            File parentPom = parentDir.toPath().resolve("pom.xml").toFile();
             return !parentPom.exists();
         }
         return true;
