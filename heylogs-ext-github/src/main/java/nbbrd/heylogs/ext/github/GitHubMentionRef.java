@@ -56,5 +56,5 @@ class GitHubMentionRef implements ForgeRef<GitHubMentionLink> {
     }
 
     // https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#mentioning-people-and-teams
-    private static final Pattern PATTERN = Pattern.compile("@(?<user>[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38})|@(?<organization>[^:/$]+)/(?<teamName>[^:/$]+)");
+    private static final Pattern PATTERN = Pattern.compile("@(?<user>[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38})|@(?<organization>[^:/$]+)/(?<teamName>[^:/$]+)", Pattern.CASE_INSENSITIVE);
 }

@@ -42,6 +42,14 @@ class GitHubMentionLinkTest {
                 .returns("nbbrd", GitHubMentionLink::getOrganization)
                 .returns("devs", GitHubMentionLink::getTeamName)
                 .hasToString("https://github.com/orgs/nbbrd/teams/devs");
+
+        assertThat(parse("https://github.com/orgs/nbbRD/teams/dEvs"))
+                .describedAs("case sensitivity")
+                .returns(URLExtractor.urlOf("https://github.com"), GitHubMentionLink::getBase)
+                .returns(null, GitHubMentionLink::getUser)
+                .returns("nbbRD", GitHubMentionLink::getOrganization)
+                .returns("dEvs", GitHubMentionLink::getTeamName)
+                .hasToString("https://github.com/orgs/nbbRD/teams/dEvs");
     }
 
 }

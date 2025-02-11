@@ -64,6 +64,14 @@ class GitHubCommitSHALinkTest {
                 .returns("862157d164a8afa1fdd3295c89ceb394efbcb82d", GitHubCommitSHALink::getHash)
                 .hasToString("https://github.com/nbbrd/heylogs/commit/862157d164a8afa1fdd3295c89ceb394efbcb82d");
 
+        assertThat(parse("https://github.com/nbbRD/heyLOGS/commit/862157d164a8afa1fdd3295c89ceb394efbcb82D"))
+                .describedAs("case sensitivity")
+                .returns(urlOf("https://github.com"), GitHubCommitSHALink::getBase)
+                .returns("nbbRD", GitHubCommitSHALink::getOwner)
+                .returns("heyLOGS", GitHubCommitSHALink::getRepo)
+                .returns("862157d164a8afa1fdd3295c89ceb394efbcb82D", GitHubCommitSHALink::getHash)
+                .hasToString("https://github.com/nbbRD/heyLOGS/commit/862157d164a8afa1fdd3295c89ceb394efbcb82D");
+
         assertThat(parse("https://localhost:8080/nbbrd/heylogs/commit/862157d164a8afa1fdd3295c89ceb394efbcb82d"))
                 .returns(urlOf("https://localhost:8080"), GitHubCommitSHALink::getBase)
                 .returns("nbbrd", GitHubCommitSHALink::getOwner)
