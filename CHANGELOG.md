@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.9.3] - 2025-02-11
+
 ### Fixed
 
 - Fix case sensitivity in link parsing [355](https://github.com/nbbrd/heylogs/issues/355)
@@ -185,7 +187,8 @@ This release improves extension points and also aligns features of Maven plugin 
 
 - Initial release
 
-[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.9.2...HEAD
+[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.9.3...HEAD
+[0.9.3]: https://github.com/nbbrd/heylogs/compare/v0.9.2...v0.9.3
 [0.9.2]: https://github.com/nbbrd/heylogs/compare/v0.9.1...v0.9.2
 [0.9.1]: https://github.com/nbbrd/heylogs/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/nbbrd/heylogs/compare/v0.8.1...v0.9.0
