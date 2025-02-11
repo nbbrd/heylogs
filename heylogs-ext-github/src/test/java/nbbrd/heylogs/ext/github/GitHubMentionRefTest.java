@@ -33,6 +33,13 @@ class GitHubMentionRefTest {
                 .returns("nbbrd", GitHubMentionRef::getOrganization)
                 .returns("devs", GitHubMentionRef::getTeamName)
                 .hasToString("@nbbrd/devs");
+
+        assertThat(parse("@nbbRD/dEvs"))
+                .describedAs("case sensitivity")
+                .returns(null, GitHubMentionRef::getUser)
+                .returns("nbbRD", GitHubMentionRef::getOrganization)
+                .returns("dEvs", GitHubMentionRef::getTeamName)
+                .hasToString("@nbbRD/dEvs");
     }
 
     @SuppressWarnings("DataFlowIssue")

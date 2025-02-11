@@ -73,6 +73,14 @@ class GitHubIssueLinkTest {
                 .returns(217, GitHubIssueLink::getIssueNumber)
                 .hasToString("https://github.com/nbbrd/heylogs/pull/217");
 
+        assertThat(parse("https://github.com/nbbRD/heyLOGS/issues/173"))
+                .describedAs("case sensitivity")
+                .returns(URLExtractor.urlOf("https://github.com"), GitHubIssueLink::getBase)
+                .returns("nbbRD", GitHubIssueLink::getOwner)
+                .returns("heyLOGS", GitHubIssueLink::getRepo)
+                .returns("issues", GitHubIssueLink::getType)
+                .returns(173, GitHubIssueLink::getIssueNumber)
+                .hasToString("https://github.com/nbbRD/heyLOGS/issues/173");
 
         assertThat(parse("https://localhost:8080/nbbrd/heylogs/issues/173"))
                 .returns(URLExtractor.urlOf("https://localhost:8080"), GitHubIssueLink::getBase)

@@ -58,10 +58,6 @@ class GitHubCompareLink implements ForgeLink {
         return urlOf(toString());
     }
 
-    private static final Pattern OWNER = Pattern.compile("[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38}");
-    private static final Pattern REPO = Pattern.compile("[a-z\\d._-]{1,100}");
-    private static final Pattern OID = Pattern.compile(".+\\.{3}.+");
-
     public GitHubCompareLink derive(String tag) {
         return new GitHubCompareLink(base, owner, repo, type, getOid(tag));
     }
@@ -75,4 +71,8 @@ class GitHubCompareLink implements ForgeLink {
                 ? oid.startsWith("HEAD...") ? (tag + "..." + tag) : (oid.substring(0, oid.length() - 4) + tag)
                 : (oid.substring(oid.indexOf("...") + 3) + "..." + tag);
     }
+
+    private static final Pattern OWNER = Pattern.compile("[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38}", Pattern.CASE_INSENSITIVE);
+    private static final Pattern REPO = Pattern.compile("[a-z\\d._-]{1,100}", Pattern.CASE_INSENSITIVE);
+    private static final Pattern OID = Pattern.compile(".+\\.{3}.+");
 }

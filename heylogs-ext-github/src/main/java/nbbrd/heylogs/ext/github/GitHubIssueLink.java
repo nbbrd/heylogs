@@ -50,7 +50,7 @@ class GitHubIssueLink implements ForgeLink {
         return URLQueryBuilder.of(base).path(owner).path(repo).path(type).path(String.valueOf(issueNumber)).toString();
     }
 
-    private static final Pattern OWNER = Pattern.compile("[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38}");
-    private static final Pattern REPO = Pattern.compile("[a-z\\d._-]{1,100}");
+    private static final Pattern OWNER = Pattern.compile("[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38}", Pattern.CASE_INSENSITIVE);
+    private static final Pattern REPO = Pattern.compile("[a-z\\d._-]{1,100}", Pattern.CASE_INSENSITIVE);
     private static final Pattern NUMBER = Pattern.compile("\\d+");
 }

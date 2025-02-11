@@ -39,6 +39,13 @@ class GitHubCommitSHARefTest {
                 .returns("heylogs", GitHubCommitSHARef::getRepo)
                 .returns("862157d", GitHubCommitSHARef::getHash)
                 .hasToString("nbbrd/heylogs@862157d");
+
+        assertThat(parse("nbbRD/heyLOGS@862157D"))
+                .describedAs("case sensitivity")
+                .returns("nbbRD", GitHubCommitSHARef::getOwner)
+                .returns("heyLOGS", GitHubCommitSHARef::getRepo)
+                .returns("862157D", GitHubCommitSHARef::getHash)
+                .hasToString("nbbRD/heyLOGS@862157D");
     }
 
     @SuppressWarnings("DataFlowIssue")

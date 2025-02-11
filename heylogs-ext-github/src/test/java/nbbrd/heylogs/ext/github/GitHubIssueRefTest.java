@@ -32,6 +32,13 @@ class GitHubIssueRefTest {
                 .returns("heylogs", GitHubIssueRef::getRepo)
                 .returns(173, GitHubIssueRef::getIssueNumber)
                 .hasToString("nbbrd/heylogs#173");
+
+        assertThat(parse("nbbRD/heyLOGS#173"))
+                .describedAs("case sensitivity")
+                .returns("nbbRD", GitHubIssueRef::getOwner)
+                .returns("heyLOGS", GitHubIssueRef::getRepo)
+                .returns(173, GitHubIssueRef::getIssueNumber)
+                .hasToString("nbbRD/heyLOGS#173");
     }
 
     @SuppressWarnings("DataFlowIssue")

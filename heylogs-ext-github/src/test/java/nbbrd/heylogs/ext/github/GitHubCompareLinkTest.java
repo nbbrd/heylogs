@@ -64,6 +64,14 @@ class GitHubCompareLinkTest {
                 .returns("v0.7.2...HEAD", GitHubCompareLink::getOid)
                 .hasToString("https://github.com/nbbrd/heylogs/compare/v0.7.2...HEAD");
 
+        assertThat(parse("https://github.com/nbbRD/heyLOGS/compare/v0.7.2...HEAD"))
+                .describedAs("case sensitivity")
+                .returns(urlOf("https://github.com"), GitHubCompareLink::getBase)
+                .returns("nbbRD", GitHubCompareLink::getOwner)
+                .returns("heyLOGS", GitHubCompareLink::getRepo)
+                .returns("v0.7.2...HEAD", GitHubCompareLink::getOid)
+                .hasToString("https://github.com/nbbRD/heyLOGS/compare/v0.7.2...HEAD");
+
         assertThat(parse("https://localhost:8080/nbbrd/heylogs/compare/v0.7.2...HEAD"))
                 .returns(urlOf("https://localhost:8080"), GitHubCompareLink::getBase)
                 .returns("nbbrd", GitHubCompareLink::getOwner)

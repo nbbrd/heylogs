@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix case sensitivity in link parsing [355](https://github.com/nbbrd/heylogs/issues/355)
+
 ### Changed
 
 - Modernize use of NIO API

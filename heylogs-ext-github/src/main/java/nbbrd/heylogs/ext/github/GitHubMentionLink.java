@@ -58,7 +58,7 @@ class GitHubMentionLink implements ForgeLink {
         return user != null;
     }
 
-    private static final Pattern USER = Pattern.compile("[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38}");
-    private static final Pattern ORGANIZATION = Pattern.compile("[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38}");
-    private static final Pattern TEAM = Pattern.compile("[^:/$]+");
+    private static final Pattern USER = Pattern.compile("[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38}", Pattern.CASE_INSENSITIVE);
+    private static final Pattern ORGANIZATION = Pattern.compile("[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38}", Pattern.CASE_INSENSITIVE);
+    private static final Pattern TEAM = Pattern.compile("[^:/$]+", Pattern.CASE_INSENSITIVE);
 }
