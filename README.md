@@ -273,6 +273,7 @@ This project is not the only one that deals with keep-a-changelog format.
 Here is a non-exhaustive list of related work:
 
 - [clparse](https://github.com/marcaddeo/clparse)
+- [GIT Changelog Merge Driver](https://github.com/maven-flow/changelog-merge-driver) - does a semantic merge of two changelogs.
 
 [WINDOWS]: https://img.shields.io/badge/-WINDOWS-068C09
 
