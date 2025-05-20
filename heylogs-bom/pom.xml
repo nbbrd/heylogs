@@ -113,6 +113,26 @@
             <id>full-release</id>
             <build>
                 <plugins>
+                    <!-- Extract changelog -->
+                    <plugin>
+                        <groupId>com.github.nbbrd.heylogs</groupId>
+                        <artifactId>heylogs-maven-plugin</artifactId>
+                        <version>${project.version}</version>
+                        <executions>
+                            <execution>
+                                <id>extract-changelog</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>extract</goal>
+                                </goals>
+                                <configuration>
+                                    <inputFiles>${project.parent.basedir}/CHANGELOG.md</inputFiles>
+                                    <outputFile>${project.build.directory}/CHANGELOG.md</outputFile>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
                     <!-- Release assets -->
                     <plugin>
                         <groupId>org.jreleaser</groupId>
