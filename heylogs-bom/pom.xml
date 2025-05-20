@@ -126,7 +126,7 @@
                                     <goal>extract</goal>
                                 </goals>
                                 <configuration>
-                                    <inputFiles>${project.parent.basedir}/CHANGELOG.md</inputFiles>
+                                    <inputFile>${project.parent.basedir}/CHANGELOG.md</inputFile>
                                     <outputFile>${project.build.directory}/CHANGELOG.md</outputFile>
                                 </configuration>
                             </execution>
