@@ -10,6 +10,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - Simplify mojos parameter properties [#386](https://github.com/nbbrd/heylogs/issues/386)
+- Align mojos parameters with CLI parameters [#387](https://github.com/nbbrd/heylogs/issues/387)
 
 ## [0.9.3] - 2025-02-11
 

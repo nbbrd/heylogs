@@ -3,7 +3,6 @@ package nbbrd.heylogs.maven.plugin;
 import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.maven.plugin.MojoFunction;
 import nbbrd.design.MightBePromoted;
-import nbbrd.heylogs.Heylogs;
 import nbbrd.heylogs.Version;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -17,6 +16,7 @@ import java.util.Objects;
 
 import static internal.heylogs.maven.plugin.HeylogsParameters.*;
 import static internal.heylogs.maven.plugin.MojoFunction.of;
+import static nbbrd.console.picocli.ByteOutputSupport.DEFAULT_STDOUT_FILE;
 
 @Mojo(name = "release", defaultPhase = LifecyclePhase.GENERATE_RESOURCES, threadSafe = true, requiresProject = false)
 public final class ReleaseMojo extends HeylogsMojo {
@@ -24,7 +24,7 @@ public final class ReleaseMojo extends HeylogsMojo {
     @Parameter(defaultValue = WORKING_DIR_CHANGELOG, property = INPUT_FILE_PROPERTY)
     private File inputFile;
 
-    @Parameter(defaultValue = "${project.build.directory}/CHANGELOG.md", property = OUTPUT_FILE_PROPERTY)
+    @Parameter(defaultValue = DEFAULT_STDOUT_FILE, property = OUTPUT_FILE_PROPERTY)
     private File outputFile;
 
     @Parameter(defaultValue = "${project.version}", property = "heylogs.ref")
@@ -48,7 +48,15 @@ public final class ReleaseMojo extends HeylogsMojo {
             throw new MojoExecutionException("Changelog not found");
         }
 
-        release(loadVersion(), loadTagPrefix());
+        Document document = readChangelog(inputFile);
+
+        Version version = loadVersion();
+        String tagPrefix = loadTagPrefix();
+
+        getLog().info("Releasing " + version + " with tag prefix '" + tagPrefix + "'");
+        initHeylogs(false).releaseChanges(document, version, tagPrefix);
+
+        writeChangelog(document, outputFile);
     }
 
     private Version loadVersion() throws MojoExecutionException {
@@ -57,17 +65,6 @@ public final class ReleaseMojo extends HeylogsMojo {
 
     private String loadTagPrefix() throws MojoExecutionException {
         return TAG_PREFIX_PARSER.applyWithMojo(tagPrefix);
-    }
-
-    private void release(Version version, String tagPrefix) throws MojoExecutionException {
-        Heylogs heylogs = initHeylogs(false);
-
-        Document changelog = readChangelog(inputFile);
-
-        getLog().info("Releasing " + version + " with tag prefix '" + tagPrefix + "'");
-        heylogs.releaseChanges(changelog, version, tagPrefix);
-
-        writeChangelog(changelog, outputFile);
     }
 
     @MightBePromoted

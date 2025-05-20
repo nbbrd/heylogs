@@ -3,7 +3,6 @@ package nbbrd.heylogs.maven.plugin;
 import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.maven.plugin.MojoFunction;
 import nbbrd.heylogs.Filter;
-import nbbrd.heylogs.Heylogs;
 import nbbrd.heylogs.TimeRange;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -17,6 +16,7 @@ import java.util.regex.Pattern;
 
 import static internal.heylogs.maven.plugin.HeylogsParameters.*;
 import static internal.heylogs.maven.plugin.MojoFunction.of;
+import static nbbrd.console.picocli.ByteOutputSupport.DEFAULT_STDOUT_FILE;
 
 @Mojo(name = "extract", defaultPhase = LifecyclePhase.GENERATE_RESOURCES, threadSafe = true, requiresProject = false)
 public final class ExtractMojo extends HeylogsMojo {
@@ -24,7 +24,7 @@ public final class ExtractMojo extends HeylogsMojo {
     @Parameter(defaultValue = WORKING_DIR_CHANGELOG, property = INPUT_FILE_PROPERTY)
     private File inputFile;
 
-    @Parameter(defaultValue = "${project.build.directory}/CHANGELOG.md", property = OUTPUT_FILE_PROPERTY)
+    @Parameter(defaultValue = DEFAULT_STDOUT_FILE, property = OUTPUT_FILE_PROPERTY)
     private File outputFile;
 
     @Parameter(defaultValue = "${project.version}", property = "heylogs.ref")
@@ -57,7 +57,14 @@ public final class ExtractMojo extends HeylogsMojo {
             throw new MojoExecutionException("Changelog not found");
         }
 
-        extract(loadFilter());
+        Document changelog = readChangelog(inputFile);
+
+        Filter filter = loadFilter();
+
+        getLog().info("Extracting with " + filter);
+        initHeylogs(false).extractVersions(changelog, filter);
+
+        writeChangelog(changelog, outputFile);
     }
 
     private Filter loadFilter() throws MojoExecutionException {
@@ -69,17 +76,6 @@ public final class ExtractMojo extends HeylogsMojo {
                 .limit(limit)
                 .ignoreContent(ignoreContent)
                 .build();
-    }
-
-    private void extract(Filter filter) throws MojoExecutionException {
-        Heylogs heylogs = initHeylogs(false);
-
-        Document changelog = readChangelog(inputFile);
-
-        getLog().info("Extracting with " + filter);
-        heylogs.extractVersions(changelog, filter);
-
-        writeChangelog(changelog, outputFile);
     }
 
     private static final MojoFunction<String, Pattern> UNRELEASED_PATTERN_PARSER = of(Pattern::compile, "Invalid unreleased pattern");
