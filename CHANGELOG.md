@@ -7,11 +7,15 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Simplify mojos parameter properties [#386](https://github.com/nbbrd/heylogs/issues/386)
+
 ## [0.9.3] - 2025-02-11
 
 ### Fixed
 
-- Fix case sensitivity in link parsing [355](https://github.com/nbbrd/heylogs/issues/355)
+- Fix case sensitivity in link parsing [#355](https://github.com/nbbrd/heylogs/issues/355)
 
 ### Changed
 

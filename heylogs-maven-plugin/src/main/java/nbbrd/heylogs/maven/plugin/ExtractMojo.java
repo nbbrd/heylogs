@@ -39,10 +39,10 @@ public final class ExtractMojo extends HeylogsMojo {
     @Parameter(defaultValue = "0x7fffffff", property = "heylogs.limit")
     private int limit;
 
-    @Parameter(defaultValue = "^.*-SNAPSHOT$", property = "heylogs.unreleased.pattern")
+    @Parameter(defaultValue = "^.*-SNAPSHOT$", property = "heylogs.unreleasedPattern")
     private String unreleasedPattern;
 
-    @Parameter(defaultValue = "false", property = "heylogs.ignore.content")
+    @Parameter(defaultValue = "false", property = "heylogs.ignoreContent")
     private boolean ignoreContent;
 
     @Override

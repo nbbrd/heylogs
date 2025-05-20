@@ -30,7 +30,7 @@ public final class ReleaseMojo extends HeylogsMojo {
     @Parameter(defaultValue = "${project.version}", property = "heylogs.ref")
     private String ref;
 
-    @Parameter(defaultValue = "", property = "heylogs.tag.prefix")
+    @Parameter(defaultValue = "", property = "heylogs.tagPrefix")
     private String tagPrefix;
 
     @Parameter(defaultValue = "", property = "heylogs.date")

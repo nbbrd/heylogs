@@ -8,13 +8,13 @@ public final class HeylogsParameters {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 
-    public static final String INPUT_FILE_PROPERTY = "heylogs.input.file";
+    public static final String INPUT_FILE_PROPERTY = "heylogs.inputFile";
 
     public static final String WORKING_DIR_CHANGELOG = "CHANGELOG.md";
 
-    public static final String FORMAT_ID_PROPERTY = "heylogs.format.id";
+    public static final String FORMAT_ID_PROPERTY = "heylogs.formatId";
 
-    public static final String OUTPUT_FILE_PROPERTY = "heylogs.output.file";
+    public static final String OUTPUT_FILE_PROPERTY = "heylogs.outputFile";
 
     public static final String MOJO_LOG_FILE = "";
 
