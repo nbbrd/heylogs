@@ -1,7 +1,8 @@
 package internal.heylogs.cli;
 
-import internal.heylogs.StylishFormat;
 import picocli.CommandLine;
+
+import static internal.heylogs.HeylogsParameters.DEFAULT_FORMAT_ID;
 
 @lombok.Getter
 public class FormatOptions {
@@ -9,7 +10,7 @@ public class FormatOptions {
     @CommandLine.Option(
             names = {"-f", "--format"},
             paramLabel = "<id>",
-            defaultValue = StylishFormat.ID,
+            defaultValue = DEFAULT_FORMAT_ID,
             description = "Specify the format used to control the appearance of the result. Valid values: ${COMPLETION-CANDIDATES}.",
             completionCandidates = FormatCandidates.class
     )

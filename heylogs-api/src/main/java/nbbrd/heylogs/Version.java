@@ -10,8 +10,10 @@ import lombok.NonNull;
 import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.design.VisibleForTesting;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.Iterator;
 
@@ -146,5 +148,9 @@ public class Version implements BaseSection {
 
     public static boolean isVersionLevel(Heading heading) {
         return heading.getLevel() == HEADING_LEVEL;
+    }
+
+    public static @NonNull LocalDate parseLocalDate(@Nullable String text) throws DateTimeParseException {
+        return text == null || text.isEmpty() ? LocalDate.now(ZoneId.systemDefault()) : LocalDate.parse(text);
     }
 }

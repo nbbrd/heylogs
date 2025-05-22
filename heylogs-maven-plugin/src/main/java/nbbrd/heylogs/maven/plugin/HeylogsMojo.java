@@ -18,17 +18,15 @@ import java.util.function.Consumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
 
+@lombok.Getter
+@lombok.Setter
 abstract class HeylogsMojo extends AbstractMojo {
 
-    @Parameter(defaultValue = "false", property = "heylogs.skip")
-    protected boolean skip;
+    @Parameter(property = "heylogs.skip", defaultValue = "false")
+    private boolean skip;
 
     @Parameter(defaultValue = "${project.version}", readonly = true)
     private String projectVersion;
-
-    protected String getProjectVersionOrNull() {
-        return projectVersion;
-    }
 
     protected Document readChangelog(File inputFile) throws MojoExecutionException {
         getLog().info("Reading changelog " + inputFile);

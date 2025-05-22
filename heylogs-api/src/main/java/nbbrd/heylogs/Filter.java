@@ -5,6 +5,7 @@ import lombok.NonNull;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.YearMonth;
+import java.time.format.DateTimeParseException;
 import java.util.regex.Pattern;
 
 @lombok.Value
@@ -43,7 +44,7 @@ public class Filter {
         return containsRef(version) && timeRange.contains(version.getDate());
     }
 
-    public static @NonNull LocalDate parseLocalDate(@NonNull CharSequence input) {
+    public static @NonNull LocalDate parseLocalDate(@NonNull CharSequence input) throws DateTimeParseException {
         try {
             return Year.parse(input).atDay(1);
         } catch (Exception ex1) {

@@ -1,44 +1,46 @@
 package nbbrd.heylogs.maven.plugin;
 
 import com.vladsch.flexmark.util.ast.Document;
-import internal.heylogs.maven.plugin.MojoFunction;
-import nbbrd.design.MightBePromoted;
+import internal.heylogs.maven.plugin.MojoParameterParsing;
+import lombok.NonNull;
 import nbbrd.heylogs.Version;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.File;
 import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
 import java.util.Objects;
 
-import static internal.heylogs.maven.plugin.HeylogsParameters.*;
-import static internal.heylogs.maven.plugin.MojoFunction.of;
+import static internal.heylogs.HeylogsParameters.DEFAULT_CHANGELOG_FILE;
 import static nbbrd.console.picocli.ByteOutputSupport.DEFAULT_STDOUT_FILE;
 
+@lombok.Getter
+@lombok.Setter
 @Mojo(name = "release", defaultPhase = LifecyclePhase.GENERATE_RESOURCES, threadSafe = true, requiresProject = false)
 public final class ReleaseMojo extends HeylogsMojo {
 
-    @Parameter(defaultValue = WORKING_DIR_CHANGELOG, property = INPUT_FILE_PROPERTY)
+    @Parameter(property = "heylogs.inputFile", defaultValue = DEFAULT_CHANGELOG_FILE)
     private File inputFile;
 
-    @Parameter(defaultValue = DEFAULT_STDOUT_FILE, property = OUTPUT_FILE_PROPERTY)
+    @Parameter(property = "heylogs.outputFile", defaultValue = DEFAULT_STDOUT_FILE)
     private File outputFile;
 
-    @Parameter(defaultValue = "${project.version}", property = "heylogs.ref")
+    @Parameter(property = "heylogs.ref", defaultValue = "${project.version}")
     private String ref;
 
-    @Parameter(defaultValue = "", property = "heylogs.tagPrefix")
+    @Parameter(property = "heylogs.tagPrefix")
     private String tagPrefix;
 
-    @Parameter(defaultValue = "", property = "heylogs.date")
+    @Parameter(property = "heylogs.date")
     private String date;
 
     @Override
     public void execute() throws MojoExecutionException {
-        if (skip) {
+        if (isSkip()) {
             getLog().info("Release has been skipped.");
             return;
         }
@@ -50,8 +52,8 @@ public final class ReleaseMojo extends HeylogsMojo {
 
         Document document = readChangelog(inputFile);
 
-        Version version = loadVersion();
-        String tagPrefix = loadTagPrefix();
+        Version version = toVersion();
+        String tagPrefix = toTagPrefix();
 
         getLog().info("Releasing " + version + " with tag prefix '" + tagPrefix + "'");
         initHeylogs(false).releaseChanges(document, version, tagPrefix);
@@ -59,24 +61,21 @@ public final class ReleaseMojo extends HeylogsMojo {
         writeChangelog(document, outputFile);
     }
 
-    private Version loadVersion() throws MojoExecutionException {
-        return Version.of(ref, '-', DATE_PARSER.applyWithMojo(date));
+    @MojoParameterParsing
+    private @NonNull Version toVersion() throws MojoExecutionException {
+        return Version.of(ref, '-', parseLocalDate(date));
     }
 
-    private String loadTagPrefix() throws MojoExecutionException {
-        return TAG_PREFIX_PARSER.applyWithMojo(tagPrefix);
-    }
-
-    @MightBePromoted
-    private static String parseTagPrefix(String tagPrefix) {
+    @MojoParameterParsing
+    private @NonNull String toTagPrefix() {
         return Objects.toString(tagPrefix, "");
     }
 
-    @MightBePromoted
-    private static LocalDate parseDate(String date) {
-        return date == null ? LocalDate.now(ZoneId.systemDefault()) : LocalDate.parse(date);
+    private static @NonNull LocalDate parseLocalDate(@Nullable String date) throws MojoExecutionException {
+        try {
+            return Version.parseLocalDate(date);
+        } catch (DateTimeParseException ex) {
+            throw new MojoExecutionException("Invalid format for 'date' parameter", ex);
+        }
     }
-
-    private static final MojoFunction<String, String> TAG_PREFIX_PARSER = of(ReleaseMojo::parseTagPrefix, "Invalid format for 'tagPrefix' parameter");
-    private static final MojoFunction<String, LocalDate> DATE_PARSER = of(ReleaseMojo::parseDate, "Invalid format for 'date' parameter");
 }
