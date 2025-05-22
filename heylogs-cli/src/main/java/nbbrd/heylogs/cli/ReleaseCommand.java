@@ -4,7 +4,6 @@ import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.cli.ChangelogInputParameters;
 import internal.heylogs.cli.HeylogsOptions;
 import internal.heylogs.cli.SpecialProperties;
-import nbbrd.console.picocli.FileOutputOptions;
 import nbbrd.heylogs.Version;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -22,9 +21,6 @@ public final class ReleaseCommand implements Callable<Void> {
 
     @CommandLine.Mixin
     private ChangelogInputParameters input;
-
-    @CommandLine.Mixin
-    private FileOutputOptions output;
 
     @CommandLine.Option(
             names = {"-r", "--ref"},
@@ -76,6 +72,6 @@ public final class ReleaseCommand implements Callable<Void> {
     }
 
     private void store(Document document) throws IOException {
-        newMarkdownOutputSupport().writeDocument(output.getFile(), document);
+        newMarkdownOutputSupport().writeDocument(input.getFile(), document);
     }
 }

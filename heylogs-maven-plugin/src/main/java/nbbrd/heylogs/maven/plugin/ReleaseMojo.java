@@ -26,9 +26,6 @@ public final class ReleaseMojo extends HeylogsMojo {
     @Parameter(property = "heylogs.inputFile", defaultValue = DEFAULT_CHANGELOG_FILE)
     private File inputFile;
 
-    @Parameter(property = "heylogs.outputFile", defaultValue = DEFAULT_STDOUT_FILE)
-    private File outputFile;
-
     @Parameter(property = "heylogs.ref", defaultValue = "${project.version}")
     private String ref;
 
@@ -58,7 +55,7 @@ public final class ReleaseMojo extends HeylogsMojo {
         getLog().info("Releasing " + version + " with tag prefix '" + tagPrefix + "'");
         initHeylogs(false).releaseChanges(document, version, tagPrefix);
 
-        writeChangelog(document, outputFile);
+        writeChangelog(document, inputFile);
     }
 
     @MojoParameterParsing
