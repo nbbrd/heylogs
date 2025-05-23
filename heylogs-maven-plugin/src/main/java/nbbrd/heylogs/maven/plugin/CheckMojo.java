@@ -1,6 +1,7 @@
 package nbbrd.heylogs.maven.plugin;
 
 import nbbrd.console.picocli.MultiFileInputOptions;
+import nbbrd.console.picocli.text.TextOutputSupport;
 import nbbrd.heylogs.Check;
 import nbbrd.heylogs.Heylogs;
 import nbbrd.heylogs.ext.semver.SemVer;
@@ -17,10 +18,12 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import static internal.heylogs.FormatSupport.resolveFormatId;
 import static internal.heylogs.HeylogsParameters.*;
 import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.toList;
 import static nbbrd.console.picocli.ByteOutputSupport.DEFAULT_STDOUT_FILE;
+import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
 
 @lombok.Getter
 @lombok.Setter
@@ -39,7 +42,7 @@ public final class CheckMojo extends HeylogsMojo {
     @Parameter(property = "heylogs.semver", defaultValue = DEFAULT_SEMVER)
     private boolean semver;
 
-    @Parameter(property = "heylogs.formatId", defaultValue = DEFAULT_FORMAT_ID)
+    @Parameter(property = "heylogs.formatId")
     private String formatId;
 
     @Override
@@ -72,6 +75,9 @@ public final class CheckMojo extends HeylogsMojo {
             throw new MojoExecutionException("Error while listing files", ex);
         }
         boolean hasErrors = list.stream().anyMatch(Check::hasErrors);
+
+        TextOutputSupport outputSupport = newTextOutputSupport();
+        String formatId = resolveFormatId(getFormatId(), heylogs, outputSupport::isStdoutFile, outputFile.toPath());
 
         try (Writer writer = newWriter(outputFile, hasErrors ? getLog()::error : getLog()::info)) {
             heylogs.formatProblems(formatId, writer, list);

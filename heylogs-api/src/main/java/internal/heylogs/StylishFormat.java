@@ -11,6 +11,8 @@ import nbbrd.service.ServiceProvider;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Function;
 
@@ -54,6 +56,11 @@ public final class StylishFormat implements Format {
                 .column(Formatter.of(Problem::getId))
                 .build()
                 .writeAll(appendable, list, Check::getSource, Check::getProblems, item -> getProblemsSummary(item.getProblems()));
+    }
+
+    @Override
+    public @NonNull DirectoryStream.Filter<? super Path> getFormatFileFilter() {
+        return FormatSupport.getFormatFileFilterByExtension(".txt");
     }
 
     @MightBePromoted

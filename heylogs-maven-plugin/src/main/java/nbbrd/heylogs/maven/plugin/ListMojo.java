@@ -1,5 +1,6 @@
 package nbbrd.heylogs.maven.plugin;
 
+import nbbrd.console.picocli.text.TextOutputSupport;
 import nbbrd.heylogs.Heylogs;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -10,9 +11,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 
-import static internal.heylogs.HeylogsParameters.DEFAULT_FORMAT_ID;
+import static internal.heylogs.FormatSupport.resolveFormatId;
 import static internal.heylogs.HeylogsParameters.DEFAULT_SEMVER;
 import static nbbrd.console.picocli.ByteOutputSupport.DEFAULT_STDOUT_FILE;
+import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
 
 @lombok.Getter
 @lombok.Setter
@@ -25,7 +27,7 @@ public final class ListMojo extends HeylogsMojo {
     @Parameter(property = "heylogs.semver", defaultValue = DEFAULT_SEMVER)
     private boolean semver;
 
-    @Parameter(property = "heylogs.formatId", defaultValue = DEFAULT_FORMAT_ID)
+    @Parameter(property = "heylogs.formatId")
     private String formatId;
 
     @Override
@@ -36,6 +38,9 @@ public final class ListMojo extends HeylogsMojo {
         }
 
         Heylogs heylogs = initHeylogs(semver);
+
+        TextOutputSupport outputSupport = newTextOutputSupport();
+        String formatId = resolveFormatId(getFormatId(), heylogs, outputSupport::isStdoutFile, outputFile.toPath());
 
         try (Writer writer = newWriter(outputFile, getLog()::info)) {
             heylogs.formatResources(formatId, writer, heylogs.listResources());

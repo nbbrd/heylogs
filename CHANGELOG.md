@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Add auto-detection of format by filename [#251](https://github.com/nbbrd/heylogs/issues/251)
+
 ### Changed
 
 - Simplify mojos parameter properties [#386](https://github.com/nbbrd/heylogs/issues/386)
