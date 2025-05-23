@@ -1,6 +1,7 @@
 package nbbrd.heylogs.ext.json;
 
 import com.google.gson.*;
+import internal.heylogs.FormatSupport;
 import lombok.NonNull;
 import nbbrd.design.DirectImpl;
 import nbbrd.design.MightBeGenerated;
@@ -13,6 +14,8 @@ import nbbrd.service.ServiceProvider;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.List;
@@ -71,6 +74,11 @@ public final class JsonFormat implements Format {
         } catch (JsonIOException ex) {
             throw new IOException(ex);
         }
+    }
+
+    @Override
+    public @NonNull DirectoryStream.Filter<? super Path> getFormatFileFilter() {
+        return FormatSupport.getFormatFileFilterByExtension(".json");
     }
 
     private static final Gson GSON = new GsonBuilder()

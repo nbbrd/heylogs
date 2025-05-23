@@ -18,9 +18,11 @@ import nbbrd.heylogs.spi.*;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static internal.heylogs.RuleSupport.problemStreamOf;
@@ -190,15 +192,25 @@ public class Heylogs {
     }
 
     public void formatProblems(@NonNull String formatId, @NonNull Appendable appendable, @NonNull List<Check> list) throws IOException {
-        getFormatById(formatId).formatProblems(appendable, list);
+        getFormatById(formatId)
+                .orElseThrow(() -> new IOException("Cannot find format '" + formatId + "'"))
+                .formatProblems(appendable, list);
     }
 
     public void formatStatus(@NonNull String formatId, @NonNull Appendable appendable, @NonNull List<Scan> list) throws IOException {
-        getFormatById(formatId).formatStatus(appendable, list);
+        getFormatById(formatId)
+                .orElseThrow(() -> new IOException("Cannot find format '" + formatId + "'"))
+                .formatStatus(appendable, list);
     }
 
     public void formatResources(@NonNull String formatId, @NonNull Appendable appendable, @NonNull List<Resource> list) throws IOException {
-        getFormatById(formatId).formatResources(appendable, list);
+        getFormatById(formatId)
+                .orElseThrow(() -> new IOException("Cannot find format '" + formatId + "'"))
+                .formatResources(appendable, list);
+    }
+
+    public @NonNull Optional<String> getFormatIdByFile(@NonNull Path file) {
+        return getFormatByFile(file).map(Format::getFormatId);
     }
 
     private URL getBaseURL(Forge forgeOrNull, URL url) {
@@ -211,11 +223,16 @@ public class Heylogs {
                 .findFirst();
     }
 
-    private Format getFormatById(String formatId) throws IOException {
+    private Optional<Format> getFormatById(String formatId) {
         return formats.stream()
-                .filter(format -> formatId.equals(FIRST_FORMAT_AVAILABLE) || format.getFormatId().equals(formatId))
-                .findFirst()
-                .orElseThrow(() -> new IOException("Cannot find format '" + formatId + "'"));
+                .filter(onId(formatId))
+                .findFirst();
+    }
+
+    private Optional<Format> getFormatByFile(Path file) {
+        return formats.stream()
+                .filter(onFile(file))
+                .findFirst();
     }
 
     public static final String FIRST_FORMAT_AVAILABLE = "";
@@ -232,5 +249,19 @@ public class Heylogs {
             result = Stream.concat(result, next);
         }
         return result;
+    }
+
+    private static Predicate<Format> onId(String id) {
+        return format -> id.equals(FIRST_FORMAT_AVAILABLE) || format.getFormatId().equals(id);
+    }
+
+    private static Predicate<Format> onFile(Path file) {
+        return format -> {
+            try {
+                return format.getFormatFileFilter().accept(file);
+            } catch (IOException e) {
+                return false;
+            }
+        };
     }
 }

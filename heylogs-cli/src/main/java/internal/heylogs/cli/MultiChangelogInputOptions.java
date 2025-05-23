@@ -23,6 +23,9 @@ import picocli.CommandLine;
 import java.nio.file.Path;
 import java.util.List;
 
+import static internal.heylogs.HeylogsParameters.DEFAULT_CHANGELOG_FILE;
+import static internal.heylogs.HeylogsParameters.DEFAULT_RECURSIVE;
+
 /**
  * @author Philippe Charles
  */
@@ -34,14 +37,14 @@ public class MultiChangelogInputOptions implements MultiFileInput, Profilable {
             paramLabel = "<file>",
             description = "Input file(s) (default: CHANGELOG.md).",
             arity = "1..*",
-            defaultValue = "CHANGELOG.md"
+            defaultValue = DEFAULT_CHANGELOG_FILE
     )
     private List<Path> files;
 
     @CommandLine.Option(
             names = {"-r", "--recursive"},
             description = "Recursive walking.",
-            defaultValue = "false"
+            defaultValue = DEFAULT_RECURSIVE
     )
     private boolean recursive;
 

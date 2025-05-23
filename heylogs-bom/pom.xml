@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.github.nbbrd.heylogs</groupId>
         <artifactId>heylogs-parent</artifactId>
-        <version>0.9.3</version>
+        <version>0.10.0</version>
     </parent>
 
     <artifactId>heylogs-bom</artifactId>
@@ -64,7 +64,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
-                <version>1.6.0</version>
+                <version>1.7.0</version>
                 <configuration>
                     <flattenMode>bom</flattenMode>
                     <outputDirectory>${project.build.directory}</outputDirectory>
@@ -97,6 +97,7 @@
                         </goals>
                         <configuration>
                             <inputFile>${project.parent.basedir}/CHANGELOG.md</inputFile>
+                            <inputFiles>${project.parent.basedir}/CHANGELOG.md</inputFiles>
                             <semver>true</semver>
                         </configuration>
                     </execution>
@@ -112,6 +113,26 @@
             <id>full-release</id>
             <build>
                 <plugins>
+                    <!-- Extract changelog -->
+                    <plugin>
+                        <groupId>com.github.nbbrd.heylogs</groupId>
+                        <artifactId>heylogs-maven-plugin</artifactId>
+                        <version>${project.version}</version>
+                        <executions>
+                            <execution>
+                                <id>extract-changelog</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>extract</goal>
+                                </goals>
+                                <configuration>
+                                    <inputFile>${project.parent.basedir}/CHANGELOG.md</inputFile>
+                                    <outputFile>${project.build.directory}/CHANGELOG.md</outputFile>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
                     <!-- Release assets -->
                     <plugin>
                         <groupId>org.jreleaser</groupId>

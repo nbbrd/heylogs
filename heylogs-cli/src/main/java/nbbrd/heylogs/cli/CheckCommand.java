@@ -2,6 +2,7 @@ package nbbrd.heylogs.cli;
 
 import internal.heylogs.cli.*;
 import nbbrd.console.picocli.FileOutputOptions;
+import nbbrd.console.picocli.text.TextOutputSupport;
 import nbbrd.heylogs.Check;
 import nbbrd.heylogs.Heylogs;
 import picocli.CommandLine;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import static internal.heylogs.FormatSupport.resolveFormatId;
 import static internal.heylogs.cli.MarkdownInputSupport.newMarkdownInputSupport;
 import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
 
@@ -40,21 +42,27 @@ public final class CheckCommand implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        try (Writer writer = newTextOutputSupport().newBufferedWriter(output.getFile())) {
+        Heylogs heylogs = heylogsOptions.initHeylogs();
 
-            Heylogs heylogs = heylogsOptions.initHeylogs();
-            MarkdownInputSupport markdown = newMarkdownInputSupport();
+        MarkdownInputSupport inputSupport = newMarkdownInputSupport();
 
-            List<Check> list = new ArrayList<>();
-            for (Path file : input.getAllFiles(markdown::accept)) {
-                list.add(Check
-                        .builder()
-                        .source(markdown.getName(file))
-                        .problems(heylogs.checkFormat(markdown.readDocument(file)))
-                        .build());
-            }
-            heylogs.formatProblems(formatOptions.getFormatId(), writer, list);
-            return list.stream().anyMatch(Check::hasErrors) ? CommandLine.ExitCode.SOFTWARE : CommandLine.ExitCode.OK;
+        List<Check> list = new ArrayList<>();
+        for (Path file : input.getAllFiles(inputSupport::accept)) {
+            list.add(Check
+                    .builder()
+                    .source(inputSupport.getName(file))
+                    .problems(heylogs.checkFormat(inputSupport.readDocument(file)))
+                    .build());
         }
+
+        TextOutputSupport outputSupport = newTextOutputSupport();
+        Path outputFile = output.getFile();
+        String formatId = resolveFormatId(formatOptions.getFormatId(), heylogs, outputSupport::isStdoutFile, outputFile);
+
+        try (Writer writer = outputSupport.newBufferedWriter(outputFile)) {
+            heylogs.formatProblems(formatId, writer, list);
+        }
+
+        return list.stream().anyMatch(Check::hasErrors) ? CommandLine.ExitCode.SOFTWARE : CommandLine.ExitCode.OK;
     }
 }

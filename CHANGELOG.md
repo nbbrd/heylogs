@@ -7,11 +7,25 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.10.0] - 2025-05-23
+
+This release focuses on simplifying the CLI and Maven plugin parameters.
+
+### Added
+
+- Add auto-detection of format by filename [#251](https://github.com/nbbrd/heylogs/issues/251)
+
+### Changed
+
+- Simplify mojos parameter properties [#386](https://github.com/nbbrd/heylogs/issues/386)
+- Align mojos parameters with CLI parameters [#387](https://github.com/nbbrd/heylogs/issues/387)
+- Override changelog during release [#388](https://github.com/nbbrd/heylogs/issues/388)
+
 ## [0.9.3] - 2025-02-11
 
 ### Fixed
 
-- Fix case sensitivity in link parsing [355](https://github.com/nbbrd/heylogs/issues/355)
+- Fix case sensitivity in link parsing [#355](https://github.com/nbbrd/heylogs/issues/355)
 
 ### Changed
 
@@ -187,7 +201,8 @@ This release improves extension points and also aligns features of Maven plugin 
 
 - Initial release
 
-[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.9.3...HEAD
+[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.10.0...HEAD
+[0.10.0]: https://github.com/nbbrd/heylogs/compare/v0.9.3...v0.10.0
 [0.9.3]: https://github.com/nbbrd/heylogs/compare/v0.9.2...v0.9.3
 [0.9.2]: https://github.com/nbbrd/heylogs/compare/v0.9.1...v0.9.2
 [0.9.1]: https://github.com/nbbrd/heylogs/compare/v0.9.0...v0.9.1

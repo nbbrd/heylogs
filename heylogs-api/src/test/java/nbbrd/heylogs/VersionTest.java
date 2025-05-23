@@ -1,15 +1,17 @@
 package nbbrd.heylogs;
 
-import tests.heylogs.api.Sample;
 import com.vladsch.flexmark.ast.Heading;
 import org.junit.jupiter.api.Test;
+import tests.heylogs.api.Sample;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
 
-import static tests.heylogs.api.Sample.asHeading;
-import static tests.heylogs.api.Sample.using;
 import static nbbrd.heylogs.Version.*;
 import static org.assertj.core.api.Assertions.*;
+import static tests.heylogs.api.Sample.asHeading;
+import static tests.heylogs.api.Sample.using;
 
 public class VersionTest {
 
@@ -109,6 +111,21 @@ public class VersionTest {
 
         assertThat(Version.of("1.1.0", HYPHEN, d20190215))
                 .hasToString("Version(ref=1.1.0, separator=\\u002d, date=2019-02-15)");
+    }
+
+    @Test
+    public void testParseLocalDate() {
+        assertThat(Version.parseLocalDate(null))
+                .isEqualTo(LocalDate.now(ZoneId.systemDefault()));
+
+        assertThat(Version.parseLocalDate(""))
+                .isEqualTo(LocalDate.now(ZoneId.systemDefault()));
+
+        assertThat(Version.parseLocalDate("2010-01-02"))
+                .isEqualTo(LocalDate.of(2010, 1, 2));
+
+        assertThatExceptionOfType(DateTimeParseException.class)
+                .isThrownBy(() -> Version.parseLocalDate("2010-01"));
     }
 
     private final LocalDate d20190215 = LocalDate.parse("2019-02-15");
