@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Migrate OSSRH to Central Portal
+
 ## [0.10.0] - 2025-05-23
 
 This release focuses on simplifying the CLI and Maven plugin parameters.
