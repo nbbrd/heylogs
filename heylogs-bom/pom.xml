@@ -89,6 +89,7 @@
                 <executions>
                     <execution>
                         <id>changelog</id>
+                        <phase>install</phase>
                         <goals>
                             <goal>check</goal>
                             <goal>extract</goal>
