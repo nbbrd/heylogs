@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Check for duplicate headings [#402](https://github.com/nbbrd/heylogs/issues/402)
+
 ### Changed
 
 - Migrate OSSRH to Central Portal

@@ -9,6 +9,7 @@ import nbbrd.design.DirectImpl;
 import nbbrd.design.MightBeGenerated;
 import nbbrd.design.VisibleForTesting;
 import nbbrd.heylogs.Nodes;
+import nbbrd.heylogs.TypeOfChange;
 import nbbrd.heylogs.Util;
 import nbbrd.heylogs.Version;
 import nbbrd.heylogs.spi.Rule;
@@ -19,12 +20,14 @@ import nbbrd.service.ServiceProvider;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import static internal.heylogs.RuleSupport.linkToURL;
 import static internal.heylogs.RuleSupport.nameToId;
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.*;
 import static nbbrd.heylogs.Util.illegalArgumentToNull;
 
 public enum ExtendedRules implements Rule {
@@ -102,6 +105,40 @@ public enum ExtendedRules implements Rule {
                 .location(doc)
                 .build()
                 : NO_RULE_ISSUE;
+    }
+
+    @VisibleForTesting
+    static RuleIssue validateUniqueHeadings(Document doc) {
+        return Nodes.of(Heading.class)
+                .descendants(doc)
+                .filter(Version::isVersionLevel)
+                .flatMap(ExtendedRules::validateUniqueHeadingsOnVersionNode)
+                .findFirst()
+                .orElse(NO_RULE_ISSUE);
+    }
+
+    private static Stream<RuleIssue> validateUniqueHeadingsOnVersionNode(Heading version) {
+        return countByTypeOfChange(version)
+                .entrySet().stream()
+                .filter(entry -> entry.getValue() > 1)
+                .map(entry -> getDuplicationIssue(version, entry.getKey(), entry.getValue()));
+    }
+
+    private static RuleIssue getDuplicationIssue(Heading version, TypeOfChange typeOfChange, long count) {
+        return RuleIssue
+                .builder()
+                .message("Heading " + version.getText() + " has " + count + " duplicate " + typeOfChange + " entries")
+                .location(version)
+                .build();
+    }
+
+    private static Map<TypeOfChange, Long> countByTypeOfChange(Heading version) {
+        return Nodes.next(version, ChangelogNodes::isNotVersionHeading)
+                .filter(ChangelogNodes::isTypeOfChangeNode)
+                .map(Heading.class::cast)
+                .map(illegalArgumentToNull(TypeOfChange::parse))
+                .filter(Objects::nonNull)
+                .collect(groupingBy(identity(), counting()));
     }
 
     @SuppressWarnings("unused")
