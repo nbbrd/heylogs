@@ -3,14 +3,13 @@ package nbbrd.heylogs;
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.ast.RefNode;
 import com.vladsch.flexmark.ast.Reference;
-import com.vladsch.flexmark.ast.util.ReferenceRepository;
-import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
-import internal.heylogs.ChangelogNodes;
-import internal.heylogs.GuidingPrinciples;
-import internal.heylogs.URLExtractor;
-import internal.heylogs.VersionNode;
+import internal.heylogs.ChangelogHeading;
+import internal.heylogs.TypeOfChangeHeading;
+import internal.heylogs.VersionHeading;
+import internal.heylogs.base.GuidingPrinciples;
+import internal.heylogs.spi.URLExtractor;
 import lombok.NonNull;
 import nbbrd.design.MightBePromoted;
 import nbbrd.design.StaticFactoryMethod;
@@ -21,13 +20,15 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static internal.heylogs.RuleSupport.problemStreamOf;
-import static internal.heylogs.VersioningSupport.versioningStreamOf;
+import static internal.heylogs.spi.RuleSupport.problemStreamOf;
+import static internal.heylogs.spi.VersioningSupport.versioningStreamOf;
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.partitioningBy;
 import static java.util.stream.Collectors.toList;
 import static nbbrd.heylogs.TimeRange.toTimeRange;
 
@@ -128,23 +129,25 @@ public class Heylogs {
             throw new IllegalArgumentException("Invalid changelog");
         }
 
-        ReferenceRepository repository = Parser.REFERENCES.get(document);
-        List<VersionNode> versions = VersionNode.allOf(document, repository);
+        ChangelogHeading changelog = ChangelogHeading.root(document)
+                .orElseThrow(() -> new IllegalArgumentException("Cannot locate changelog header"));
 
-        VersionNode unreleased = VersionNode.findUnreleased(versions)
+        VersionHeading unreleased = changelog.getVersions()
+                .filter(versionNode -> versionNode.getSection().isUnreleased())
+                .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Cannot locate unreleased header"));
 
         Forge forge = findForge(unreleased)
                 .orElseThrow(() -> new IllegalArgumentException("Cannot determine forge"));
 
         URL releaseURL = forge.deriveCompareLink(unreleased.getURL(), versionTagPrefix + newVersion.getRef());
-        VersionNode release = VersionNode.of(newVersion, releaseURL);
+        VersionHeading release = VersionHeading.of(newVersion, releaseURL);
 
         URL updatedURL = forge.deriveCompareLink(releaseURL, "HEAD");
-        VersionNode updated = VersionNode.of(unreleased.getVersion(), updatedURL);
+        VersionHeading updated = VersionHeading.of(unreleased.getSection(), updatedURL);
 
-        repository.putRawKey(release.getReference().getReference(), release.getReference());
-        repository.putRawKey(updated.getReference().getReference(), updated.getReference());
+        changelog.getRepository().putRawKey(release.getReference().getReference(), release.getReference());
+        changelog.getRepository().putRawKey(updated.getReference().getReference(), updated.getReference());
 
         unreleased.getHeading().appendChild(release.getHeading());
         unreleased.getReference().insertAfter(release.getReference());
@@ -157,26 +160,32 @@ public class Heylogs {
             return Summary.INVALID;
         }
 
-        ReferenceRepository repository = Parser.REFERENCES.get(document);
-        List<VersionNode> versions = VersionNode.allOf(document, repository);
+        ChangelogHeading changelog = ChangelogHeading.root(document).orElse(null);
+
+        if (changelog == null) {
+            return Summary.INVALID;
+        }
+
+        List<VersionHeading> versions = changelog.getVersions().collect(toList());
 
         if (versions.isEmpty()) {
             return Summary.EMPTY;
         }
 
-        List<Version> releases = versions
+        Map<Boolean, List<VersionHeading>> versionsByStatus = versions.stream().collect(partitioningBy(version -> version.getSection().isReleased()));
+
+        List<Version> releases = versionsByStatus.get(true)
                 .stream()
-                .map(VersionNode::getVersion)
-                .filter(version -> !version.isUnreleased())
+                .map(VersionHeading::getSection)
                 .collect(toList());
 
-        long unreleasedChanges = VersionNode.findUnreleased(versions)
-                .map(VersionNode::getHeading)
-                .map(ChangelogNodes::getBulletListsByTypeOfChange)
-                .map(o -> o.values().stream().mapToLong(List::size).sum())
+        long unreleasedChanges = versionsByStatus.get(false)
+                .stream()
+                .findFirst()
+                .map(version -> version.getTypeOfChanges().flatMap(TypeOfChangeHeading::getBulletListItems).count())
                 .orElse(0L);
 
-        VersionNode first = versions.get(0);
+        VersionHeading first = versions.get(0);
         Forge forgeOrNull = findForge(first).orElse(null);
 
         return Summary
@@ -217,7 +226,7 @@ public class Heylogs {
         return forgeOrNull != null ? forgeOrNull.getProjectURL(url) : URLExtractor.baseOf(url);
     }
 
-    private Optional<Forge> findForge(VersionNode node) {
+    private Optional<Forge> findForge(VersionHeading node) {
         return forges.stream()
                 .filter(forge -> forge.isCompareLink(node.getURL()))
                 .findFirst();

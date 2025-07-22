@@ -1,7 +1,7 @@
 package nbbrd.heylogs.ext.json;
 
 import com.google.gson.*;
-import internal.heylogs.FormatSupport;
+import internal.heylogs.spi.FormatSupport;
 import lombok.NonNull;
 import nbbrd.design.DirectImpl;
 import nbbrd.design.MightBeGenerated;

@@ -3,7 +3,7 @@ package nbbrd.heylogs;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
 import internal.heylogs.FlexmarkIO;
-import internal.heylogs.StylishFormat;
+import internal.heylogs.base.StylishFormat;
 import lombok.NonNull;
 import nbbrd.design.MightBePromoted;
 import nbbrd.heylogs.spi.Forge;
@@ -19,7 +19,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Function;
 
-import static internal.heylogs.URLExtractor.urlOf;
+import static internal.heylogs.spi.URLExtractor.urlOf;
 import static java.util.Collections.singletonList;
 import static nbbrd.heylogs.Heylogs.FIRST_FORMAT_AVAILABLE;
 import static nbbrd.heylogs.spi.RuleSeverity.ERROR;

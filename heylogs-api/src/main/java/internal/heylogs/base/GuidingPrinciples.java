@@ -1,4 +1,4 @@
-package internal.heylogs;
+package internal.heylogs.base;
 
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.ast.Reference;
@@ -27,7 +27,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static internal.heylogs.RuleSupport.nameToId;
+import static internal.heylogs.spi.RuleSupport.nameToId;
 import static nbbrd.heylogs.Util.illegalArgumentToNull;
 
 public enum GuidingPrinciples implements Rule {

@@ -8,7 +8,7 @@ import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
 
 @RepresentableAs(Heading.class)
-public enum Changelog implements BaseSection {
+public enum Changelog implements Section {
 
     INSTANCE;
 

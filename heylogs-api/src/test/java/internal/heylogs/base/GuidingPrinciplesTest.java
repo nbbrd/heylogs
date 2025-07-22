@@ -1,4 +1,4 @@
-package internal.heylogs;
+package internal.heylogs.base;
 
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.util.ast.Node;
@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
 
-import static internal.heylogs.GuidingPrinciples.validateForHumans;
-import static internal.heylogs.GuidingPrinciples.validateLatestVersionFirst;
+import static internal.heylogs.base.GuidingPrinciples.validateForHumans;
+import static internal.heylogs.base.GuidingPrinciples.validateLatestVersionFirst;
 import static nbbrd.heylogs.Nodes.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Index.atIndex;

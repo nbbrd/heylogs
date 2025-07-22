@@ -1,4 +1,4 @@
-package internal.heylogs;
+package internal.heylogs.base;
 
 import com.vladsch.flexmark.ast.LinkNodeBase;
 import com.vladsch.flexmark.util.ast.Node;
@@ -10,7 +10,7 @@ import tests.heylogs.api.Sample;
 
 import java.util.Objects;
 
-import static internal.heylogs.ExtendedRules.*;
+import static internal.heylogs.base.ExtendedRules.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Index.atIndex;
 import static tests.heylogs.api.Sample.using;

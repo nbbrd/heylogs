@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import static internal.heylogs.FormatSupport.resolveFormatId;
+import static internal.heylogs.spi.FormatSupport.resolveFormatId;
 import static internal.heylogs.cli.MarkdownInputSupport.newMarkdownInputSupport;
 import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
 

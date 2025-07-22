@@ -1,6 +1,6 @@
 package nbbrd.heylogs.ext.github;
 
-import internal.heylogs.URLExtractor;
+import internal.heylogs.spi.URLExtractor;
 import org.junit.jupiter.api.Test;
 
 import static nbbrd.heylogs.ext.github.GitHubMentionLink.parse;

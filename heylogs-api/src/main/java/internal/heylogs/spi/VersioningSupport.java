@@ -1,4 +1,4 @@
-package internal.heylogs;
+package internal.heylogs.spi;
 
 import nbbrd.heylogs.Version;
 import nbbrd.heylogs.spi.Versioning;

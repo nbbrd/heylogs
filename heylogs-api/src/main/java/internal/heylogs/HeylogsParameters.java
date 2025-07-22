@@ -1,5 +1,7 @@
 package internal.heylogs;
 
+import internal.heylogs.base.StylishFormat;
+
 public final class HeylogsParameters {
 
     private HeylogsParameters() {

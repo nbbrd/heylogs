@@ -1,14 +1,15 @@
-package internal.heylogs;
+package internal.heylogs.base;
 
-import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.ast.LinkNodeBase;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
+import internal.heylogs.ChangelogHeading;
+import internal.heylogs.TypeOfChangeHeading;
+import internal.heylogs.VersionHeading;
 import lombok.NonNull;
 import nbbrd.design.DirectImpl;
 import nbbrd.design.MightBeGenerated;
 import nbbrd.design.VisibleForTesting;
-import nbbrd.heylogs.Nodes;
 import nbbrd.heylogs.TypeOfChange;
 import nbbrd.heylogs.Util;
 import nbbrd.heylogs.Version;
@@ -21,14 +22,11 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Stream;
 
-import static internal.heylogs.RuleSupport.linkToURL;
-import static internal.heylogs.RuleSupport.nameToId;
-import static java.util.function.Function.identity;
+import static internal.heylogs.spi.RuleSupport.linkToURL;
+import static internal.heylogs.spi.RuleSupport.nameToId;
 import static java.util.stream.Collectors.*;
-import static nbbrd.heylogs.Util.illegalArgumentToNull;
 
 public enum ExtendedRules implements Rule {
 
@@ -89,11 +87,16 @@ public enum ExtendedRules implements Rule {
 
     @VisibleForTesting
     static RuleIssue validateConsistentSeparator(Document doc) {
-        List<Character> separators = Nodes.of(Heading.class)
-                .descendants(doc)
-                .filter(Version::isVersionLevel)
-                .map(illegalArgumentToNull(Version::parse))
-                .filter(version -> version != null && !version.isUnreleased())
+        return ChangelogHeading.root(doc)
+                .map(ExtendedRules::validateConsistentSeparator)
+                .orElse(NO_RULE_ISSUE);
+    }
+
+    private static RuleIssue validateConsistentSeparator(ChangelogHeading changelog) {
+        List<Character> separators = changelog
+                .getVersions()
+                .map(VersionHeading::getSection)
+                .filter(Version::isReleased)
                 .map(Version::getSeparator)
                 .distinct()
                 .collect(toList());
@@ -102,43 +105,44 @@ public enum ExtendedRules implements Rule {
                 ? RuleIssue
                 .builder()
                 .message("Expecting consistent version-date separator " + Util.toUnicode(separators.get(0)) + ", found " + separators.stream().map(Util::toUnicode).collect(joining(", ", "[", "]")))
-                .location(doc)
+                .location(changelog.getHeading())
                 .build()
                 : NO_RULE_ISSUE;
     }
 
     @VisibleForTesting
     static RuleIssue validateUniqueHeadings(Document doc) {
-        return Nodes.of(Heading.class)
-                .descendants(doc)
-                .filter(Version::isVersionLevel)
+        return ChangelogHeading.root(doc)
+                .map(ExtendedRules::validateUniqueHeadings)
+                .orElse(NO_RULE_ISSUE);
+    }
+
+    private static RuleIssue validateUniqueHeadings(ChangelogHeading changelog) {
+        return changelog
+                .getVersions()
                 .flatMap(ExtendedRules::validateUniqueHeadingsOnVersionNode)
                 .findFirst()
                 .orElse(NO_RULE_ISSUE);
     }
 
-    private static Stream<RuleIssue> validateUniqueHeadingsOnVersionNode(Heading version) {
+    private static Stream<RuleIssue> validateUniqueHeadingsOnVersionNode(VersionHeading version) {
         return countByTypeOfChange(version)
                 .entrySet().stream()
                 .filter(entry -> entry.getValue() > 1)
                 .map(entry -> getDuplicationIssue(version, entry.getKey(), entry.getValue()));
     }
 
-    private static RuleIssue getDuplicationIssue(Heading version, TypeOfChange typeOfChange, long count) {
+    private static RuleIssue getDuplicationIssue(VersionHeading version, TypeOfChange typeOfChange, long count) {
         return RuleIssue
                 .builder()
-                .message("Heading " + version.getText() + " has " + count + " duplicate " + typeOfChange + " entries")
-                .location(version)
+                .message("Heading " + version.getHeading().getText() + " has " + count + " duplicate " + typeOfChange + " entries")
+                .location(version.getHeading())
                 .build();
     }
 
-    private static Map<TypeOfChange, Long> countByTypeOfChange(Heading version) {
-        return Nodes.next(version, ChangelogNodes::isNotVersionHeading)
-                .filter(ChangelogNodes::isTypeOfChangeNode)
-                .map(Heading.class::cast)
-                .map(illegalArgumentToNull(TypeOfChange::parse))
-                .filter(Objects::nonNull)
-                .collect(groupingBy(identity(), counting()));
+    private static Map<TypeOfChange, Long> countByTypeOfChange(VersionHeading version) {
+        return version.getTypeOfChanges()
+                .collect(groupingBy(TypeOfChangeHeading::getSection, counting()));
     }
 
     @SuppressWarnings("unused")

@@ -16,7 +16,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static internal.heylogs.FormatSupport.resolveFormatId;
+import static internal.heylogs.spi.FormatSupport.resolveFormatId;
 import static internal.heylogs.HeylogsParameters.DEFAULT_CHANGELOG_FILE;
 import static internal.heylogs.HeylogsParameters.DEFAULT_RECURSIVE;
 import static java.util.stream.Collectors.toList;

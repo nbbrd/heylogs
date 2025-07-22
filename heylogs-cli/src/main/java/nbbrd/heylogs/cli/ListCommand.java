@@ -14,7 +14,7 @@ import java.io.Writer;
 import java.nio.file.Path;
 import java.util.concurrent.Callable;
 
-import static internal.heylogs.FormatSupport.resolveFormatId;
+import static internal.heylogs.spi.FormatSupport.resolveFormatId;
 import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
 
 @Command(name = "list", description = "List resources.")

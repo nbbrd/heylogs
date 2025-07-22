@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 @lombok.Getter
 @lombok.AllArgsConstructor
 @RepresentableAs(Heading.class)
-public enum TypeOfChange implements BaseSection {
+public enum TypeOfChange implements Section {
 
     ADDED("Added"),
     CHANGED("Changed"),

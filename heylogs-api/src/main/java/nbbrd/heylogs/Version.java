@@ -19,7 +19,7 @@ import java.util.Iterator;
 
 @lombok.Value(staticConstructor = "of")
 @RepresentableAs(Heading.class)
-public class Version implements BaseSection {
+public class Version implements Section {
 
     @VisibleForTesting
     static final char HYPHEN = '-';
@@ -51,6 +51,10 @@ public class Version implements BaseSection {
 
     public boolean isUnreleased() {
         return UNRELEASED_KEYWORD.equalsIgnoreCase(ref);
+    }
+
+    public boolean isReleased() {
+        return !isUnreleased();
     }
 
     @Override

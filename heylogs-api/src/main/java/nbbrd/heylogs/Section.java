@@ -9,7 +9,7 @@ import nbbrd.design.SealedType;
         Version.class,
         TypeOfChange.class
 })
-public interface BaseSection {
+public interface Section {
 
     @NonNull Heading toHeading();
 }
