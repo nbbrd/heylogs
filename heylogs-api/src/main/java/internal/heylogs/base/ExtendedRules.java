@@ -51,6 +51,17 @@ public enum ExtendedRules implements Rule {
         public @NonNull String getRuleName() {
             return "Consistent separator";
         }
+    },
+    UNIQUE_HEADINGS {
+        @Override
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node) {
+            return node instanceof Document ? validateUniqueHeadings((Document) node) : NO_RULE_ISSUE;
+        }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "Unique headings";
+        }
     };
 
     @Override
