@@ -11,6 +11,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Check for duplicate headings [#402](https://github.com/nbbrd/heylogs/issues/402)
 
+### Fixed
+
+- Fix GitHub ref prefix [#368](https://github.com/nbbrd/heylogs/issues/368)
+
 ### Changed
 
 - Migrate OSSRH to Central Portal

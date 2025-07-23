@@ -33,7 +33,9 @@ public final class ForgeRefRuleSupport<L extends ForgeLink, R extends ForgeRef<L
     @lombok.Builder.Default
     private final @NonNull Predicate<L> linkPredicate = ignore -> true;
 
-    private final @NonNull BiFunction<L, R, String> message;
+    private final @NonNull BiFunction<L, CharSequence, String> parsableMessage;
+
+    private final @NonNull BiFunction<L, R, String> compatibleMessage;
 
     @Override
     public @NonNull String getRuleId() {
@@ -69,19 +71,22 @@ public final class ForgeRefRuleSupport<L extends ForgeLink, R extends ForgeRef<L
         L expected = Parser.of(linkParser).parse(link.getUrl());
         if (expected != null && linkPredicate.test(expected)) {
             R found = Parser.of(refParser).parse(link.getText());
-            if (isNotCompatibleRef(found, expected)) {
+            if (found == null) {
                 return RuleIssue
                         .builder()
-                        .message(message.apply(expected, found))
+                        .message(parsableMessage.apply(expected, link.getText()))
+                        .location(link)
+                        .build();
+            }
+            if (!found.isCompatibleWith(expected)) {
+                return RuleIssue
+                        .builder()
+                        .message(compatibleMessage.apply(expected, found))
                         .location(link)
                         .build();
             }
         }
         return NO_RULE_ISSUE;
-    }
-
-    private static <T extends ForgeLink> boolean isNotCompatibleRef(ForgeRef<T> found, T expected) {
-        return found != null && !found.isCompatibleWith(expected);
     }
 
     public static <L extends ForgeLink, R extends ForgeRef<L>> @NonNull Builder<L, R> builder(
