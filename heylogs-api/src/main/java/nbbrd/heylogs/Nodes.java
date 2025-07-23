@@ -29,7 +29,7 @@ public class Nodes<T extends Node> {
         return concat(Stream.of(root), Nodes.of(Node.class).descendants(root));
     }
 
-    public static @NonNull Stream<Node> next(@NonNull Node seed, @NonNull Predicate<Node> hasNext) {
+    public static @NonNull Stream<Node> nextWhile(@NonNull Node seed, @NonNull Predicate<Node> hasNext) {
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(getNextNodeIterator(seed, hasNext), Spliterator.SIZED), false);
     }
 

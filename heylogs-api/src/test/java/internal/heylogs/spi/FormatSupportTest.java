@@ -1,5 +1,6 @@
-package internal.heylogs;
+package internal.heylogs.spi;
 
+import internal.heylogs.base.StylishFormat;
 import lombok.NonNull;
 import nbbrd.heylogs.Check;
 import nbbrd.heylogs.Heylogs;
@@ -18,7 +19,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import static internal.heylogs.FormatSupport.resolveFormatId;
+import static internal.heylogs.spi.FormatSupport.resolveFormatId;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class FormatSupportTest {

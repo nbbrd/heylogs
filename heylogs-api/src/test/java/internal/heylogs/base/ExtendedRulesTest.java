@@ -1,4 +1,4 @@
-package internal.heylogs;
+package internal.heylogs.base;
 
 import com.vladsch.flexmark.ast.LinkNodeBase;
 import com.vladsch.flexmark.util.ast.Node;
@@ -10,9 +10,7 @@ import tests.heylogs.api.Sample;
 
 import java.util.Objects;
 
-import static internal.heylogs.ExtendedRules.NO_RULE_ISSUE;
-import static internal.heylogs.ExtendedRules.validateConsistentSeparator;
-import static nbbrd.heylogs.Nodes.of;
+import static internal.heylogs.base.ExtendedRules.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Index.atIndex;
 import static tests.heylogs.api.Sample.using;
@@ -36,13 +34,13 @@ public class ExtendedRulesTest {
 
     @Test
     public void testValidateHttps() {
-        assertThat(of(LinkNodeBase.class).descendants(using("/Main.md")))
+        assertThat(Nodes.of(LinkNodeBase.class).descendants(using("/Main.md")))
                 .map(ExtendedRules::validateHttps)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .isEmpty();
 
-        assertThat(of(LinkNodeBase.class).descendants(using("/NonHttps.md")))
+        assertThat(Nodes.of(LinkNodeBase.class).descendants(using("/NonHttps.md")))
                 .map(ExtendedRules::validateHttps)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
@@ -58,5 +56,11 @@ public class ExtendedRulesTest {
 
         assertThat(validateConsistentSeparator(using("/NonDefaultSeparator.md")))
                 .isEqualTo(NO_RULE_ISSUE);
+    }
+
+    @Test
+    public void testValidateUniqueHeadings() {
+        assertThat(validateUniqueHeadings(using("/NonUniqueHeadings.md")))
+                .isEqualTo(RuleIssue.builder().message("Heading [1.1.0] - 2019-02-15 has 2 duplicate CHANGED entries").line(5).column(1).build());
     }
 }

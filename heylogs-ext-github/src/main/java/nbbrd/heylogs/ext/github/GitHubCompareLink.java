@@ -11,7 +11,7 @@ import nbbrd.io.http.URLQueryBuilder;
 import java.net.URL;
 import java.util.regex.Pattern;
 
-import static internal.heylogs.URLExtractor.*;
+import static internal.heylogs.spi.URLExtractor.*;
 
 // https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-comparing-branches-in-pull-requests#three-dot-and-two-dot-git-diff-comparisons
 @RepresentableAsString

@@ -1,4 +1,4 @@
-package internal.heylogs;
+package internal.heylogs.spi;
 
 import com.vladsch.flexmark.ast.LinkNodeBase;
 import com.vladsch.flexmark.util.ast.Document;

@@ -3,7 +3,7 @@ package tests.heylogs.spi;
 import lombok.NonNull;
 import nbbrd.heylogs.spi.Forge;
 
-import static internal.heylogs.URLExtractor.urlOf;
+import static internal.heylogs.spi.URLExtractor.urlOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 

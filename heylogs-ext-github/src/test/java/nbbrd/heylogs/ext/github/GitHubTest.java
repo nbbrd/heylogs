@@ -3,7 +3,7 @@ package nbbrd.heylogs.ext.github;
 import nbbrd.heylogs.spi.Forge;
 import org.junit.jupiter.api.Test;
 
-import static internal.heylogs.URLExtractor.urlOf;
+import static internal.heylogs.spi.URLExtractor.urlOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static tests.heylogs.spi.ForgeAssert.assertForgeCompliance;

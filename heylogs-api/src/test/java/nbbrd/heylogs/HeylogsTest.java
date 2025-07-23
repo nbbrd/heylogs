@@ -3,13 +3,10 @@ package nbbrd.heylogs;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
 import internal.heylogs.FlexmarkIO;
-import internal.heylogs.StylishFormat;
+import internal.heylogs.base.StylishFormat;
 import lombok.NonNull;
 import nbbrd.design.MightBePromoted;
-import nbbrd.heylogs.spi.Forge;
-import nbbrd.heylogs.spi.Rule;
-import nbbrd.heylogs.spi.RuleIssue;
-import nbbrd.heylogs.spi.RuleSeverity;
+import nbbrd.heylogs.spi.*;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.jupiter.api.Test;
 
@@ -19,9 +16,10 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Function;
 
-import static internal.heylogs.URLExtractor.urlOf;
+import static internal.heylogs.spi.URLExtractor.urlOf;
 import static java.util.Collections.singletonList;
 import static nbbrd.heylogs.Heylogs.FIRST_FORMAT_AVAILABLE;
+import static nbbrd.heylogs.Version.HYPHEN;
 import static nbbrd.heylogs.spi.RuleSeverity.ERROR;
 import static nbbrd.io.function.IOFunction.unchecked;
 import static org.assertj.core.api.Assertions.*;
@@ -108,14 +106,29 @@ public class HeylogsTest {
         Heylogs x = Heylogs.ofServiceLoader()
                 .toBuilder()
                 .forge(new MockedForge())
+                .versioning(new MockedVersioning())
                 .build();
 
-        Version v123 = Version.of("1.2.3", Version.HYPHEN, LocalDate.of(2010, 1, 1));
+        LocalDate date = LocalDate.of(2010, 1, 1);
 
-        assertThatIllegalArgumentException().isThrownBy(() -> releaseChangesToString(x, using("/Empty.md"), v123))
+        assertThatIllegalArgumentException().isThrownBy(() -> releaseChangesToString(x, using("/Main.md"), Version.of("42", HYPHEN, date), "boom"))
+                .withMessageContaining("Cannot find versioning with id 'boom'");
+
+        assertThatIllegalArgumentException().isThrownBy(() -> releaseChangesToString(x, using("/Main.md"), Version.of("boom", HYPHEN, date), "mocked"))
+                .withMessageContaining("Invalid version 'boom' for versioning 'mocked'");
+
+        assertThatCode(() -> releaseChangesToString(x, using("/Main.md"), Version.of("boom", HYPHEN, date), null))
+                .doesNotThrowAnyException();
+
+        assertThatCode(() -> releaseChangesToString(x, using("/Main.md"), Version.of("42", HYPHEN, date), "mocked"))
+                .doesNotThrowAnyException();
+
+        Version v123 = Version.of("1.2.3", HYPHEN, date);
+
+        assertThatIllegalArgumentException().isThrownBy(() -> releaseChangesToString(x, using("/Empty.md"), v123, null))
                 .withMessageContaining("Invalid changelog");
 
-        assertThat(releaseChangesToString(x, using("/Main.md"), v123))
+        assertThat(releaseChangesToString(x, using("/Main.md"), v123, null))
                 .contains(
                         "## [Unreleased]",
                         "## [1.2.3] - 2010-01-01",
@@ -124,7 +137,7 @@ public class HeylogsTest {
                 .doesNotContain("[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.0...HEAD")
                 .endsWith("[0.0.1]: https://github.com/olivierlacan/keep-a-changelog/releases/tag/v0.0.1\n");
 
-        assertThat(releaseChangesToString(x, using("/UnreleasedChanges.md"), v123))
+        assertThat(releaseChangesToString(x, using("/UnreleasedChanges.md"), v123, null))
                 .contains(
                         "## [Unreleased]",
                         "## [1.2.3] - 2010-01-01",
@@ -133,7 +146,7 @@ public class HeylogsTest {
                 .doesNotContain("[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.0...HEAD")
                 .endsWith("[1.1.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.0...v1.1.0\n");
 
-        assertThat(releaseChangesToString(x, using("/FirstRelease.md"), v123))
+        assertThat(releaseChangesToString(x, using("/FirstRelease.md"), v123, null))
                 .contains(
                         "## [Unreleased]",
                         "## [1.2.3] - 2010-01-01",
@@ -261,8 +274,8 @@ public class HeylogsTest {
         return unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc);
     }
 
-    private static String releaseChangesToString(Heylogs heylogs, Document doc, Version version) {
-        heylogs.releaseChanges(doc, version, "v");
+    private static String releaseChangesToString(Heylogs heylogs, Document doc, Version version, String versioningId) {
+        heylogs.releaseChanges(doc, version, "v", versioningId);
         return unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc);
     }
 
@@ -333,6 +346,29 @@ public class HeylogsTest {
             return oid.endsWith("...HEAD")
                     ? oid.startsWith("HEAD...") ? (nextTag + "..." + nextTag) : (oid.substring(0, oid.length() - 4) + nextTag)
                     : (oid.substring(oid.indexOf("...") + 3) + "..." + nextTag);
+        }
+    }
+
+    private static final class MockedVersioning implements Versioning {
+
+        @Override
+        public @NonNull String getVersioningId() {
+            return "mocked";
+        }
+
+        @Override
+        public @NonNull String getVersioningName() {
+            return "";
+        }
+
+        @Override
+        public boolean isValidVersion(@NonNull CharSequence text) {
+            try {
+                Integer.parseInt(text.toString());
+                return true;
+            } catch (NumberFormatException ignore) {
+                return false;
+            }
         }
     }
 }

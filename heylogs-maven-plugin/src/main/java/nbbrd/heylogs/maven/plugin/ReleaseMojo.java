@@ -16,6 +16,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Objects;
 
 import static internal.heylogs.HeylogsParameters.DEFAULT_CHANGELOG_FILE;
+import static internal.heylogs.HeylogsParameters.DEFAULT_SEMVER;
 import static nbbrd.console.picocli.ByteOutputSupport.DEFAULT_STDOUT_FILE;
 
 @lombok.Getter
@@ -35,6 +36,9 @@ public final class ReleaseMojo extends HeylogsMojo {
     @Parameter(property = "heylogs.date")
     private String date;
 
+    @Parameter(property = "heylogs.semver", defaultValue = DEFAULT_SEMVER)
+    private boolean semver;
+
     @Override
     public void execute() throws MojoExecutionException {
         if (isSkip()) {
@@ -53,7 +57,7 @@ public final class ReleaseMojo extends HeylogsMojo {
         String tagPrefix = toTagPrefix();
 
         getLog().info("Releasing " + version + " with tag prefix '" + tagPrefix + "'");
-        initHeylogs(false).releaseChanges(document, version, tagPrefix);
+        initHeylogs(semver).releaseChanges(document, version, tagPrefix, semver ? "semver" : null);
 
         writeChangelog(document, inputFile);
     }

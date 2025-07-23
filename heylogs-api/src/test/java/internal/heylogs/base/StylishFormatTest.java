@@ -1,4 +1,4 @@
-package internal.heylogs;
+package internal.heylogs.base;
 
 import nbbrd.heylogs.spi.Format;
 import nbbrd.heylogs.spi.FormatLoader;

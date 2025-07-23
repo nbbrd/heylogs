@@ -1,5 +1,6 @@
-package internal.heylogs;
+package internal.heylogs.base;
 
+import internal.heylogs.spi.FormatSupport;
 import lombok.NonNull;
 import nbbrd.design.DirectImpl;
 import nbbrd.design.MightBePromoted;

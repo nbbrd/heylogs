@@ -18,7 +18,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static internal.heylogs.FormatSupport.resolveFormatId;
+import static internal.heylogs.spi.FormatSupport.resolveFormatId;
 import static internal.heylogs.HeylogsParameters.*;
 import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.toList;
