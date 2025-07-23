@@ -10,6 +10,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 - Check for duplicate headings [#402](https://github.com/nbbrd/heylogs/issues/402)
+- Check versions against versioning on release [#403](https://github.com/nbbrd/heylogs/issues/403)
 
 ### Fixed
 

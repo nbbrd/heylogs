@@ -67,7 +67,7 @@ public final class ReleaseCommand implements Callable<Void> {
     }
 
     private Document release(Document document) {
-        heylogsOptions.initHeylogs().releaseChanges(document, Version.of(ref, '-', date), tagPrefix);
+        heylogsOptions.initHeylogs().releaseChanges(document, Version.of(ref, '-', date), tagPrefix, heylogsOptions.isSemver() ? "semver" : null);
         return document;
     }
 

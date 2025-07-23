@@ -14,6 +14,7 @@ import lombok.NonNull;
 import nbbrd.design.MightBePromoted;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.spi.*;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.IOException;
 import java.net.URL;
@@ -124,7 +125,16 @@ public class Heylogs {
         ).sorted(Resource.DEFAULT_COMPARATOR).collect(toList());
     }
 
-    public void releaseChanges(@NonNull Document document, @NonNull Version newVersion, @NonNull String versionTagPrefix) {
+    public void releaseChanges(@NonNull Document document, @NonNull Version newVersion,
+                               @NonNull String versionTagPrefix, @Nullable String versioningId) throws IllegalArgumentException {
+        if (versioningId != null) {
+            Versioning versioning = getVersioningById(versioningId)
+                    .orElseThrow(() -> new IllegalArgumentException("Cannot find versioning with id '" + versioningId + "'"));
+            if (!versioning.isValidVersion(newVersion.getRef())) {
+                throw new IllegalArgumentException("Invalid version '" + newVersion.getRef() + "' for versioning '" + versioningId + "'");
+            }
+        }
+
         if (isNotValidAgainstGuidingPrinciples(document)) {
             throw new IllegalArgumentException("Invalid changelog");
         }
@@ -241,6 +251,12 @@ public class Heylogs {
     private Optional<Format> getFormatByFile(Path file) {
         return formats.stream()
                 .filter(onFile(file))
+                .findFirst();
+    }
+
+    private Optional<Versioning> getVersioningById(String versioningId) {
+        return versionings.stream()
+                .filter(versioning -> versioning.getVersioningId().equals(versioningId))
                 .findFirst();
     }
 
