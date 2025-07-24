@@ -1,12 +1,12 @@
 package nbbrd.heylogs.ext.github;
 
-import nbbrd.heylogs.spi.ForgeLink;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAsString;
 import nbbrd.design.StaticFactoryMethod;
+import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.io.http.URLQueryBuilder;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
 import java.util.regex.Pattern;

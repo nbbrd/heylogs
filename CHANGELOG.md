@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Switch to JSpecify [#143](https://github.com/nbbrd/heylogs/issues/143)
+
 ## [0.11.1] - 2025-07-24
 
 ### Fixed
