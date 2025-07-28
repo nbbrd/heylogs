@@ -63,4 +63,10 @@ public class ExtendedRulesTest {
         assertThat(validateUniqueHeadings(using("/NonUniqueHeadings.md")))
                 .isEqualTo(RuleIssue.builder().message("Heading [1.1.0] - 2019-02-15 has 2 duplicate CHANGED entries").line(5).column(1).build());
     }
+
+    @Test
+    public void testValidateNoEmptyGroup() {
+        assertThat(validateNoEmptyGroup(using("/NoEmptyGroup.md")))
+                .isEqualTo(RuleIssue.builder().message("Heading [1.1.0] - 2019-02-15 has no entries for CHANGED").line(7).column(1).build());
+    }
 }

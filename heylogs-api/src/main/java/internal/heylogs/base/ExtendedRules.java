@@ -22,10 +22,12 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static internal.heylogs.spi.RuleSupport.linkToURL;
 import static internal.heylogs.spi.RuleSupport.nameToId;
+import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.*;
 
 public enum ExtendedRules implements Rule {
@@ -61,6 +63,17 @@ public enum ExtendedRules implements Rule {
         @Override
         public @NonNull String getRuleName() {
             return "Unique headings";
+        }
+    },
+    NO_EMPTY_GROUP {
+        @Override
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node) {
+            return node instanceof Document ? validateNoEmptyGroup((Document) node) : NO_RULE_ISSUE;
+        }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "No empty group";
         }
     };
 
@@ -154,6 +167,33 @@ public enum ExtendedRules implements Rule {
     private static Map<TypeOfChange, Long> countByTypeOfChange(VersionHeading version) {
         return version.getTypeOfChanges()
                 .collect(groupingBy(TypeOfChangeHeading::getSection, counting()));
+    }
+
+    @VisibleForTesting
+    static RuleIssue validateNoEmptyGroup(Document doc) {
+        return ChangelogHeading.root(doc)
+                .map(ExtendedRules::validateNoEmptyGroup)
+                .orElse(NO_RULE_ISSUE);
+    }
+
+    private static RuleIssue validateNoEmptyGroup(ChangelogHeading changelog) {
+        return changelog
+                .getVersions()
+                .flatMap(ExtendedRules::validateNoEmptyGroupOnVersionNode)
+                .findFirst()
+                .orElse(NO_RULE_ISSUE);
+    }
+
+    private static Stream<RuleIssue> validateNoEmptyGroupOnVersionNode(VersionHeading version) {
+        return version.getTypeOfChanges()
+                .collect(toMap(identity(), typeOfChange -> typeOfChange.getBulletListItems().count()))
+                .entrySet().stream()
+                .filter(entry -> entry.getValue() == 0)
+                .map(entry -> RuleIssue
+                        .builder()
+                        .message("Heading " + version.getHeading().getText() + " has no entries for " + entry.getKey().getSection())
+                        .location(entry.getKey().getHeading())
+                        .build());
     }
 
     @SuppressWarnings("unused")

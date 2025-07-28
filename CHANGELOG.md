@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Add no-empty-group rule [#406](https://github.com/nbbrd/heylogs/issues/406)
+
 ### Changed
 
 - Switch to JSpecify [#143](https://github.com/nbbrd/heylogs/issues/143)
