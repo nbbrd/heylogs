@@ -10,6 +10,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 - Add no-empty-group rule [#406](https://github.com/nbbrd/heylogs/issues/406)
+- Add no-empty-release rule [#407](https://github.com/nbbrd/heylogs/issues/407)
 
 ### Changed
 
@@ -61,6 +62,8 @@ This release focuses on simplifying the CLI and Maven plugin parameters.
 - Modernize use of NIO API
 
 ## [0.9.2] - 2024-08-30
+
+### Fixed
 
 - Fix blank line at the end of file [#299](https://github.com/nbbrd/heylogs/issues/299)
 

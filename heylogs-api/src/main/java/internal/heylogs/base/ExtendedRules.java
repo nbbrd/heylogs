@@ -22,7 +22,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static internal.heylogs.spi.RuleSupport.linkToURL;
@@ -74,6 +73,22 @@ public enum ExtendedRules implements Rule {
         @Override
         public @NonNull String getRuleName() {
             return "No empty group";
+        }
+    },
+    NO_EMPTY_RELEASE {
+        @Override
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node) {
+            return node instanceof Document ? validateNoEmptyRelease((Document) node) : NO_RULE_ISSUE;
+        }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "No empty release";
+        }
+
+        @Override
+        public @NonNull RuleSeverity getRuleSeverity() {
+            return RuleSeverity.WARN;
         }
     };
 
@@ -194,6 +209,29 @@ public enum ExtendedRules implements Rule {
                         .message("Heading " + version.getHeading().getText() + " has no entries for " + entry.getKey().getSection())
                         .location(entry.getKey().getHeading())
                         .build());
+    }
+
+    @VisibleForTesting
+    static RuleIssue validateNoEmptyRelease(Document doc) {
+        return ChangelogHeading.root(doc)
+                .map(ExtendedRules::validateNoEmptyRelease)
+                .orElse(NO_RULE_ISSUE);
+    }
+
+    private static RuleIssue validateNoEmptyRelease(ChangelogHeading changelog) {
+        return changelog
+                .getVersions()
+                .filter(version -> version.getSection().isReleased())
+                .collect(toMap(identity(), version -> version.getTypeOfChanges().count()))
+                .entrySet().stream()
+                .filter(entry -> entry.getValue() == 0)
+                .map(entry -> RuleIssue
+                        .builder()
+                        .message("Heading " + entry.getKey().getHeading().getText() + " has no entries")
+                        .location(entry.getKey().getHeading())
+                        .build())
+                .findFirst()
+                .orElse(NO_RULE_ISSUE);
     }
 
     @SuppressWarnings("unused")
