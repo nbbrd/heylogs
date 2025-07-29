@@ -1,7 +1,6 @@
 package nbbrd.heylogs.cli;
 
 import internal.heylogs.cli.FormatOptions;
-import internal.heylogs.cli.HeylogsOptions;
 import internal.heylogs.cli.SpecialProperties;
 import nbbrd.console.picocli.FileOutputOptions;
 import nbbrd.console.picocli.text.TextOutputSupport;
@@ -24,9 +23,6 @@ public final class ListCommand implements Callable<Void> {
     private FileOutputOptions output;
 
     @CommandLine.Mixin
-    private HeylogsOptions heylogsOptions;
-
-    @CommandLine.Mixin
     private FormatOptions formatOptions;
 
     @CommandLine.Option(
@@ -38,7 +34,7 @@ public final class ListCommand implements Callable<Void> {
 
     @Override
     public Void call() throws IOException {
-        Heylogs heylogs = heylogsOptions.initHeylogs();
+        Heylogs heylogs = Heylogs.ofServiceLoader();
 
         TextOutputSupport outputSupport = newTextOutputSupport();
         Path outputFile = output.getFile();

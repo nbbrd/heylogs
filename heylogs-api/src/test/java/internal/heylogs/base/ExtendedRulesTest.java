@@ -2,6 +2,7 @@ package internal.heylogs.base;
 
 import com.vladsch.flexmark.ast.LinkNodeBase;
 import com.vladsch.flexmark.util.ast.Node;
+import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Nodes;
 import nbbrd.heylogs.spi.RuleIssue;
 import org.assertj.core.api.Assertions;
@@ -27,7 +28,7 @@ public class ExtendedRulesTest {
     public void test() {
         Node sample = Sample.using("/Main.md");
         for (ExtendedRules rule : ExtendedRules.values()) {
-            Assertions.assertThat(Nodes.of(Node.class).descendants(sample).map(rule::getRuleIssueOrNull).filter(Objects::nonNull))
+            Assertions.assertThat(Nodes.of(Node.class).descendants(sample).map(node -> rule.getRuleIssueOrNull(node, Config.DEFAULT)).filter(Objects::nonNull))
                     .isEmpty();
         }
     }

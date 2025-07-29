@@ -14,7 +14,6 @@ import lombok.NonNull;
 import nbbrd.design.MightBePromoted;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.spi.*;
-import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.URL;
@@ -64,8 +63,8 @@ public class Heylogs {
     @lombok.Singular
     List<Forge> forges;
 
-    public @NonNull List<Problem> checkFormat(@NonNull Document document) {
-        return problemStreamOf(document, rules).collect(toList());
+    public @NonNull List<Problem> checkFormat(@NonNull Document document, @NonNull Config config) {
+        return problemStreamOf(document, rules, config).collect(toList());
     }
 
     public void extractVersions(@NonNull Document document, @NonNull Filter filter) {
@@ -125,13 +124,12 @@ public class Heylogs {
         ).sorted(Resource.DEFAULT_COMPARATOR).collect(toList());
     }
 
-    public void releaseChanges(@NonNull Document document, @NonNull Version newVersion,
-                               @NonNull String versionTagPrefix, @Nullable String versioningId) throws IllegalArgumentException {
-        if (versioningId != null) {
-            Versioning versioning = getVersioningById(versioningId)
-                    .orElseThrow(() -> new IllegalArgumentException("Cannot find versioning with id '" + versioningId + "'"));
+    public void releaseChanges(@NonNull Document document, @NonNull Version newVersion, @NonNull Config config) throws IllegalArgumentException {
+        if (config.getVersioningId() != null) {
+            Versioning versioning = getVersioningById(config.getVersioningId())
+                    .orElseThrow(() -> new IllegalArgumentException("Cannot find versioning with id '" + config.getVersioningId() + "'"));
             if (!versioning.isValidVersion(newVersion.getRef())) {
-                throw new IllegalArgumentException("Invalid version '" + newVersion.getRef() + "' for versioning '" + versioningId + "'");
+                throw new IllegalArgumentException("Invalid version '" + newVersion.getRef() + "' for versioning '" + config.getVersioningId() + "'");
             }
         }
 
@@ -150,7 +148,7 @@ public class Heylogs {
         Forge forge = findForge(unreleased)
                 .orElseThrow(() -> new IllegalArgumentException("Cannot determine forge"));
 
-        URL releaseURL = forge.deriveCompareLink(unreleased.getURL(), versionTagPrefix + newVersion.getRef());
+        URL releaseURL = forge.deriveCompareLink(unreleased.getURL(), config.getVersionTagPrefix() + newVersion.getRef());
         VersionHeading release = VersionHeading.of(newVersion, releaseURL);
 
         URL updatedURL = forge.deriveCompareLink(releaseURL, "HEAD");
@@ -263,7 +261,7 @@ public class Heylogs {
     public static final String FIRST_FORMAT_AVAILABLE = "";
 
     private static boolean isNotValidAgainstGuidingPrinciples(Document document) {
-        return problemStreamOf(document, asList(GuidingPrinciples.values())).findFirst().isPresent();
+        return problemStreamOf(document, asList(GuidingPrinciples.values()), Config.DEFAULT).findFirst().isPresent();
     }
 
     @MightBePromoted

@@ -3,11 +3,13 @@ package nbbrd.heylogs.spi;
 import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.util.ast.Node;
 import lombok.NonNull;
+import nbbrd.heylogs.Config;
 import nbbrd.io.text.Parser;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Properties;
 import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -31,7 +33,7 @@ public final class ForgeRefRuleSupport<L extends ForgeLink, R extends ForgeRef<L
     private final @NonNull Function<? super CharSequence, R> refParser;
 
     @lombok.Builder.Default
-    private final @NonNull Predicate<L> linkPredicate = ignore -> true;
+    private final @NonNull BiPredicate<L, String> linkPredicate = (ignoreLink, ignoreForgeId) -> true;
 
     private final @NonNull BiFunction<L, CharSequence, String> parsableMessage;
 
@@ -63,13 +65,13 @@ public final class ForgeRefRuleSupport<L extends ForgeLink, R extends ForgeRef<L
     }
 
     @Override
-    public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node) {
-        return node instanceof Link ? validateLink((Link) node) : NO_RULE_ISSUE;
+    public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
+        return node instanceof Link ? validateLink((Link) node, config.getForgeId()) : NO_RULE_ISSUE;
     }
 
-    private @Nullable RuleIssue validateLink(@NonNull Link link) {
+    private @Nullable RuleIssue validateLink(@NonNull Link link, @Nullable String forgeId) {
         L expected = Parser.of(linkParser).parse(link.getUrl());
-        if (expected != null && linkPredicate.test(expected)) {
+        if (expected != null && linkPredicate.test(expected, forgeId)) {
             R found = Parser.of(refParser).parse(link.getText());
             if (found == null) {
                 return RuleIssue

@@ -4,6 +4,7 @@ import internal.heylogs.cli.*;
 import nbbrd.console.picocli.FileOutputOptions;
 import nbbrd.console.picocli.text.TextOutputSupport;
 import nbbrd.heylogs.Check;
+import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Heylogs;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -14,8 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import static internal.heylogs.spi.FormatSupport.resolveFormatId;
 import static internal.heylogs.cli.MarkdownInputSupport.newMarkdownInputSupport;
+import static internal.heylogs.spi.FormatSupport.resolveFormatId;
 import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
 
 @Command(name = "check", description = "Check format.")
@@ -28,7 +29,7 @@ public final class CheckCommand implements Callable<Integer> {
     private FileOutputOptions output;
 
     @CommandLine.Mixin
-    private HeylogsOptions heylogsOptions;
+    private ConfigOptions configOptions;
 
     @CommandLine.Mixin
     private FormatOptions formatOptions;
@@ -42,7 +43,8 @@ public final class CheckCommand implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        Heylogs heylogs = heylogsOptions.initHeylogs();
+        Heylogs heylogs = Heylogs.ofServiceLoader();
+        Config config = configOptions.getConfig();
 
         MarkdownInputSupport inputSupport = newMarkdownInputSupport();
 
@@ -51,7 +53,7 @@ public final class CheckCommand implements Callable<Integer> {
             list.add(Check
                     .builder()
                     .source(inputSupport.getName(file))
-                    .problems(heylogs.checkFormat(inputSupport.readDocument(file)))
+                    .problems(heylogs.checkFormat(inputSupport.readDocument(file), config))
                     .build());
         }
 

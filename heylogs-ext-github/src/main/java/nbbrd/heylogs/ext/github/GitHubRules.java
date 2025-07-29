@@ -8,6 +8,7 @@ import nbbrd.heylogs.spi.ForgeRefRuleSupport;
 import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleBatch;
 import nbbrd.service.ServiceProvider;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
@@ -29,7 +30,7 @@ public final class GitHubRules implements RuleBatch {
             .id("github-issue-ref")
             .name("GitHub issue ref")
             .category("forge")
-            .linkPredicate(link -> isIssue(link) && isGitHubHost(link))
+            .linkPredicate((link, forgeId) -> link.getType().equals(GitHubIssueLink.ISSUES_TYPE) && isGitHubHost(link, forgeId))
             .parsableMessage((link, ref) -> String.format(ROOT, "Expecting issue ref %s, found %s", GitHubIssueRef.of(link, GitHubIssueRef.Type.NUMBER), ref))
             .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting issue ref %s, found %s", GitHubIssueRef.of(link, ref.getType()), ref))
             .build();
@@ -40,7 +41,7 @@ public final class GitHubRules implements RuleBatch {
             .id("github-pull-request-ref")
             .name("GitHub pull request ref")
             .category("forge")
-            .linkPredicate(link -> isPullRequest(link) && isGitHubHost(link))
+            .linkPredicate((link, forgeId) -> link.getType().equals(GitHubIssueLink.PULL_REQUEST_TYPE) && isGitHubHost(link, forgeId))
             .parsableMessage((link, ref) -> String.format(ROOT, "Expecting pull request ref %s, found %s", GitHubIssueRef.of(link, GitHubIssueRef.Type.NUMBER), ref))
             .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting pull request ref %s, found %s", GitHubIssueRef.of(link, ref.getType()), ref))
             .build();
@@ -68,15 +69,7 @@ public final class GitHubRules implements RuleBatch {
             .build();
 
     @VisibleForTesting
-    static boolean isGitHubHost(ForgeLink expected) {
-        return Arrays.asList(expected.getBase().getHost().split("\\.", -1)).contains("github");
-    }
-
-    private static boolean isIssue(GitHubIssueLink expected) {
-        return expected.getType().equals(GitHubIssueLink.ISSUES_TYPE);
-    }
-
-    private static boolean isPullRequest(GitHubIssueLink expected) {
-        return expected.getType().equals(GitHubIssueLink.PULL_REQUEST_TYPE);
+    static boolean isGitHubHost(@NonNull ForgeLink expected, @Nullable String forgeId) {
+        return GitHub.ID.equals(forgeId) || Arrays.asList(expected.getBase().getHost().split("\\.", -1)).contains("github");
     }
 }

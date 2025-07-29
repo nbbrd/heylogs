@@ -10,9 +10,11 @@ import org.semver4j.Semver;
 @ServiceProvider
 public final class SemVer implements Versioning {
 
+    static final String ID = "semver";
+
     @Override
     public @NonNull String getVersioningId() {
-        return "semver";
+        return ID;
     }
 
     @Override

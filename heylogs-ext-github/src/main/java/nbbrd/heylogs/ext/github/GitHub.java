@@ -11,9 +11,11 @@ import java.net.URL;
 @ServiceProvider
 public final class GitHub implements Forge {
 
+    static final String ID = "github";
+
     @Override
     public @NonNull String getForgeId() {
-        return "github";
+        return ID;
     }
 
     @Override

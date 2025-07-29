@@ -49,10 +49,10 @@ public class HeylogsTest {
 
     @Test
     public void testCheckFormat() {
-        assertThat(Heylogs.builder().build().checkFormat(using("/InvalidVersion.md")))
+        assertThat(Heylogs.builder().build().checkFormat(using("/InvalidVersion.md"), Config.DEFAULT))
                 .isEmpty();
 
-        assertThat(Heylogs.ofServiceLoader().checkFormat(using("/InvalidVersion.md")))
+        assertThat(Heylogs.ofServiceLoader().checkFormat(using("/InvalidVersion.md"), Config.DEFAULT))
                 .isNotEmpty();
     }
 
@@ -275,7 +275,7 @@ public class HeylogsTest {
     }
 
     private static String releaseChangesToString(Heylogs heylogs, Document doc, Version version, String versioningId) {
-        heylogs.releaseChanges(doc, version, "v", versioningId);
+        heylogs.releaseChanges(doc, version, Config.builder().versionTagPrefix("v").versioningId(versioningId).build());
         return unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc);
     }
 
@@ -307,7 +307,7 @@ public class HeylogsTest {
         }
 
         @Override
-        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node) {
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
             return null;
         }
     }

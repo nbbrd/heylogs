@@ -4,7 +4,6 @@ import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.FlexmarkIO;
 import nbbrd.design.MightBePromoted;
 import nbbrd.heylogs.Heylogs;
-import nbbrd.heylogs.ext.semver.SemVerRule;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -57,12 +56,7 @@ abstract class HeylogsMojo extends AbstractMojo {
     }
 
     protected static Heylogs initHeylogs(boolean semver) {
-        Heylogs.Builder result = Heylogs.ofServiceLoader()
-                .toBuilder();
-        if (semver) {
-            result.rule(new SemVerRule());
-        }
-        return result.build();
+        return Heylogs.ofServiceLoader();
     }
 
     @MightBePromoted
