@@ -75,4 +75,10 @@ public class ExtendedRulesTest {
         assertThat(validateNoEmptyRelease(using("/NoEmptyRelease.md")))
                 .isEqualTo(RuleIssue.builder().message("Heading [1.1.0] - 2019-02-15 has no entries").line(5).column(1).build());
     }
+
+    @Test
+    public void testValidateUniqueRelease() {
+        assertThat(validateUniqueRelease(using("/UniqueRelease.md")))
+                .isEqualTo(RuleIssue.builder().message("Release 1.1.0 has 2 duplicates").line(5).column(1).build());
+    }
 }

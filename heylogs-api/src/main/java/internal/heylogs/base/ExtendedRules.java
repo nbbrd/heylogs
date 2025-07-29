@@ -90,6 +90,22 @@ public enum ExtendedRules implements Rule {
         public @NonNull RuleSeverity getRuleSeverity() {
             return RuleSeverity.WARN;
         }
+    },
+    UNIQUE_RELEASE {
+        @Override
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node) {
+            return node instanceof Document ? validateUniqueRelease((Document) node) : NO_RULE_ISSUE;
+        }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "No empty release";
+        }
+
+        @Override
+        public @NonNull RuleSeverity getRuleSeverity() {
+            return RuleSeverity.WARN;
+        }
     };
 
     @Override
@@ -231,6 +247,28 @@ public enum ExtendedRules implements Rule {
                         .location(entry.getKey().getHeading())
                         .build())
                 .findFirst()
+                .orElse(NO_RULE_ISSUE);
+    }
+
+    @VisibleForTesting
+    static RuleIssue validateUniqueRelease(Document doc) {
+        return ChangelogHeading.root(doc)
+                .map(ExtendedRules::validateUniqueRelease)
+                .orElse(NO_RULE_ISSUE);
+    }
+
+    private static RuleIssue validateUniqueRelease(ChangelogHeading changelog) {
+        return changelog
+                .getVersions()
+                .collect(groupingBy(version -> version.getSection().getRef(), toList()))
+                .entrySet().stream()
+                .filter(entry -> entry.getValue().size() > 1)
+                .findFirst()
+                .map(entry -> RuleIssue
+                        .builder()
+                        .message("Release " + entry.getKey() + " has " + entry.getValue().size() + " duplicates")
+                        .location(entry.getValue().get(0).getHeading())
+                        .build())
                 .orElse(NO_RULE_ISSUE);
     }
 

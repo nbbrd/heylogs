@@ -11,6 +11,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Add no-empty-group rule [#406](https://github.com/nbbrd/heylogs/issues/406)
 - Add no-empty-release rule [#407](https://github.com/nbbrd/heylogs/issues/407)
+- Add unique-release rule [#408](https://github.com/nbbrd/heylogs/issues/408)
 
 ### Changed
 
