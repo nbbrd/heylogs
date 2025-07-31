@@ -1,4 +1,4 @@
-package nbbrd.heylogs.ext.github;
+package nbbrd.heylogs.ext.forgejo;
 
 import lombok.AccessLevel;
 import lombok.NonNull;
@@ -13,20 +13,19 @@ import java.util.regex.Pattern;
 
 import static internal.heylogs.spi.URLExtractor.*;
 
-// https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-comparing-branches-in-pull-requests#three-dot-and-two-dot-git-diff-comparisons
 @RepresentableAsString
 @RepresentableAs(URL.class)
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class GitHubCompareLink implements CompareLink {
+class ForgejoCompareLink implements CompareLink {
 
     @StaticFactoryMethod
-    public static @NonNull GitHubCompareLink parse(@NonNull CharSequence text) {
+    public static @NonNull ForgejoCompareLink parse(@NonNull CharSequence text) {
         return parse(urlOf(text));
     }
 
     @StaticFactoryMethod
-    public static @NonNull GitHubCompareLink parse(@NonNull URL url) {
+    public static @NonNull ForgejoCompareLink parse(@NonNull URL url) {
         String[] pathArray = getPathArray(url);
 
         checkPathLength(pathArray, 4);
@@ -35,7 +34,7 @@ class GitHubCompareLink implements CompareLink {
         checkPathItem(pathArray, 2, "compare");
         checkPathItem(pathArray, 3, OID);
 
-        return new GitHubCompareLink(baseOf(url), pathArray[0], pathArray[1], pathArray[2], pathArray[3]);
+        return new ForgejoCompareLink(baseOf(url), pathArray[0], pathArray[1], pathArray[2], pathArray[3]);
     }
 
     @NonNull
@@ -60,8 +59,8 @@ class GitHubCompareLink implements CompareLink {
     }
 
     @Override
-    public @NonNull GitHubCompareLink derive(@NonNull String tag) {
-        return new GitHubCompareLink(base, owner, repo, type, getOid(tag));
+    public @NonNull ForgejoCompareLink derive(@NonNull String tag) {
+        return new ForgejoCompareLink(base, owner, repo, type, getOid(tag));
     }
 
     @Override

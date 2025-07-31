@@ -1,0 +1,48 @@
+package nbbrd.heylogs.spi;
+
+import lombok.NonNull;
+
+import java.net.URL;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
+@lombok.Builder(toBuilder = true)
+public final class ForgeSupport implements Forge {
+
+    private final @NonNull String id;
+
+    private final @NonNull String name;
+
+    private final @NonNull Function<URL, CompareLink> compareLinkFactory;
+
+    private final @NonNull Predicate<ForgeLink> linkPredicate;
+
+    @Override
+    public @NonNull String getForgeId() {
+        return id;
+    }
+
+    @Override
+    public @NonNull String getForgeName() {
+        return name;
+    }
+
+    @Override
+    public boolean isCompareLink(@NonNull URL url) {
+        try {
+            return linkPredicate.test(compareLinkFactory.apply(url));
+        } catch (IllegalArgumentException ex) {
+            return false;
+        }
+    }
+
+    @Override
+    public @NonNull URL getProjectURL(@NonNull URL url) {
+        return compareLinkFactory.apply(url).getProjectURL();
+    }
+
+    @Override
+    public @NonNull URL deriveCompareLink(@NonNull URL latest, @NonNull String nextTag) {
+        return compareLinkFactory.apply(latest).derive(nextTag).toURL();
+    }
+}

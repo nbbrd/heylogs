@@ -1,4 +1,4 @@
-package nbbrd.heylogs.ext.github;
+package nbbrd.heylogs.ext.forgejo;
 
 import lombok.NonNull;
 import nbbrd.design.DirectImpl;
@@ -11,20 +11,20 @@ import java.util.Arrays;
 
 @DirectImpl
 @ServiceProvider
-public final class GitHub implements Forge {
+public final class Forgejo implements Forge {
 
-    static final String ID = "github";
+    static final String ID = "forgejo";
 
     @lombok.experimental.Delegate
     private final Forge delegate = ForgeSupport
             .builder()
             .id(ID)
-            .name("GitHub")
-            .compareLinkFactory(GitHubCompareLink::parse)
-            .linkPredicate(GitHub::isKnownHost)
+            .name("Forgejo")
+            .compareLinkFactory(ForgejoCompareLink::parse)
+            .linkPredicate(Forgejo::isKnownHost)
             .build();
 
     static boolean isKnownHost(@NonNull ForgeLink expected) {
-        return Arrays.asList(expected.getBase().getHost().split("\\.", -1)).contains("github");
+        return Arrays.asList(expected.getBase().getHost().split("\\.", -1)).contains("codeberg");
     }
 }

@@ -1,0 +1,74 @@
+package nbbrd.heylogs.ext.forgejo;
+
+import lombok.NonNull;
+import nbbrd.design.DirectImpl;
+import nbbrd.design.VisibleForTesting;
+import nbbrd.heylogs.spi.ForgeLink;
+import nbbrd.heylogs.spi.ForgeRefRuleSupport;
+import nbbrd.heylogs.spi.Rule;
+import nbbrd.heylogs.spi.RuleBatch;
+import nbbrd.service.ServiceProvider;
+import org.jspecify.annotations.Nullable;
+
+import java.util.stream.Stream;
+
+import static java.util.Locale.ROOT;
+
+@DirectImpl
+@ServiceProvider
+public final class ForgejoRules implements RuleBatch {
+
+    @Override
+    public @NonNull Stream<Rule> getProviders() {
+        return Stream.of(FORGEJO_ISSUE_REF, FORGEJO_PULL_REQUEST_REF, FORGEJO_MENTION_REF, FORGEJO_COMMIT_SHA_REF);
+    }
+
+    @VisibleForTesting
+    static final Rule FORGEJO_ISSUE_REF = ForgeRefRuleSupport
+            .builder(ForgejoIssueLink::parse, ForgejoIssueRef::parse)
+            .id("forgejo-issue-ref")
+            .name("Forgejo issue ref")
+            .category("forge")
+            .linkPredicate((link, forgeId) -> link.getType().equals(ForgejoIssueLink.ISSUES_TYPE) && isForgejoHost(link, forgeId))
+            .parsableMessage((link, ref) -> String.format(ROOT, "Expecting issue ref %s, found %s", ForgejoIssueRef.of(link, ForgejoIssueRef.Type.NUMBER), ref))
+            .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting issue ref %s, found %s", ForgejoIssueRef.of(link, ref.getType()), ref))
+            .build();
+
+    @VisibleForTesting
+    static final Rule FORGEJO_PULL_REQUEST_REF = ForgeRefRuleSupport
+            .builder(ForgejoIssueLink::parse, ForgejoIssueRef::parse)
+            .id("forgejo-pull-request-ref")
+            .name("Forgejo pull request ref")
+            .category("forge")
+            .linkPredicate((link, forgeId) -> link.getType().equals(ForgejoIssueLink.PULL_REQUEST_TYPE) && isForgejoHost(link, forgeId))
+            .parsableMessage((link, ref) -> String.format(ROOT, "Expecting pull request ref %s, found %s", ForgejoIssueRef.of(link, ForgejoIssueRef.Type.NUMBER), ref))
+            .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting pull request ref %s, found %s", ForgejoIssueRef.of(link, ref.getType()), ref))
+            .build();
+
+    @VisibleForTesting
+    static final Rule FORGEJO_MENTION_REF = ForgeRefRuleSupport
+            .builder(ForgejoMentionLink::parse, ForgejoMentionRef::parse)
+            .id("forgejo-mention-ref")
+            .name("Forgejo mention ref")
+            .category("forge")
+            .linkPredicate(ForgejoRules::isForgejoHost)
+            .parsableMessage((link, ref) -> String.format(ROOT, "Expecting mention ref %s, found %s", ForgejoMentionRef.of(link), ref))
+            .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting mention ref %s, found %s", ForgejoMentionRef.of(link), ref))
+            .build();
+
+    @VisibleForTesting
+    static final Rule FORGEJO_COMMIT_SHA_REF = ForgeRefRuleSupport
+            .builder(ForgejoCommitSHALink::parse, ForgejoCommitSHARef::parse)
+            .id("forgejo-commit-sha-ref")
+            .name("Forgejo commit SHA ref")
+            .category("forge")
+            .linkPredicate(ForgejoRules::isForgejoHost)
+            .parsableMessage((link, ref) -> String.format(ROOT, "Expecting commit SHA ref %s, found %s", ForgejoCommitSHARef.of(link, ForgejoCommitSHARef.Type.HASH), ref))
+            .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting commit SHA ref %s, found %s", ForgejoCommitSHARef.of(link, ref.getType()), ref))
+            .build();
+
+    @VisibleForTesting
+    static boolean isForgejoHost(@NonNull ForgeLink expected, @Nullable String forgeId) {
+        return Forgejo.ID.equals(forgeId) || Forgejo.isKnownHost(expected);
+    }
+}

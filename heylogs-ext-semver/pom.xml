@@ -13,7 +13,7 @@
     <artifactId>heylogs-ext-semver</artifactId>
     <packaging>jar</packaging>
 
-    <name>heylogs-ext-github</name>
+    <name>heylogs-ext-semver</name>
     <description>Keep-a-changelog tool - SemVer extension</description>
     <url>https://github.com/nbbrd/heylogs</url>
 

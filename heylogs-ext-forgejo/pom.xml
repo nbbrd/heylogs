@@ -10,11 +10,11 @@
         <version>0.11.2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>heylogs-ext-json</artifactId>
+    <artifactId>heylogs-ext-forgejo</artifactId>
     <packaging>jar</packaging>
 
-    <name>heylogs-ext-json</name>
-    <description>Keep-a-changelog tool - JSON extension</description>
+    <name>heylogs-ext-forgejo</name>
+    <description>Keep-a-changelog tool - Forgejo extension</description>
     <url>https://github.com/nbbrd/heylogs</url>
 
     <dependencies>
@@ -45,11 +45,6 @@
             <artifactId>heylogs-api</artifactId>
             <groupId>${project.groupId}</groupId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.13.1</version>
         </dependency>
 
         <!-- test only -->

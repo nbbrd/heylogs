@@ -10,7 +10,6 @@ import nbbrd.heylogs.spi.RuleBatch;
 import nbbrd.service.ServiceProvider;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.stream.Stream;
 
 import static java.util.Locale.ROOT;
@@ -70,6 +69,6 @@ public final class GitHubRules implements RuleBatch {
 
     @VisibleForTesting
     static boolean isGitHubHost(@NonNull ForgeLink expected, @Nullable String forgeId) {
-        return GitHub.ID.equals(forgeId) || Arrays.asList(expected.getBase().getHost().split("\\.", -1)).contains("github");
+        return GitHub.ID.equals(forgeId) || GitHub.isKnownHost(expected);
     }
 }

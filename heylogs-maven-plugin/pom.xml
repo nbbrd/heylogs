@@ -66,6 +66,12 @@
 
         <!-- runtime only -->
         <dependency>
+            <artifactId>heylogs-ext-forgejo</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <artifactId>heylogs-ext-github</artifactId>
             <groupId>${project.groupId}</groupId>
             <version>${project.version}</version>

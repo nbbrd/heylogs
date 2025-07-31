@@ -239,6 +239,7 @@
         <module>heylogs-ext-github</module>
         <module>heylogs-ext-json</module>
         <module>heylogs-ext-semver</module>
+        <module>heylogs-ext-forgejo</module>
     </modules>
 
     <profiles>
