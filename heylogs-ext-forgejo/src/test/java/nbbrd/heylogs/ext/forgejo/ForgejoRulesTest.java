@@ -4,10 +4,12 @@ import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.util.ast.Node;
 import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Nodes;
+import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleIssue;
 import org.junit.jupiter.api.Test;
 import tests.heylogs.api.Sample;
+import tests.heylogs.spi.MockedForgeLink;
 
 import java.util.Objects;
 
@@ -42,7 +44,7 @@ public class ForgejoRulesTest {
         assertThat(Nodes.of(Node.class).descendants(using("/InvalidForgejoMentionRef.md")).map(node -> FORGEJO_MENTION_REF.getRuleIssueOrNull(node, Config.DEFAULT)).filter(Objects::nonNull))
                 .hasSize(1);
 
-        assertThat(Nodes.of(Node.class).descendants(using("/InvalidForgejoCommitSHARef.md")).map(node -> FORGEJO_COMMIT_SHA_REF.getRuleIssueOrNull(node, Config.DEFAULT)).filter(Objects::nonNull))
+        assertThat(Nodes.of(Node.class).descendants(using("/InvalidForgejoCommitRef.md")).map(node -> FORGEJO_COMMIT_REF.getRuleIssueOrNull(node, Config.DEFAULT)).filter(Objects::nonNull))
                 .hasSize(1);
     }
 
@@ -111,37 +113,37 @@ public class ForgejoRulesTest {
     @Test
     public void testValidateGitHubCommitSHARef() {
         assertThat(Nodes.of(Link.class).descendants(using("/Main.md")))
-                .map(node -> FORGEJO_COMMIT_SHA_REF.getRuleIssueOrNull(node, Config.DEFAULT))
+                .map(node -> FORGEJO_COMMIT_REF.getRuleIssueOrNull(node, Config.DEFAULT))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .isEmpty();
 
-        assertThat(Nodes.of(Link.class).descendants(using("/InvalidForgejoCommitSHARef.md")))
-                .map(node -> FORGEJO_COMMIT_SHA_REF.getRuleIssueOrNull(node, Config.DEFAULT))
+        assertThat(Nodes.of(Link.class).descendants(using("/InvalidForgejoCommitRef.md")))
+                .map(node -> FORGEJO_COMMIT_REF.getRuleIssueOrNull(node, Config.DEFAULT))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains(RuleIssue.builder().message("Expecting commit SHA ref b5d40a0, found 0000000").line(2).column(1).build(), atIndex(0))
+                .contains(RuleIssue.builder().message("Expecting commit ref b5d40a0, found 0000000").line(2).column(1).build(), atIndex(0))
                 .hasSize(1);
     }
 
     @Test
     public void testIsForgejoHost() {
-        ForgejoIssueLink official = ForgejoIssueLink.parse("https://codeberg.org/Freeyourgadget/Gadgetbridge/issues/5173");
+        ForgeLink official = MockedForgeLink.parse("https://codeberg.org");
         assertThat(isForgejoHost(official, null)).isTrue();
         assertThat(isForgejoHost(official, "stuff")).isTrue();
         assertThat(isForgejoHost(official, "forgejo")).isTrue();
 
-        ForgejoIssueLink invalid = ForgejoIssueLink.parse("https://codebergcodeberg.org/Freeyourgadget/Gadgetbridge/issues/5173");
+        ForgeLink invalid = MockedForgeLink.parse("https://codebergcodeberg.org");
         assertThat(isForgejoHost(invalid, null)).isFalse();
         assertThat(isForgejoHost(invalid, "stuff")).isFalse();
         assertThat(isForgejoHost(invalid, "forgejo")).isTrue();
 
-        ForgejoIssueLink valid = ForgejoIssueLink.parse("https://codeberg.example.com/Freeyourgadget/Gadgetbridge/issues/5173");
+        ForgeLink valid = MockedForgeLink.parse("https://codeberg.example.com");
         assertThat(isForgejoHost(valid, null)).isTrue();
         assertThat(isForgejoHost(valid, "stuff")).isTrue();
         assertThat(isForgejoHost(valid, "forgejo")).isTrue();
 
-        ForgejoIssueLink local = ForgejoIssueLink.parse("https://localhost:8080/Freeyourgadget/Gadgetbridge/issues/5173");
+        ForgeLink local = MockedForgeLink.parse("https://localhost:8080");
         assertThat(isForgejoHost(local, null)).isFalse();
         assertThat(isForgejoHost(local, "stuff")).isFalse();
         assertThat(isForgejoHost(local, "forgejo")).isTrue();

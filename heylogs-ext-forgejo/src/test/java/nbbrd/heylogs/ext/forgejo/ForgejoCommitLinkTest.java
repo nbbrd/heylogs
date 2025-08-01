@@ -6,12 +6,12 @@ import org.junit.jupiter.params.provider.CsvFileSource;
 
 import java.net.URL;
 
-import static nbbrd.heylogs.ext.forgejo.ForgejoCommitSHALink.parse;
+import static nbbrd.heylogs.ext.forgejo.ForgejoCommitLink.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static tests.heylogs.spi.ForgeLinkAssert.assertForgeLinkCompliance;
 
-class ForgejoCommitSHALinkTest {
+class ForgejoCommitLinkTest {
 
     @Test
     public void testCompliance() {
@@ -24,10 +24,10 @@ class ForgejoCommitSHALinkTest {
         if (error == null || error.isEmpty()) {
             assertThat(parse(input))
                     .describedAs(description)
-                    .returns(base, ForgejoCommitSHALink::getBase)
-                    .returns(owner, ForgejoCommitSHALink::getOwner)
-                    .returns(repo, ForgejoCommitSHALink::getRepo)
-                    .returns(hash, ForgejoCommitSHALink::getHash)
+                    .returns(base, ForgejoCommitLink::getBase)
+                    .returns(owner, ForgejoCommitLink::getOwner)
+                    .returns(repo, ForgejoCommitLink::getRepo)
+                    .returns(hash, ForgejoCommitLink::getHash)
                     .hasToString(output);
         } else {
             assertThatIllegalArgumentException()

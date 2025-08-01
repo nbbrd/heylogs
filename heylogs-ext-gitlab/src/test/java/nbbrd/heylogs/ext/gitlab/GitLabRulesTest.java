@@ -8,6 +8,7 @@ import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleIssue;
 import org.junit.jupiter.api.Test;
+import tests.heylogs.spi.MockedForgeLink;
 
 import java.util.Objects;
 
@@ -56,22 +57,22 @@ public class GitLabRulesTest {
 
     @Test
     public void testIsGitLabHost() {
-        ForgeLink official = GitLabCommitLink.parse("https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/commit/656ad7df2a11dcdbaf206a3b59d327fc67f226ac");
+        ForgeLink official = MockedForgeLink.parse("https://gitlab.com");
         assertThat(isGitLabHost(official, null)).isTrue();
         assertThat(isGitLabHost(official, "stuff")).isTrue();
         assertThat(isGitLabHost(official, "gitlab")).isTrue();
 
-        ForgeLink invalid = GitLabCommitLink.parse("https://gitlabgitlab.com/nbbrd/heylogs-ext-gitlab/-/commit/656ad7df2a11dcdbaf206a3b59d327fc67f226ac");
+        ForgeLink invalid = MockedForgeLink.parse("https://gitlabgitlab.com");
         assertThat(isGitLabHost(invalid, null)).isFalse();
         assertThat(isGitLabHost(invalid, "stuff")).isFalse();
         assertThat(isGitLabHost(invalid, "gitlab")).isTrue();
 
-        ForgeLink valid = GitLabCommitLink.parse("https://gitlab.example.com/nbbrd/heylogs-ext-gitlab/-/commit/656ad7df2a11dcdbaf206a3b59d327fc67f226ac");
+        ForgeLink valid = MockedForgeLink.parse("https://gitlab.example.com");
         assertThat(isGitLabHost(valid, null)).isTrue();
         assertThat(isGitLabHost(valid, "stuff")).isTrue();
         assertThat(isGitLabHost(valid, "gitlab")).isTrue();
 
-        ForgeLink local = GitLabCommitLink.parse("https://localhost:8080/nbbrd/heylogs-ext-gitlab/-/commit/656ad7df2a11dcdbaf206a3b59d327fc67f226ac");
+        ForgeLink local = MockedForgeLink.parse("https://localhost:8080");
         assertThat(isGitLabHost(local, null)).isFalse();
         assertThat(isGitLabHost(local, "stuff")).isFalse();
         assertThat(isGitLabHost(local, "gitlab")).isTrue();

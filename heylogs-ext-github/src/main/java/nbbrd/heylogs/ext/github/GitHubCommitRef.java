@@ -1,4 +1,4 @@
-package nbbrd.heylogs.ext.forgejo;
+package nbbrd.heylogs.ext.github;
 
 import lombok.AccessLevel;
 import lombok.NonNull;
@@ -13,15 +13,15 @@ import java.util.regex.Pattern;
 @RepresentableAsString
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class ForgejoCommitSHARef implements ForgeRef<ForgejoCommitSHALink> {
+class GitHubCommitRef implements ForgeRef<GitHubCommitLink> {
 
     public enum Type {HASH, OWNER_HASH, OWNER_REPO_HASH}
 
     @StaticFactoryMethod
-    public static @NonNull ForgejoCommitSHARef parse(@NonNull CharSequence text) {
+    public static @NonNull GitHubCommitRef parse(@NonNull CharSequence text) {
         Matcher m = PATTERN.matcher(text);
         if (!m.matches()) throw new IllegalArgumentException(text.toString());
-        return new ForgejoCommitSHARef(
+        return new GitHubCommitRef(
                 m.group("owner"),
                 m.group("repo"),
                 m.group("hash")
@@ -29,14 +29,14 @@ class ForgejoCommitSHARef implements ForgeRef<ForgejoCommitSHALink> {
     }
 
     @StaticFactoryMethod
-    public static @NonNull ForgejoCommitSHARef of(@NonNull ForgejoCommitSHALink link, @NonNull Type type) {
+    public static @NonNull GitHubCommitRef of(@NonNull GitHubCommitLink link, @NonNull Type type) {
         switch (type) {
             case HASH:
-                return new ForgejoCommitSHARef(null, null, link.getHash().substring(0, 7));
+                return new GitHubCommitRef(null, null, link.getHash().substring(0, 7));
             case OWNER_HASH:
-                return new ForgejoCommitSHARef(link.getOwner(), null, link.getHash().substring(0, 7));
+                return new GitHubCommitRef(link.getOwner(), null, link.getHash().substring(0, 7));
             case OWNER_REPO_HASH:
-                return new ForgejoCommitSHARef(link.getOwner(), link.getRepo(), link.getHash().substring(0, 7));
+                return new GitHubCommitRef(link.getOwner(), link.getRepo(), link.getHash().substring(0, 7));
             default:
                 throw new RuntimeException();
         }
@@ -61,7 +61,7 @@ class ForgejoCommitSHARef implements ForgeRef<ForgejoCommitSHALink> {
     }
 
     @Override
-    public boolean isCompatibleWith(@NonNull ForgejoCommitSHALink link) {
+    public boolean isCompatibleWith(@NonNull GitHubCommitLink link) {
         switch (getType()) {
             case HASH:
                 return link.getHash().startsWith(hash);
@@ -78,7 +78,6 @@ class ForgejoCommitSHARef implements ForgeRef<ForgejoCommitSHALink> {
         return owner != null ? (repo != null ? Type.OWNER_REPO_HASH : Type.OWNER_HASH) : Type.HASH;
     }
 
-    // https://forgejo.org/docs/latest/user/linked-references/#commits
-    // not found in docs but has same behavior/pattern as GitHub
+    // https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/autolinked-references-and-urls#commit-shas
     private static final Pattern PATTERN = Pattern.compile("((?<owner>[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38})(?:/(?<repo>[a-z\\d._-]{1,100}))?@)?(?<hash>[0-9a-f]{7})", Pattern.CASE_INSENSITIVE);
 }

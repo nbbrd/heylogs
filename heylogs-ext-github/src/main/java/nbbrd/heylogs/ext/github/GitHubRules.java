@@ -20,7 +20,7 @@ public final class GitHubRules implements RuleBatch {
 
     @Override
     public @NonNull Stream<Rule> getProviders() {
-        return Stream.of(GITHUB_ISSUE_REF, GITHUB_PULL_REQUEST_REF, GITHUB_MENTION_REF, GITHUB_COMMIT_SHA_REF);
+        return Stream.of(GITHUB_ISSUE_REF, GITHUB_PULL_REQUEST_REF, GITHUB_MENTION_REF, GITHUB_COMMIT_REF);
     }
 
     @VisibleForTesting
@@ -57,14 +57,14 @@ public final class GitHubRules implements RuleBatch {
             .build();
 
     @VisibleForTesting
-    static final Rule GITHUB_COMMIT_SHA_REF = ForgeRefRuleSupport
-            .builder(GitHubCommitSHALink::parse, GitHubCommitSHARef::parse)
-            .id("github-commit-sha-ref")
-            .name("GitHub commit SHA ref")
+    static final Rule GITHUB_COMMIT_REF = ForgeRefRuleSupport
+            .builder(GitHubCommitLink::parse, GitHubCommitRef::parse)
+            .id("github-commit-ef")
+            .name("GitHub commit ref")
             .category("forge")
             .linkPredicate(GitHubRules::isGitHubHost)
-            .parsableMessage((link, ref) -> String.format(ROOT, "Expecting commit SHA ref %s, found %s", GitHubCommitSHARef.of(link, GitHubCommitSHARef.Type.HASH), ref))
-            .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting commit SHA ref %s, found %s", GitHubCommitSHARef.of(link, ref.getType()), ref))
+            .parsableMessage((link, ref) -> String.format(ROOT, "Expecting commit ref %s, found %s", GitHubCommitRef.of(link, GitHubCommitRef.Type.HASH), ref))
+            .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting commit ref %s, found %s", GitHubCommitRef.of(link, ref.getType()), ref))
             .build();
 
     @VisibleForTesting

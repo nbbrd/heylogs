@@ -3,12 +3,12 @@ package nbbrd.heylogs.ext.github;
 import org.junit.jupiter.api.Test;
 
 import static internal.heylogs.spi.URLExtractor.urlOf;
-import static nbbrd.heylogs.ext.github.GitHubCommitSHALink.parse;
+import static nbbrd.heylogs.ext.github.GitHubCommitLink.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static tests.heylogs.spi.ForgeLinkAssert.assertForgeLinkCompliance;
 
-class GitHubCommitSHALinkTest {
+class GitHubCommitLinkTest {
 
     @Test
     public void testCompliance() {
@@ -58,25 +58,25 @@ class GitHubCommitSHALinkTest {
                 .withMessage("Invalid path item at index 0: expecting pattern '[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38}', found 'nbb rd'");
 
         assertThat(parse("https://github.com/nbbrd/heylogs/commit/862157d164a8afa1fdd3295c89ceb394efbcb82d"))
-                .returns(urlOf("https://github.com"), GitHubCommitSHALink::getBase)
-                .returns("nbbrd", GitHubCommitSHALink::getOwner)
-                .returns("heylogs", GitHubCommitSHALink::getRepo)
-                .returns("862157d164a8afa1fdd3295c89ceb394efbcb82d", GitHubCommitSHALink::getHash)
+                .returns(urlOf("https://github.com"), GitHubCommitLink::getBase)
+                .returns("nbbrd", GitHubCommitLink::getOwner)
+                .returns("heylogs", GitHubCommitLink::getRepo)
+                .returns("862157d164a8afa1fdd3295c89ceb394efbcb82d", GitHubCommitLink::getHash)
                 .hasToString("https://github.com/nbbrd/heylogs/commit/862157d164a8afa1fdd3295c89ceb394efbcb82d");
 
         assertThat(parse("https://github.com/nbbRD/heyLOGS/commit/862157d164a8afa1fdd3295c89ceb394efbcb82D"))
                 .describedAs("case sensitivity")
-                .returns(urlOf("https://github.com"), GitHubCommitSHALink::getBase)
-                .returns("nbbRD", GitHubCommitSHALink::getOwner)
-                .returns("heyLOGS", GitHubCommitSHALink::getRepo)
-                .returns("862157d164a8afa1fdd3295c89ceb394efbcb82D", GitHubCommitSHALink::getHash)
+                .returns(urlOf("https://github.com"), GitHubCommitLink::getBase)
+                .returns("nbbRD", GitHubCommitLink::getOwner)
+                .returns("heyLOGS", GitHubCommitLink::getRepo)
+                .returns("862157d164a8afa1fdd3295c89ceb394efbcb82D", GitHubCommitLink::getHash)
                 .hasToString("https://github.com/nbbRD/heyLOGS/commit/862157d164a8afa1fdd3295c89ceb394efbcb82D");
 
         assertThat(parse("https://localhost:8080/nbbrd/heylogs/commit/862157d164a8afa1fdd3295c89ceb394efbcb82d"))
-                .returns(urlOf("https://localhost:8080"), GitHubCommitSHALink::getBase)
-                .returns("nbbrd", GitHubCommitSHALink::getOwner)
-                .returns("heylogs", GitHubCommitSHALink::getRepo)
-                .returns("862157d164a8afa1fdd3295c89ceb394efbcb82d", GitHubCommitSHALink::getHash)
+                .returns(urlOf("https://localhost:8080"), GitHubCommitLink::getBase)
+                .returns("nbbrd", GitHubCommitLink::getOwner)
+                .returns("heylogs", GitHubCommitLink::getRepo)
+                .returns("862157d164a8afa1fdd3295c89ceb394efbcb82d", GitHubCommitLink::getHash)
                 .hasToString("https://localhost:8080/nbbrd/heylogs/commit/862157d164a8afa1fdd3295c89ceb394efbcb82d");
     }
 

@@ -4,10 +4,12 @@ import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.util.ast.Node;
 import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Nodes;
+import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleIssue;
 import org.junit.jupiter.api.Test;
 import tests.heylogs.api.Sample;
+import tests.heylogs.spi.MockedForgeLink;
 
 import java.util.Objects;
 
@@ -42,7 +44,7 @@ public class GitHubRulesTest {
         assertThat(Nodes.of(Node.class).descendants(using("/InvalidGitHubMentionRef.md")).map(node -> GITHUB_MENTION_REF.getRuleIssueOrNull(node, Config.DEFAULT)).filter(Objects::nonNull))
                 .hasSize(1);
 
-        assertThat(Nodes.of(Node.class).descendants(using("/InvalidGitHubCommitSHARef.md")).map(node -> GITHUB_COMMIT_SHA_REF.getRuleIssueOrNull(node, Config.DEFAULT)).filter(Objects::nonNull))
+        assertThat(Nodes.of(Node.class).descendants(using("/InvalidGitHubCommitRef.md")).map(node -> GITHUB_COMMIT_REF.getRuleIssueOrNull(node, Config.DEFAULT)).filter(Objects::nonNull))
                 .hasSize(1);
     }
 
@@ -111,37 +113,37 @@ public class GitHubRulesTest {
     @Test
     public void testValidateGitHubCommitSHARef() {
         assertThat(Nodes.of(Link.class).descendants(using("/Main.md")))
-                .map(node -> GITHUB_COMMIT_SHA_REF.getRuleIssueOrNull(node, Config.DEFAULT))
+                .map(node -> GITHUB_COMMIT_REF.getRuleIssueOrNull(node, Config.DEFAULT))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .isEmpty();
 
-        assertThat(Nodes.of(Link.class).descendants(using("/InvalidGitHubCommitSHARef.md")))
-                .map(node -> GITHUB_COMMIT_SHA_REF.getRuleIssueOrNull(node, Config.DEFAULT))
+        assertThat(Nodes.of(Link.class).descendants(using("/InvalidGitHubCommitRef.md")))
+                .map(node -> GITHUB_COMMIT_REF.getRuleIssueOrNull(node, Config.DEFAULT))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains(RuleIssue.builder().message("Expecting commit SHA ref 862157d, found 0000000").line(2).column(1).build(), atIndex(0))
+                .contains(RuleIssue.builder().message("Expecting commit ref 862157d, found 0000000").line(2).column(1).build(), atIndex(0))
                 .hasSize(1);
     }
 
     @Test
     public void testIsGitHubHost() {
-        GitHubIssueLink official = GitHubIssueLink.parse("https://github.com/nbbrd/heylogs/issues/173");
+        ForgeLink official = MockedForgeLink.parse("https://github.com");
         assertThat(isGitHubHost(official, null)).isTrue();
         assertThat(isGitHubHost(official, "stuff")).isTrue();
         assertThat(isGitHubHost(official, "github")).isTrue();
 
-        GitHubIssueLink invalid = GitHubIssueLink.parse("https://githubgithub.com/nbbrd/heylogs/issues/173");
+        ForgeLink invalid = MockedForgeLink.parse("https://githubgithub.com");
         assertThat(isGitHubHost(invalid, null)).isFalse();
         assertThat(isGitHubHost(invalid, "stuff")).isFalse();
         assertThat(isGitHubHost(invalid, "github")).isTrue();
 
-        GitHubIssueLink valid = GitHubIssueLink.parse("https://github.example.com/nbbrd/heylogs/issues/173");
+        ForgeLink valid = MockedForgeLink.parse("https://github.example.com");
         assertThat(isGitHubHost(valid, null)).isTrue();
         assertThat(isGitHubHost(valid, "stuff")).isTrue();
         assertThat(isGitHubHost(valid, "github")).isTrue();
 
-        GitHubIssueLink local = GitHubIssueLink.parse("https://localhost:8080/nbbrd/heylogs/issues/173");
+        ForgeLink local = MockedForgeLink.parse("https://localhost:8080");
         assertThat(isGitHubHost(local, null)).isFalse();
         assertThat(isGitHubHost(local, "stuff")).isFalse();
         assertThat(isGitHubHost(local, "github")).isTrue();

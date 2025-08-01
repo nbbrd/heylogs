@@ -4,12 +4,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 
-import static nbbrd.heylogs.ext.forgejo.ForgejoCommitSHARef.of;
-import static nbbrd.heylogs.ext.forgejo.ForgejoCommitSHARef.parse;
+import static nbbrd.heylogs.ext.forgejo.ForgejoCommitRef.of;
+import static nbbrd.heylogs.ext.forgejo.ForgejoCommitRef.parse;
 import static org.assertj.core.api.Assertions.*;
 import static tests.heylogs.spi.ForgeRefAssert.assertForgeRefCompliance;
 
-class ForgejoCommitSHARefTest {
+class ForgejoCommitRefTest {
 
     @Test
     public void testCompliance() {
@@ -22,9 +22,9 @@ class ForgejoCommitSHARefTest {
         if (error == null || error.isEmpty()) {
             assertThat(parse(input))
                     .describedAs(description)
-                    .returns(owner, ForgejoCommitSHARef::getOwner)
-                    .returns(repo, ForgejoCommitSHARef::getRepo)
-                    .returns(hash, ForgejoCommitSHARef::getHash)
+                    .returns(owner, ForgejoCommitRef::getOwner)
+                    .returns(repo, ForgejoCommitRef::getRepo)
+                    .returns(hash, ForgejoCommitRef::getHash)
                     .hasToString(output);
         } else {
             assertThatIllegalArgumentException()
@@ -37,12 +37,12 @@ class ForgejoCommitSHARefTest {
     @SuppressWarnings("DataFlowIssue")
     @Test
     public void testFactories() {
-        assertThatNullPointerException().isThrownBy(() -> of(null, ForgejoCommitSHARef.Type.HASH));
+        assertThatNullPointerException().isThrownBy(() -> of(null, ForgejoCommitRef.Type.HASH));
         assertThatNullPointerException().isThrownBy(() -> of(commit, null));
 
-        assertThat(of(commit, ForgejoCommitSHARef.Type.HASH).isCompatibleWith(commit)).isTrue();
-        assertThat(of(commit, ForgejoCommitSHARef.Type.OWNER_HASH).isCompatibleWith(commit)).isTrue();
-        assertThat(of(commit, ForgejoCommitSHARef.Type.OWNER_REPO_HASH).isCompatibleWith(commit)).isTrue();
+        assertThat(of(commit, ForgejoCommitRef.Type.HASH).isCompatibleWith(commit)).isTrue();
+        assertThat(of(commit, ForgejoCommitRef.Type.OWNER_HASH).isCompatibleWith(commit)).isTrue();
+        assertThat(of(commit, ForgejoCommitRef.Type.OWNER_REPO_HASH).isCompatibleWith(commit)).isTrue();
     }
 
     @SuppressWarnings("DataFlowIssue")
@@ -65,10 +65,10 @@ class ForgejoCommitSHARefTest {
 
     @Test
     public void testGetType() {
-        assertThat(parse("b5d40a0").getType()).isEqualTo(ForgejoCommitSHARef.Type.HASH);
-        assertThat(parse("Freeyourgadget@b5d40a0").getType()).isEqualTo(ForgejoCommitSHARef.Type.OWNER_HASH);
-        assertThat(parse("Freeyourgadget/Gadgetbridge@b5d40a0").getType()).isEqualTo(ForgejoCommitSHARef.Type.OWNER_REPO_HASH);
+        assertThat(parse("b5d40a0").getType()).isEqualTo(ForgejoCommitRef.Type.HASH);
+        assertThat(parse("Freeyourgadget@b5d40a0").getType()).isEqualTo(ForgejoCommitRef.Type.OWNER_HASH);
+        assertThat(parse("Freeyourgadget/Gadgetbridge@b5d40a0").getType()).isEqualTo(ForgejoCommitRef.Type.OWNER_REPO_HASH);
     }
 
-    private final ForgejoCommitSHALink commit = ForgejoCommitSHALink.parse("https://codeberg.org/Freeyourgadget/Gadgetbridge/commit/b5d40a0bf012df6c1810eef2c740b8dd7c756843");
+    private final ForgejoCommitLink commit = ForgejoCommitLink.parse("https://codeberg.org/Freeyourgadget/Gadgetbridge/commit/b5d40a0bf012df6c1810eef2c740b8dd7c756843");
 }

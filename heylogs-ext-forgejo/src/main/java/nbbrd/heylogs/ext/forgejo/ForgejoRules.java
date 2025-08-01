@@ -20,7 +20,7 @@ public final class ForgejoRules implements RuleBatch {
 
     @Override
     public @NonNull Stream<Rule> getProviders() {
-        return Stream.of(FORGEJO_ISSUE_REF, FORGEJO_PULL_REQUEST_REF, FORGEJO_MENTION_REF, FORGEJO_COMMIT_SHA_REF);
+        return Stream.of(FORGEJO_ISSUE_REF, FORGEJO_PULL_REQUEST_REF, FORGEJO_MENTION_REF, FORGEJO_COMMIT_REF);
     }
 
     @VisibleForTesting
@@ -57,14 +57,14 @@ public final class ForgejoRules implements RuleBatch {
             .build();
 
     @VisibleForTesting
-    static final Rule FORGEJO_COMMIT_SHA_REF = ForgeRefRuleSupport
-            .builder(ForgejoCommitSHALink::parse, ForgejoCommitSHARef::parse)
-            .id("forgejo-commit-sha-ref")
-            .name("Forgejo commit SHA ref")
+    static final Rule FORGEJO_COMMIT_REF = ForgeRefRuleSupport
+            .builder(ForgejoCommitLink::parse, ForgejoCommitRef::parse)
+            .id("forgejo-commit-ref")
+            .name("Forgejo commit ref")
             .category("forge")
             .linkPredicate(ForgejoRules::isForgejoHost)
-            .parsableMessage((link, ref) -> String.format(ROOT, "Expecting commit SHA ref %s, found %s", ForgejoCommitSHARef.of(link, ForgejoCommitSHARef.Type.HASH), ref))
-            .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting commit SHA ref %s, found %s", ForgejoCommitSHARef.of(link, ref.getType()), ref))
+            .parsableMessage((link, ref) -> String.format(ROOT, "Expecting commit ref %s, found %s", ForgejoCommitRef.of(link, ForgejoCommitRef.Type.HASH), ref))
+            .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting commit ref %s, found %s", ForgejoCommitRef.of(link, ref.getType()), ref))
             .build();
 
     @VisibleForTesting

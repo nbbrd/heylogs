@@ -1,10 +1,10 @@
-package nbbrd.heylogs.ext.forgejo;
+package nbbrd.heylogs.ext.github;
 
+import nbbrd.heylogs.spi.ForgeLink;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAsString;
 import nbbrd.design.StaticFactoryMethod;
-import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.io.http.URLQueryBuilder;
 
 import java.net.URL;
@@ -12,18 +12,18 @@ import java.util.regex.Pattern;
 
 import static internal.heylogs.spi.URLExtractor.*;
 
-// https://forgejo.org/docs/latest/user/linked-references/
+// https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/autolinked-references-and-urls#commit-shas
 @RepresentableAsString
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class ForgejoCommitSHALink implements ForgeLink {
+class GitHubCommitLink implements ForgeLink {
 
     @StaticFactoryMethod
-    public static @NonNull ForgejoCommitSHALink parse(@NonNull CharSequence text) {
+    public static @NonNull GitHubCommitLink parse(@NonNull CharSequence text) {
         return parseURL(urlOf(text));
     }
 
-    private static @NonNull ForgejoCommitSHALink parseURL(@NonNull URL url) {
+    private static @NonNull GitHubCommitLink parseURL(@NonNull URL url) {
         String[] pathArray = getPathArray(url);
 
         checkPathLength(pathArray, 4);
@@ -32,7 +32,7 @@ class ForgejoCommitSHALink implements ForgeLink {
         checkPathItem(pathArray, 2, "commit");
         checkPathItem(pathArray, 3, HASH);
 
-        return new ForgejoCommitSHALink(baseOf(url), pathArray[0], pathArray[1], pathArray[3]);
+        return new GitHubCommitLink(baseOf(url), pathArray[0], pathArray[1], pathArray[3]);
     }
 
     @NonNull URL base;
@@ -47,5 +47,5 @@ class ForgejoCommitSHALink implements ForgeLink {
 
     private static final Pattern OWNER = Pattern.compile("[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38}", Pattern.CASE_INSENSITIVE);
     private static final Pattern REPO = Pattern.compile("[a-z\\d._-]{1,100}", Pattern.CASE_INSENSITIVE);
-    private static final Pattern HASH = Pattern.compile("[0-9a-f]{6,40}", Pattern.CASE_INSENSITIVE);
+    private static final Pattern HASH = Pattern.compile("[0-9a-f]{40}", Pattern.CASE_INSENSITIVE);
 }

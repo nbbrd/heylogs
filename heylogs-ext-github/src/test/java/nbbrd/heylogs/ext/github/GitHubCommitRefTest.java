@@ -2,12 +2,12 @@ package nbbrd.heylogs.ext.github;
 
 import org.junit.jupiter.api.Test;
 
-import static nbbrd.heylogs.ext.github.GitHubCommitSHARef.of;
-import static nbbrd.heylogs.ext.github.GitHubCommitSHARef.parse;
+import static nbbrd.heylogs.ext.github.GitHubCommitRef.of;
+import static nbbrd.heylogs.ext.github.GitHubCommitRef.parse;
 import static org.assertj.core.api.Assertions.*;
 import static tests.heylogs.spi.ForgeRefAssert.assertForgeRefCompliance;
 
-class GitHubCommitSHARefTest {
+class GitHubCommitRefTest {
 
     @Test
     public void testCompliance() {
@@ -23,40 +23,40 @@ class GitHubCommitSHARefTest {
                 .isThrownBy(() -> parse("heylogs#173"));
 
         assertThat(parse("862157d"))
-                .returns(null, GitHubCommitSHARef::getOwner)
-                .returns(null, GitHubCommitSHARef::getRepo)
-                .returns("862157d", GitHubCommitSHARef::getHash)
+                .returns(null, GitHubCommitRef::getOwner)
+                .returns(null, GitHubCommitRef::getRepo)
+                .returns("862157d", GitHubCommitRef::getHash)
                 .hasToString("862157d");
 
         assertThat(parse("nbbrd@862157d"))
-                .returns("nbbrd", GitHubCommitSHARef::getOwner)
-                .returns(null, GitHubCommitSHARef::getRepo)
-                .returns("862157d", GitHubCommitSHARef::getHash)
+                .returns("nbbrd", GitHubCommitRef::getOwner)
+                .returns(null, GitHubCommitRef::getRepo)
+                .returns("862157d", GitHubCommitRef::getHash)
                 .hasToString("nbbrd@862157d");
 
         assertThat(parse("nbbrd/heylogs@862157d"))
-                .returns("nbbrd", GitHubCommitSHARef::getOwner)
-                .returns("heylogs", GitHubCommitSHARef::getRepo)
-                .returns("862157d", GitHubCommitSHARef::getHash)
+                .returns("nbbrd", GitHubCommitRef::getOwner)
+                .returns("heylogs", GitHubCommitRef::getRepo)
+                .returns("862157d", GitHubCommitRef::getHash)
                 .hasToString("nbbrd/heylogs@862157d");
 
         assertThat(parse("nbbRD/heyLOGS@862157D"))
                 .describedAs("case sensitivity")
-                .returns("nbbRD", GitHubCommitSHARef::getOwner)
-                .returns("heyLOGS", GitHubCommitSHARef::getRepo)
-                .returns("862157D", GitHubCommitSHARef::getHash)
+                .returns("nbbRD", GitHubCommitRef::getOwner)
+                .returns("heyLOGS", GitHubCommitRef::getRepo)
+                .returns("862157D", GitHubCommitRef::getHash)
                 .hasToString("nbbRD/heyLOGS@862157D");
     }
 
     @SuppressWarnings("DataFlowIssue")
     @Test
     public void testFactories() {
-        assertThatNullPointerException().isThrownBy(() -> of(null, GitHubCommitSHARef.Type.HASH));
+        assertThatNullPointerException().isThrownBy(() -> of(null, GitHubCommitRef.Type.HASH));
         assertThatNullPointerException().isThrownBy(() -> of(commit, null));
 
-        assertThat(of(commit, GitHubCommitSHARef.Type.HASH).isCompatibleWith(commit)).isTrue();
-        assertThat(of(commit, GitHubCommitSHARef.Type.OWNER_HASH).isCompatibleWith(commit)).isTrue();
-        assertThat(of(commit, GitHubCommitSHARef.Type.OWNER_REPO_HASH).isCompatibleWith(commit)).isTrue();
+        assertThat(of(commit, GitHubCommitRef.Type.HASH).isCompatibleWith(commit)).isTrue();
+        assertThat(of(commit, GitHubCommitRef.Type.OWNER_HASH).isCompatibleWith(commit)).isTrue();
+        assertThat(of(commit, GitHubCommitRef.Type.OWNER_REPO_HASH).isCompatibleWith(commit)).isTrue();
     }
 
     @SuppressWarnings("DataFlowIssue")
@@ -79,10 +79,10 @@ class GitHubCommitSHARefTest {
 
     @Test
     public void testGetType() {
-        assertThat(parse("862157d").getType()).isEqualTo(GitHubCommitSHARef.Type.HASH);
-        assertThat(parse("nbbrd@862157d").getType()).isEqualTo(GitHubCommitSHARef.Type.OWNER_HASH);
-        assertThat(parse("nbbrd/heylogs@862157d").getType()).isEqualTo(GitHubCommitSHARef.Type.OWNER_REPO_HASH);
+        assertThat(parse("862157d").getType()).isEqualTo(GitHubCommitRef.Type.HASH);
+        assertThat(parse("nbbrd@862157d").getType()).isEqualTo(GitHubCommitRef.Type.OWNER_HASH);
+        assertThat(parse("nbbrd/heylogs@862157d").getType()).isEqualTo(GitHubCommitRef.Type.OWNER_REPO_HASH);
     }
 
-    private final GitHubCommitSHALink commit = GitHubCommitSHALink.parse("https://github.com/nbbrd/heylogs/commit/862157d164a8afa1fdd3295c89ceb394efbcb82d");
+    private final GitHubCommitLink commit = GitHubCommitLink.parse("https://github.com/nbbrd/heylogs/commit/862157d164a8afa1fdd3295c89ceb394efbcb82d");
 }
