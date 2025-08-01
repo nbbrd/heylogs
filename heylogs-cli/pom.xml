@@ -74,6 +74,12 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
+            <artifactId>heylogs-ext-gitlab</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <artifactId>heylogs-ext-json</artifactId>
             <groupId>${project.groupId}</groupId>
             <version>${project.version}</version>

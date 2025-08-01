@@ -1,0 +1,15 @@
+Description,Input,Output,Base,Namespace,Project,Hash,Error
+Missing hash,https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/commit,,,,,,boom
+Invalid hash,https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/commit/boom,,,,,,boom
+Missing commit,https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/656ad7df2a11dcdbaf206a3b59d327fc67f226ac,,,,,,boom
+Invalid commit,https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/comit/656ad7df2a11dcdbaf206a3b59d327fc67f226ac,,,,,,boom
+Missing project,https://gitlab.com/nbbrd/-/commit/656ad7df2a11dcdbaf206a3b59d327fc67f226ac,,,,,,boom
+Invalid project,https://gitlab.com/nbbrd/heylogs-%20-gitlab/-/commit/656ad7df2a11dcdbaf206a3b59d327fc67f226ac,,,,,,boom
+Missing namespace,https://gitlab.com/heylogs-ext-gitlab/-/commit/656ad7df2a11dcdbaf206a3b59d327fc67f226ac,,,,,,boom
+Invalid namespace,https://gitlab.com/nbb%20rd/heylogs-ext-gitlab/-/commit/656ad7df2a11dcdbaf206a3b59d327fc67f226ac,,,,,,boom
+Max hash,https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/commit/656ad7df2a11dcdbaf206a3b59d327fc67f226ac,https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/commit/656ad7df2a11dcdbaf206a3b59d327fc67f226ac,https://gitlab.com,nbbrd,heylogs-ext-gitlab,656ad7df2a11dcdbaf206a3b59d327fc67f226ac,
+Min hash,https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/commit/656ad7d,https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/commit/656ad7d,https://gitlab.com,nbbrd,heylogs-ext-gitlab,656ad7d,
+Case sensivity,https://gitlab.com/nbbRD/heylogs-EXT-gitlab/-/commit/656ad7df2a11dcdbaf206a3b59d327fc67f226ac,https://gitlab.com/nbbRD/heylogs-EXT-gitlab/-/commit/656ad7df2a11dcdbaf206a3b59d327fc67f226ac,https://gitlab.com,nbbRD,heylogs-EXT-gitlab,656ad7df2a11dcdbaf206a3b59d327fc67f226ac,
+Localhost,http://localhost:8080/nbbrd/heylogs-ext-gitlab/-/commit/656ad7df2a11dcdbaf206a3b59d327fc67f226ac,http://localhost:8080/nbbrd/heylogs-ext-gitlab/-/commit/656ad7df2a11dcdbaf206a3b59d327fc67f226ac,http://localhost:8080,nbbrd,heylogs-ext-gitlab,656ad7df2a11dcdbaf206a3b59d327fc67f226ac,
+No dash,https://gitlab.com/nbbrd/heylogs-ext-gitlab/commit/656ad7df2a11dcdbaf206a3b59d327fc67f226ac,https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/commit/656ad7df2a11dcdbaf206a3b59d327fc67f226ac,https://gitlab.com,nbbrd,heylogs-ext-gitlab,656ad7df2a11dcdbaf206a3b59d327fc67f226ac,
+Subgroup namespace,https://gitlab.com/nbbrd/heylogs/ext/gitlab/-/commit/656ad7df2a11dcdbaf206a3b59d327fc67f226ac,https://gitlab.com/nbbrd/heylogs/ext/gitlab/-/commit/656ad7df2a11dcdbaf206a3b59d327fc67f226ac,https://gitlab.com,nbbrd/heylogs/ext,gitlab,656ad7df2a11dcdbaf206a3b59d327fc67f226ac,

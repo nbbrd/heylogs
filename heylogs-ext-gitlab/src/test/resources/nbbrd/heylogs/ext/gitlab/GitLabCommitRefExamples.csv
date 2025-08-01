@@ -1,0 +1,10 @@
+Description,Input,Output,Namespace,Project,Hash,Error
+Missing hash,@,,,,,boom
+Invalid hash,656ad7,,,,,boom
+Invalid separator,heylogs-ext-gitlab#656ad7df2a11dcdbaf206a3b59d327fc67f226ac,,,,,boom
+Invalid project,heylogs-%20-gitlab@656ad7df2a11dcdbaf206a3b59d327fc67f226ac,,,,,boom
+Invalid namespace,nbb%20rd/heylogs-ext-gitlab@656ad7df2a11dcdbaf206a3b59d327fc67f226ac,,,,,boom
+Max hash,nbbrd/heylogs-ext-gitlab@656ad7df2a11dcdbaf206a3b59d327fc67f226ac,nbbrd/heylogs-ext-gitlab@656ad7df2a11dcdbaf206a3b59d327fc67f226ac,nbbrd,heylogs-ext-gitlab,656ad7df2a11dcdbaf206a3b59d327fc67f226ac,
+Min hash,nbbrd/heylogs-ext-gitlab@656ad7d,nbbrd/heylogs-ext-gitlab@656ad7d,nbbrd,heylogs-ext-gitlab,656ad7d,
+Case sensivity,nbbRD/heylogs-EXT-gitlab@656ad7df2a11dcdbaf206a3b59d327fc67f226ac,nbbRD/heylogs-EXT-gitlab@656ad7df2a11dcdbaf206a3b59d327fc67f226ac,nbbRD,heylogs-EXT-gitlab,656ad7df2a11dcdbaf206a3b59d327fc67f226ac,
+Subgroup namespace,nbbrd/heylogs/ext/gitlab@656ad7df2a11dcdbaf206a3b59d327fc67f226ac,nbbrd/heylogs/ext/gitlab@656ad7df2a11dcdbaf206a3b59d327fc67f226ac,nbbrd/heylogs/ext,gitlab,656ad7df2a11dcdbaf206a3b59d327fc67f226ac,
