@@ -46,6 +46,7 @@ class GitHubIssueRef implements ForgeRef<GitHubIssueLink> {
         return getType().equals(Type.NUMBER) ? "#" + issueNumber : owner + "/" + repo + "#" + issueNumber;
     }
 
+    @Override
     public boolean isCompatibleWith(@NonNull GitHubIssueLink link) {
         return (getType().equals(Type.NUMBER) || (link.getOwner().equals(owner) && link.getRepo().equals(repo)))
                 && link.getIssueNumber() == issueNumber;

@@ -49,6 +49,7 @@ class GitHubMentionRef implements ForgeRef<GitHubMentionLink> {
         return user != null ? Type.USER : Type.TEAM;
     }
 
+    @Override
     public boolean isCompatibleWith(@NonNull GitHubMentionLink link) {
         return getType().equals(Type.USER)
                 ? link.isUser() && Objects.equals(link.getUser(), getUser())

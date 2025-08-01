@@ -60,6 +60,7 @@ class GitHubCommitSHARef implements ForgeRef<GitHubCommitSHALink> {
         }
     }
 
+    @Override
     public boolean isCompatibleWith(@NonNull GitHubCommitSHALink link) {
         switch (getType()) {
             case HASH:

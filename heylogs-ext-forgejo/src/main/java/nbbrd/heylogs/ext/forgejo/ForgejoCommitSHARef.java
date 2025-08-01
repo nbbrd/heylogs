@@ -60,6 +60,7 @@ class ForgejoCommitSHARef implements ForgeRef<ForgejoCommitSHALink> {
         }
     }
 
+    @Override
     public boolean isCompatibleWith(@NonNull ForgejoCommitSHALink link) {
         switch (getType()) {
             case HASH:

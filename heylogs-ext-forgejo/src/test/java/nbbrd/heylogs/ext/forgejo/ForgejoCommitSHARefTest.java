@@ -1,6 +1,8 @@
 package nbbrd.heylogs.ext.forgejo;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvFileSource;
 
 import static nbbrd.heylogs.ext.forgejo.ForgejoCommitSHARef.of;
 import static nbbrd.heylogs.ext.forgejo.ForgejoCommitSHARef.parse;
@@ -14,38 +16,22 @@ class ForgejoCommitSHARefTest {
         assertForgeRefCompliance(parse("b5d40a0"));
     }
 
-    @Test
-    public void testRepresentableAsString() {
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> parse("#"));
-
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> parse("heylogs#173"));
-
-        assertThat(parse("b5d40a0"))
-                .returns(null, ForgejoCommitSHARef::getOwner)
-                .returns(null, ForgejoCommitSHARef::getRepo)
-                .returns("b5d40a0", ForgejoCommitSHARef::getHash)
-                .hasToString("b5d40a0");
-
-        assertThat(parse("nbbrd@b5d40a0"))
-                .returns("nbbrd", ForgejoCommitSHARef::getOwner)
-                .returns(null, ForgejoCommitSHARef::getRepo)
-                .returns("b5d40a0", ForgejoCommitSHARef::getHash)
-                .hasToString("nbbrd@b5d40a0");
-
-        assertThat(parse("nbbrd/heylogs@b5d40a0"))
-                .returns("nbbrd", ForgejoCommitSHARef::getOwner)
-                .returns("heylogs", ForgejoCommitSHARef::getRepo)
-                .returns("b5d40a0", ForgejoCommitSHARef::getHash)
-                .hasToString("nbbrd/heylogs@b5d40a0");
-
-        assertThat(parse("nbbRD/heyLOGS@b5d40a0"))
-                .describedAs("case sensitivity")
-                .returns("nbbRD", ForgejoCommitSHARef::getOwner)
-                .returns("heyLOGS", ForgejoCommitSHARef::getRepo)
-                .returns("b5d40a0", ForgejoCommitSHARef::getHash)
-                .hasToString("nbbRD/heyLOGS@b5d40a0");
+    @ParameterizedTest
+    @CsvFileSource(resources = "ForgejoCommitSHARefExamples.csv", useHeadersInDisplayName = true)
+    public void testRepresentableAsString(String description, String input, String owner, String repo, String hash, String output, String error) {
+        if (error == null || error.isEmpty()) {
+            assertThat(parse(input))
+                    .describedAs(description)
+                    .returns(owner, ForgejoCommitSHARef::getOwner)
+                    .returns(repo, ForgejoCommitSHARef::getRepo)
+                    .returns(hash, ForgejoCommitSHARef::getHash)
+                    .hasToString(output);
+        } else {
+            assertThatIllegalArgumentException()
+                    .describedAs(description)
+                    .isThrownBy(() -> parse(input))
+                    .withMessage(error);
+        }
     }
 
     @SuppressWarnings("DataFlowIssue")
