@@ -40,12 +40,12 @@ class GitLabCommitRefTest {
     @SuppressWarnings("DataFlowIssue")
     @Test
     public void testFactories() {
-        assertThatNullPointerException().isThrownBy(() -> of(null, GitLabCommitRef.Type.HASH));
-        assertThatNullPointerException().isThrownBy(() -> of(commit, null));
+        assertThatNullPointerException().isThrownBy(() -> of(null, GitLabRefType.SAME_PROJECT));
+        assertThatNullPointerException().isThrownBy(() -> of(link, null));
 
-        assertThat(of(commit, GitLabCommitRef.Type.HASH).isCompatibleWith(commit)).isTrue();
-        assertThat(of(commit, GitLabCommitRef.Type.SAME_NAMESPACE).isCompatibleWith(commit)).isTrue();
-        assertThat(of(commit, GitLabCommitRef.Type.CROSS_PROJECT).isCompatibleWith(commit)).isTrue();
+        assertThat(of(link, GitLabRefType.SAME_PROJECT).isCompatibleWith(link)).isTrue();
+        assertThat(of(link, GitLabRefType.SAME_NAMESPACE).isCompatibleWith(link)).isTrue();
+        assertThat(of(link, GitLabRefType.CROSS_PROJECT).isCompatibleWith(link)).isTrue();
     }
 
     @SuppressWarnings("DataFlowIssue")
@@ -53,25 +53,25 @@ class GitLabCommitRefTest {
     public void testIsCompatibleWith() {
         assertThatNullPointerException().isThrownBy(() -> parse("656ad7d").isCompatibleWith(null));
 
-        assertThat(parse("656ad7d").isCompatibleWith(commit)).isTrue();
-        assertThat(parse("00000000").isCompatibleWith(commit)).isFalse();
+        assertThat(parse("656ad7d").isCompatibleWith(link)).isTrue();
+        assertThat(parse("00000000").isCompatibleWith(link)).isFalse();
 
-        assertThat(parse("heylogs-ext-gitlab@656ad7d").isCompatibleWith(commit)).isTrue();
-        assertThat(parse("heylogs-ext-gitlab@00000000").isCompatibleWith(commit)).isFalse();
-        assertThat(parse("abcde@656ad7d").isCompatibleWith(commit)).isFalse();
+        assertThat(parse("heylogs-ext-gitlab@656ad7d").isCompatibleWith(link)).isTrue();
+        assertThat(parse("heylogs-ext-gitlab@00000000").isCompatibleWith(link)).isFalse();
+        assertThat(parse("abcde@656ad7d").isCompatibleWith(link)).isFalse();
 
-        assertThat(parse("nbbrd/heylogs-ext-gitlab@656ad7d").isCompatibleWith(commit)).isTrue();
-        assertThat(parse("nbbrd/heylogs-ext-gitlab@00000000").isCompatibleWith(commit)).isFalse();
-        assertThat(parse("abcde/heylogs-ext-gitlab@656ad7d").isCompatibleWith(commit)).isFalse();
-        assertThat(parse("nbbrd/abcdefg@656ad7d").isCompatibleWith(commit)).isFalse();
+        assertThat(parse("nbbrd/heylogs-ext-gitlab@656ad7d").isCompatibleWith(link)).isTrue();
+        assertThat(parse("nbbrd/heylogs-ext-gitlab@00000000").isCompatibleWith(link)).isFalse();
+        assertThat(parse("abcde/heylogs-ext-gitlab@656ad7d").isCompatibleWith(link)).isFalse();
+        assertThat(parse("nbbrd/abcdefg@656ad7d").isCompatibleWith(link)).isFalse();
     }
 
     @Test
     public void testGetType() {
-        assertThat(parse("656ad7d").getType()).isEqualTo(GitLabCommitRef.Type.HASH);
-        assertThat(parse("heylogs-ext-gitlab@656ad7d").getType()).isEqualTo(GitLabCommitRef.Type.SAME_NAMESPACE);
-        assertThat(parse("nbbrd/heylogs-ext-gitlab@656ad7d").getType()).isEqualTo(GitLabCommitRef.Type.CROSS_PROJECT);
+        assertThat(parse("656ad7d").getType()).isEqualTo(GitLabRefType.SAME_PROJECT);
+        assertThat(parse("heylogs-ext-gitlab@656ad7d").getType()).isEqualTo(GitLabRefType.SAME_NAMESPACE);
+        assertThat(parse("nbbrd/heylogs-ext-gitlab@656ad7d").getType()).isEqualTo(GitLabRefType.CROSS_PROJECT);
     }
 
-    private final GitLabCommitLink commit = GitLabCommitLink.parse("https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/commit/656ad7df2a11dcdbaf206a3b59d327fc67f226ac");
+    private final GitLabCommitLink link = GitLabCommitLink.parse("https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/commit/656ad7df2a11dcdbaf206a3b59d327fc67f226ac");
 }

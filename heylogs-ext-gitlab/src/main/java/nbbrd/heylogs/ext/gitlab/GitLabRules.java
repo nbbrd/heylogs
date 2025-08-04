@@ -20,7 +20,7 @@ public final class GitLabRules implements RuleBatch {
 
     @Override
     public @NonNull Stream<Rule> getProviders() {
-        return Stream.of(GITLAB_COMMIT_REF);
+        return Stream.of(GITLAB_COMMIT_REF, GITLAB_ISSUE_REF, GITLAB_MERGE_REQUEST_REF);
     }
 
     @VisibleForTesting
@@ -30,12 +30,34 @@ public final class GitLabRules implements RuleBatch {
             .name("GitLab commit ref")
             .category("forge")
             .linkPredicate(GitLabRules::isGitLabHost)
-            .parsableMessage((link, ref) -> String.format(ROOT, "Expecting commit ref %s, found %s", GitLabCommitRef.of(link, GitLabCommitRef.Type.HASH), ref))
+            .parsableMessage((link, ref) -> String.format(ROOT, "Expecting commit ref %s, found %s", GitLabCommitRef.of(link, GitLabRefType.SAME_PROJECT), ref))
             .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting commit ref %s, found %s", GitLabCommitRef.of(link, ref.getType()), ref))
             .build();
 
     @VisibleForTesting
+    static final Rule GITLAB_ISSUE_REF = ForgeRefRuleSupport
+            .builder(GitLabIssueLink::parse, GitLabIssueRef::parse)
+            .id("gitlab-issue-ref")
+            .name("GitLab issue ref")
+            .category("forge")
+            .linkPredicate(GitLabRules::isGitLabHost)
+            .parsableMessage((link, ref) -> String.format(ROOT, "Expecting issue ref %s, found %s", GitLabIssueRef.of(link, GitLabRefType.SAME_PROJECT), ref))
+            .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting issue ref %s, found %s", GitLabIssueRef.of(link, ref.getType()), ref))
+            .build();
+
+    @VisibleForTesting
+    static final Rule GITLAB_MERGE_REQUEST_REF = ForgeRefRuleSupport
+            .builder(GitLabMergeRequestLink::parse, GitLabMergeRequestRef::parse)
+            .id("gitlab-merge-request-ref")
+            .name("GitLab merge request ref")
+            .category("forge")
+            .linkPredicate(GitLabRules::isGitLabHost)
+            .parsableMessage((link, ref) -> String.format(ROOT, "Expecting merge request ref %s, found %s", GitLabMergeRequestRef.of(link, GitLabRefType.SAME_PROJECT), ref))
+            .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting merge request ref %s, found %s", GitLabMergeRequestRef.of(link, ref.getType()), ref))
+            .build();
+
+    @VisibleForTesting
     static boolean isGitLabHost(@NonNull ForgeLink expected, @Nullable String forgeId) {
-        return GitLab.ID.equals(forgeId) || GitLab.isKnownHost(expected);
+        return GitLab.ID.equals(forgeId) || GitLabSupport.isKnownHost(expected);
     }
 }

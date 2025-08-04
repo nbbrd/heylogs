@@ -1,0 +1,13 @@
+Description,Input,Output,Base,Namespace,Project,Number,Error
+Missing number,https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/merge_requests,,,,,0,boom
+Invalid number,https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/merge_requests/boom,,,,,0,boom
+Missing type,https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/1,,,,,0,boom
+Invalid type,https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/boom/1,,,,,0,boom
+Missing project,https://gitlab.com/nbbrd/-/merge_requests/1,,,,,0,boom
+Invalid project,https://gitlab.com/nbbrd/heylogs-%20-gitlab/-/merge_requests/1,,,,,0,boom
+Missing namespace,https://gitlab.com/heylogs-ext-gitlab/-/merge_requests/1,,,,,0,boom
+Invalid namespace,https://gitlab.com/nbb%20rd/heylogs-ext-gitlab/-/merge_requests/1,,,,,0,boom
+Case sensitivity,https://gitlab.com/nbbRD/heylogs-EXT-gitlab/-/merge_requests/1,https://gitlab.com/nbbRD/heylogs-EXT-gitlab/-/merge_requests/1,https://gitlab.com,nbbRD,heylogs-EXT-gitlab,1,
+Localhost,http://localhost:8080/nbbrd/heylogs-ext-gitlab/-/merge_requests/1,http://localhost:8080/nbbrd/heylogs-ext-gitlab/-/merge_requests/1,http://localhost:8080,nbbrd,heylogs-ext-gitlab,1,
+No dash,https://gitlab.com/nbbrd/heylogs-ext-gitlab/merge_requests/1,https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/merge_requests/1,https://gitlab.com,nbbrd,heylogs-ext-gitlab,1,
+Subgroup namespace,https://gitlab.com/nbbrd/heylogs/ext/gitlab/-/merge_requests/1,https://gitlab.com/nbbrd/heylogs/ext/gitlab/-/merge_requests/1,https://gitlab.com,nbbrd/heylogs/ext,gitlab,1,

@@ -13,8 +13,7 @@ import tests.heylogs.spi.MockedForgeLink;
 import java.util.Objects;
 
 import static java.util.stream.Collectors.toList;
-import static nbbrd.heylogs.ext.gitlab.GitLabRules.GITLAB_COMMIT_REF;
-import static nbbrd.heylogs.ext.gitlab.GitLabRules.isGitLabHost;
+import static nbbrd.heylogs.ext.gitlab.GitLabRules.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Index.atIndex;
 import static tests.heylogs.api.Sample.using;
@@ -37,6 +36,12 @@ public class GitLabRulesTest {
 
         assertThat(Nodes.of(Node.class).descendants(using("/InvalidGitLabCommitRef.md")).map(node -> GITLAB_COMMIT_REF.getRuleIssueOrNull(node, Config.DEFAULT)).filter(Objects::nonNull))
                 .hasSize(1);
+
+        assertThat(Nodes.of(Node.class).descendants(using("/InvalidGitLabIssueRef.md")).map(node -> GITLAB_ISSUE_REF.getRuleIssueOrNull(node, Config.DEFAULT)).filter(Objects::nonNull))
+                .hasSize(1);
+
+        assertThat(Nodes.of(Node.class).descendants(using("/InvalidGitLabMergeRequestRef.md")).map(node -> GITLAB_MERGE_REQUEST_REF.getRuleIssueOrNull(node, Config.DEFAULT)).filter(Objects::nonNull))
+                .hasSize(1);
     }
 
     @Test
@@ -52,6 +57,38 @@ public class GitLabRulesTest {
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .contains(RuleIssue.builder().message("Expecting commit ref 656ad7d, found 0000000").line(2).column(1).build(), atIndex(0))
+                .hasSize(1);
+    }
+
+    @Test
+    public void testValidateGitHubIssueRef() {
+        assertThat(Nodes.of(Link.class).descendants(using("/Main.md")))
+                .map(node -> GITLAB_ISSUE_REF.getRuleIssueOrNull(node, Config.DEFAULT))
+                .isNotEmpty()
+                .filteredOn(Objects::nonNull)
+                .isEmpty();
+
+        assertThat(Nodes.of(Link.class).descendants(using("/InvalidGitLabIssueRef.md")))
+                .map(node -> GITLAB_ISSUE_REF.getRuleIssueOrNull(node, Config.DEFAULT))
+                .isNotEmpty()
+                .filteredOn(Objects::nonNull)
+                .contains(RuleIssue.builder().message("Expecting issue ref 1, found 0").line(2).column(1).build(), atIndex(0))
+                .hasSize(1);
+    }
+
+    @Test
+    public void testValidateGitHubMergeRequestRef() {
+        assertThat(Nodes.of(Link.class).descendants(using("/Main.md")))
+                .map(node -> GITLAB_MERGE_REQUEST_REF.getRuleIssueOrNull(node, Config.DEFAULT))
+                .isNotEmpty()
+                .filteredOn(Objects::nonNull)
+                .isEmpty();
+
+        assertThat(Nodes.of(Link.class).descendants(using("/InvalidGitLabMergeRequestRef.md")))
+                .map(node -> GITLAB_MERGE_REQUEST_REF.getRuleIssueOrNull(node, Config.DEFAULT))
+                .isNotEmpty()
+                .filteredOn(Objects::nonNull)
+                .contains(RuleIssue.builder().message("Expecting merge request ref 1, found 0").line(2).column(1).build(), atIndex(0))
                 .hasSize(1);
     }
 

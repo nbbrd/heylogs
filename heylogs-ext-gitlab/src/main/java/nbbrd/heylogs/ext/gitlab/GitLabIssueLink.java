@@ -15,13 +15,13 @@ import static nbbrd.heylogs.ext.gitlab.GitLabSupport.*;
 @RepresentableAsString
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class GitLabCommitLink implements ForgeLink {
+class GitLabIssueLink implements ForgeLink {
 
     @StaticFactoryMethod
-    public static @NonNull GitLabCommitLink parse(@NonNull CharSequence text) {
+    public static @NonNull GitLabIssueLink parse(@NonNull CharSequence text) {
         return parseLink(
-                GitLabCommitLink::new,
-                COMMIT_KEYWORD, HASH_PATTERN, urlOf(text)
+                (base, namespace, project, value) -> new GitLabIssueLink(base, namespace, project, Integer.parseInt(value)),
+                ISSUES_KEYWORD, NUMBER_PATTERN, urlOf(text)
         );
     }
 
@@ -34,13 +34,12 @@ class GitLabCommitLink implements ForgeLink {
     @NonNull
     String project;
 
-    @NonNull
-    String hash;
+    int number;
 
     @Override
     public String toString() {
-        return linkToString(base, namespace, project, COMMIT_KEYWORD, hash);
+        return linkToString(base, namespace, project, ISSUES_KEYWORD, String.valueOf(number));
     }
 
-    private static final String COMMIT_KEYWORD = "commit";
+    private static final String ISSUES_KEYWORD = "issues";
 }
