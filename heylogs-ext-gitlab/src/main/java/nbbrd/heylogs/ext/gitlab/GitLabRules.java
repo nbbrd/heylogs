@@ -20,7 +20,7 @@ public final class GitLabRules implements RuleBatch {
 
     @Override
     public @NonNull Stream<Rule> getProviders() {
-        return Stream.of(GITLAB_COMMIT_REF, GITLAB_ISSUE_REF, GITLAB_MERGE_REQUEST_REF);
+        return Stream.of(GITLAB_COMMIT_REF, GITLAB_ISSUE_REF, GITLAB_MERGE_REQUEST_REF, GITLAB_MENTION_REF);
     }
 
     @VisibleForTesting
@@ -54,6 +54,17 @@ public final class GitLabRules implements RuleBatch {
             .linkPredicate(GitLabRules::isGitLabHost)
             .parsableMessage((link, ref) -> String.format(ROOT, "Expecting merge request ref %s, found %s", GitLabMergeRequestRef.of(link, GitLabRefType.SAME_PROJECT), ref))
             .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting merge request ref %s, found %s", GitLabMergeRequestRef.of(link, ref.getType()), ref))
+            .build();
+
+    @VisibleForTesting
+    static final Rule GITLAB_MENTION_REF = ForgeRefRuleSupport
+            .builder(GitLabMentionLink::parse, GitLabMentionRef::parse)
+            .id("gitlab-mention-ref")
+            .name("GitLab mention ref")
+            .category("forge")
+            .linkPredicate(GitLabRules::isGitLabHost)
+            .parsableMessage((link, ref) -> String.format(ROOT, "Expecting mention ref %s, found %s", GitLabMentionRef.of(link), ref))
+            .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting mention ref %s, found %s", GitLabMentionRef.of(link), ref))
             .build();
 
     @VisibleForTesting

@@ -1,0 +1,6 @@
+Description,Input,Output,UserGroup,Error
+Missing user/group,@,,,boom
+Invalid user/group,@char%20phi,,,boom
+Case sensitivity,@CHARPHI,@CHARPHI,CHARPHI,
+Subgroup,@nbbrd/heylogs/ext,@nbbrd/heylogs/ext,nbbrd/heylogs/ext,
+Invalid separator,!charphi,,,

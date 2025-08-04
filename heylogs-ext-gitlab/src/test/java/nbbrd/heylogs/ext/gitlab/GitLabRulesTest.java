@@ -42,10 +42,13 @@ public class GitLabRulesTest {
 
         assertThat(Nodes.of(Node.class).descendants(using("/InvalidGitLabMergeRequestRef.md")).map(node -> GITLAB_MERGE_REQUEST_REF.getRuleIssueOrNull(node, Config.DEFAULT)).filter(Objects::nonNull))
                 .hasSize(1);
+
+        assertThat(Nodes.of(Node.class).descendants(using("/InvalidGitLabMentionRef.md")).map(node -> GITLAB_MENTION_REF.getRuleIssueOrNull(node, Config.DEFAULT)).filter(Objects::nonNull))
+                .hasSize(1);
     }
 
     @Test
-    public void testValidateGitHubCommitRef() {
+    public void testValidateGitLabCommitRef() {
         assertThat(Nodes.of(Link.class).descendants(using("/Main.md")))
                 .map(node -> GITLAB_COMMIT_REF.getRuleIssueOrNull(node, Config.DEFAULT))
                 .isNotEmpty()
@@ -61,7 +64,7 @@ public class GitLabRulesTest {
     }
 
     @Test
-    public void testValidateGitHubIssueRef() {
+    public void testValidateGitLabIssueRef() {
         assertThat(Nodes.of(Link.class).descendants(using("/Main.md")))
                 .map(node -> GITLAB_ISSUE_REF.getRuleIssueOrNull(node, Config.DEFAULT))
                 .isNotEmpty()
@@ -77,7 +80,7 @@ public class GitLabRulesTest {
     }
 
     @Test
-    public void testValidateGitHubMergeRequestRef() {
+    public void testValidateGitLabMergeRequestRef() {
         assertThat(Nodes.of(Link.class).descendants(using("/Main.md")))
                 .map(node -> GITLAB_MERGE_REQUEST_REF.getRuleIssueOrNull(node, Config.DEFAULT))
                 .isNotEmpty()
@@ -89,6 +92,22 @@ public class GitLabRulesTest {
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .contains(RuleIssue.builder().message("Expecting merge request ref 1, found 0").line(2).column(1).build(), atIndex(0))
+                .hasSize(1);
+    }
+
+    @Test
+    public void testValidateGitLabMentionRef() {
+        assertThat(Nodes.of(Link.class).descendants(using("/Main.md")))
+                .map(node -> GITLAB_MENTION_REF.getRuleIssueOrNull(node, Config.DEFAULT))
+                .isNotEmpty()
+                .filteredOn(Objects::nonNull)
+                .isEmpty();
+
+        assertThat(Nodes.of(Link.class).descendants(using("/InvalidGitLabMentionRef.md")))
+                .map(node -> GITLAB_MENTION_REF.getRuleIssueOrNull(node, Config.DEFAULT))
+                .isNotEmpty()
+                .filteredOn(Objects::nonNull)
+                .contains(RuleIssue.builder().message("Expecting mention ref @charphi, found @nbbrd").line(2).column(1).build(), atIndex(0))
                 .hasSize(1);
     }
 
