@@ -69,6 +69,6 @@ public final class GitLabRules implements RuleBatch {
 
     @VisibleForTesting
     static boolean isGitLabHost(@NonNull ForgeLink expected, @Nullable String forgeId) {
-        return GitLab.ID.equals(forgeId) || GitLabSupport.isKnownHost(expected);
+        return GitLab.ID.equals(forgeId) || GitLab.isKnownHost(expected);
     }
 }

@@ -14,6 +14,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Add unique-release rule [#408](https://github.com/nbbrd/heylogs/issues/408)
 - Add context to rule evaluation [#411](https://github.com/nbbrd/heylogs/issues/411)
 - Add Forgejo forge and rules [#226](https://github.com/nbbrd/heylogs/issues/226)
+- Add GitLab forge and rules [#225](https://github.com/nbbrd/heylogs/issues/225)
 
 ### Changed
 
