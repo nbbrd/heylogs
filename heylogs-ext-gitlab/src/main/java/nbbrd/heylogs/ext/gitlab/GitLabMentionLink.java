@@ -2,7 +2,7 @@ package nbbrd.heylogs.ext.gitlab;
 
 import lombok.AccessLevel;
 import lombok.NonNull;
-import nbbrd.design.RepresentableAsString;
+import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.io.http.URLQueryBuilder;
@@ -15,17 +15,13 @@ import static internal.heylogs.spi.URLExtractor.*;
 import static java.util.Collections.unmodifiableList;
 import static nbbrd.heylogs.ext.gitlab.GitLabSupport.NAMESPACE_PATTERN;
 
-@RepresentableAsString
+@RepresentableAs(URL.class)
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
 class GitLabMentionLink implements ForgeLink {
 
     @StaticFactoryMethod
-    public static @NonNull GitLabMentionLink parse(@NonNull CharSequence text) {
-        return parseURL(urlOf(text));
-    }
-
-    private static @NonNull GitLabMentionLink parseURL(@NonNull URL url) {
+    public static @NonNull GitLabMentionLink parse(@NonNull URL url) {
         String[] pathArray = getPathArray(url);
 
         int length = pathArray.length;
@@ -50,5 +46,10 @@ class GitLabMentionLink implements ForgeLink {
     @Override
     public String toString() {
         return URLQueryBuilder.of(base).path(namespace).toString();
+    }
+
+    @Override
+    public @NonNull URL toURL() {
+        return urlOf(toString());
     }
 }

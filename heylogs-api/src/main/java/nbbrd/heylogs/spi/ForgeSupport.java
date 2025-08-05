@@ -37,12 +37,7 @@ public final class ForgeSupport implements Forge {
     }
 
     @Override
-    public @NonNull URL getProjectURL(@NonNull URL url) {
-        return compareLinkFactory.apply(url).getProjectURL();
-    }
-
-    @Override
-    public @NonNull URL deriveCompareLink(@NonNull URL latest, @NonNull String nextTag) {
-        return compareLinkFactory.apply(latest).derive(nextTag).toURL();
+    public @NonNull CompareLink getCompareLink(@NonNull URL url) {
+        return compareLinkFactory.apply(url);
     }
 }

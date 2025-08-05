@@ -13,6 +13,7 @@ import tests.heylogs.spi.MockedForgeLink;
 
 import java.util.Objects;
 
+import static internal.heylogs.spi.URLExtractor.urlOf;
 import static java.util.stream.Collectors.toList;
 import static nbbrd.heylogs.ext.forgejo.ForgejoRules.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -128,22 +129,22 @@ public class ForgejoRulesTest {
 
     @Test
     public void testIsForgejoHost() {
-        ForgeLink official = MockedForgeLink.parse("https://codeberg.org");
+        ForgeLink official = MockedForgeLink.parse(urlOf("https://codeberg.org"));
         assertThat(isForgejoHost(official, null)).isTrue();
         assertThat(isForgejoHost(official, "stuff")).isTrue();
         assertThat(isForgejoHost(official, "forgejo")).isTrue();
 
-        ForgeLink invalid = MockedForgeLink.parse("https://codebergcodeberg.org");
+        ForgeLink invalid = MockedForgeLink.parse(urlOf("https://codebergcodeberg.org"));
         assertThat(isForgejoHost(invalid, null)).isFalse();
         assertThat(isForgejoHost(invalid, "stuff")).isFalse();
         assertThat(isForgejoHost(invalid, "forgejo")).isTrue();
 
-        ForgeLink valid = MockedForgeLink.parse("https://codeberg.example.com");
+        ForgeLink valid = MockedForgeLink.parse(urlOf("https://codeberg.example.com"));
         assertThat(isForgejoHost(valid, null)).isTrue();
         assertThat(isForgejoHost(valid, "stuff")).isTrue();
         assertThat(isForgejoHost(valid, "forgejo")).isTrue();
 
-        ForgeLink local = MockedForgeLink.parse("https://localhost:8080");
+        ForgeLink local = MockedForgeLink.parse(urlOf("https://localhost:8080"));
         assertThat(isForgejoHost(local, null)).isFalse();
         assertThat(isForgejoHost(local, "stuff")).isFalse();
         assertThat(isForgejoHost(local, "forgejo")).isTrue();

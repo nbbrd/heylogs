@@ -22,8 +22,5 @@ public interface Forge {
     boolean isCompareLink(@NonNull URL url);
 
     @NonNull
-    URL getProjectURL(@NonNull URL url);
-
-    @NonNull
-    URL deriveCompareLink(@NonNull URL latest, @NonNull String nextTag);
+    CompareLink getCompareLink(@NonNull URL url);
 }

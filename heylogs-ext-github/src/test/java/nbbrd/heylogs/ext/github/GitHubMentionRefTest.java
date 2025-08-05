@@ -2,6 +2,7 @@ package nbbrd.heylogs.ext.github;
 
 import org.junit.jupiter.api.Test;
 
+import static internal.heylogs.spi.URLExtractor.urlOf;
 import static nbbrd.heylogs.ext.github.GitHubMentionRef.of;
 import static nbbrd.heylogs.ext.github.GitHubMentionRef.parse;
 import static org.assertj.core.api.Assertions.*;
@@ -15,7 +16,7 @@ class GitHubMentionRefTest {
     }
 
     @Test
-    public void testRepresentableAsString() {
+    public void testRepresentable() {
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> parse("@"));
 
@@ -72,8 +73,8 @@ class GitHubMentionRefTest {
         assertThat(parse("@nbbrd/devs").getType()).isEqualTo(GitHubMentionRef.Type.TEAM);
     }
 
-    private final GitHubMentionLink charphi = GitHubMentionLink.parse("https://github.com/charphi");
-    private final GitHubMentionLink user = GitHubMentionLink.parse("https://github.com/user");
-    private final GitHubMentionLink devs = GitHubMentionLink.parse("https://github.com/orgs/nbbrd/teams/devs");
-    private final GitHubMentionLink team = GitHubMentionLink.parse("https://github.com/orgs/nbbrd/teams/team");
+    private final GitHubMentionLink charphi = GitHubMentionLink.parse(urlOf("https://github.com/charphi"));
+    private final GitHubMentionLink user = GitHubMentionLink.parse(urlOf("https://github.com/user"));
+    private final GitHubMentionLink devs = GitHubMentionLink.parse(urlOf("https://github.com/orgs/nbbrd/teams/devs"));
+    private final GitHubMentionLink team = GitHubMentionLink.parse(urlOf("https://github.com/orgs/nbbrd/teams/team"));
 }

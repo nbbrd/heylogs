@@ -25,6 +25,6 @@ public final class Forgejo implements Forge {
             .build();
 
     static boolean isKnownHost(@NonNull ForgeLink expected) {
-        return Arrays.asList(expected.getBase().getHost().split("\\.", -1)).contains("codeberg");
+        return Arrays.asList(expected.toURL().getHost().split("\\.", -1)).contains("codeberg");
     }
 }

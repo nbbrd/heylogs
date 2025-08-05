@@ -6,6 +6,7 @@ import org.junit.jupiter.params.provider.CsvFileSource;
 
 import java.util.Arrays;
 
+import static internal.heylogs.spi.URLExtractor.urlOf;
 import static nbbrd.heylogs.ext.gitlab.GitLabMentionRef.of;
 import static nbbrd.heylogs.ext.gitlab.GitLabMentionRef.parse;
 import static org.assertj.core.api.Assertions.*;
@@ -20,7 +21,7 @@ class GitLabMentionRefTest {
 
     @ParameterizedTest
     @CsvFileSource(resources = "GitLabIssueRefExamples.csv", useHeadersInDisplayName = true)
-    public void testRepresentableAsString(String description, String input, String output, String namespace, String project, int number, String error) {
+    public void testRepresentable(String description, String input, String output, String namespace, String project, int number, String error) {
         if (error == null || error.isEmpty()) {
             assertThat(GitLabIssueRef.parse(input))
                     .describedAs(description)
@@ -59,7 +60,7 @@ class GitLabMentionRefTest {
         assertThat(parse("@nbbrd/heylogs/ext").isCompatibleWith(user)).isFalse();
     }
 
-    private final GitLabMentionLink charphi = GitLabMentionLink.parse("https://gitlab.com/charphi");
-    private final GitLabMentionLink user = GitLabMentionLink.parse("https://gitlab.com/user");
-    private final GitLabMentionLink subgroup = GitLabMentionLink.parse("https://gitlab.com/nbbrd/heylogs/ext");
+    private final GitLabMentionLink charphi = GitLabMentionLink.parse(urlOf("https://gitlab.com/charphi"));
+    private final GitLabMentionLink user = GitLabMentionLink.parse(urlOf("https://gitlab.com/user"));
+    private final GitLabMentionLink subgroup = GitLabMentionLink.parse(urlOf("https://gitlab.com/nbbrd/heylogs/ext"));
 }

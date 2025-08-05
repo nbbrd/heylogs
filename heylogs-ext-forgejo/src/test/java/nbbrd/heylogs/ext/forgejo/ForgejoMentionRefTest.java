@@ -2,6 +2,7 @@ package nbbrd.heylogs.ext.forgejo;
 
 import org.junit.jupiter.api.Test;
 
+import static internal.heylogs.spi.URLExtractor.urlOf;
 import static nbbrd.heylogs.ext.forgejo.ForgejoMentionRef.of;
 import static nbbrd.heylogs.ext.forgejo.ForgejoMentionRef.parse;
 import static org.assertj.core.api.Assertions.*;
@@ -15,7 +16,7 @@ class ForgejoMentionRefTest {
     }
 
     @Test
-    public void testRepresentableAsString() {
+    public void testRepresentable() {
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> parse("@"));
 
@@ -72,8 +73,8 @@ class ForgejoMentionRefTest {
         assertThat(parse("@nbbrd/devs").getType()).isEqualTo(ForgejoMentionRef.Type.TEAM);
     }
 
-    private final ForgejoMentionLink charphi = ForgejoMentionLink.parse("https://github.com/charphi");
-    private final ForgejoMentionLink user = ForgejoMentionLink.parse("https://github.com/user");
-    private final ForgejoMentionLink devs = ForgejoMentionLink.parse("https://github.com/orgs/nbbrd/teams/devs");
-    private final ForgejoMentionLink team = ForgejoMentionLink.parse("https://github.com/orgs/nbbrd/teams/team");
+    private final ForgejoMentionLink charphi = ForgejoMentionLink.parse(urlOf("https://github.com/charphi"));
+    private final ForgejoMentionLink user = ForgejoMentionLink.parse(urlOf("https://github.com/user"));
+    private final ForgejoMentionLink devs = ForgejoMentionLink.parse(urlOf("https://github.com/orgs/nbbrd/teams/devs"));
+    private final ForgejoMentionLink team = ForgejoMentionLink.parse(urlOf("https://github.com/orgs/nbbrd/teams/team"));
 }

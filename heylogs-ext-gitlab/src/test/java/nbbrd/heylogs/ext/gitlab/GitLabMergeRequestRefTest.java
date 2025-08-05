@@ -6,6 +6,7 @@ import org.junit.jupiter.params.provider.CsvFileSource;
 
 import java.util.Arrays;
 
+import static internal.heylogs.spi.URLExtractor.urlOf;
 import static nbbrd.heylogs.ext.gitlab.GitLabMergeRequestRef.of;
 import static nbbrd.heylogs.ext.gitlab.GitLabMergeRequestRef.parse;
 import static org.assertj.core.api.Assertions.*;
@@ -20,7 +21,7 @@ class GitLabMergeRequestRefTest {
 
     @ParameterizedTest
     @CsvFileSource(resources = "GitLabMergeRequestRefExamples.csv", useHeadersInDisplayName = true)
-    public void testRepresentableAsString(String description, String input, String output, String namespace, String project, int number, String error) {
+    public void testRepresentable(String description, String input, String output, String namespace, String project, int number, String error) {
         if (error == null || error.isEmpty()) {
             assertThat(parse(input))
                     .describedAs(description)
@@ -73,5 +74,5 @@ class GitLabMergeRequestRefTest {
         assertThat(parse("nbbrd/heylogs-ext-gitlab!1").getType()).isEqualTo(GitLabRefType.CROSS_PROJECT);
     }
 
-    private final GitLabMergeRequestLink link = GitLabMergeRequestLink.parse("https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/merge_requests/1");
+    private final GitLabMergeRequestLink link = GitLabMergeRequestLink.parse(urlOf("https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/merge_requests/1"));
 }

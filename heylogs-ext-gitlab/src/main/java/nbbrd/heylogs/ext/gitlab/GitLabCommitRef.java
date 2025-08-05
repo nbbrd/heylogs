@@ -1,5 +1,6 @@
 package nbbrd.heylogs.ext.gitlab;
 
+import internal.heylogs.git.Hash;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAsString;
@@ -9,7 +10,9 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-import static nbbrd.heylogs.ext.gitlab.GitLabSupport.*;
+import static internal.heylogs.git.Hash.HASH_PATTERN;
+import static nbbrd.heylogs.ext.gitlab.GitLabSupport.getRefType;
+import static nbbrd.heylogs.ext.gitlab.GitLabSupport.refToString;
 
 @RepresentableAsString
 @lombok.Value
@@ -18,18 +21,21 @@ class GitLabCommitRef implements ForgeRef<GitLabCommitLink> {
 
     @StaticFactoryMethod
     public static @NonNull GitLabCommitRef parse(@NonNull CharSequence text) {
-        return GitLabSupport.parseRef(GitLabCommitRef::new, HASH_SEPARATOR, HASH_PATTERN, false, text);
+        return GitLabSupport.parseRef(
+                (namespace, project, hash) -> new GitLabCommitRef(namespace, project, Hash.parse(hash)),
+                HASH_SEPARATOR, HASH_PATTERN, false, text
+        );
     }
 
     @StaticFactoryMethod
     public static @NonNull GitLabCommitRef of(@NonNull GitLabCommitLink link, @NonNull GitLabRefType type) {
         switch (type) {
             case SAME_PROJECT:
-                return new GitLabCommitRef(null, null, link.getHash().substring(0, 7));
+                return new GitLabCommitRef(null, null, link.getHash().toShort());
             case SAME_NAMESPACE:
-                return new GitLabCommitRef(null, link.getProject(), link.getHash().substring(0, 7));
+                return new GitLabCommitRef(null, link.getProject(), link.getHash().toShort());
             case CROSS_PROJECT:
-                return new GitLabCommitRef(link.getNamespace(), link.getProject(), link.getHash().substring(0, 7));
+                return new GitLabCommitRef(link.getNamespace(), link.getProject(), link.getHash().toShort());
             default:
                 throw new RuntimeException();
         }
@@ -42,22 +48,22 @@ class GitLabCommitRef implements ForgeRef<GitLabCommitLink> {
     String project;
 
     @NonNull
-    String hash;
+    Hash hash;
 
     @Override
     public String toString() {
-        return refToString(namespace, project, HASH_SEPARATOR, hash);
+        return refToString(namespace, project, HASH_SEPARATOR, hash.toString());
     }
 
     @Override
     public boolean isCompatibleWith(@NonNull GitLabCommitLink link) {
         switch (getType()) {
             case SAME_PROJECT:
-                return link.getHash().startsWith(hash);
+                return hash.isCompatibleWith(link.getHash());
             case SAME_NAMESPACE:
-                return link.getProject().equals(project) && link.getHash().startsWith(hash);
+                return link.getProject().equals(project) && hash.isCompatibleWith(link.getHash());
             case CROSS_PROJECT:
-                return link.getNamespace().equals(namespace) && link.getProject().equals(project) && link.getHash().startsWith(hash);
+                return link.getNamespace().equals(namespace) && link.getProject().equals(project) && hash.isCompatibleWith(link.getHash());
             default:
                 throw new RuntimeException();
         }

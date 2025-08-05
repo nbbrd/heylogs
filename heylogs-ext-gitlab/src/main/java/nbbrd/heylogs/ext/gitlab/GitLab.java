@@ -25,6 +25,6 @@ public final class GitLab implements Forge {
             .build();
 
     static boolean isKnownHost(@NonNull ForgeLink expected) {
-        return Arrays.asList(expected.getBase().getHost().split("\\.", -1)).contains("gitlab");
+        return Arrays.asList(expected.toURL().getHost().split("\\.", -1)).contains("gitlab");
     }
 }

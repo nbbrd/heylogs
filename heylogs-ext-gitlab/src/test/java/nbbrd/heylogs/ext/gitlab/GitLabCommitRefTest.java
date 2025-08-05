@@ -1,11 +1,15 @@
 package nbbrd.heylogs.ext.gitlab;
 
+import internal.heylogs.git.Hash;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.converter.ConvertWith;
 import org.junit.jupiter.params.provider.CsvFileSource;
+import tests.heylogs.spi.HashConverter;
 
 import java.util.Arrays;
 
+import static internal.heylogs.spi.URLExtractor.urlOf;
 import static nbbrd.heylogs.ext.gitlab.GitLabCommitRef.of;
 import static nbbrd.heylogs.ext.gitlab.GitLabCommitRef.parse;
 import static org.assertj.core.api.Assertions.*;
@@ -20,7 +24,8 @@ class GitLabCommitRefTest {
 
     @ParameterizedTest
     @CsvFileSource(resources = "GitLabCommitRefExamples.csv", useHeadersInDisplayName = true)
-    public void testRepresentableAsString(String description, String input, String output, String namespace, String project, String hash, String error) {
+    public void testRepresentable(String description, String input, String output, String namespace, String project,
+                                  @ConvertWith(HashConverter.class) Hash hash, String error) {
         if (error == null || error.isEmpty()) {
             assertThat(GitLabCommitRef.parse(input))
                     .describedAs(description)
@@ -73,5 +78,5 @@ class GitLabCommitRefTest {
         assertThat(parse("nbbrd/heylogs-ext-gitlab@656ad7d").getType()).isEqualTo(GitLabRefType.CROSS_PROJECT);
     }
 
-    private final GitLabCommitLink link = GitLabCommitLink.parse("https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/commit/656ad7df2a11dcdbaf206a3b59d327fc67f226ac");
+    private final GitLabCommitLink link = GitLabCommitLink.parse(urlOf("https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/commit/656ad7df2a11dcdbaf206a3b59d327fc67f226ac"));
 }

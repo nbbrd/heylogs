@@ -1,6 +1,6 @@
 Description,Input,Base,Owner,Repo,Hash,Output,Error
 Missing hash,https://codeberg.org/Freeyourgadget/Gadgetbridge/commit,,,,,,"Invalid path length: expecting [4], found 3"
-Invalid hash,https://codeberg.org/Freeyourgadget/Gadgetbridge/commit/b5d40,,,,,,"Invalid path item at index 3: expecting pattern '[0-9a-f]{6,40}', found 'b5d40'"
+Invalid hash,https://codeberg.org/Freeyourgadget/Gadgetbridge/commit/b5d40,,,,,,"Invalid path item at index 3: expecting pattern '[0-9a-f]{7,40}', found 'b5d40'"
 Missing commit,https://codeberg.org/Freeyourgadget/Gadgetbridge/b5d40a0bf012df6c1810eef2c740b8dd7c756843,,,,,,"Invalid path length: expecting [4], found 3"
 Invalid commit,https://codeberg.org/Freeyourgadget/Gadgetbridge/comit/b5d40a0bf012df6c1810eef2c740b8dd7c756843,,,,,,"Invalid path item: expecting [commit], found 'comit'"
 Missing repo,https://codeberg.org/Freeyourgadget/commit/b5d40a0bf012df6c1810eef2c740b8dd7c756843,,,,,,"Invalid path length: expecting [4], found 3"

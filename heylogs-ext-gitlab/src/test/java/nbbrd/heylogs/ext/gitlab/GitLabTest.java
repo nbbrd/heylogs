@@ -1,5 +1,6 @@
 package nbbrd.heylogs.ext.gitlab;
 
+import internal.heylogs.spi.URLExtractor;
 import nbbrd.heylogs.spi.Forge;
 import org.junit.jupiter.api.Test;
 
@@ -28,9 +29,9 @@ class GitLabTest {
         Forge x = new GitLab();
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> x.getProjectURL(urlOf("https://nbb.be")));
+                .isThrownBy(() -> x.getCompareLink(urlOf("https://nbb.be")).getProjectURL());
 
-        assertThat(x.getProjectURL(urlOf("https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/compare/v1.0.0...HEAD")))
+        assertThat(x.getCompareLink(URLExtractor.urlOf("https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/compare/v1.0.0...HEAD")).getProjectURL())
                 .isEqualTo(urlOf("https://gitlab.com/nbbrd/heylogs-ext-gitlab"));
     }
 }

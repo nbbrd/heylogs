@@ -1,8 +1,11 @@
 package nbbrd.heylogs.ext.gitlab;
 
+import internal.heylogs.git.ThreeDotDiff;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.converter.ConvertWith;
 import org.junit.jupiter.params.provider.CsvFileSource;
+import tests.heylogs.spi.ThreeDotDiffConverter;
 
 import java.net.URL;
 import java.util.Arrays;
@@ -22,14 +25,15 @@ class GitLabCompareLinkTest {
 
     @ParameterizedTest
     @CsvFileSource(resources = "GitLabCompareLinkExamples.csv", useHeadersInDisplayName = true)
-    public void testRepresentableAsURL(String description, URL input, URL output, URL base, String namespace, String project, String oid, String error) {
+    public void testRepresentable(String description, URL input, URL output, URL base, String namespace, String project,
+                                  @ConvertWith(ThreeDotDiffConverter.class) ThreeDotDiff diff, String error) {
         if (error == null || error.isEmpty()) {
             assertThat(parse(input))
                     .describedAs(description)
                     .returns(base, GitLabCompareLink::getBase)
                     .returns(Arrays.asList(namespace.split("/", -1)), GitLabCompareLink::getNamespace)
                     .returns(project, GitLabCompareLink::getProject)
-                    .returns(oid, GitLabCompareLink::getOid)
+                    .returns(diff, GitLabCompareLink::getDiff)
                     .returns(output, GitLabCompareLink::toURL);
         } else {
             assertThatIllegalArgumentException()
@@ -38,5 +42,20 @@ class GitLabCompareLinkTest {
 //                    .withMessage(error)
             ;
         }
+    }
+
+    @Test
+    public void testDerive() {
+        assertThat(parse(urlOf("https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/compare/v1.0.0...v1.1.0")).derive("v2.0.0"))
+                .returns(ThreeDotDiff.parse("v1.1.0...v2.0.0"), GitLabCompareLink::getDiff)
+                .returns(urlOf("https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/compare/v1.1.0...v2.0.0"), GitLabCompareLink::toURL);
+
+        assertThat(parse(urlOf("https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/compare/v1.0.0...HEAD")).derive("v2.0.0"))
+                .returns(ThreeDotDiff.parse("v1.0.0...v2.0.0"), GitLabCompareLink::getDiff)
+                .returns(urlOf("https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/compare/v1.0.0...v2.0.0"), GitLabCompareLink::toURL);
+
+        assertThat(parse(urlOf("https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/compare/HEAD...HEAD")).derive("v2.0.0"))
+                .returns(ThreeDotDiff.parse("v2.0.0...v2.0.0"), GitLabCompareLink::getDiff)
+                .returns(urlOf("https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/compare/v2.0.0...v2.0.0"), GitLabCompareLink::toURL);
     }
 }

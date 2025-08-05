@@ -1,9 +1,13 @@
 package nbbrd.heylogs.ext.forgejo;
 
+import internal.heylogs.git.Hash;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.converter.ConvertWith;
 import org.junit.jupiter.params.provider.CsvFileSource;
+import tests.heylogs.spi.HashConverter;
 
+import static internal.heylogs.spi.URLExtractor.urlOf;
 import static nbbrd.heylogs.ext.forgejo.ForgejoCommitRef.of;
 import static nbbrd.heylogs.ext.forgejo.ForgejoCommitRef.parse;
 import static org.assertj.core.api.Assertions.*;
@@ -18,7 +22,8 @@ class ForgejoCommitRefTest {
 
     @ParameterizedTest
     @CsvFileSource(resources = "ForgejoCommitSHARefExamples.csv", useHeadersInDisplayName = true)
-    public void testRepresentableAsString(String description, String input, String owner, String repo, String hash, String output, String error) {
+    public void testRepresentable(String description, String input, String owner, String repo,
+                                  @ConvertWith(HashConverter.class) Hash hash, String output, String error) {
         if (error == null || error.isEmpty()) {
             assertThat(parse(input))
                     .describedAs(description)
@@ -70,5 +75,5 @@ class ForgejoCommitRefTest {
         assertThat(parse("Freeyourgadget/Gadgetbridge@b5d40a0").getType()).isEqualTo(ForgejoCommitRef.Type.OWNER_REPO_HASH);
     }
 
-    private final ForgejoCommitLink commit = ForgejoCommitLink.parse("https://codeberg.org/Freeyourgadget/Gadgetbridge/commit/b5d40a0bf012df6c1810eef2c740b8dd7c756843");
+    private final ForgejoCommitLink commit = ForgejoCommitLink.parse(urlOf("https://codeberg.org/Freeyourgadget/Gadgetbridge/commit/b5d40a0bf012df6c1810eef2c740b8dd7c756843"));
 }

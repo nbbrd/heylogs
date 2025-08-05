@@ -148,10 +148,10 @@ public class Heylogs {
         Forge forge = findForge(unreleased)
                 .orElseThrow(() -> new IllegalArgumentException("Cannot determine forge"));
 
-        URL releaseURL = forge.deriveCompareLink(unreleased.getURL(), config.getVersionTagPrefix() + newVersion.getRef());
+        URL releaseURL = forge.getCompareLink(unreleased.getURL()).derive(config.getVersionTagPrefix() + newVersion.getRef()).toURL();
         VersionHeading release = VersionHeading.of(newVersion, releaseURL);
 
-        URL updatedURL = forge.deriveCompareLink(releaseURL, "HEAD");
+        URL updatedURL = forge.getCompareLink(releaseURL).derive("HEAD").toURL();
         VersionHeading updated = VersionHeading.of(unreleased.getSection(), updatedURL);
 
         changelog.getRepository().putRawKey(release.getReference().getReference(), release.getReference());
@@ -204,7 +204,7 @@ public class Heylogs {
                 .compatibilities(versioningStreamOf(versionings, releases).map(Versioning::getVersioningName).collect(toList()))
                 .unreleasedChanges((int) unreleasedChanges)
                 .forgeName(forgeOrNull != null ? forgeOrNull.getForgeName() : null)
-                .forgeURL(getBaseURL(forgeOrNull, first.getURL()))
+                .forgeURL(getForgeURL(forgeOrNull, first.getURL()))
                 .build();
     }
 
@@ -230,8 +230,8 @@ public class Heylogs {
         return getFormatByFile(file).map(Format::getFormatId);
     }
 
-    private URL getBaseURL(Forge forgeOrNull, URL url) {
-        return forgeOrNull != null ? forgeOrNull.getProjectURL(url) : URLExtractor.baseOf(url);
+    private URL getForgeURL(Forge forgeOrNull, URL url) {
+        return forgeOrNull != null ? forgeOrNull.getCompareLink(url).getProjectURL() : URLExtractor.baseOf(url);
     }
 
     private Optional<Forge> findForge(VersionHeading node) {

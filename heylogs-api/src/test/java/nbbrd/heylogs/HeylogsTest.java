@@ -330,22 +330,8 @@ public class HeylogsTest {
         }
 
         @Override
-        public @NonNull URL getProjectURL(@NonNull URL url) {
-            return urlOf("https://github.com/olivierlacan/keep-a-changelog");
-        }
-
-        @Override
-        public @NonNull URL deriveCompareLink(@NonNull URL latest, @NonNull String nextTag) {
-            String urlAsString = latest.toString();
-            int oidIndex = urlAsString.lastIndexOf("/") + 1;
-            return urlOf(urlAsString.substring(0, oidIndex) + deriveOID(nextTag, urlAsString.substring(oidIndex)));
-        }
-
-        @MightBePromoted
-        private static String deriveOID(String nextTag, String oid) {
-            return oid.endsWith("...HEAD")
-                    ? oid.startsWith("HEAD...") ? (nextTag + "..." + nextTag) : (oid.substring(0, oid.length() - 4) + nextTag)
-                    : (oid.substring(oid.indexOf("...") + 3) + "..." + nextTag);
+        public @NonNull CompareLink getCompareLink(@NonNull URL url) {
+            return new MockedCompareLink(url);
         }
     }
 
@@ -369,6 +355,38 @@ public class HeylogsTest {
             } catch (NumberFormatException ignore) {
                 return false;
             }
+        }
+    }
+
+    @lombok.Value
+    private static class MockedCompareLink implements CompareLink {
+
+        URL url;
+
+        @Override
+        public @NonNull URL toURL() {
+            return url;
+        }
+
+        @Override
+        public @NonNull CompareLink derive(@NonNull String tag) {
+            String urlAsString = url.toString();
+            int oidIndex = urlAsString.lastIndexOf("/") + 1;
+            return new MockedCompareLink(urlOf(urlAsString.substring(0, oidIndex) + deriveOID(tag, urlAsString.substring(oidIndex))));
+        }
+
+        @MightBePromoted
+        private static String deriveOID(String nextTag, String oid) {
+            return oid.endsWith("...HEAD")
+                    ? oid.startsWith("HEAD...") ? (nextTag + "..." + nextTag) : (oid.substring(0, oid.length() - 4) + nextTag)
+                    : (oid.substring(oid.indexOf("...") + 3) + "..." + nextTag);
+        }
+
+        @Override
+        public @NonNull URL getProjectURL() {
+            String urlAsString = url.toString();
+            int index = urlAsString.indexOf("/compare");
+            return index == -1 ? url : urlOf(urlAsString.substring(0, index));
         }
     }
 }

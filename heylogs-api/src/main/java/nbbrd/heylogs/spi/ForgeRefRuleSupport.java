@@ -2,11 +2,13 @@ package nbbrd.heylogs.spi;
 
 import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.util.ast.Node;
+import internal.heylogs.spi.URLExtractor;
 import lombok.NonNull;
 import nbbrd.heylogs.Config;
 import nbbrd.io.text.Parser;
 import org.jspecify.annotations.Nullable;
 
+import java.net.URL;
 import java.util.Properties;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
@@ -28,7 +30,7 @@ public final class ForgeRefRuleSupport<L extends ForgeLink, R extends ForgeRef<L
     @lombok.Builder.Default
     private final @NonNull RuleSeverity severity = RuleSeverity.ERROR;
 
-    private final @NonNull Function<? super CharSequence, L> linkParser;
+    private final @NonNull Function<? super URL, L> linkParser;
 
     private final @NonNull Function<? super CharSequence, R> refParser;
 
@@ -70,7 +72,7 @@ public final class ForgeRefRuleSupport<L extends ForgeLink, R extends ForgeRef<L
     }
 
     private @Nullable RuleIssue validateLink(@NonNull Link link, @Nullable String forgeId) {
-        L expected = Parser.of(linkParser).parse(link.getUrl());
+        L expected = Parser.of(linkParser.compose(URLExtractor::urlOf)).parse(link.getUrl());
         if (expected != null && linkPredicate.test(expected, forgeId)) {
             R found = Parser.of(refParser).parse(link.getText());
             if (found == null) {
@@ -92,7 +94,7 @@ public final class ForgeRefRuleSupport<L extends ForgeLink, R extends ForgeRef<L
     }
 
     public static <L extends ForgeLink, R extends ForgeRef<L>> @NonNull Builder<L, R> builder(
-            Function<? super CharSequence, L> linkParser,
+            Function<? super URL, L> linkParser,
             Function<? super CharSequence, R> refParser
     ) {
         return new Builder<L, R>().linkParser(linkParser).refParser(refParser);

@@ -13,6 +13,7 @@ import tests.heylogs.spi.MockedForgeLink;
 
 import java.util.Objects;
 
+import static internal.heylogs.spi.URLExtractor.urlOf;
 import static java.util.stream.Collectors.toList;
 import static nbbrd.heylogs.ext.github.GitHubRules.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -128,22 +129,22 @@ public class GitHubRulesTest {
 
     @Test
     public void testIsGitHubHost() {
-        ForgeLink official = MockedForgeLink.parse("https://github.com");
+        ForgeLink official = MockedForgeLink.parse(urlOf("https://github.com"));
         assertThat(isGitHubHost(official, null)).isTrue();
         assertThat(isGitHubHost(official, "stuff")).isTrue();
         assertThat(isGitHubHost(official, "github")).isTrue();
 
-        ForgeLink invalid = MockedForgeLink.parse("https://githubgithub.com");
+        ForgeLink invalid = MockedForgeLink.parse(urlOf("https://githubgithub.com"));
         assertThat(isGitHubHost(invalid, null)).isFalse();
         assertThat(isGitHubHost(invalid, "stuff")).isFalse();
         assertThat(isGitHubHost(invalid, "github")).isTrue();
 
-        ForgeLink valid = MockedForgeLink.parse("https://github.example.com");
+        ForgeLink valid = MockedForgeLink.parse(urlOf("https://github.example.com"));
         assertThat(isGitHubHost(valid, null)).isTrue();
         assertThat(isGitHubHost(valid, "stuff")).isTrue();
         assertThat(isGitHubHost(valid, "github")).isTrue();
 
-        ForgeLink local = MockedForgeLink.parse("https://localhost:8080");
+        ForgeLink local = MockedForgeLink.parse(urlOf("https://localhost:8080"));
         assertThat(isGitHubHost(local, null)).isFalse();
         assertThat(isGitHubHost(local, "stuff")).isFalse();
         assertThat(isGitHubHost(local, "github")).isTrue();

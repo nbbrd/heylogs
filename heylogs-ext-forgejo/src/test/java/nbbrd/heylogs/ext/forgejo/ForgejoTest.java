@@ -1,5 +1,6 @@
 package nbbrd.heylogs.ext.forgejo;
 
+import internal.heylogs.spi.URLExtractor;
 import nbbrd.heylogs.spi.Forge;
 import org.junit.jupiter.api.Test;
 
@@ -28,9 +29,9 @@ class ForgejoTest {
         Forge x = new Forgejo();
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> x.getProjectURL(urlOf("https://nbb.be")));
+                .isThrownBy(() -> x.getCompareLink(urlOf("https://nbb.be")).getProjectURL());
 
-        assertThat(x.getProjectURL(urlOf("https://codeberg.org/Freeyourgadget/Gadgetbridge/compare/0.86.0...0.86.1")))
+        assertThat(x.getCompareLink(URLExtractor.urlOf("https://codeberg.org/Freeyourgadget/Gadgetbridge/compare/0.86.0...0.86.1")).getProjectURL())
                 .isEqualTo(urlOf("https://codeberg.org/Freeyourgadget/Gadgetbridge"));
     }
 }

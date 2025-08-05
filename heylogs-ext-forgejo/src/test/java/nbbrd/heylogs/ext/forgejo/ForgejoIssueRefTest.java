@@ -2,6 +2,7 @@ package nbbrd.heylogs.ext.forgejo;
 
 import org.junit.jupiter.api.Test;
 
+import static internal.heylogs.spi.URLExtractor.urlOf;
 import static nbbrd.heylogs.ext.forgejo.ForgejoIssueRef.*;
 import static org.assertj.core.api.Assertions.*;
 import static tests.heylogs.spi.ForgeRefAssert.assertForgeRefCompliance;
@@ -14,7 +15,7 @@ class ForgejoIssueRefTest {
     }
 
     @Test
-    public void testRepresentableAsString() {
+    public void testRepresentable() {
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> parse("#"));
 
@@ -72,6 +73,6 @@ class ForgejoIssueRefTest {
         assertThat(parse("Freeyourgadget/Gadgetbridge#5173").getType()).isEqualTo(Type.OWNER_REPO_NUMBER);
     }
 
-    private final ForgejoIssueLink issue5173 = ForgejoIssueLink.parse("https://codeberg.org/Freeyourgadget/Gadgetbridge/issues/5173");
-    private final ForgejoIssueLink pullRequest5170 = ForgejoIssueLink.parse("https://codeberg.org/Freeyourgadget/Gadgetbridge/pulls/5170");
+    private final ForgejoIssueLink issue5173 = ForgejoIssueLink.parse(urlOf("https://codeberg.org/Freeyourgadget/Gadgetbridge/issues/5173"));
+    private final ForgejoIssueLink pullRequest5170 = ForgejoIssueLink.parse(urlOf("https://codeberg.org/Freeyourgadget/Gadgetbridge/pulls/5170"));
 }

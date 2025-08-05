@@ -1,5 +1,6 @@
 package nbbrd.heylogs.ext.github;
 
+import internal.heylogs.git.Hash;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAsString;
@@ -24,7 +25,7 @@ class GitHubCommitRef implements ForgeRef<GitHubCommitLink> {
         return new GitHubCommitRef(
                 m.group("owner"),
                 m.group("repo"),
-                m.group("hash")
+                Hash.parse(m.group("hash"))
         );
     }
 
@@ -32,25 +33,30 @@ class GitHubCommitRef implements ForgeRef<GitHubCommitLink> {
     public static @NonNull GitHubCommitRef of(@NonNull GitHubCommitLink link, @NonNull Type type) {
         switch (type) {
             case HASH:
-                return new GitHubCommitRef(null, null, link.getHash().substring(0, 7));
+                return new GitHubCommitRef(null, null, link.getHash().toShort());
             case OWNER_HASH:
-                return new GitHubCommitRef(link.getOwner(), null, link.getHash().substring(0, 7));
+                return new GitHubCommitRef(link.getOwner(), null, link.getHash().toShort());
             case OWNER_REPO_HASH:
-                return new GitHubCommitRef(link.getOwner(), link.getRepo(), link.getHash().substring(0, 7));
+                return new GitHubCommitRef(link.getOwner(), link.getRepo(), link.getHash().toShort());
             default:
                 throw new RuntimeException();
         }
     }
 
-    @Nullable String owner;
-    @Nullable String repo;
-    @NonNull String hash;
+    @Nullable
+    String owner;
+
+    @Nullable
+    String repo;
+
+    @NonNull
+    Hash hash;
 
     @Override
     public String toString() {
         switch (getType()) {
             case HASH:
-                return hash;
+                return hash.toString();
             case OWNER_HASH:
                 return owner + "@" + hash;
             case OWNER_REPO_HASH:
@@ -64,11 +70,11 @@ class GitHubCommitRef implements ForgeRef<GitHubCommitLink> {
     public boolean isCompatibleWith(@NonNull GitHubCommitLink link) {
         switch (getType()) {
             case HASH:
-                return link.getHash().startsWith(hash);
+                return hash.isCompatibleWith(link.getHash());
             case OWNER_HASH:
-                return owner.equals(link.getOwner()) && link.getHash().startsWith(hash);
+                return owner.equals(link.getOwner()) && hash.isCompatibleWith(link.getHash());
             case OWNER_REPO_HASH:
-                return owner.equals(link.getOwner()) && repo.equals(link.getRepo()) && link.getHash().startsWith(hash);
+                return owner.equals(link.getOwner()) && repo.equals(link.getRepo()) && hash.isCompatibleWith(link.getHash());
             default:
                 throw new RuntimeException();
         }

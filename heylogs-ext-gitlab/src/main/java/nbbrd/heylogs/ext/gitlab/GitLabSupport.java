@@ -27,8 +27,6 @@ class GitLabSupport {
     // FIXME: This regex is not perfect, it allows some invalid names.
     static final Pattern NAMESPACE_PATTERN = Pattern.compile("[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38}", Pattern.CASE_INSENSITIVE);
     static final Pattern PROJECT_PATTERN = Pattern.compile("[a-z\\d._-]{1,100}", Pattern.CASE_INSENSITIVE);
-    static final Pattern HASH_PATTERN = Pattern.compile("[0-9a-f]{7,40}", Pattern.CASE_INSENSITIVE);
-    static final Pattern OID_PATTERN = Pattern.compile(".+\\.{3}.+", Pattern.CASE_INSENSITIVE);
     static final Pattern NUMBER_PATTERN = Pattern.compile("\\d+", Pattern.CASE_INSENSITIVE);
     static final String DASH_KEYWORD = "-";
     static final String PATH_SEPARATOR = "/";
@@ -39,13 +37,20 @@ class GitLabSupport {
     }
 
     @FunctionalInterface
-    interface GitLabLinkFactory<L extends ForgeLink> {
+    interface GitLabLinkFactory<L extends ForgeLink, T> {
 
         @NonNull
-        L create(@NonNull URL base, @NonNull List<String> namespace, @NonNull String project, @NonNull String value);
+        L create(@NonNull URL base, @NonNull List<String> namespace, @NonNull String project, @NonNull T value);
     }
 
-    static <L extends ForgeLink> @NonNull L parseLink(@NonNull GitLabLinkFactory<L> factory, @NonNull String typeKeyword, @NonNull Pattern typePattern, @NonNull URL url) {
+    @FunctionalInterface
+    interface ValueParser<T> {
+
+        @NonNull
+        T parse(@NonNull String text);
+    }
+
+    static <L extends ForgeLink, T> @NonNull L parseLink(@NonNull GitLabLinkFactory<L, T> factory, @NonNull String typeKeyword, @NonNull Pattern typePattern, @NonNull ValueParser<T> typeParser, @NonNull URL url) {
         String[] pathArray = getPathArray(url);
 
         int length = pathArray.length;
@@ -69,7 +74,12 @@ class GitLabSupport {
             checkPathItem(pathArray, i, NAMESPACE_PATTERN);
         }
 
-        return factory.create(baseOf(url), unmodifiableList(pathArray, 0, projectIndex), pathArray[projectIndex], pathArray[valueIndex]);
+        return factory.create(
+                baseOf(url),
+                unmodifiableList(pathArray, 0, projectIndex),
+                pathArray[projectIndex],
+                typeParser.parse(pathArray[valueIndex])
+        );
     }
 
     public static @NonNull String linkToString(@NonNull URL base, @NonNull List<String> namespace, @NonNull String project, @NonNull String type, @NonNull String value) {
