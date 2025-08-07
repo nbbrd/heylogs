@@ -82,4 +82,25 @@ public class ExtendedRulesTest {
         assertThat(validateUniqueRelease(using("/UniqueRelease.md")))
                 .isEqualTo(RuleIssue.builder().message("Release 1.1.0 has 2 duplicates").line(5).column(1).build());
     }
+
+    @Test
+    public void testValidateImbalancedBraces() {
+        assertThat(validateImbalancedBraces(using("/ImbalancedBraces.md")))
+                .isEqualTo(RuleIssue.builder().message("Imbalanced braces found in '- Danish translation from [@frederikspang](https://github.com/frederikspang)].'").line(9).column(1).build());
+    }
+
+    @Test
+    public void testHasImbalancedBraces() {
+        assertThat(hasImbalancedBraces("")).isFalse();
+        assertThat(hasImbalancedBraces("()")).isFalse();
+        assertThat(hasImbalancedBraces("{}")).isFalse();
+        assertThat(hasImbalancedBraces("[]")).isFalse();
+        assertThat(hasImbalancedBraces("({}[])")).isFalse();
+        assertThat(hasImbalancedBraces("[{()}]")).isFalse();
+        assertThat(hasImbalancedBraces("(]")).isTrue();
+        assertThat(hasImbalancedBraces("{[}]")).isTrue();
+        assertThat(hasImbalancedBraces("[(])")).isTrue();
+        assertThat(hasImbalancedBraces("{(})")).isTrue();
+        assertThat(hasImbalancedBraces("(()")).isTrue();
+    }
 }

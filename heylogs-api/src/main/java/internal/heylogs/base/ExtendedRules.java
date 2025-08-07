@@ -21,6 +21,8 @@ import nbbrd.heylogs.spi.RuleSeverity;
 import nbbrd.service.ServiceProvider;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -102,10 +104,16 @@ public enum ExtendedRules implements Rule {
         public @NonNull String getRuleName() {
             return "No empty release";
         }
+    },
+    IMBALANCED_BRACES {
+        @Override
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
+            return node instanceof Document ? validateImbalancedBraces((Document) node) : NO_RULE_ISSUE;
+        }
 
         @Override
-        public @NonNull RuleSeverity getRuleSeverity() {
-            return RuleSeverity.WARN;
+        public @NonNull String getRuleName() {
+            return "Imbalanced braces";
         }
     };
 
@@ -271,6 +279,46 @@ public enum ExtendedRules implements Rule {
                         .location(entry.getValue().get(0).getHeading())
                         .build())
                 .orElse(NO_RULE_ISSUE);
+    }
+
+    @VisibleForTesting
+    static RuleIssue validateImbalancedBraces(Document doc) {
+        return ChangelogHeading.root(doc)
+                .map(ExtendedRules::validateImbalancedBraces)
+                .orElse(NO_RULE_ISSUE);
+    }
+
+    private static RuleIssue validateImbalancedBraces(ChangelogHeading changelog) {
+        return changelog
+                .getVersions()
+                .flatMap(VersionHeading::getTypeOfChanges)
+                .flatMap(TypeOfChangeHeading::getBulletListItems)
+                .filter(listItem -> hasImbalancedBraces(listItem.getChars().trim().toString()))
+                .findFirst()
+                .map(item -> RuleIssue
+                        .builder()
+                        .message("Imbalanced braces found in '" + item.getChars().trim() + "'")
+                        .location(item)
+                        .build())
+                .orElse(NO_RULE_ISSUE);
+    }
+
+    @VisibleForTesting
+    static boolean hasImbalancedBraces(String markdown) {
+        final String braces = "{}[]()";
+        Deque<Character> stack = new ArrayDeque<>();
+        for (char c : markdown.toCharArray()) {
+            int idx = braces.indexOf(c);
+            if (idx == -1) continue;
+            if (idx % 2 == 0) { // opening brace
+                stack.push(c);
+            } else { // closing brace
+                if (stack.isEmpty() || stack.pop() != braces.charAt(idx - 1)) {
+                    return true; // imbalance found
+                }
+            }
+        }
+        return !stack.isEmpty(); // true if any unmatched opening braces remain
     }
 
     @SuppressWarnings("unused")

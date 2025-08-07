@@ -15,6 +15,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Add context to rule evaluation [#411](https://github.com/nbbrd/heylogs/issues/411)
 - Add Forgejo forge and rules [#226](https://github.com/nbbrd/heylogs/issues/226)
 - Add GitLab forge and rules [#225](https://github.com/nbbrd/heylogs/issues/225)
+- Add imbalanced braces detection rule [#412](https://github.com/nbbrd/heylogs/issues/412)
 
 ### Changed
 
