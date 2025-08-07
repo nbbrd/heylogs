@@ -1,12 +1,10 @@
-# heylogs
+# Heylogs - communicate changes at scale
 
 [![Download](https://img.shields.io/github/release/nbbrd/heylogs.svg)](https://github.com/nbbrd/heylogs/releases/latest)
 [![Changes](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fnbbrd%2Fheylogs%2Fbadges%2Funreleased-changes.json)](https://github.com/nbbrd/heylogs/blob/develop/CHANGELOG.md)
 [![Reproducible Builds](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/jvm-repo-rebuild/reproducible-central/master/content/com/github/nbbrd/heylogs/badge.json)](https://github.com/jvm-repo-rebuild/reproducible-central/blob/master/content/com/github/nbbrd/heylogs/README.md)
 
-`heylogs` is a set of tools to deal with the [keep-a-changelog format](https://keepachangelog.com),
-a changelog format designed to be human-readable.
-It can be used as a linter in interactive sessions and automations.
+`Heylogs` is a tool designed to automate the validation and the release of changes in a [human-readable format](https://keepachangelog.com).  
 
 Key points:
 
@@ -15,10 +13,12 @@ Key points:
 
 Features:
 
-- Checks format
-- Summarizes content
-- Extracts versions
-- Modify content
+- [Checks the format](#check-command) against an extensive [set of rules](#list-command).
+- [Summarizes content](#scan-command) to provide a quick overview of a repository.
+- [Filters and extracts](#extract-command) versions for publication or searching.
+- [Modifies content](#release-command) to release unreleased changes.
+- Handles [GitHub, GitLab and Forgejo](#forge-references) references.
+- Validates semantic [versioning](#versioning-schemes).
 
 [ [Usage](#usage) | [Features](#features) | [Badges](#badges) | [Developing](#developing) | [Contributing](#contributing)  | [Licensing](#licensing) | [Related work](#related-work)]
 
@@ -212,9 +212,9 @@ Extract the latest version from the changelog during a release:
 
 ## Features
 
-### Check
+### Check command
 
-Heylogs checks the format of a changelog file and reports any problems found.
+The check command checks the format against an extensive set of rules.
 
 ```bash
 $ heylogs check
@@ -223,9 +223,9 @@ CHANGELOG.md
   No problem
 ```
 
-### Scan 
+### Scan command
 
-Heylogs scans the content of a changelog file and summarizes it.
+The scan command summarizes the content of changelog files to provide a quick overview of a repository.
 
 ```bash
 $ heylogs scan
@@ -238,9 +238,9 @@ CHANGELOG.md
   Has 1 unreleased changes
 ```
 
-### Extract 
+### Extract command
 
-Heylogs extracts versions from a changelog file.
+The extract command filters and extracts versions for publication or searching.
 
 ```bash
 $ heylogs extract --limit 1
@@ -253,37 +253,43 @@ $ heylogs extract --limit 1
 [Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.11.1...HEAD
 ```
 
-### Release
+### Release command
 
-Heylogs releases changes.
+The release command modifies the content of a changelog file to release unreleased changes.
 
-### List 
+### List command
 
-Heylogs lists its own resources.
+The list command lists all the resources of the application.
 
 ```bash
 $ heylogs list
 Resources
-  forge       main         github                    GitHub
-  format      automation   json                      JSON-serialized output
-  format      interaction  stylish                   Human-readable output
-  rule        extension    consistent-separator      Consistent separator
-  rule        extension    https                     HTTPS
-  rule        extension    unique-headings           Unique headings
-  rule        forge        github-commit-sha-ref     GitHub commit SHA ref
-  rule        forge        github-issue-ref          GitHub issue ref
-  rule        forge        github-mention-ref        GitHub mention ref
-  rule        forge        github-pull-request-ref   GitHub pull request ref
-  rule        main         all-h2-contain-a-version  All H2 contain a version
-  rule        main         date-displayed            Date displayed
-  rule        main         for-humans                For humans
-  rule        main         latest-version-first      Latest version first
-  rule        main         linkable                  Linkable
-  rule        main         type-of-changes-grouped   Type of changes grouped
-  versioning  main         semver                    Semantic Versioning
-
-  17 resources found
+  forge       main         forgejo                   Forgejo                   
+  forge       main         github                    GitHub                    
+  forge       main         gitlab                    GitLab                    
+  format      automation   json                      JSON-serialized output    
+  format      interaction  stylish                   Human-readable output     
+  rule        extension    consistent-separator      Consistent separator      
+  ...
+  rule        versioning   semver                    Semantic Versioning format
+  versioning  main         semver                    Semantic Versioning       
+  
+  32 resources found
 ```
+
+### Forge references
+
+Heylogs supports the following forge references:
+
+|             | Commit | Compare | Issue | Request | Mention |
+|:-----------:|:------:|:-------:|:-----:|:-------:|:-------:|
+| **GitHub**  |   ✔    |    ✔    |   ✔   |    ✔    |    ✔    |
+| **GitLab**  |   ✔    |    ✔    |   ✔   |    ✔    |    ✔    |
+| **Forgejo** |   ✔    |    ✔    |   ✔   |    ✔    |    ✔    |
+
+### Versioning schemes
+
+Heylogs validates [semantic versioning](https://semver.org/).
 
 ## Badges
 
