@@ -27,8 +27,8 @@ public final class SemVerRule implements Rule {
     }
 
     @Override
-    public @NonNull String getRuleCategory() {
-        return "versioning";
+    public @NonNull String getRuleModuleId() {
+        return "semver";
     }
 
     @Override

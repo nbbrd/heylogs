@@ -23,7 +23,7 @@ public interface Rule {
     String getRuleName();
 
     @NonNull
-    String getRuleCategory();
+    String getRuleModuleId();
 
     @ServiceFilter
     boolean isRuleAvailable();

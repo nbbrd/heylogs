@@ -292,8 +292,8 @@ public class HeylogsTest {
         }
 
         @Override
-        public @NonNull String getRuleCategory() {
-            return "";
+        public @NonNull String getRuleModuleId() {
+            return "mocked";
         }
 
         @Override
@@ -325,6 +325,11 @@ public class HeylogsTest {
         }
 
         @Override
+        public @NonNull String getForgeModuleId() {
+            return "github";
+        }
+
+        @Override
         public boolean isCompareLink(@NonNull URL url) {
             return true;
         }
@@ -345,6 +350,11 @@ public class HeylogsTest {
         @Override
         public @NonNull String getVersioningName() {
             return "";
+        }
+
+        @Override
+        public @NonNull String getVersioningModuleId() {
+            return "mocked";
         }
 
         @Override

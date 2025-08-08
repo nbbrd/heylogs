@@ -23,6 +23,11 @@ public final class SemVer implements Versioning {
     }
 
     @Override
+    public @NonNull String getVersioningModuleId() {
+        return "semver";
+    }
+
+    @Override
     public boolean isValidVersion(@NonNull CharSequence text) {
         return Semver.isValid(text.toString());
     }

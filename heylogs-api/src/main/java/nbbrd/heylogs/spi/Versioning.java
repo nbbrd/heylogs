@@ -15,5 +15,7 @@ public interface Versioning {
 
     @NonNull String getVersioningName();
 
+    @NonNull String getVersioningModuleId();
+
     boolean isValidVersion(@NonNull CharSequence text);
 }

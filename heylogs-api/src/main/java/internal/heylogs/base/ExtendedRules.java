@@ -123,8 +123,8 @@ public enum ExtendedRules implements Rule {
     }
 
     @Override
-    public @NonNull String getRuleCategory() {
-        return "extension";
+    public @NonNull String getRuleModuleId() {
+        return "api";
     }
 
     @Override

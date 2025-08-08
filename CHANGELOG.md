@@ -20,6 +20,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - Switch to JSpecify [#143](https://github.com/nbbrd/heylogs/issues/143)
+- Replace category property with module id property [#414](https://github.com/nbbrd/heylogs/issues/414)
 
 ## [0.11.1] - 2025-07-24
 

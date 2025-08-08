@@ -102,8 +102,8 @@ public enum GuidingPrinciples implements Rule {
     }
 
     @Override
-    public @NonNull String getRuleCategory() {
-        return "main";
+    public @NonNull String getRuleModuleId() {
+        return "api";
     }
 
     @Override

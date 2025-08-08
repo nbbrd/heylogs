@@ -17,7 +17,7 @@ public class Resource {
     @NonNull
     String type;
     @NonNull
-    String category;
+    String module;
     @NonNull
     String id;
     @NonNull
@@ -27,7 +27,7 @@ public class Resource {
         return Resource
                 .builder()
                 .type("rule")
-                .category(rule.getRuleCategory())
+                .module(rule.getRuleModuleId())
                 .id(rule.getRuleId())
                 .name(rule.getRuleName())
                 .build();
@@ -37,7 +37,7 @@ public class Resource {
         return Resource
                 .builder()
                 .type("format")
-                .category(format.getFormatCategory())
+                .module(format.getFormatModuleId())
                 .id(format.getFormatId())
                 .name(format.getFormatName())
                 .build();
@@ -47,7 +47,7 @@ public class Resource {
         return Resource
                 .builder()
                 .type("versioning")
-                .category("main")
+                .module(versioning.getVersioningModuleId())
                 .id(versioning.getVersioningId())
                 .name(versioning.getVersioningName())
                 .build();
@@ -57,7 +57,7 @@ public class Resource {
         return Resource
                 .builder()
                 .type("forge")
-                .category("main")
+                .module(forge.getForgeModuleId())
                 .id(forge.getForgeId())
                 .name(forge.getForgeName())
                 .build();
@@ -65,6 +65,6 @@ public class Resource {
 
     static final Comparator<Resource> DEFAULT_COMPARATOR
             = comparing(Resource::getType)
-            .thenComparing(Resource::getCategory)
+            .thenComparing(Resource::getModule)
             .thenComparing(Resource::getId);
 }

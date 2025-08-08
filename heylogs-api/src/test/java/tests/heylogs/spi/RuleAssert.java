@@ -28,7 +28,7 @@ public final class RuleAssert {
                 .isNotEmpty()
                 .isNotNull();
 
-        assertThat(x.getRuleCategory())
+        assertThat(x.getRuleModuleId())
                 .isNotEmpty()
                 .isNotNull();
 

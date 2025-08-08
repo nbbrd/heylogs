@@ -19,6 +19,7 @@ public final class GitHub implements Forge {
     private final Forge delegate = ForgeSupport
             .builder()
             .id(ID)
+            .moduleId("github")
             .name("GitHub")
             .compareLinkFactory(GitHubCompareLink::parse)
             .linkPredicate(GitHub::isKnownHost)

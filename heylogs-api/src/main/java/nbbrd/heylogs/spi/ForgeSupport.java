@@ -13,6 +13,8 @@ public final class ForgeSupport implements Forge {
 
     private final @NonNull String name;
 
+    private final @NonNull String moduleId;
+
     private final @NonNull Function<URL, CompareLink> compareLinkFactory;
 
     private final @NonNull Predicate<ForgeLink> linkPredicate;
@@ -25,6 +27,11 @@ public final class ForgeSupport implements Forge {
     @Override
     public @NonNull String getForgeName() {
         return name;
+    }
+
+    @Override
+    public @NonNull String getForgeModuleId() {
+        return moduleId;
     }
 
     @Override

@@ -22,7 +22,7 @@ public final class ForgeRefRuleSupport<L extends ForgeLink, R extends ForgeRef<L
 
     private final @NonNull String name;
 
-    private final @NonNull String category;
+    private final @NonNull String moduleId;
 
     @lombok.Builder.Default
     private final @NonNull Predicate<Properties> availability = properties -> true;
@@ -52,8 +52,8 @@ public final class ForgeRefRuleSupport<L extends ForgeLink, R extends ForgeRef<L
     }
 
     @Override
-    public @NonNull String getRuleCategory() {
-        return category;
+    public @NonNull String getRuleModuleId() {
+        return moduleId;
     }
 
     @Override

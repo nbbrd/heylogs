@@ -22,7 +22,7 @@ public final class FormatAssert {
                 .isNotEmpty()
                 .isNotNull();
 
-        assertThat(x.getFormatCategory())
+        assertThat(x.getFormatModuleId())
                 .isNotEmpty()
                 .isNotNull();
 

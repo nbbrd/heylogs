@@ -19,6 +19,7 @@ public final class GitLab implements Forge {
     private final Forge delegate = ForgeSupport
             .builder()
             .id(ID)
+            .moduleId("gitlab")
             .name("GitLab")
             .compareLinkFactory(GitLabCompareLink::parse)
             .linkPredicate(GitLab::isKnownHost)

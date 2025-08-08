@@ -1,13 +1,13 @@
 [
   {
     "type": "a",
-    "category": "stuff",
+    "module": "stuff",
     "id": "hello",
     "name": "(A) Hello"
   },
   {
     "type": "world",
-    "category": "stuff",
+    "module": "stuff",
     "id": "b",
     "name": "World (B)"
   }

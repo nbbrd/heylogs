@@ -38,8 +38,8 @@ public final class StylishFormat implements Format {
     }
 
     @Override
-    public @NonNull String getFormatCategory() {
-        return "interaction";
+    public @NonNull String getFormatModuleId() {
+        return "api";
     }
 
     @Override
@@ -139,7 +139,7 @@ public final class StylishFormat implements Format {
         StylishWriter
                 .<Resource>builder()
                 .column(Formatter.of(Resource::getType))
-                .column(Formatter.of(Resource::getCategory))
+                .column(Formatter.of(Resource::getModule))
                 .column(Formatter.of(Resource::getId))
                 .column(Formatter.of(Resource::getName))
                 .build()

@@ -19,6 +19,7 @@ public final class Forgejo implements Forge {
     private final Forge delegate = ForgeSupport
             .builder()
             .id(ID)
+            .moduleId("forgejo")
             .name("Forgejo")
             .compareLinkFactory(ForgejoCompareLink::parse)
             .linkPredicate(Forgejo::isKnownHost)

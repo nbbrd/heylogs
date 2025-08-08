@@ -40,8 +40,8 @@ public final class JsonFormat implements Format {
     }
 
     @Override
-    public @NonNull String getFormatCategory() {
-        return "automation";
+    public @NonNull String getFormatModuleId() {
+        return "json";
     }
 
     @Override

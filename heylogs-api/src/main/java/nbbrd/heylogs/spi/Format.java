@@ -25,7 +25,7 @@ public interface Format {
 
     @NonNull String getFormatName();
 
-    @NonNull String getFormatCategory();
+    @NonNull String getFormatModuleId();
 
     @NonNull Set<FormatType> getSupportedFormatTypes();
 

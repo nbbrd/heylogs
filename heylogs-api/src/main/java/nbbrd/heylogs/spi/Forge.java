@@ -19,6 +19,9 @@ public interface Forge {
     @NonNull
     String getForgeName();
 
+    @NonNull
+    String getForgeModuleId();
+
     boolean isCompareLink(@NonNull URL url);
 
     @NonNull
