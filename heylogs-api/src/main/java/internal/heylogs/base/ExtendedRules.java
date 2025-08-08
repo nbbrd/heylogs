@@ -102,7 +102,7 @@ public enum ExtendedRules implements Rule {
 
         @Override
         public @NonNull String getRuleName() {
-            return "No empty release";
+            return "Unique release";
         }
     },
     IMBALANCED_BRACES {
