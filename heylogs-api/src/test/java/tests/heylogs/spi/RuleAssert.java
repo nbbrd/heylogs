@@ -1,6 +1,8 @@
 package tests.heylogs.spi;
 
+import com.vladsch.flexmark.util.ast.Document;
 import lombok.NonNull;
+import nbbrd.heylogs.Config;
 import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleBatch;
 
@@ -26,7 +28,7 @@ public final class RuleAssert {
                 .isNotEmpty()
                 .isNotNull();
 
-        assertThat(x.getRuleCategory())
+        assertThat(x.getRuleModuleId())
                 .isNotEmpty()
                 .isNotNull();
 
@@ -34,6 +36,9 @@ public final class RuleAssert {
                 .isNotNull();
 
         assertThatNullPointerException()
-                .isThrownBy(() -> x.getRuleIssueOrNull(null));
+                .isThrownBy(() -> x.getRuleIssueOrNull(null, Config.DEFAULT));
+
+        assertThatNullPointerException()
+                .isThrownBy(() -> x.getRuleIssueOrNull(Document.NULL, null));
     }
 }

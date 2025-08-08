@@ -7,6 +7,23 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.12.0] - 2025-08-08
+
+### Added
+
+- Add no-empty-group rule [#406](https://github.com/nbbrd/heylogs/issues/406)
+- Add no-empty-release rule [#407](https://github.com/nbbrd/heylogs/issues/407)
+- Add unique-release rule [#408](https://github.com/nbbrd/heylogs/issues/408)
+- Add context to rule evaluation [#411](https://github.com/nbbrd/heylogs/issues/411)
+- Add Forgejo forge and rules [#226](https://github.com/nbbrd/heylogs/issues/226)
+- Add GitLab forge and rules [#225](https://github.com/nbbrd/heylogs/issues/225)
+- Add imbalanced braces detection rule [#412](https://github.com/nbbrd/heylogs/issues/412)
+
+### Changed
+
+- Switch to JSpecify [#143](https://github.com/nbbrd/heylogs/issues/143)
+- Replace category property with module id property [#414](https://github.com/nbbrd/heylogs/issues/414)
+
 ## [0.11.1] - 2025-07-24
 
 ### Fixed
@@ -53,6 +70,8 @@ This release focuses on simplifying the CLI and Maven plugin parameters.
 - Modernize use of NIO API
 
 ## [0.9.2] - 2024-08-30
+
+### Fixed
 
 - Fix blank line at the end of file [#299](https://github.com/nbbrd/heylogs/issues/299)
 
@@ -222,7 +241,8 @@ This release improves extension points and also aligns features of Maven plugin 
 
 - Initial release
 
-[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.11.1...HEAD
+[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.12.0...HEAD
+[0.12.0]: https://github.com/nbbrd/heylogs/compare/v0.11.1...v0.12.0
 [0.11.1]: https://github.com/nbbrd/heylogs/compare/v0.11.0...v0.11.1
 [0.11.0]: https://github.com/nbbrd/heylogs/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/nbbrd/heylogs/compare/v0.9.3...v0.10.0

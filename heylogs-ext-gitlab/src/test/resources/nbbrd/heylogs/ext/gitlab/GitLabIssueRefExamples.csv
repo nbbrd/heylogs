@@ -1,0 +1,8 @@
+Description,Input,Output,Namespace,Project,Number,Error
+Missing number,#,,,,0,boom
+Invalid number,#boom,,,,0,boom
+Invalid separator,!1,,,,0,boom
+Invalid project,heylogs-%20-gitlab#1,,,,0,boom
+Invalid namespace,nbb%20rd/heylogs-ext-gitlab#1,,,,0,boom
+Case sensitivity,nbbRD/heylogs-EXT-gitlab#1,nbbRD/heylogs-EXT-gitlab#1,nbbRD,heylogs-EXT-gitlab,1,
+Subgroup namespace,nbbrd/heylogs/ext/gitlab#1,nbbrd/heylogs/ext/gitlab#1,nbbrd/heylogs/ext,gitlab,1,

@@ -1,0 +1,6 @@
+Description,Input,Output,Base,UserGroup,Error
+Missing user/group,https://gitlab.com,,,,boom
+Invalid user/group,https://gitlab.com/char%20phi,,,,boom
+Case sensitivity,https://gitlab.com/CHARPHI,https://gitlab.com/CHARPHI,https://gitlab.com,CHARPHI,
+Localhost,http://localhost:8080/charphi,http://localhost:8080/charphi,http://localhost:8080,charphi,
+Subgroup,https://gitlab.com/nbbrd/heylogs/ext,https://gitlab.com/nbbrd/heylogs/ext,https://gitlab.com,nbbrd/heylogs/ext,

@@ -10,10 +10,7 @@ import lombok.NonNull;
 import nbbrd.design.DirectImpl;
 import nbbrd.design.MightBeGenerated;
 import nbbrd.design.VisibleForTesting;
-import nbbrd.heylogs.Changelog;
-import nbbrd.heylogs.Nodes;
-import nbbrd.heylogs.TypeOfChange;
-import nbbrd.heylogs.Version;
+import nbbrd.heylogs.*;
 import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleBatch;
 import nbbrd.heylogs.spi.RuleIssue;
@@ -34,7 +31,7 @@ public enum GuidingPrinciples implements Rule {
 
     FOR_HUMANS {
         @Override
-        public RuleIssue getRuleIssueOrNull(@NonNull Node node) {
+        public RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
             return node instanceof Document ? validateForHumans((Document) node) : NO_RULE_ISSUE;
         }
 
@@ -45,7 +42,7 @@ public enum GuidingPrinciples implements Rule {
     },
     ALL_H2_CONTAIN_A_VERSION {
         @Override
-        public RuleIssue getRuleIssueOrNull(@NonNull Node node) {
+        public RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
             return node instanceof Heading ? validateAllH2ContainAVersion((Heading) node) : NO_RULE_ISSUE;
         }
 
@@ -56,7 +53,7 @@ public enum GuidingPrinciples implements Rule {
     },
     TYPE_OF_CHANGES_GROUPED {
         @Override
-        public RuleIssue getRuleIssueOrNull(@NonNull Node node) {
+        public RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
             return node instanceof Heading ? validateTypeOfChangesGrouped((Heading) node) : NO_RULE_ISSUE;
         }
 
@@ -67,7 +64,7 @@ public enum GuidingPrinciples implements Rule {
     },
     LINKABLE {
         @Override
-        public RuleIssue getRuleIssueOrNull(@NonNull Node node) {
+        public RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
             return node instanceof Heading ? validateLinkable((Heading) node) : NO_RULE_ISSUE;
         }
 
@@ -78,7 +75,7 @@ public enum GuidingPrinciples implements Rule {
     },
     LATEST_VERSION_FIRST {
         @Override
-        public RuleIssue getRuleIssueOrNull(@NonNull Node node) {
+        public RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
             return node instanceof Document ? validateLatestVersionFirst((Document) node) : NO_RULE_ISSUE;
         }
 
@@ -89,7 +86,7 @@ public enum GuidingPrinciples implements Rule {
     },
     DATE_DISPLAYED {
         @Override
-        public RuleIssue getRuleIssueOrNull(@NonNull Node node) {
+        public RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
             return NO_RULE_ISSUE;
         }
 
@@ -105,8 +102,8 @@ public enum GuidingPrinciples implements Rule {
     }
 
     @Override
-    public @NonNull String getRuleCategory() {
-        return "main";
+    public @NonNull String getRuleModuleId() {
+        return "api";
     }
 
     @Override

@@ -2,14 +2,18 @@ package nbbrd.heylogs.ext.github;
 
 import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.util.ast.Node;
+import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Nodes;
+import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleIssue;
 import org.junit.jupiter.api.Test;
 import tests.heylogs.api.Sample;
+import tests.heylogs.spi.MockedForgeLink;
 
 import java.util.Objects;
 
+import static internal.heylogs.spi.URLExtractor.urlOf;
 import static java.util.stream.Collectors.toList;
 import static nbbrd.heylogs.ext.github.GitHubRules.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,40 +32,40 @@ public class GitHubRulesTest {
     public void testRules() {
         Node sample = Sample.using("/Main.md");
         for (Rule rule : new GitHubRules().getProviders().collect(toList())) {
-            assertThat(Nodes.of(Node.class).descendants(sample).map(rule::getRuleIssueOrNull).filter(Objects::nonNull))
+            assertThat(Nodes.of(Node.class).descendants(sample).map(node -> rule.getRuleIssueOrNull(node, Config.DEFAULT)).filter(Objects::nonNull))
                     .isEmpty();
         }
 
-        assertThat(Nodes.of(Node.class).descendants(using("/InvalidGitHubIssueRef.md")).map(GITHUB_ISSUE_REF::getRuleIssueOrNull).filter(Objects::nonNull))
+        assertThat(Nodes.of(Node.class).descendants(using("/InvalidGitHubIssueRef.md")).map(node -> GITHUB_ISSUE_REF.getRuleIssueOrNull(node, Config.DEFAULT)).filter(Objects::nonNull))
                 .hasSize(1);
 
-        assertThat(Nodes.of(Node.class).descendants(using("/InvalidGitHubPullRequestRef.md")).map(GITHUB_PULL_REQUEST_REF::getRuleIssueOrNull).filter(Objects::nonNull))
+        assertThat(Nodes.of(Node.class).descendants(using("/InvalidGitHubPullRequestRef.md")).map(node -> GITHUB_PULL_REQUEST_REF.getRuleIssueOrNull(node, Config.DEFAULT)).filter(Objects::nonNull))
                 .hasSize(1);
 
-        assertThat(Nodes.of(Node.class).descendants(using("/InvalidGitHubMentionRef.md")).map(GITHUB_MENTION_REF::getRuleIssueOrNull).filter(Objects::nonNull))
+        assertThat(Nodes.of(Node.class).descendants(using("/InvalidGitHubMentionRef.md")).map(node -> GITHUB_MENTION_REF.getRuleIssueOrNull(node, Config.DEFAULT)).filter(Objects::nonNull))
                 .hasSize(1);
 
-        assertThat(Nodes.of(Node.class).descendants(using("/InvalidGitHubCommitSHARef.md")).map(GITHUB_COMMIT_SHA_REF::getRuleIssueOrNull).filter(Objects::nonNull))
+        assertThat(Nodes.of(Node.class).descendants(using("/InvalidGitHubCommitRef.md")).map(node -> GITHUB_COMMIT_REF.getRuleIssueOrNull(node, Config.DEFAULT)).filter(Objects::nonNull))
                 .hasSize(1);
     }
 
     @Test
     public void testValidateGitHubIssueRef() {
         assertThat(Nodes.of(Link.class).descendants(using("/Main.md")))
-                .map(GITHUB_ISSUE_REF::getRuleIssueOrNull)
+                .map(node1 -> GITHUB_ISSUE_REF.getRuleIssueOrNull(node1, Config.DEFAULT))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .isEmpty();
 
         assertThat(Nodes.of(Link.class).descendants(using("/InvalidGitHubIssueRef.md")))
-                .map(GITHUB_ISSUE_REF::getRuleIssueOrNull)
+                .map(node -> GITHUB_ISSUE_REF.getRuleIssueOrNull(node, Config.DEFAULT))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .contains(RuleIssue.builder().message("Expecting issue ref #172, found #173").line(2).column(1).build(), atIndex(0))
                 .hasSize(1);
 
         assertThat(Nodes.of(Link.class).descendants(using("/InvalidGitHubIssueRefPrefix.md")))
-                .map(GITHUB_ISSUE_REF::getRuleIssueOrNull)
+                .map(node -> GITHUB_ISSUE_REF.getRuleIssueOrNull(node, Config.DEFAULT))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .contains(RuleIssue.builder().message("Expecting issue ref #172, found 172").line(2).column(1).build(), atIndex(0))
@@ -71,20 +75,20 @@ public class GitHubRulesTest {
     @Test
     public void testValidateGitHubPullRequestRef() {
         assertThat(Nodes.of(Link.class).descendants(using("/Main.md")))
-                .map(GITHUB_PULL_REQUEST_REF::getRuleIssueOrNull)
+                .map(node1 -> GITHUB_PULL_REQUEST_REF.getRuleIssueOrNull(node1, Config.DEFAULT))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .isEmpty();
 
         assertThat(Nodes.of(Link.class).descendants(using("/InvalidGitHubPullRequestRef.md")))
-                .map(GITHUB_PULL_REQUEST_REF::getRuleIssueOrNull)
+                .map(node1 -> GITHUB_PULL_REQUEST_REF.getRuleIssueOrNull(node1, Config.DEFAULT))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .contains(RuleIssue.builder().message("Expecting pull request ref #172, found #173").line(2).column(1).build(), atIndex(0))
                 .hasSize(1);
 
         assertThat(Nodes.of(Link.class).descendants(using("/InvalidGitHubPullRequestRefPrefix.md")))
-                .map(GITHUB_PULL_REQUEST_REF::getRuleIssueOrNull)
+                .map(node -> GITHUB_PULL_REQUEST_REF.getRuleIssueOrNull(node, Config.DEFAULT))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .contains(RuleIssue.builder().message("Expecting pull request ref #172, found 172").line(2).column(1).build(), atIndex(0))
@@ -94,13 +98,13 @@ public class GitHubRulesTest {
     @Test
     public void testValidateGitHubMentionRef() {
         assertThat(Nodes.of(Link.class).descendants(using("/Main.md")))
-                .map(GITHUB_MENTION_REF::getRuleIssueOrNull)
+                .map(node1 -> GITHUB_MENTION_REF.getRuleIssueOrNull(node1, Config.DEFAULT))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .isEmpty();
 
         assertThat(Nodes.of(Link.class).descendants(using("/InvalidGitHubMentionRef.md")))
-                .map(GITHUB_MENTION_REF::getRuleIssueOrNull)
+                .map(node -> GITHUB_MENTION_REF.getRuleIssueOrNull(node, Config.DEFAULT))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .contains(RuleIssue.builder().message("Expecting mention ref @charphi, found @user").line(2).column(1).build(), atIndex(0))
@@ -110,24 +114,39 @@ public class GitHubRulesTest {
     @Test
     public void testValidateGitHubCommitSHARef() {
         assertThat(Nodes.of(Link.class).descendants(using("/Main.md")))
-                .map(GITHUB_COMMIT_SHA_REF::getRuleIssueOrNull)
+                .map(node -> GITHUB_COMMIT_REF.getRuleIssueOrNull(node, Config.DEFAULT))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .isEmpty();
 
-        assertThat(Nodes.of(Link.class).descendants(using("/InvalidGitHubCommitSHARef.md")))
-                .map(GITHUB_COMMIT_SHA_REF::getRuleIssueOrNull)
+        assertThat(Nodes.of(Link.class).descendants(using("/InvalidGitHubCommitRef.md")))
+                .map(node -> GITHUB_COMMIT_REF.getRuleIssueOrNull(node, Config.DEFAULT))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains(RuleIssue.builder().message("Expecting commit SHA ref 862157d, found 0000000").line(2).column(1).build(), atIndex(0))
+                .contains(RuleIssue.builder().message("Expecting commit ref 862157d, found 0000000").line(2).column(1).build(), atIndex(0))
                 .hasSize(1);
     }
 
     @Test
     public void testIsGitHubHost() {
-        assertThat(isGitHubHost(GitHubIssueLink.parse("https://github.com/nbbrd/heylogs/issues/173"))).isTrue();
-        assertThat(isGitHubHost(GitHubIssueLink.parse("https://githubgithub.com/nbbrd/heylogs/issues/173"))).isFalse();
-        assertThat(isGitHubHost(GitHubIssueLink.parse("https://github.example.com/nbbrd/heylogs/issues/173"))).isTrue();
-        assertThat(isGitHubHost(GitHubIssueLink.parse("https://localhost:8080/nbbrd/heylogs/issues/173"))).isFalse();
+        ForgeLink official = MockedForgeLink.parse(urlOf("https://github.com"));
+        assertThat(isGitHubHost(official, null)).isTrue();
+        assertThat(isGitHubHost(official, "stuff")).isTrue();
+        assertThat(isGitHubHost(official, "github")).isTrue();
+
+        ForgeLink invalid = MockedForgeLink.parse(urlOf("https://githubgithub.com"));
+        assertThat(isGitHubHost(invalid, null)).isFalse();
+        assertThat(isGitHubHost(invalid, "stuff")).isFalse();
+        assertThat(isGitHubHost(invalid, "github")).isTrue();
+
+        ForgeLink valid = MockedForgeLink.parse(urlOf("https://github.example.com"));
+        assertThat(isGitHubHost(valid, null)).isTrue();
+        assertThat(isGitHubHost(valid, "stuff")).isTrue();
+        assertThat(isGitHubHost(valid, "github")).isTrue();
+
+        ForgeLink local = MockedForgeLink.parse(urlOf("https://localhost:8080"));
+        assertThat(isGitHubHost(local, null)).isFalse();
+        assertThat(isGitHubHost(local, "stuff")).isFalse();
+        assertThat(isGitHubHost(local, "github")).isTrue();
     }
 }

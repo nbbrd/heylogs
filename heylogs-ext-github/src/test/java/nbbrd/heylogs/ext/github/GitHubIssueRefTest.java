@@ -2,6 +2,7 @@ package nbbrd.heylogs.ext.github;
 
 import org.junit.jupiter.api.Test;
 
+import static internal.heylogs.spi.URLExtractor.urlOf;
 import static nbbrd.heylogs.ext.github.GitHubIssueRef.*;
 import static org.assertj.core.api.Assertions.*;
 import static tests.heylogs.spi.ForgeRefAssert.assertForgeRefCompliance;
@@ -14,7 +15,7 @@ class GitHubIssueRefTest {
     }
 
     @Test
-    public void testRepresentableAsString() {
+    public void testRepresentable() {
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> parse("#"));
 
@@ -72,6 +73,6 @@ class GitHubIssueRefTest {
         assertThat(parse("nbbrd/heylogs#173").getType()).isEqualTo(Type.OWNER_REPO_NUMBER);
     }
 
-    private final GitHubIssueLink issue173 = GitHubIssueLink.parse("https://github.com/nbbrd/heylogs/issues/173");
-    private final GitHubIssueLink pullRequest217 = GitHubIssueLink.parse("https://github.com/nbbrd/heylogs/pull/217");
+    private final GitHubIssueLink issue173 = GitHubIssueLink.parse(urlOf("https://github.com/nbbrd/heylogs/issues/173"));
+    private final GitHubIssueLink pullRequest217 = GitHubIssueLink.parse(urlOf("https://github.com/nbbrd/heylogs/pull/217"));
 }

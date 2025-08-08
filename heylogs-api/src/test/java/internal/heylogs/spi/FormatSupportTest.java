@@ -69,8 +69,8 @@ class FormatSupportTest {
         }
 
         @Override
-        public @NonNull String getFormatCategory() {
-            return "";
+        public @NonNull String getFormatModuleId() {
+            return "stuff";
         }
 
         @Override

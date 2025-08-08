@@ -1,5 +1,6 @@
 package nbbrd.heylogs.ext.github;
 
+import internal.heylogs.spi.URLExtractor;
 import nbbrd.heylogs.spi.Forge;
 import org.junit.jupiter.api.Test;
 
@@ -20,6 +21,7 @@ class GitHubTest {
         Forge x = new GitHub();
         assertThat(x.isCompareLink(urlOf("https://nbb.be"))).isFalse();
         assertThat(x.isCompareLink(urlOf("https://github.com/nbbrd/heylogs/compare/v0.7.2...HEAD"))).isTrue();
+        assertThat(x.isCompareLink(urlOf("https://localhost:8080/nbbrd/heylogs/compare/v0.7.2...HEAD"))).isFalse();
     }
 
     @Test
@@ -27,9 +29,9 @@ class GitHubTest {
         Forge x = new GitHub();
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> x.getProjectURL(urlOf("https://nbb.be")));
+                .isThrownBy(() -> x.getCompareLink(urlOf("https://nbb.be")).getProjectURL());
 
-        assertThat(x.getProjectURL(urlOf("https://github.com/nbbrd/heylogs/compare/v0.7.2...HEAD")))
+        assertThat(x.getCompareLink(URLExtractor.urlOf("https://github.com/nbbrd/heylogs/compare/v0.7.2...HEAD")).getProjectURL())
                 .isEqualTo(urlOf("https://github.com/nbbrd/heylogs"));
     }
 }

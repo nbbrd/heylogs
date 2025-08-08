@@ -2,10 +2,10 @@ package nbbrd.heylogs.cli;
 
 import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.cli.ChangelogInputParameters;
-import internal.heylogs.cli.HeylogsOptions;
 import internal.heylogs.cli.SpecialProperties;
 import nbbrd.console.picocli.FileOutputOptions;
 import nbbrd.heylogs.Filter;
+import nbbrd.heylogs.Heylogs;
 import nbbrd.heylogs.TimeRange;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -69,9 +69,6 @@ public final class ExtractCommand implements Callable<Void> {
     )
     private boolean ignoreContent = false;
 
-    @CommandLine.Mixin
-    private HeylogsOptions heylogsOptions;
-
     @CommandLine.Option(
             names = {SpecialProperties.DEBUG_OPTION},
             defaultValue = "false",
@@ -90,7 +87,7 @@ public final class ExtractCommand implements Callable<Void> {
     }
 
     private Document extract(Document document) {
-        heylogsOptions.initHeylogs().extractVersions(document, getFilter());
+        Heylogs.ofServiceLoader().extractVersions(document, getFilter());
         return document;
     }
 

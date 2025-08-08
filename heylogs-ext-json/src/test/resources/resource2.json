@@ -1,7 +1,7 @@
 [
   {
     "type": "a",
-    "category": "stuff",
+    "module": "stuff",
     "id": "hello",
     "name": "(A) Hello"
   }

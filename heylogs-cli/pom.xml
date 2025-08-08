@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.github.nbbrd.heylogs</groupId>
         <artifactId>heylogs-parent</artifactId>
-        <version>0.11.1</version>
+        <version>0.12.0</version>
     </parent>
 
     <artifactId>heylogs-cli</artifactId>
@@ -20,8 +20,8 @@
     <dependencies>
         <!-- compile only -->
         <dependency>
-            <groupId>org.checkerframework</groupId>
-            <artifactId>checker-qual</artifactId>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -47,21 +47,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <artifactId>heylogs-ext-github</artifactId>
-            <groupId>${project.groupId}</groupId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <artifactId>heylogs-ext-json</artifactId>
-            <groupId>${project.groupId}</groupId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <artifactId>heylogs-ext-semver</artifactId>
-            <groupId>${project.groupId}</groupId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
         </dependency>
@@ -73,6 +58,38 @@
         <dependency>
             <groupId>com.github.nbbrd.java-console-properties</groupId>
             <artifactId>java-console-properties</artifactId>
+        </dependency>
+
+        <!-- runtime only -->
+        <dependency>
+            <artifactId>heylogs-ext-forgejo</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <artifactId>heylogs-ext-github</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <artifactId>heylogs-ext-gitlab</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <artifactId>heylogs-ext-json</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <artifactId>heylogs-ext-semver</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
         </dependency>
 
         <!-- test only -->

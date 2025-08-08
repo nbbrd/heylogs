@@ -2,8 +2,10 @@ package nbbrd.heylogs.cli;
 
 import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.cli.ChangelogInputParameters;
-import internal.heylogs.cli.HeylogsOptions;
+import internal.heylogs.cli.ConfigOptions;
 import internal.heylogs.cli.SpecialProperties;
+import nbbrd.heylogs.Config;
+import nbbrd.heylogs.Heylogs;
 import nbbrd.heylogs.Version;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -31,14 +33,6 @@ public final class ReleaseCommand implements Callable<Void> {
     private String ref;
 
     @CommandLine.Option(
-            names = {"-t", "--tag-prefix"},
-            paramLabel = "<prefix>",
-            description = "Version tag prefix.",
-            required = false
-    )
-    private String tagPrefix = "";
-
-    @CommandLine.Option(
             names = {"-d", "--date"},
             paramLabel = "<date>",
             description = "Release date (default : today).",
@@ -47,7 +41,7 @@ public final class ReleaseCommand implements Callable<Void> {
     private LocalDate date = LocalDate.now(ZoneId.systemDefault());
 
     @CommandLine.Mixin
-    private HeylogsOptions heylogsOptions;
+    private ConfigOptions configOptions;
 
     @CommandLine.Option(
             names = {SpecialProperties.DEBUG_OPTION},
@@ -67,7 +61,8 @@ public final class ReleaseCommand implements Callable<Void> {
     }
 
     private Document release(Document document) {
-        heylogsOptions.initHeylogs().releaseChanges(document, Version.of(ref, '-', date), tagPrefix, heylogsOptions.isSemver() ? "semver" : null);
+        Config config = configOptions.getConfig();
+        Heylogs.ofServiceLoader().releaseChanges(document, Version.of(ref, '-', date), config);
         return document;
     }
 

@@ -3,12 +3,13 @@ package nbbrd.heylogs.maven.plugin;
 import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.maven.plugin.MojoParameterParsing;
 import lombok.NonNull;
+import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Version;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.time.LocalDate;
@@ -17,7 +18,6 @@ import java.util.Objects;
 
 import static internal.heylogs.HeylogsParameters.DEFAULT_CHANGELOG_FILE;
 import static internal.heylogs.HeylogsParameters.DEFAULT_SEMVER;
-import static nbbrd.console.picocli.ByteOutputSupport.DEFAULT_STDOUT_FILE;
 
 @lombok.Getter
 @lombok.Setter
@@ -30,11 +30,11 @@ public final class ReleaseMojo extends HeylogsMojo {
     @Parameter(property = "heylogs.ref", defaultValue = "${project.version}")
     private String ref;
 
-    @Parameter(property = "heylogs.tagPrefix")
-    private String tagPrefix;
-
     @Parameter(property = "heylogs.date")
     private String date;
+
+    @Parameter(property = "heylogs.tagPrefix")
+    private String tagPrefix;
 
     @Parameter(property = "heylogs.semver", defaultValue = DEFAULT_SEMVER)
     private boolean semver;
@@ -54,10 +54,10 @@ public final class ReleaseMojo extends HeylogsMojo {
         Document document = readChangelog(inputFile);
 
         Version version = toVersion();
-        String tagPrefix = toTagPrefix();
+        Config config = toConfig();
 
-        getLog().info("Releasing " + version + " with tag prefix '" + tagPrefix + "'");
-        initHeylogs(semver).releaseChanges(document, version, tagPrefix, semver ? "semver" : null);
+        getLog().info("Releasing " + version + " with config '" + config + "'");
+        initHeylogs(semver).releaseChanges(document, version, config);
 
         writeChangelog(document, inputFile);
     }
@@ -68,8 +68,12 @@ public final class ReleaseMojo extends HeylogsMojo {
     }
 
     @MojoParameterParsing
-    private @NonNull String toTagPrefix() {
-        return Objects.toString(tagPrefix, "");
+    private @NonNull Config toConfig() {
+        return Config
+                .builder()
+                .versionTagPrefix(Objects.toString(tagPrefix, ""))
+                .versioningId(semver ? "semver" : null)
+                .build();
     }
 
     private static @NonNull LocalDate parseLocalDate(@Nullable String date) throws MojoExecutionException {

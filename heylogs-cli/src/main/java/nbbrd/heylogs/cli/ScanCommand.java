@@ -1,6 +1,9 @@
 package nbbrd.heylogs.cli;
 
-import internal.heylogs.cli.*;
+import internal.heylogs.cli.FormatOptions;
+import internal.heylogs.cli.MarkdownInputSupport;
+import internal.heylogs.cli.MultiChangelogInputOptions;
+import internal.heylogs.cli.SpecialProperties;
 import nbbrd.console.picocli.FileOutputOptions;
 import nbbrd.console.picocli.text.TextOutputSupport;
 import nbbrd.heylogs.Heylogs;
@@ -14,8 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import static internal.heylogs.spi.FormatSupport.resolveFormatId;
 import static internal.heylogs.cli.MarkdownInputSupport.newMarkdownInputSupport;
+import static internal.heylogs.spi.FormatSupport.resolveFormatId;
 import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
 
 @Command(name = "scan", description = "Summarize content.")
@@ -26,9 +29,6 @@ public final class ScanCommand implements Callable<Void> {
 
     @CommandLine.Mixin
     private FileOutputOptions output;
-
-    @CommandLine.Mixin
-    private HeylogsOptions heylogsOptions;
 
     @CommandLine.Mixin
     private FormatOptions formatOptions;
@@ -42,7 +42,7 @@ public final class ScanCommand implements Callable<Void> {
 
     @Override
     public Void call() throws Exception {
-        Heylogs heylogs = heylogsOptions.initHeylogs();
+        Heylogs heylogs = Heylogs.ofServiceLoader();
 
         MarkdownInputSupport inputSupport = newMarkdownInputSupport();
 

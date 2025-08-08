@@ -1,11 +1,11 @@
 package nbbrd.heylogs.ext.github;
 
-import nbbrd.heylogs.spi.ForgeRef;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAsString;
 import nbbrd.design.StaticFactoryMethod;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import nbbrd.heylogs.spi.ForgeRef;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -49,6 +49,7 @@ class GitHubMentionRef implements ForgeRef<GitHubMentionLink> {
         return user != null ? Type.USER : Type.TEAM;
     }
 
+    @Override
     public boolean isCompatibleWith(@NonNull GitHubMentionLink link) {
         return getType().equals(Type.USER)
                 ? link.isUser() && Objects.equals(link.getUser(), getUser())

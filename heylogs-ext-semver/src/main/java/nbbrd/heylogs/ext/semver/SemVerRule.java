@@ -4,7 +4,7 @@ import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.util.ast.Node;
 import lombok.NonNull;
 import nbbrd.design.DirectImpl;
-import nbbrd.design.VisibleForTesting;
+import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Version;
 import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleIssue;
@@ -27,18 +27,19 @@ public final class SemVerRule implements Rule {
     }
 
     @Override
-    public @NonNull String getRuleCategory() {
-        return "versioning";
+    public @NonNull String getRuleModuleId() {
+        return "semver";
     }
 
     @Override
-    public RuleIssue getRuleIssueOrNull(@NonNull Node node) {
-        return node instanceof Heading ? validateSemVer((Heading) node) : NO_RULE_ISSUE;
+    public RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
+        return SemVer.ID.equals(config.getVersioningId()) && node instanceof Heading
+                ? validateSemVer((Heading) node) : NO_RULE_ISSUE;
     }
 
     @Override
     public boolean isRuleAvailable() {
-        return Rule.isEnabled(System.getProperties(), getRuleId());
+        return true;
     }
 
     @Override
@@ -46,8 +47,7 @@ public final class SemVerRule implements Rule {
         return RuleSeverity.ERROR;
     }
 
-    @VisibleForTesting
-    RuleIssue validateSemVer(Heading heading) {
+    private RuleIssue validateSemVer(Heading heading) {
         if (!Version.isVersionLevel(heading)) {
             return NO_RULE_ISSUE;
         }

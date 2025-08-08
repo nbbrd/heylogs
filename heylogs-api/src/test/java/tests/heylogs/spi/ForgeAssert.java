@@ -3,7 +3,6 @@ package tests.heylogs.spi;
 import lombok.NonNull;
 import nbbrd.heylogs.spi.Forge;
 
-import static internal.heylogs.spi.URLExtractor.urlOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
@@ -26,12 +25,6 @@ public final class ForgeAssert {
                 .isThrownBy(() -> x.isCompareLink(null));
 
         assertThatNullPointerException()
-                .isThrownBy(() -> x.getProjectURL(null));
-
-        assertThatNullPointerException()
-                .isThrownBy(() -> x.deriveCompareLink(null, ""));
-
-        assertThatNullPointerException()
-                .isThrownBy(() -> x.deriveCompareLink(urlOf("http://localhost"), null));
+                .isThrownBy(() -> x.getCompareLink(null));
     }
 }

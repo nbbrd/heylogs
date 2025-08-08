@@ -12,7 +12,7 @@ public final class ForgeLinkAssert {
     }
 
     public static void assertForgeLinkCompliance(@NonNull ForgeLink x) {
-        assertThat(x.getBase())
+        assertThat(x.toURL())
                 .isNotNull();
     }
 }

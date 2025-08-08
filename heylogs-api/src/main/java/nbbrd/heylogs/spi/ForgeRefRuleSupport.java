@@ -2,12 +2,16 @@ package nbbrd.heylogs.spi;
 
 import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.util.ast.Node;
+import internal.heylogs.spi.URLExtractor;
 import lombok.NonNull;
+import nbbrd.heylogs.Config;
 import nbbrd.io.text.Parser;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
+import java.net.URL;
 import java.util.Properties;
 import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -18,7 +22,7 @@ public final class ForgeRefRuleSupport<L extends ForgeLink, R extends ForgeRef<L
 
     private final @NonNull String name;
 
-    private final @NonNull String category;
+    private final @NonNull String moduleId;
 
     @lombok.Builder.Default
     private final @NonNull Predicate<Properties> availability = properties -> true;
@@ -26,12 +30,12 @@ public final class ForgeRefRuleSupport<L extends ForgeLink, R extends ForgeRef<L
     @lombok.Builder.Default
     private final @NonNull RuleSeverity severity = RuleSeverity.ERROR;
 
-    private final @NonNull Function<? super CharSequence, L> linkParser;
+    private final @NonNull Function<? super URL, L> linkParser;
 
     private final @NonNull Function<? super CharSequence, R> refParser;
 
     @lombok.Builder.Default
-    private final @NonNull Predicate<L> linkPredicate = ignore -> true;
+    private final @NonNull BiPredicate<L, String> linkPredicate = (ignoreLink, ignoreForgeId) -> true;
 
     private final @NonNull BiFunction<L, CharSequence, String> parsableMessage;
 
@@ -48,8 +52,8 @@ public final class ForgeRefRuleSupport<L extends ForgeLink, R extends ForgeRef<L
     }
 
     @Override
-    public @NonNull String getRuleCategory() {
-        return category;
+    public @NonNull String getRuleModuleId() {
+        return moduleId;
     }
 
     @Override
@@ -63,13 +67,13 @@ public final class ForgeRefRuleSupport<L extends ForgeLink, R extends ForgeRef<L
     }
 
     @Override
-    public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node) {
-        return node instanceof Link ? validateLink((Link) node) : NO_RULE_ISSUE;
+    public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
+        return node instanceof Link ? validateLink((Link) node, config.getForgeId()) : NO_RULE_ISSUE;
     }
 
-    private @Nullable RuleIssue validateLink(@NonNull Link link) {
-        L expected = Parser.of(linkParser).parse(link.getUrl());
-        if (expected != null && linkPredicate.test(expected)) {
+    private @Nullable RuleIssue validateLink(@NonNull Link link, @Nullable String forgeId) {
+        L expected = Parser.of(linkParser.compose(URLExtractor::urlOf)).parse(link.getUrl());
+        if (expected != null && linkPredicate.test(expected, forgeId)) {
             R found = Parser.of(refParser).parse(link.getText());
             if (found == null) {
                 return RuleIssue
@@ -90,7 +94,7 @@ public final class ForgeRefRuleSupport<L extends ForgeLink, R extends ForgeRef<L
     }
 
     public static <L extends ForgeLink, R extends ForgeRef<L>> @NonNull Builder<L, R> builder(
-            Function<? super CharSequence, L> linkParser,
+            Function<? super URL, L> linkParser,
             Function<? super CharSequence, R> refParser
     ) {
         return new Builder<L, R>().linkParser(linkParser).refParser(refParser);

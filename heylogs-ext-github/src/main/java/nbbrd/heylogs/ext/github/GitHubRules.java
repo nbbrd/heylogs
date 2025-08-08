@@ -8,8 +8,8 @@ import nbbrd.heylogs.spi.ForgeRefRuleSupport;
 import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleBatch;
 import nbbrd.service.ServiceProvider;
+import org.jspecify.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.stream.Stream;
 
 import static java.util.Locale.ROOT;
@@ -20,7 +20,7 @@ public final class GitHubRules implements RuleBatch {
 
     @Override
     public @NonNull Stream<Rule> getProviders() {
-        return Stream.of(GITHUB_ISSUE_REF, GITHUB_PULL_REQUEST_REF, GITHUB_MENTION_REF, GITHUB_COMMIT_SHA_REF);
+        return Stream.of(GITHUB_ISSUE_REF, GITHUB_PULL_REQUEST_REF, GITHUB_MENTION_REF, GITHUB_COMMIT_REF);
     }
 
     @VisibleForTesting
@@ -28,8 +28,8 @@ public final class GitHubRules implements RuleBatch {
             .builder(GitHubIssueLink::parse, GitHubIssueRef::parse)
             .id("github-issue-ref")
             .name("GitHub issue ref")
-            .category("forge")
-            .linkPredicate(link -> isIssue(link) && isGitHubHost(link))
+            .moduleId("github")
+            .linkPredicate((link, forgeId) -> link.getType().equals(GitHubIssueLink.ISSUES_TYPE) && isGitHubHost(link, forgeId))
             .parsableMessage((link, ref) -> String.format(ROOT, "Expecting issue ref %s, found %s", GitHubIssueRef.of(link, GitHubIssueRef.Type.NUMBER), ref))
             .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting issue ref %s, found %s", GitHubIssueRef.of(link, ref.getType()), ref))
             .build();
@@ -39,8 +39,8 @@ public final class GitHubRules implements RuleBatch {
             .builder(GitHubIssueLink::parse, GitHubIssueRef::parse)
             .id("github-pull-request-ref")
             .name("GitHub pull request ref")
-            .category("forge")
-            .linkPredicate(link -> isPullRequest(link) && isGitHubHost(link))
+            .moduleId("github")
+            .linkPredicate((link, forgeId) -> link.getType().equals(GitHubIssueLink.PULL_REQUEST_TYPE) && isGitHubHost(link, forgeId))
             .parsableMessage((link, ref) -> String.format(ROOT, "Expecting pull request ref %s, found %s", GitHubIssueRef.of(link, GitHubIssueRef.Type.NUMBER), ref))
             .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting pull request ref %s, found %s", GitHubIssueRef.of(link, ref.getType()), ref))
             .build();
@@ -50,33 +50,25 @@ public final class GitHubRules implements RuleBatch {
             .builder(GitHubMentionLink::parse, GitHubMentionRef::parse)
             .id("github-mention-ref")
             .name("GitHub mention ref")
-            .category("forge")
+            .moduleId("github")
             .linkPredicate(GitHubRules::isGitHubHost)
             .parsableMessage((link, ref) -> String.format(ROOT, "Expecting mention ref %s, found %s", GitHubMentionRef.of(link), ref))
             .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting mention ref %s, found %s", GitHubMentionRef.of(link), ref))
             .build();
 
     @VisibleForTesting
-    static final Rule GITHUB_COMMIT_SHA_REF = ForgeRefRuleSupport
-            .builder(GitHubCommitSHALink::parse, GitHubCommitSHARef::parse)
-            .id("github-commit-sha-ref")
-            .name("GitHub commit SHA ref")
-            .category("forge")
+    static final Rule GITHUB_COMMIT_REF = ForgeRefRuleSupport
+            .builder(GitHubCommitLink::parse, GitHubCommitRef::parse)
+            .id("github-commit-ef")
+            .name("GitHub commit ref")
+            .moduleId("github")
             .linkPredicate(GitHubRules::isGitHubHost)
-            .parsableMessage((link, ref) -> String.format(ROOT, "Expecting commit SHA ref %s, found %s", GitHubCommitSHARef.of(link, GitHubCommitSHARef.Type.HASH), ref))
-            .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting commit SHA ref %s, found %s", GitHubCommitSHARef.of(link, ref.getType()), ref))
+            .parsableMessage((link, ref) -> String.format(ROOT, "Expecting commit ref %s, found %s", GitHubCommitRef.of(link, GitHubCommitRef.Type.HASH), ref))
+            .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting commit ref %s, found %s", GitHubCommitRef.of(link, ref.getType()), ref))
             .build();
 
     @VisibleForTesting
-    static boolean isGitHubHost(ForgeLink expected) {
-        return Arrays.asList(expected.getBase().getHost().split("\\.", -1)).contains("github");
-    }
-
-    private static boolean isIssue(GitHubIssueLink expected) {
-        return expected.getType().equals(GitHubIssueLink.ISSUES_TYPE);
-    }
-
-    private static boolean isPullRequest(GitHubIssueLink expected) {
-        return expected.getType().equals(GitHubIssueLink.PULL_REQUEST_TYPE);
+    static boolean isGitHubHost(@NonNull ForgeLink expected, @Nullable String forgeId) {
+        return GitHub.ID.equals(forgeId) || GitHub.isKnownHost(expected);
     }
 }

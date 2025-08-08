@@ -7,7 +7,7 @@ import internal.heylogs.base.StylishFormat;
 import lombok.NonNull;
 import nbbrd.design.MightBePromoted;
 import nbbrd.heylogs.spi.*;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -49,10 +49,10 @@ public class HeylogsTest {
 
     @Test
     public void testCheckFormat() {
-        assertThat(Heylogs.builder().build().checkFormat(using("/InvalidVersion.md")))
+        assertThat(Heylogs.builder().build().checkFormat(using("/InvalidVersion.md"), Config.DEFAULT))
                 .isEmpty();
 
-        assertThat(Heylogs.ofServiceLoader().checkFormat(using("/InvalidVersion.md")))
+        assertThat(Heylogs.ofServiceLoader().checkFormat(using("/InvalidVersion.md"), Config.DEFAULT))
                 .isNotEmpty();
     }
 
@@ -275,7 +275,7 @@ public class HeylogsTest {
     }
 
     private static String releaseChangesToString(Heylogs heylogs, Document doc, Version version, String versioningId) {
-        heylogs.releaseChanges(doc, version, "v", versioningId);
+        heylogs.releaseChanges(doc, version, Config.builder().versionTagPrefix("v").versioningId(versioningId).build());
         return unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc);
     }
 
@@ -292,8 +292,8 @@ public class HeylogsTest {
         }
 
         @Override
-        public @NonNull String getRuleCategory() {
-            return "";
+        public @NonNull String getRuleModuleId() {
+            return "mocked";
         }
 
         @Override
@@ -307,7 +307,7 @@ public class HeylogsTest {
         }
 
         @Override
-        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node) {
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
             return null;
         }
     }
@@ -325,27 +325,18 @@ public class HeylogsTest {
         }
 
         @Override
+        public @NonNull String getForgeModuleId() {
+            return "github";
+        }
+
+        @Override
         public boolean isCompareLink(@NonNull URL url) {
             return true;
         }
 
         @Override
-        public @NonNull URL getProjectURL(@NonNull URL url) {
-            return urlOf("https://github.com/olivierlacan/keep-a-changelog");
-        }
-
-        @Override
-        public @NonNull URL deriveCompareLink(@NonNull URL latest, @NonNull String nextTag) {
-            String urlAsString = latest.toString();
-            int oidIndex = urlAsString.lastIndexOf("/") + 1;
-            return urlOf(urlAsString.substring(0, oidIndex) + deriveOID(nextTag, urlAsString.substring(oidIndex)));
-        }
-
-        @MightBePromoted
-        private static String deriveOID(String nextTag, String oid) {
-            return oid.endsWith("...HEAD")
-                    ? oid.startsWith("HEAD...") ? (nextTag + "..." + nextTag) : (oid.substring(0, oid.length() - 4) + nextTag)
-                    : (oid.substring(oid.indexOf("...") + 3) + "..." + nextTag);
+        public @NonNull CompareLink getCompareLink(@NonNull URL url) {
+            return new MockedCompareLink(url);
         }
     }
 
@@ -362,6 +353,11 @@ public class HeylogsTest {
         }
 
         @Override
+        public @NonNull String getVersioningModuleId() {
+            return "mocked";
+        }
+
+        @Override
         public boolean isValidVersion(@NonNull CharSequence text) {
             try {
                 Integer.parseInt(text.toString());
@@ -369,6 +365,38 @@ public class HeylogsTest {
             } catch (NumberFormatException ignore) {
                 return false;
             }
+        }
+    }
+
+    @lombok.Value
+    private static class MockedCompareLink implements CompareLink {
+
+        URL url;
+
+        @Override
+        public @NonNull URL toURL() {
+            return url;
+        }
+
+        @Override
+        public @NonNull CompareLink derive(@NonNull String tag) {
+            String urlAsString = url.toString();
+            int oidIndex = urlAsString.lastIndexOf("/") + 1;
+            return new MockedCompareLink(urlOf(urlAsString.substring(0, oidIndex) + deriveOID(tag, urlAsString.substring(oidIndex))));
+        }
+
+        @MightBePromoted
+        private static String deriveOID(String nextTag, String oid) {
+            return oid.endsWith("...HEAD")
+                    ? oid.startsWith("HEAD...") ? (nextTag + "..." + nextTag) : (oid.substring(0, oid.length() - 4) + nextTag)
+                    : (oid.substring(oid.indexOf("...") + 3) + "..." + nextTag);
+        }
+
+        @Override
+        public @NonNull URL getProjectURL() {
+            String urlAsString = url.toString();
+            int index = urlAsString.indexOf("/compare");
+            return index == -1 ? url : urlOf(urlAsString.substring(0, index));
         }
     }
 }

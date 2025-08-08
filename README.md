@@ -1,12 +1,10 @@
-# heylogs
+# Heylogs - communicate changes at scale
 
 [![Download](https://img.shields.io/github/release/nbbrd/heylogs.svg)](https://github.com/nbbrd/heylogs/releases/latest)
 [![Changes](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fnbbrd%2Fheylogs%2Fbadges%2Funreleased-changes.json)](https://github.com/nbbrd/heylogs/blob/develop/CHANGELOG.md)
 [![Reproducible Builds](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/jvm-repo-rebuild/reproducible-central/master/content/com/github/nbbrd/heylogs/badge.json)](https://github.com/jvm-repo-rebuild/reproducible-central/blob/master/content/com/github/nbbrd/heylogs/README.md)
 
-`heylogs` is a set of tools to deal with the [keep-a-changelog format](https://keepachangelog.com),
-a changelog format designed to be human-readable.
-It can be used as a linter in interactive sessions and automations.
+`Heylogs` is a tool designed to automate the validation and the release of changes in a [human-readable format](https://keepachangelog.com).  
 
 Key points:
 
@@ -15,17 +13,34 @@ Key points:
 
 Features:
 
-- Checks format
-- Summarizes content
-- Extracts versions
-- Modify content
+- [Checks the format](#check-command) against an extensive [set of rules](#list-command).
+- [Summarizes content](#scan-command) to provide a quick overview of a repository.
+- [Filters and extracts](#extract-command) versions for publication or searching.
+- [Modifies content](#release-command) to release unreleased changes.
+- Handles [GitHub, GitLab and Forgejo](#forge-references) references.
+- Validates semantic [versioning](#versioning-schemes).
 
-[ [Library](#library) | [Command-line tool](#command-line-tool) | [Maven plugin](#maven-plugin) | [Badges](#badges) | [Developing](#developing) | [Contributing](#contributing)  | [Licensing](#licensing) | [Related work](#related-work)]
+[ [Usage](#usage) | [Features](#features) | [Badges](#badges) | [Developing](#developing) | [Contributing](#contributing)  | [Licensing](#licensing) | [Related work](#related-work)]
 
-## Library
+## Usage
 
-Heylogs is available as a Java library.  
-_Note that the API is currently in beta and might change frequently._
+### Library
+
+Heylogs is available as a **Java library**.  
+The Java API is straightforward and has a single point of entry:
+```java
+Heylogs heylogs = Heylogs.ofServiceLoader();
+Document flexmarkDocument = parseFileWithFlexmark(file);
+List<Problem> problems = heylogs.checkFormat(flexmarkDocument);
+...
+```
+
+> [!WARNING]
+> This API is currently in beta and might change frequently.
+
+<details>
+<summary>Installation</summary>
+
 
 ```xml
 <dependencies>
@@ -44,32 +59,22 @@ _Note that the API is currently in beta and might change frequently._
 </dependencies>
 ```
 
-The API is straightforward and has a single point of entry:
-```java
-Heylogs heylogs = Heylogs.ofServiceLoader();
-Document flexmarkDocument = parseFileWithFlexmark(file);
-List<Problem> problems = heylogs.checkFormat(flexmarkDocument);
-...
+</details>
+
+### GitHub action
+
+Most probably, one wants to check the `CHANGELOG.md` file, thus the command is as follows:
+
+```yml
+- uses: jbangdev/jbang-action@latest
+  with:
+    script: com.github.nbbrd.heylogs:heylogs-cli:_VERSION_:bin
+    scriptargs: "check"
 ```
 
-`WIP`
+### Command-line tool
 
-## Command-line tool
-
-**Heylogs CLI** runs on any desktop operating system such as Microsoft Windows, 
-Solaris OS, Apple macOS, Ubuntu and other various Linux distributions. 
-It requires a Java SE Runtime Environment (JRE) version 8 or later to run on such as OpenJDK.
-
-It provides the following commands:
-
-| Name      | Description       |
-|-----------|-------------------|
-| `check`   | Check format      |
-| `scan`    | Summarize content |
-| `extract` | Extract versions  |
-| `release` | Release changes   |
-| `list`    | List resources    |
-
+**Heylogs CLI** runs on any desktop operating system and requires Java 8 or later.  
 It follows the Unix philosophy of [“Do one thing and do it well“](https://en.wikipedia.org/wiki/Unix_philosophy#Do_One_Thing_and_Do_It_Well) by performing a single function and beeing composable.
 
 Composition example:  
@@ -80,20 +85,8 @@ Composition example:
 curl -s https://raw.githubusercontent.com/olivierlacan/keep-a-changelog/main/CHANGELOG.md | heylogs scan - -f json | bat -l json
 ```
 
-### Using in a GitHub action
-
-![GITHUB]
-
-Most probably, one wants to check the `CHANGELOG.md` file, thus the command is as follows:
-
-```yml
-- uses: jbangdev/jbang-action@v0.110.1
-  with:
-    script: com.github.nbbrd.heylogs:heylogs-cli:_VERSION_:bin
-    scriptargs: "check CHANGELOG.md"
-```
-
-### Installation
+<details>
+<summary>Installation</summary>
 
 The easiest way of installing the CLI is to use a package manager.  
 Each operating system has its own manager. See the list below for specific instructions.
@@ -166,21 +159,13 @@ To use the CLI without installing it:
 2. Run this jar by calling:  
    `java -jar heylogs-cli-_VERSION_-bin.jar <command> [<args>]`
 
-## Maven plugin
+</details>
+
+### Maven plugin
 
 **Heylogs Maven plugin** allows the tool to be part of a Maven build workflow.
 
-It provides the following goals:
-
-| Name      | Description       |
-|-----------|-------------------|
-| `check`   | Check format      |
-| `scan`    | Summarize content |
-| `extract` | Extract versions  |
-| `release` | Release changes   |
-| `list`    | List resources    |
-
-### Examples
+#### Examples
 
 Check the changelog on every build:
 
@@ -188,10 +173,8 @@ Check the changelog on every build:
 <plugin>
     <groupId>com.github.nbbrd.heylogs</groupId>
     <artifactId>heylogs-maven-plugin</artifactId>
-    <version>${heylogs.version}</version>
     <executions>
         <execution>
-            <id>check-changelog</id>
             <goals>
                 <goal>check</goal>
             </goals>
@@ -214,10 +197,8 @@ Extract the latest version from the changelog during a release:
             <plugin>
                 <groupId>com.github.nbbrd.heylogs</groupId>
                 <artifactId>heylogs-maven-plugin</artifactId>
-                <version>${heylogs.version}</version>
                 <executions>
                     <execution>
-                        <id>extract-changelog</id>
                         <goals>
                             <goal>extract</goal>
                         </goals>
@@ -228,6 +209,87 @@ Extract the latest version from the changelog during a release:
     </build>
 </profile>
 ```
+
+## Features
+
+### Check command
+
+The check command checks the format against an extensive set of rules.
+
+```bash
+$ heylogs check
+CHANGELOG.md
+
+  No problem
+```
+
+### Scan command
+
+The scan command summarizes the content of changelog files to provide a quick overview of a repository.
+
+```bash
+$ heylogs scan
+CHANGELOG.md
+  Valid changelog
+  Found 20 releases
+  Ranging from 2022-09-08 to 2025-07-24
+  Compatible with Semantic Versioning
+  Forged with GitHub at https://github.com/nbbrd/heylogs
+  Has 1 unreleased changes
+```
+
+### Extract command
+
+The extract command filters and extracts versions for publication or searching.
+
+```bash
+$ heylogs extract --limit 1
+## [Unreleased]
+
+### Changed
+
+- Switch to JSpecify [#143](https://github.com/nbbrd/heylogs/issues/143)
+
+[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.11.1...HEAD
+```
+
+### Release command
+
+The release command modifies the content of a changelog file to release unreleased changes.
+
+### List command
+
+The list command lists all the resources of the application.
+
+```bash
+$ heylogs list
+Resources
+  forge       main         forgejo                   Forgejo                   
+  forge       main         github                    GitHub                    
+  forge       main         gitlab                    GitLab                    
+  format      automation   json                      JSON-serialized output    
+  format      interaction  stylish                   Human-readable output     
+  rule        extension    consistent-separator      Consistent separator      
+  ...
+  rule        versioning   semver                    Semantic Versioning format
+  versioning  main         semver                    Semantic Versioning       
+  
+  32 resources found
+```
+
+### Forge references
+
+Heylogs supports the following forge references:
+
+|             | Commit | Compare | Issue | Request | Mention |
+|:-----------:|:------:|:-------:|:-----:|:-------:|:-------:|
+| **GitHub**  |   ✔    |    ✔    |   ✔   |    ✔    |    ✔    |
+| **GitLab**  |   ✔    |    ✔    |   ✔   |    ✔    |    ✔    |
+| **Forgejo** |   ✔    |    ✔    |   ✔   |    ✔    |    ✔    |
+
+### Versioning schemes
+
+Heylogs validates [semantic versioning](https://semver.org/).
 
 ## Badges
 

@@ -2,6 +2,8 @@ package internal.heylogs.base;
 
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.util.ast.Node;
+import nbbrd.heylogs.Config;
+import nbbrd.heylogs.Nodes;
 import nbbrd.heylogs.spi.RuleIssue;
 import org.junit.jupiter.api.Test;
 
@@ -9,7 +11,6 @@ import java.util.Objects;
 
 import static internal.heylogs.base.GuidingPrinciples.validateForHumans;
 import static internal.heylogs.base.GuidingPrinciples.validateLatestVersionFirst;
-import static nbbrd.heylogs.Nodes.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Index.atIndex;
 import static tests.heylogs.api.Sample.using;
@@ -27,7 +28,7 @@ GuidingPrinciplesTest {
     public void testSample() {
         Node sample = using("/Main.md");
         for (GuidingPrinciples rule : GuidingPrinciples.values()) {
-            assertThat(of(Node.class).descendants(sample).map(rule::getRuleIssueOrNull).filter(Objects::nonNull))
+            assertThat(Nodes.of(Node.class).descendants(sample).map(node -> rule.getRuleIssueOrNull(node, Config.DEFAULT)).filter(Objects::nonNull))
                     .isEmpty();
         }
     }
@@ -49,13 +50,13 @@ GuidingPrinciplesTest {
 
     @Test
     public void testValidateEntryForEveryVersions() {
-        assertThat(of(Heading.class).descendants(using("/Main.md")))
+        assertThat(Nodes.of(Heading.class).descendants(using("/Main.md")))
                 .map(GuidingPrinciples::validateAllH2ContainAVersion)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .isEmpty();
 
-        assertThat(of(Heading.class).descendants(using("/InvalidVersion.md")))
+        assertThat(Nodes.of(Heading.class).descendants(using("/InvalidVersion.md")))
                 .map(GuidingPrinciples::validateAllH2ContainAVersion)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
@@ -68,13 +69,13 @@ GuidingPrinciplesTest {
 
     @Test
     public void testValidateTypeOfChangesGrouped() {
-        assertThat(of(Heading.class).descendants(using("/Main.md")))
+        assertThat(Nodes.of(Heading.class).descendants(using("/Main.md")))
                 .map(GuidingPrinciples::validateTypeOfChangesGrouped)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .isEmpty();
 
-        assertThat(of(Heading.class).descendants(using("/InvalidTypeOfChange.md")))
+        assertThat(Nodes.of(Heading.class).descendants(using("/InvalidTypeOfChange.md")))
                 .map(GuidingPrinciples::validateTypeOfChangesGrouped)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
@@ -84,13 +85,13 @@ GuidingPrinciplesTest {
 
     @Test
     public void testValidateLinkable() {
-        assertThat(of(Heading.class).descendants(using("/Main.md")))
+        assertThat(Nodes.of(Heading.class).descendants(using("/Main.md")))
                 .map(GuidingPrinciples::validateLinkable)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .isEmpty();
 
-        assertThat(of(Heading.class).descendants(using("/MissingReference.md")))
+        assertThat(Nodes.of(Heading.class).descendants(using("/MissingReference.md")))
                 .map(GuidingPrinciples::validateLinkable)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)

@@ -2,7 +2,7 @@ package internal.heylogs.spi;
 
 import lombok.NonNull;
 import nbbrd.heylogs.Heylogs;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;

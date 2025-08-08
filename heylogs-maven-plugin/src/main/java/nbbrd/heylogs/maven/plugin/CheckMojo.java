@@ -1,11 +1,12 @@
 package nbbrd.heylogs.maven.plugin;
 
+import internal.heylogs.maven.plugin.MojoParameterParsing;
+import lombok.NonNull;
 import nbbrd.console.picocli.MultiFileInputOptions;
 import nbbrd.console.picocli.text.TextOutputSupport;
 import nbbrd.heylogs.Check;
+import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Heylogs;
-import nbbrd.heylogs.ext.semver.SemVer;
-import nbbrd.heylogs.spi.Versioning;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -17,10 +18,10 @@ import java.io.Writer;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-import static internal.heylogs.spi.FormatSupport.resolveFormatId;
 import static internal.heylogs.HeylogsParameters.*;
-import static java.util.Locale.ROOT;
+import static internal.heylogs.spi.FormatSupport.resolveFormatId;
 import static java.util.stream.Collectors.toList;
 import static nbbrd.console.picocli.ByteOutputSupport.DEFAULT_STDOUT_FILE;
 import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
@@ -39,6 +40,9 @@ public final class CheckMojo extends HeylogsMojo {
     @Parameter(property = "heylogs.outputFile", defaultValue = DEFAULT_STDOUT_FILE)
     private File outputFile;
 
+    @Parameter(property = "heylogs.tagPrefix")
+    private String tagPrefix;
+
     @Parameter(property = "heylogs.semver", defaultValue = DEFAULT_SEMVER)
     private boolean semver;
 
@@ -52,10 +56,7 @@ public final class CheckMojo extends HeylogsMojo {
             return;
         }
 
-        if (semver) {
-            checkVersioning(new SemVer(), getProjectVersion());
-        }
-
+        Config config = toConfig();
         Heylogs heylogs = initHeylogs(semver);
 
         List<Check> list = new ArrayList<>();
@@ -68,7 +69,7 @@ public final class CheckMojo extends HeylogsMojo {
                 list.add(Check
                         .builder()
                         .source(file.toString())
-                        .problems(heylogs.checkFormat(readChangelog(file.toFile())))
+                        .problems(heylogs.checkFormat(readChangelog(file.toFile()), config))
                         .build());
             }
         } catch (IOException ex) {
@@ -89,15 +90,12 @@ public final class CheckMojo extends HeylogsMojo {
             throw new MojoExecutionException("Invalid changelog");
     }
 
-    private void checkVersioning(Versioning versioning, String projectVersion) throws MojoExecutionException {
-        getLog().info("Using " + versioning.getVersioningName() + " (" + versioning.getVersioningId() + ")");
-        if (projectVersion == null) {
-            getLog().warn("Cannot find project version");
-        } else if (versioning.isValidVersion(projectVersion)) {
-            getLog().info("Valid project version");
-        } else {
-            getLog().error(String.format(ROOT, "Invalid project version: '%s' must follow %s", projectVersion, versioning.getVersioningName()));
-            throw new MojoExecutionException("Invalid project version. See above for details.");
-        }
+    @MojoParameterParsing
+    private @NonNull Config toConfig() {
+        return Config
+                .builder()
+                .versionTagPrefix(Objects.toString(tagPrefix, ""))
+                .versioningId(semver ? "semver" : null)
+                .build();
     }
 }

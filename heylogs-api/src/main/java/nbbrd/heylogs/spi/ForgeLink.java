@@ -6,5 +6,6 @@ import java.net.URL;
 
 public interface ForgeLink {
 
-    @NonNull URL getBase();
+    @NonNull
+    URL toURL();
 }

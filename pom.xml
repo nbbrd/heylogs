@@ -6,7 +6,7 @@
 
     <groupId>com.github.nbbrd.heylogs</groupId>
     <artifactId>heylogs-parent</artifactId>
-    <version>0.11.1</version>
+    <version>0.12.0</version>
     <packaging>pom</packaging>
 
     <name>heylogs</name>
@@ -39,7 +39,7 @@
     <properties>
         <!-- Java 8+ config -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.build.outputTimestamp>2025-07-24T07:33:19Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2025-08-08T10:50:41Z</project.build.outputTimestamp>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
 
@@ -52,16 +52,16 @@
         <dependencies>
             <!-- annotations & processors -->
             <dependency>
-                <groupId>org.checkerframework</groupId>
-                <artifactId>checker-qual</artifactId>
-                <version>3.49.5</version>
+                <groupId>org.jspecify</groupId>
+                <artifactId>jspecify</artifactId>
+                <version>1.0.0</version>
             </dependency>
 
             <!-- test libraries -->
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
-                <version>5.13.3</version>
+                <version>5.13.4</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -234,11 +234,13 @@
     <modules>
         <module>heylogs-api</module>
         <module>heylogs-cli</module>
-        <module>heylogs-maven-plugin</module>
-        <module>heylogs-bom</module>
+        <module>heylogs-ext-forgejo</module>
         <module>heylogs-ext-github</module>
+        <module>heylogs-ext-gitlab</module>
         <module>heylogs-ext-json</module>
         <module>heylogs-ext-semver</module>
+        <module>heylogs-maven-plugin</module>
+        <module>heylogs-bom</module>
     </modules>
 
     <profiles>
@@ -274,7 +276,7 @@
             <properties>
                 <lombok.version>1.18.38</lombok.version>
                 <java-service.version>1.9.0</java-service.version>
-                <java-design.version>1.7.0</java-design.version>
+                <java-design.version>1.8.0</java-design.version>
                 <picocli.version>4.7.7</picocli.version>
             </properties>
             <dependencyManagement>

@@ -2,6 +2,7 @@ package internal.heylogs.base;
 
 import com.vladsch.flexmark.ast.LinkNodeBase;
 import com.vladsch.flexmark.util.ast.Node;
+import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Nodes;
 import nbbrd.heylogs.spi.RuleIssue;
 import org.assertj.core.api.Assertions;
@@ -27,7 +28,7 @@ public class ExtendedRulesTest {
     public void test() {
         Node sample = Sample.using("/Main.md");
         for (ExtendedRules rule : ExtendedRules.values()) {
-            Assertions.assertThat(Nodes.of(Node.class).descendants(sample).map(rule::getRuleIssueOrNull).filter(Objects::nonNull))
+            Assertions.assertThat(Nodes.of(Node.class).descendants(sample).map(node -> rule.getRuleIssueOrNull(node, Config.DEFAULT)).filter(Objects::nonNull))
                     .isEmpty();
         }
     }
@@ -62,5 +63,44 @@ public class ExtendedRulesTest {
     public void testValidateUniqueHeadings() {
         assertThat(validateUniqueHeadings(using("/NonUniqueHeadings.md")))
                 .isEqualTo(RuleIssue.builder().message("Heading [1.1.0] - 2019-02-15 has 2 duplicate CHANGED entries").line(5).column(1).build());
+    }
+
+    @Test
+    public void testValidateNoEmptyGroup() {
+        assertThat(validateNoEmptyGroup(using("/NoEmptyGroup.md")))
+                .isEqualTo(RuleIssue.builder().message("Heading [1.1.0] - 2019-02-15 has no entries for CHANGED").line(7).column(1).build());
+    }
+
+    @Test
+    public void testValidateNoEmptyRelease() {
+        assertThat(validateNoEmptyRelease(using("/NoEmptyRelease.md")))
+                .isEqualTo(RuleIssue.builder().message("Heading [1.1.0] - 2019-02-15 has no entries").line(5).column(1).build());
+    }
+
+    @Test
+    public void testValidateUniqueRelease() {
+        assertThat(validateUniqueRelease(using("/UniqueRelease.md")))
+                .isEqualTo(RuleIssue.builder().message("Release 1.1.0 has 2 duplicates").line(5).column(1).build());
+    }
+
+    @Test
+    public void testValidateImbalancedBraces() {
+        assertThat(validateImbalancedBraces(using("/ImbalancedBraces.md")))
+                .isEqualTo(RuleIssue.builder().message("Imbalanced braces found in '- Danish translation from [@frederikspang](https://github.com/frederikspang)].'").line(9).column(1).build());
+    }
+
+    @Test
+    public void testHasImbalancedBraces() {
+        assertThat(hasImbalancedBraces("")).isFalse();
+        assertThat(hasImbalancedBraces("()")).isFalse();
+        assertThat(hasImbalancedBraces("{}")).isFalse();
+        assertThat(hasImbalancedBraces("[]")).isFalse();
+        assertThat(hasImbalancedBraces("({}[])")).isFalse();
+        assertThat(hasImbalancedBraces("[{()}]")).isFalse();
+        assertThat(hasImbalancedBraces("(]")).isTrue();
+        assertThat(hasImbalancedBraces("{[}]")).isTrue();
+        assertThat(hasImbalancedBraces("[(])")).isTrue();
+        assertThat(hasImbalancedBraces("{(})")).isTrue();
+        assertThat(hasImbalancedBraces("(()")).isTrue();
     }
 }
