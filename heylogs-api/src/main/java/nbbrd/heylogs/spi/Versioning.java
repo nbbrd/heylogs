@@ -1,6 +1,7 @@
 package nbbrd.heylogs.spi;
 
 import lombok.NonNull;
+import nbbrd.heylogs.Config;
 import nbbrd.service.Quantifier;
 import nbbrd.service.ServiceDefinition;
 import nbbrd.service.ServiceId;
@@ -17,5 +18,5 @@ public interface Versioning {
 
     @NonNull String getVersioningModuleId();
 
-    boolean isValidVersion(@NonNull CharSequence text);
+    boolean isValidVersion(@NonNull CharSequence text, @NonNull Config config);
 }

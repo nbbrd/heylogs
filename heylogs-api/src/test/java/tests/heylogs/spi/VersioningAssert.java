@@ -1,6 +1,7 @@
 package tests.heylogs.spi;
 
 import lombok.NonNull;
+import nbbrd.heylogs.Config;
 import nbbrd.heylogs.spi.Versioning;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,6 +23,9 @@ public final class VersioningAssert {
                 .isNotNull();
 
         assertThatNullPointerException()
-                .isThrownBy(() -> x.isValidVersion(null));
+                .isThrownBy(() -> x.isValidVersion(null, Config.DEFAULT));
+
+        assertThatNullPointerException()
+                .isThrownBy(() -> x.isValidVersion("null", null));
     }
 }

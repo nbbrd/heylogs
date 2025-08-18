@@ -1,5 +1,7 @@
 package nbbrd.heylogs.ext.semver;
 
+import nbbrd.heylogs.Config;
+import nbbrd.heylogs.spi.Versioning;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -13,9 +15,9 @@ class SemVerTest {
     }
 
     @Test
-    void isValidVersion() {
-        SemVer x = new SemVer();
-        assertThat(x.isValidVersion("1.1.0")).isTrue();
-        assertThat(x.isValidVersion(".1.0")).isFalse();
+    void testIsValidVersion() {
+        Versioning x = new SemVer();
+        assertThat(x.isValidVersion("1.1.0", Config.DEFAULT)).isTrue();
+        assertThat(x.isValidVersion(".1.0", Config.DEFAULT)).isFalse();
     }
 }

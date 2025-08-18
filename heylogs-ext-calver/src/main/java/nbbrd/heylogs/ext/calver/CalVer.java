@@ -1,17 +1,17 @@
-package nbbrd.heylogs.ext.semver;
+package nbbrd.heylogs.ext.calver;
 
+import internal.heylogs.ext.calver.CalVerFormat;
 import lombok.NonNull;
 import nbbrd.design.DirectImpl;
 import nbbrd.heylogs.Config;
 import nbbrd.heylogs.spi.Versioning;
 import nbbrd.service.ServiceProvider;
-import org.semver4j.Semver;
 
 @DirectImpl
 @ServiceProvider
-public final class SemVer implements Versioning {
+public final class CalVer implements Versioning {
 
-    static final String ID = "semver";
+    static final String ID = "calver";
 
     @Override
     public @NonNull String getVersioningId() {
@@ -20,16 +20,23 @@ public final class SemVer implements Versioning {
 
     @Override
     public @NonNull String getVersioningName() {
-        return "Semantic Versioning";
+        return "Calendar Versioning";
     }
 
     @Override
     public @NonNull String getVersioningModuleId() {
-        return "semver";
+        return "calver";
     }
 
     @Override
     public boolean isValidVersion(@NonNull CharSequence text, @NonNull Config config) {
-        return Semver.isValid(text.toString());
+        String format = config.getVersioningArg();
+        if (format != null) {
+            try {
+                return CalVerFormat.parse(format).isValidVersion(text);
+            } catch (IllegalArgumentException ignore) {
+            }
+        }
+        return false;
     }
 }

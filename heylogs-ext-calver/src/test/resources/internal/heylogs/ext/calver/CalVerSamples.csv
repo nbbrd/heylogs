@@ -1,0 +1,33 @@
+Type,Project,Formats,Examples
+Application,Ubuntu,YY.0M,"4.10,20.04"
+Application,NixOS,YY.0M,"13.10,17.03"
+Application,Microsoft Windows,YY/YYYY,"95,98,2000"
+Application,OpenSCAD,YYYY.0M,2015.03
+Application,JetBrains PyCharm,YYYY.MINOR.MICRO,2017.1.2
+Application,ArchLinux,YYYY.0M.0D,2018.03.01
+Application,Unity,YYYY.MINOR.MICRO,2019.2.2
+Application,Slack for Mobile,YY.0M.MICRO,19.08.10
+Application,CockroachDB,YY.MINOR.MICRO,19.1.0
+Application,Dgraph,YY.0M.MICRO,"20.03.0,20.03.1-beta.Jun15"
+Application,Spring Cloud,YYYY.MINOR.MICRO,2020.0.0-RC2
+Application,Tesla Firmware,YYYY.WW.MICRO,2020.12.10
+Application,KDE Apps,YY.0M.MICRO,20.12.0
+Application,Consensys Quorum,YY.MM.MICRO,20.10.0
+Application,Home Assistant,YYYY.MM.MICRO,2020.12.1
+Standards,Ada,YY/YYYY,"83,95,2012"
+Standards,ALGOL,YY,"58,60,68"
+Standards,C,YY,"89,99,11"
+Standards,C++,YY,"98,03,11,14,17"
+Standards,Fortran,YY/YYYY,"66,77,90,95,2003,2008"
+Standards,ECMAScript (aka JavaScript),YYYY,"2015,2020"
+Standards,Python manylinux,YYYY,2010
+Libraries,Boltons,YY.MINOR.MICRO,17.2.0
+Libraries,Twisted,YY.MM.MICRO,16.1.1
+Libraries,certifi,YYYY.MM.DD,2016.2.28
+Libraries,Teradata,YY.MM.MINOR.MICRO,15.10.0.16
+Libraries,pytz,YYYY.MM,2016.4
+Libraries,attrs,YY.MINOR.MICRO,17.4.0
+Utilities,pip (details),YY.MINOR.MICRO,19.2.3
+Utilities,youtube-dl,YYYY.0M.0D.MICRO,2016.06.19.1
+Utilities,fusefs-ntfs,YYYY.MM.DD_MICRO,2016.2.22_1
+Utilities,black,YY.MM.MICRO,18.3a0

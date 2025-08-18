@@ -358,7 +358,7 @@ public class HeylogsTest {
         }
 
         @Override
-        public boolean isValidVersion(@NonNull CharSequence text) {
+        public boolean isValidVersion(@NonNull CharSequence text, @NonNull Config config) {
             try {
                 Integer.parseInt(text.toString());
                 return true;

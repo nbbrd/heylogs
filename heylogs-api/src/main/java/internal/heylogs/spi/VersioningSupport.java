@@ -1,5 +1,6 @@
 package internal.heylogs.spi;
 
+import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Version;
 import nbbrd.heylogs.spi.Versioning;
 
@@ -12,8 +13,8 @@ public final class VersioningSupport {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 
-    public static Stream<Versioning> versioningStreamOf(List<Versioning> list, List<Version> releases) {
+    public static Stream<Versioning> versioningStreamOf(List<Versioning> list, List<Version> releases, Config config) {
         return list.stream()
-                .filter(versioning -> releases.stream().allMatch(release -> versioning.isValidVersion(release.getRef())));
+                .filter(versioning -> releases.stream().allMatch(release -> versioning.isValidVersion(release.getRef(), config)));
     }
 }

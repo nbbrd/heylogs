@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Add Calendar Versioning [#253](https://github.com/nbbrd/heylogs/issues/253)
+
 ## [0.12.1] - 2025-08-18
 
 ### Fixed

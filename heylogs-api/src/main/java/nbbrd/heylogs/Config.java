@@ -17,5 +17,8 @@ public class Config {
     String versioningId;
 
     @Nullable
+    String versioningArg;
+
+    @Nullable
     String forgeId;
 }

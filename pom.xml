@@ -239,6 +239,7 @@
         <module>heylogs-ext-gitlab</module>
         <module>heylogs-ext-json</module>
         <module>heylogs-ext-semver</module>
+        <module>heylogs-ext-calver</module>
         <module>heylogs-maven-plugin</module>
         <module>heylogs-bom</module>
     </modules>
