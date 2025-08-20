@@ -5,8 +5,6 @@ import picocli.CommandLine;
 
 import java.util.Objects;
 
-import static internal.heylogs.HeylogsParameters.DEFAULT_SEMVER;
-
 @lombok.Getter
 public class ConfigOptions {
 
@@ -19,17 +17,26 @@ public class ConfigOptions {
     private String tagPrefix;
 
     @CommandLine.Option(
-            names = {"-s", "--semver"},
-            defaultValue = DEFAULT_SEMVER,
-            description = "Mention if this changelog follows Semantic Versioning."
+            names = {"-v", "--versioning"},
+            paramLabel = "<id>",
+            description = "Specify the versioning used to control the version references. Valid values: ${COMPLETION-CANDIDATES}.",
+            completionCandidates = VersioningCandidates.class
     )
-    private boolean semver;
+    private String versioningId;
+
+    @CommandLine.Option(
+            names = {"--versioning-arg"},
+            paramLabel = "<arg>",
+            description = "Specify the argument used to configure the versioning."
+    )
+    private String versioningArg;
 
     public Config getConfig() {
         return Config
                 .builder()
                 .versionTagPrefix(Objects.toString(getTagPrefix(), ""))
-                .versioningId(isSemver() ? "semver" : null)
+                .versioningId(versioningId)
+                .versioningArg(versioningArg)
                 .build();
     }
 }

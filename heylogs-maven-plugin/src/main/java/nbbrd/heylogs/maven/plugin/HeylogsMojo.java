@@ -3,7 +3,6 @@ package nbbrd.heylogs.maven.plugin;
 import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.FlexmarkIO;
 import nbbrd.design.MightBePromoted;
-import nbbrd.heylogs.Heylogs;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -53,10 +52,6 @@ abstract class HeylogsMojo extends AbstractMojo {
                 throw new MojoExecutionException("Failed to write changelog to file", ex);
             }
         }
-    }
-
-    protected static Heylogs initHeylogs(boolean semver) {
-        return Heylogs.ofServiceLoader();
     }
 
     @MightBePromoted

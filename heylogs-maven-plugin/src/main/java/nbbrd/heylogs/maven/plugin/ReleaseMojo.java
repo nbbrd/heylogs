@@ -4,6 +4,7 @@ import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.maven.plugin.MojoParameterParsing;
 import lombok.NonNull;
 import nbbrd.heylogs.Config;
+import nbbrd.heylogs.Heylogs;
 import nbbrd.heylogs.Version;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -17,7 +18,6 @@ import java.time.format.DateTimeParseException;
 import java.util.Objects;
 
 import static internal.heylogs.HeylogsParameters.DEFAULT_CHANGELOG_FILE;
-import static internal.heylogs.HeylogsParameters.DEFAULT_SEMVER;
 
 @lombok.Getter
 @lombok.Setter
@@ -36,8 +36,11 @@ public final class ReleaseMojo extends HeylogsMojo {
     @Parameter(property = "heylogs.tagPrefix")
     private String tagPrefix;
 
-    @Parameter(property = "heylogs.semver", defaultValue = DEFAULT_SEMVER)
-    private boolean semver;
+    @Parameter(property = "heylogs.versioningId")
+    private String versioningId;
+
+    @Parameter(property = "heylogs.versioningArg")
+    private String versioningArg;
 
     @Override
     public void execute() throws MojoExecutionException {
@@ -57,7 +60,7 @@ public final class ReleaseMojo extends HeylogsMojo {
         Config config = toConfig();
 
         getLog().info("Releasing " + version + " with config '" + config + "'");
-        initHeylogs(semver).releaseChanges(document, version, config);
+        Heylogs.ofServiceLoader().releaseChanges(document, version, config);
 
         writeChangelog(document, inputFile);
     }
@@ -72,7 +75,8 @@ public final class ReleaseMojo extends HeylogsMojo {
         return Config
                 .builder()
                 .versionTagPrefix(Objects.toString(tagPrefix, ""))
-                .versioningId(semver ? "semver" : null)
+                .versioningId(versioningId)
+                .versioningArg(versioningArg)
                 .build();
     }
 

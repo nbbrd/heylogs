@@ -20,7 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static internal.heylogs.HeylogsParameters.*;
+import static internal.heylogs.HeylogsParameters.DEFAULT_CHANGELOG_FILE;
+import static internal.heylogs.HeylogsParameters.DEFAULT_RECURSIVE;
 import static internal.heylogs.spi.FormatSupport.resolveFormatId;
 import static java.util.stream.Collectors.toList;
 import static nbbrd.console.picocli.ByteOutputSupport.DEFAULT_STDOUT_FILE;
@@ -43,8 +44,11 @@ public final class CheckMojo extends HeylogsMojo {
     @Parameter(property = "heylogs.tagPrefix")
     private String tagPrefix;
 
-    @Parameter(property = "heylogs.semver", defaultValue = DEFAULT_SEMVER)
-    private boolean semver;
+    @Parameter(property = "heylogs.versioningId")
+    private String versioningId;
+
+    @Parameter(property = "heylogs.versioningArg")
+    private String versioningArg;
 
     @Parameter(property = "heylogs.formatId")
     private String formatId;
@@ -57,7 +61,7 @@ public final class CheckMojo extends HeylogsMojo {
         }
 
         Config config = toConfig();
-        Heylogs heylogs = initHeylogs(semver);
+        Heylogs heylogs = Heylogs.ofServiceLoader();
 
         List<Check> list = new ArrayList<>();
         try {
@@ -95,7 +99,8 @@ public final class CheckMojo extends HeylogsMojo {
         return Config
                 .builder()
                 .versionTagPrefix(Objects.toString(tagPrefix, ""))
-                .versioningId(semver ? "semver" : null)
+                .versioningId(versioningId)
+                .versioningArg(versioningArg)
                 .build();
     }
 }

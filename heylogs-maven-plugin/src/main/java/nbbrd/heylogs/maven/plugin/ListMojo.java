@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.io.Writer;
 
 import static internal.heylogs.spi.FormatSupport.resolveFormatId;
-import static internal.heylogs.HeylogsParameters.DEFAULT_SEMVER;
 import static nbbrd.console.picocli.ByteOutputSupport.DEFAULT_STDOUT_FILE;
 import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
 
@@ -24,9 +23,6 @@ public final class ListMojo extends HeylogsMojo {
     @Parameter(property = "heylogs.outputFile", defaultValue = DEFAULT_STDOUT_FILE)
     private File outputFile;
 
-    @Parameter(property = "heylogs.semver", defaultValue = DEFAULT_SEMVER)
-    private boolean semver;
-
     @Parameter(property = "heylogs.formatId")
     private String formatId;
 
@@ -37,7 +33,7 @@ public final class ListMojo extends HeylogsMojo {
             return;
         }
 
-        Heylogs heylogs = initHeylogs(semver);
+        Heylogs heylogs = Heylogs.ofServiceLoader();
 
         TextOutputSupport outputSupport = newTextOutputSupport();
         String formatId = resolveFormatId(getFormatId(), heylogs, outputSupport::isStdoutFile, outputFile.toPath());

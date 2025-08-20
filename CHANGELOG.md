@@ -11,6 +11,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Add Calendar Versioning [#253](https://github.com/nbbrd/heylogs/issues/253)
 
+### Changed
+
+- Modify versioning configuration [#420](https://github.com/nbbrd/heylogs/issues/420)
+
 ## [0.12.1] - 2025-08-18
 
 ### Fixed
