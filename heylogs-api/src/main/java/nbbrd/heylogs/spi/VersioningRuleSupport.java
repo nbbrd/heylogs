@@ -59,9 +59,9 @@ public final class VersioningRuleSupport implements Rule {
     }
 
     @Override
-    public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
-        return versioningId.equals(config.getVersioningId()) && node instanceof Heading
-                ? validateVersioning((Heading) node, config) : NO_RULE_ISSUE;
+    public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
+        return versioningId.equals(context.getConfig().getVersioningId()) && node instanceof Heading
+                ? validateVersioning((Heading) node, context.getConfig()) : NO_RULE_ISSUE;
     }
 
     private RuleIssue validateVersioning(Heading heading, Config config) {

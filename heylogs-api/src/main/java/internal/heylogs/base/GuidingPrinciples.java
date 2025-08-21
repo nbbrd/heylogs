@@ -11,10 +11,7 @@ import nbbrd.design.DirectImpl;
 import nbbrd.design.MightBeGenerated;
 import nbbrd.design.VisibleForTesting;
 import nbbrd.heylogs.*;
-import nbbrd.heylogs.spi.Rule;
-import nbbrd.heylogs.spi.RuleBatch;
-import nbbrd.heylogs.spi.RuleIssue;
-import nbbrd.heylogs.spi.RuleSeverity;
+import nbbrd.heylogs.spi.*;
 import nbbrd.service.ServiceProvider;
 
 import java.util.Comparator;
@@ -31,7 +28,7 @@ public enum GuidingPrinciples implements Rule {
 
     FOR_HUMANS {
         @Override
-        public RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
+        public RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
             return node instanceof Document ? validateForHumans((Document) node) : NO_RULE_ISSUE;
         }
 
@@ -42,7 +39,7 @@ public enum GuidingPrinciples implements Rule {
     },
     ALL_H2_CONTAIN_A_VERSION {
         @Override
-        public RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
+        public RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
             return node instanceof Heading ? validateAllH2ContainAVersion((Heading) node) : NO_RULE_ISSUE;
         }
 
@@ -53,7 +50,7 @@ public enum GuidingPrinciples implements Rule {
     },
     TYPE_OF_CHANGES_GROUPED {
         @Override
-        public RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
+        public RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
             return node instanceof Heading ? validateTypeOfChangesGrouped((Heading) node) : NO_RULE_ISSUE;
         }
 
@@ -64,7 +61,7 @@ public enum GuidingPrinciples implements Rule {
     },
     LINKABLE {
         @Override
-        public RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
+        public RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
             return node instanceof Heading ? validateLinkable((Heading) node) : NO_RULE_ISSUE;
         }
 
@@ -75,7 +72,7 @@ public enum GuidingPrinciples implements Rule {
     },
     LATEST_VERSION_FIRST {
         @Override
-        public RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
+        public RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
             return node instanceof Document ? validateLatestVersionFirst((Document) node) : NO_RULE_ISSUE;
         }
 
@@ -86,7 +83,7 @@ public enum GuidingPrinciples implements Rule {
     },
     DATE_DISPLAYED {
         @Override
-        public RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
+        public RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
             return NO_RULE_ISSUE;
         }
 

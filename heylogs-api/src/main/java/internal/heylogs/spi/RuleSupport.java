@@ -4,10 +4,10 @@ import com.vladsch.flexmark.ast.LinkNodeBase;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
 import lombok.NonNull;
-import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Nodes;
 import nbbrd.heylogs.Problem;
 import nbbrd.heylogs.spi.Rule;
+import nbbrd.heylogs.spi.RuleContext;
 import nbbrd.heylogs.spi.RuleIssue;
 import nbbrd.io.text.Parser;
 
@@ -32,13 +32,13 @@ public final class RuleSupport {
         return Parser.onURL().parseValue(link.getUrl());
     }
 
-    public static @NonNull Stream<Problem> problemStreamOf(@NonNull Document root, @NonNull List<Rule> rules, @NonNull Config config) {
+    public static @NonNull Stream<Problem> problemStreamOf(@NonNull Document root, @NonNull List<Rule> rules, @NonNull RuleContext context) {
         return Nodes.walk(root)
-                .flatMap(node -> rules.stream().map(rule -> getProblemOrNull(node, rule, config)).filter(Objects::nonNull));
+                .flatMap(node -> rules.stream().map(rule -> getProblemOrNull(node, rule, context)).filter(Objects::nonNull));
     }
 
-    private static Problem getProblemOrNull(Node node, Rule rule, Config config) {
-        RuleIssue ruleIssueOrNull = rule.getRuleIssueOrNull(node, config);
+    private static Problem getProblemOrNull(Node node, Rule rule, RuleContext context) {
+        RuleIssue ruleIssueOrNull = rule.getRuleIssueOrNull(node, context);
         return ruleIssueOrNull != null ? Problem.builder().rule(rule).issue(ruleIssueOrNull).build() : null;
     }
 }

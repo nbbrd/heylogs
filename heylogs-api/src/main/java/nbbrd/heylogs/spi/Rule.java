@@ -2,7 +2,6 @@ package nbbrd.heylogs.spi;
 
 import com.vladsch.flexmark.util.ast.Node;
 import lombok.NonNull;
-import nbbrd.heylogs.Config;
 import nbbrd.service.Quantifier;
 import nbbrd.service.ServiceDefinition;
 import nbbrd.service.ServiceFilter;
@@ -32,7 +31,7 @@ public interface Rule {
     RuleSeverity getRuleSeverity();
 
     @Nullable
-    RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config);
+    RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context);
 
     RuleIssue NO_RULE_ISSUE = null;
 }

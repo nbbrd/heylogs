@@ -10,14 +10,10 @@ import lombok.NonNull;
 import nbbrd.design.DirectImpl;
 import nbbrd.design.MightBeGenerated;
 import nbbrd.design.VisibleForTesting;
-import nbbrd.heylogs.Config;
 import nbbrd.heylogs.TypeOfChange;
 import nbbrd.heylogs.Util;
 import nbbrd.heylogs.Version;
-import nbbrd.heylogs.spi.Rule;
-import nbbrd.heylogs.spi.RuleBatch;
-import nbbrd.heylogs.spi.RuleIssue;
-import nbbrd.heylogs.spi.RuleSeverity;
+import nbbrd.heylogs.spi.*;
 import nbbrd.service.ServiceProvider;
 import org.jspecify.annotations.Nullable;
 
@@ -36,7 +32,7 @@ public enum ExtendedRules implements Rule {
 
     HTTPS {
         @Override
-        public RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
+        public RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
             return node instanceof LinkNodeBase ? validateHttps((LinkNodeBase) node) : NO_RULE_ISSUE;
         }
 
@@ -47,7 +43,7 @@ public enum ExtendedRules implements Rule {
     },
     CONSISTENT_SEPARATOR {
         @Override
-        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
             return node instanceof Document ? validateConsistentSeparator((Document) node) : NO_RULE_ISSUE;
         }
 
@@ -58,7 +54,7 @@ public enum ExtendedRules implements Rule {
     },
     UNIQUE_HEADINGS {
         @Override
-        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
             return node instanceof Document ? validateUniqueHeadings((Document) node) : NO_RULE_ISSUE;
         }
 
@@ -69,7 +65,7 @@ public enum ExtendedRules implements Rule {
     },
     NO_EMPTY_GROUP {
         @Override
-        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
             return node instanceof Document ? validateNoEmptyGroup((Document) node) : NO_RULE_ISSUE;
         }
 
@@ -80,7 +76,7 @@ public enum ExtendedRules implements Rule {
     },
     NO_EMPTY_RELEASE {
         @Override
-        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
             return node instanceof Document ? validateNoEmptyRelease((Document) node) : NO_RULE_ISSUE;
         }
 
@@ -96,7 +92,7 @@ public enum ExtendedRules implements Rule {
     },
     UNIQUE_RELEASE {
         @Override
-        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
             return node instanceof Document ? validateUniqueRelease((Document) node) : NO_RULE_ISSUE;
         }
 
@@ -107,7 +103,7 @@ public enum ExtendedRules implements Rule {
     },
     IMBALANCED_BRACES {
         @Override
-        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
             return node instanceof Document ? validateImbalancedBraces((Document) node) : NO_RULE_ISSUE;
         }
 

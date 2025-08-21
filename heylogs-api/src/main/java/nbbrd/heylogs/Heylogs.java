@@ -66,7 +66,8 @@ public class Heylogs {
     List<Forge> forges;
 
     public @NonNull List<Problem> checkFormat(@NonNull Document document, @NonNull Config config) {
-        return problemStreamOf(document, rules, config).collect(toList());
+        RuleContext context = RuleContext.builder().config(config).forges(forges).versionings(versionings).build();
+        return problemStreamOf(document, rules, context).collect(toList());
     }
 
     public void extractVersions(@NonNull Document document, @NonNull Filter filter) {
@@ -252,7 +253,7 @@ public class Heylogs {
     public static final String FIRST_FORMAT_AVAILABLE = "";
 
     private static boolean isNotValidAgainstGuidingPrinciples(Document document) {
-        return problemStreamOf(document, asList(GuidingPrinciples.values()), Config.DEFAULT).findFirst().isPresent();
+        return problemStreamOf(document, asList(GuidingPrinciples.values()), RuleContext.DEFAULT).findFirst().isPresent();
     }
 
     @MightBePromoted

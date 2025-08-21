@@ -307,7 +307,7 @@ public class HeylogsTest {
         }
 
         @Override
-        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
             return null;
         }
     }

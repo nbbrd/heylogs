@@ -4,6 +4,7 @@ import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.util.ast.Node;
 import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Nodes;
+import nbbrd.heylogs.spi.RuleContext;
 import nbbrd.heylogs.spi.RuleIssue;
 import org.junit.jupiter.api.Test;
 
@@ -23,8 +24,8 @@ public class SemVerRulesTest {
 
     @Test
     public void testSample() {
-        Config withoutSemver = Config.DEFAULT;
-        Config withSemver = Config.builder().versioningId(SemVer.ID).build();
+        RuleContext withoutSemver = RuleContext.DEFAULT;
+        RuleContext withSemver = RuleContext.builder().config(Config.builder().versioningId(SemVer.ID).build()).build();
 
         assertThat(Nodes.of(Node.class).descendants(using("/Main.md")))
                 .map(node -> SEMVER_FORMAT.getRuleIssueOrNull(node, withoutSemver))
