@@ -11,6 +11,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Add Calendar Versioning [#253](https://github.com/nbbrd/heylogs/issues/253)
 - Add forge configuration [#421](https://github.com/nbbrd/heylogs/issues/421)
+- Add generic versioning rule [#419](https://github.com/nbbrd/heylogs/issues/419)
 
 ### Changed
 

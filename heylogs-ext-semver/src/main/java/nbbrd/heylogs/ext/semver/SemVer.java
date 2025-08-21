@@ -2,10 +2,12 @@ package nbbrd.heylogs.ext.semver;
 
 import lombok.NonNull;
 import nbbrd.design.DirectImpl;
-import nbbrd.heylogs.Config;
 import nbbrd.heylogs.spi.Versioning;
 import nbbrd.service.ServiceProvider;
+import org.jspecify.annotations.Nullable;
 import org.semver4j.Semver;
+
+import java.util.function.Predicate;
 
 @DirectImpl
 @ServiceProvider
@@ -29,7 +31,7 @@ public final class SemVer implements Versioning {
     }
 
     @Override
-    public boolean isValidVersion(@NonNull CharSequence text, @NonNull Config config) {
-        return Semver.isValid(text.toString());
+    public @NonNull Predicate<CharSequence> getVersioningPredicate(@Nullable String ignore) {
+        return text -> Semver.isValid(text.toString());
     }
 }

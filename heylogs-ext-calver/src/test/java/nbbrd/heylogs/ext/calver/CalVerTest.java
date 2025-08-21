@@ -1,6 +1,5 @@
 package nbbrd.heylogs.ext.calver;
 
-import nbbrd.heylogs.Config;
 import nbbrd.heylogs.spi.Versioning;
 import org.junit.jupiter.api.Test;
 
@@ -18,12 +17,12 @@ class CalVerTest {
     void testIsValidVersion() {
         Versioning x = new CalVer();
 
-        assertThat(x.isValidVersion("20.04", Config.DEFAULT)).isFalse();
-        assertThat(x.isValidVersion("20.04.1", Config.DEFAULT)).isFalse();
+        assertThat(x.getVersioningPredicate(null))
+                .rejects("20.04")
+                .rejects("20.04.1");
 
-        Config ubuntu = Config.builder().versioningArg("YY.0M.MICRO").build();
-
-        assertThat(x.isValidVersion("20.04", ubuntu)).isTrue();
-        assertThat(x.isValidVersion("20.04.1", ubuntu)).isTrue();
+        assertThat(x.getVersioningPredicate("YY.0M.MICRO"))
+                .accepts("20.04")
+                .accepts("20.04.1");
     }
 }

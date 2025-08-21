@@ -1,10 +1,12 @@
 package nbbrd.heylogs.spi;
 
 import lombok.NonNull;
-import nbbrd.heylogs.Config;
 import nbbrd.service.Quantifier;
 import nbbrd.service.ServiceDefinition;
 import nbbrd.service.ServiceId;
+import org.jspecify.annotations.Nullable;
+
+import java.util.function.Predicate;
 
 @ServiceDefinition(
         quantifier = Quantifier.MULTIPLE
@@ -12,11 +14,15 @@ import nbbrd.service.ServiceId;
 public interface Versioning {
 
     @ServiceId(pattern = ServiceId.KEBAB_CASE)
-    @NonNull String getVersioningId();
+    @NonNull
+    String getVersioningId();
 
-    @NonNull String getVersioningName();
+    @NonNull
+    String getVersioningName();
 
-    @NonNull String getVersioningModuleId();
+    @NonNull
+    String getVersioningModuleId();
 
-    boolean isValidVersion(@NonNull CharSequence text, @NonNull Config config);
+    @NonNull
+    Predicate<CharSequence> getVersioningPredicate(@Nullable String arg);
 }

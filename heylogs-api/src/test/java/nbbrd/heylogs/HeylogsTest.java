@@ -9,6 +9,7 @@ import nbbrd.design.MightBePromoted;
 import nbbrd.heylogs.spi.*;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
+import tests.heylogs.spi.MockedVersioning;
 
 import java.io.IOException;
 import java.net.URL;
@@ -106,7 +107,7 @@ public class HeylogsTest {
         Heylogs x = Heylogs.ofServiceLoader()
                 .toBuilder()
                 .forge(new MockedForge())
-                .versioning(new MockedVersioning())
+                .versioning(MockedVersioning.builder().validation(ignore -> MockedVersioning::isInteger).build())
                 .build();
 
         LocalDate date = LocalDate.of(2010, 1, 1);
@@ -114,13 +115,13 @@ public class HeylogsTest {
         assertThatIllegalArgumentException().isThrownBy(() -> releaseChangesToString(x, using("/Main.md"), Version.of("42", HYPHEN, date), "boom"))
                 .withMessageContaining("Cannot find versioning with id 'boom'");
 
-        assertThatIllegalArgumentException().isThrownBy(() -> releaseChangesToString(x, using("/Main.md"), Version.of("boom", HYPHEN, date), "mocked"))
-                .withMessageContaining("Invalid version 'boom' for versioning 'mocked'");
+        assertThatIllegalArgumentException().isThrownBy(() -> releaseChangesToString(x, using("/Main.md"), Version.of("boom", HYPHEN, date), "mocked-versioning"))
+                .withMessageContaining("Invalid version 'boom' for versioning 'mocked-versioning'");
 
         assertThatCode(() -> releaseChangesToString(x, using("/Main.md"), Version.of("boom", HYPHEN, date), null))
                 .doesNotThrowAnyException();
 
-        assertThatCode(() -> releaseChangesToString(x, using("/Main.md"), Version.of("42", HYPHEN, date), "mocked"))
+        assertThatCode(() -> releaseChangesToString(x, using("/Main.md"), Version.of("42", HYPHEN, date), "mocked-versioning"))
                 .doesNotThrowAnyException();
 
         Version v123 = Version.of("1.2.3", HYPHEN, date);
@@ -337,34 +338,6 @@ public class HeylogsTest {
         @Override
         public @NonNull CompareLink getCompareLink(@NonNull URL url) {
             return new MockedCompareLink(url);
-        }
-    }
-
-    private static final class MockedVersioning implements Versioning {
-
-        @Override
-        public @NonNull String getVersioningId() {
-            return "mocked";
-        }
-
-        @Override
-        public @NonNull String getVersioningName() {
-            return "";
-        }
-
-        @Override
-        public @NonNull String getVersioningModuleId() {
-            return "mocked";
-        }
-
-        @Override
-        public boolean isValidVersion(@NonNull CharSequence text, @NonNull Config config) {
-            try {
-                Integer.parseInt(text.toString());
-                return true;
-            } catch (NumberFormatException ignore) {
-                return false;
-            }
         }
     }
 

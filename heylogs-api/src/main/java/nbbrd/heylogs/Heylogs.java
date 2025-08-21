@@ -131,7 +131,7 @@ public class Heylogs {
         if (config.getVersioningId() != null) {
             Versioning versioning = findVersioning(onVersioningId(config.getVersioningId()))
                     .orElseThrow(() -> new IllegalArgumentException("Cannot find versioning with id '" + config.getVersioningId() + "'"));
-            if (!versioning.isValidVersion(newVersion.getRef(), config)) {
+            if (!versioning.getVersioningPredicate(config.getVersioningArg()).test(newVersion.getRef())) {
                 throw new IllegalArgumentException("Invalid version '" + newVersion.getRef() + "' for versioning '" + config.getVersioningId() + "'");
             }
         }
@@ -205,7 +205,7 @@ public class Heylogs {
                 .valid(true)
                 .releaseCount(releases.size())
                 .timeRange(releases.stream().map(Version::getDate).collect(toTimeRange()).orElse(TimeRange.ALL))
-                .compatibilities(versioningStreamOf(versionings, releases, Config.DEFAULT).map(Versioning::getVersioningName).collect(toList()))
+                .compatibilities(versioningStreamOf(versionings, releases, null).map(Versioning::getVersioningName).collect(toList()))
                 .unreleasedChanges((int) unreleasedChanges)
                 .forgeName(forgeOrNull != null ? forgeOrNull.getForgeName() : null)
                 .forgeURL(getForgeURL(forgeOrNull, first.getURL()))

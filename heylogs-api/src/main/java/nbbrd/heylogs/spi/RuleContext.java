@@ -4,6 +4,9 @@ import lombok.NonNull;
 import nbbrd.heylogs.Config;
 
 import java.util.List;
+import java.util.Optional;
+
+import static internal.heylogs.spi.VersioningSupport.onVersioningId;
 
 @lombok.Value
 @lombok.Builder
@@ -20,4 +23,10 @@ public class RuleContext {
 
     @lombok.Singular
     List<Versioning> versionings;
+
+    public @NonNull Optional<Versioning> findVersioning() {
+        return config.getVersioningId() != null
+                ? versionings.stream().filter(onVersioningId(config.getVersioningId())).findFirst()
+                : Optional.empty();
+    }
 }

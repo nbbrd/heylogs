@@ -1,5 +1,6 @@
 package internal.heylogs.base;
 
+import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.ast.LinkNodeBase;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
@@ -25,8 +26,10 @@ import java.util.stream.Stream;
 
 import static internal.heylogs.spi.RuleSupport.linkToURL;
 import static internal.heylogs.spi.RuleSupport.nameToId;
+import static java.util.Locale.ROOT;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.*;
+import static nbbrd.heylogs.Util.illegalArgumentToNull;
 
 public enum ExtendedRules implements Rule {
 
@@ -110,6 +113,18 @@ public enum ExtendedRules implements Rule {
         @Override
         public @NonNull String getRuleName() {
             return "Imbalanced braces";
+        }
+    },
+    VERSIONING_FORMAT {
+        @Override
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
+            return node instanceof Heading
+                    ? validateVersioningFormat((Heading) node, context) : NO_RULE_ISSUE;
+        }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "Versioning format";
         }
     };
 
@@ -315,6 +330,35 @@ public enum ExtendedRules implements Rule {
             }
         }
         return !stack.isEmpty(); // true if any unmatched opening braces remain
+    }
+
+    @VisibleForTesting
+    static RuleIssue validateVersioningFormat(Heading heading, RuleContext context) {
+        Versioning versioning = context.findVersioning().orElse(null);
+
+        if (versioning == null) {
+            return NO_RULE_ISSUE;
+        }
+
+        if (!Version.isVersionLevel(heading)) {
+            return NO_RULE_ISSUE;
+        }
+
+        Version version = illegalArgumentToNull(Version::parse).apply(heading);
+
+        if (version == null || version.isUnreleased()) {
+            return NO_RULE_ISSUE;
+        }
+
+        String ref = version.getRef();
+
+        return versioning.getVersioningPredicate(context.getConfig().getVersioningArg()).test(ref)
+                ? NO_RULE_ISSUE
+                : RuleIssue
+                .builder()
+                .message(String.format(ROOT, "Invalid %s format: '%s'", versioning.getVersioningId(), ref))
+                .location(heading)
+                .build();
     }
 
     @SuppressWarnings("unused")

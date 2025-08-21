@@ -3,9 +3,12 @@ package nbbrd.heylogs.ext.calver;
 import internal.heylogs.ext.calver.CalVerFormat;
 import lombok.NonNull;
 import nbbrd.design.DirectImpl;
-import nbbrd.heylogs.Config;
 import nbbrd.heylogs.spi.Versioning;
 import nbbrd.service.ServiceProvider;
+import org.jspecify.annotations.Nullable;
+
+import java.util.Objects;
+import java.util.function.Predicate;
 
 @DirectImpl
 @ServiceProvider
@@ -29,14 +32,16 @@ public final class CalVer implements Versioning {
     }
 
     @Override
-    public boolean isValidVersion(@NonNull CharSequence text, @NonNull Config config) {
-        String format = config.getVersioningArg();
-        if (format != null) {
+    public @NonNull Predicate<CharSequence> getVersioningPredicate(@Nullable String arg) {
+        if (arg != null) {
             try {
-                return CalVerFormat.parse(format).isValidVersion(text);
+                return CalVerFormat.parse(arg)::isValidVersion;
             } catch (IllegalArgumentException ignore) {
             }
         }
-        return false;
+        return ignore -> {
+            Objects.requireNonNull(ignore);
+            return false;
+        };
     }
 }
