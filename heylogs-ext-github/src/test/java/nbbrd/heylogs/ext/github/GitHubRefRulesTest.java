@@ -15,23 +15,23 @@ import java.util.Objects;
 
 import static internal.heylogs.spi.URLExtractor.urlOf;
 import static java.util.stream.Collectors.toList;
-import static nbbrd.heylogs.ext.github.GitHubRules.*;
+import static nbbrd.heylogs.ext.github.GitHubRefRules.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Index.atIndex;
 import static tests.heylogs.api.Sample.using;
 import static tests.heylogs.spi.RuleAssert.assertRuleCompliance;
 
-public class GitHubRulesTest {
+public class GitHubRefRulesTest {
 
     @Test
     public void testCompliance() {
-        assertRuleCompliance(new GitHubRules());
+        assertRuleCompliance(new GitHubRefRules());
     }
 
     @Test
     public void testRules() {
         Node sample = Sample.using("/Main.md");
-        for (Rule rule : new GitHubRules().getProviders().collect(toList())) {
+        for (Rule rule : new GitHubRefRules().getProviders().collect(toList())) {
             assertThat(Nodes.of(Node.class).descendants(sample).map(node -> rule.getRuleIssueOrNull(node, Config.DEFAULT)).filter(Objects::nonNull))
                     .isEmpty();
         }

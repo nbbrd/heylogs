@@ -15,23 +15,23 @@ import java.util.Objects;
 
 import static internal.heylogs.spi.URLExtractor.urlOf;
 import static java.util.stream.Collectors.toList;
-import static nbbrd.heylogs.ext.forgejo.ForgejoRules.*;
+import static nbbrd.heylogs.ext.forgejo.ForgejoRefRules.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Index.atIndex;
 import static tests.heylogs.api.Sample.using;
 import static tests.heylogs.spi.RuleAssert.assertRuleCompliance;
 
-public class ForgejoRulesTest {
+public class ForgejoRefRulesTest {
 
     @Test
     public void testCompliance() {
-        assertRuleCompliance(new ForgejoRules());
+        assertRuleCompliance(new ForgejoRefRules());
     }
 
     @Test
     public void testRules() {
         Node sample = Sample.using("/Main.md");
-        for (Rule rule : new ForgejoRules().getProviders().collect(toList())) {
+        for (Rule rule : new ForgejoRefRules().getProviders().collect(toList())) {
             assertThat(Nodes.of(Node.class).descendants(sample).map(node -> rule.getRuleIssueOrNull(node, Config.DEFAULT)).filter(Objects::nonNull))
                     .isEmpty();
         }
