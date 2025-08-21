@@ -9,7 +9,8 @@ import org.jspecify.annotations.Nullable;
 import java.util.function.Predicate;
 
 @ServiceDefinition(
-        quantifier = Quantifier.MULTIPLE
+        quantifier = Quantifier.MULTIPLE,
+        batchType = VersioningBatch.class
 )
 public interface Versioning {
 

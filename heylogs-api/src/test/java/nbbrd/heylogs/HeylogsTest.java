@@ -9,7 +9,6 @@ import nbbrd.design.MightBePromoted;
 import nbbrd.heylogs.spi.*;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
-import tests.heylogs.spi.MockedVersioning;
 
 import java.io.IOException;
 import java.net.URL;
@@ -107,7 +106,13 @@ public class HeylogsTest {
         Heylogs x = Heylogs.ofServiceLoader()
                 .toBuilder()
                 .forge(new MockedForge())
-                .versioning(MockedVersioning.builder().validation(ignore -> MockedVersioning::isInteger).build())
+                .versioning(VersioningSupport
+                        .builder()
+                        .id("mocked-versioning")
+                        .name("Mocked Versioning")
+                        .moduleId("mocked-versioning")
+                        .validation(ignore -> HeylogsTest::isInteger)
+                        .build())
                 .build();
 
         LocalDate date = LocalDate.of(2010, 1, 1);
@@ -370,6 +375,15 @@ public class HeylogsTest {
             String urlAsString = url.toString();
             int index = urlAsString.indexOf("/compare");
             return index == -1 ? url : urlOf(urlAsString.substring(0, index));
+        }
+    }
+
+    private static boolean isInteger(@NonNull CharSequence text) {
+        try {
+            Integer.parseInt(text.toString());
+            return true;
+        } catch (NumberFormatException ex) {
+            return false;
         }
     }
 }

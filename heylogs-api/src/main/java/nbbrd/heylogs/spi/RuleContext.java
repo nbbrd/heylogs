@@ -6,7 +6,7 @@ import nbbrd.heylogs.Config;
 import java.util.List;
 import java.util.Optional;
 
-import static internal.heylogs.spi.VersioningSupport.onVersioningId;
+import static nbbrd.heylogs.spi.VersioningSupport.onVersioningId;
 
 @lombok.Value
 @lombok.Builder

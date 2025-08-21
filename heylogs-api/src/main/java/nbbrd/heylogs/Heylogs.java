@@ -25,14 +25,13 @@ import java.util.stream.Stream;
 import static internal.heylogs.spi.FormatSupport.onFormatFileFilter;
 import static internal.heylogs.spi.FormatSupport.onFormatId;
 import static internal.heylogs.spi.RuleSupport.problemStreamOf;
-import static internal.heylogs.spi.VersioningSupport.onVersioningId;
-import static internal.heylogs.spi.VersioningSupport.versioningStreamOf;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.partitioningBy;
 import static java.util.stream.Collectors.toList;
 import static nbbrd.heylogs.TimeRange.toTimeRange;
 import static nbbrd.heylogs.spi.ForgeSupport.onCompareLink;
 import static nbbrd.heylogs.spi.ForgeSupport.onForgeId;
+import static nbbrd.heylogs.spi.VersioningSupport.onVersioningId;
 
 @lombok.Value
 @lombok.Builder(toBuilder = true)
@@ -205,7 +204,7 @@ public class Heylogs {
                 .valid(true)
                 .releaseCount(releases.size())
                 .timeRange(releases.stream().map(Version::getDate).collect(toTimeRange()).orElse(TimeRange.ALL))
-                .compatibilities(versioningStreamOf(versionings, releases, null).map(Versioning::getVersioningName).collect(toList()))
+                .compatibilities(versioningStreamOf(versionings, releases).map(Versioning::getVersioningName).collect(toList()))
                 .unreleasedChanges((int) unreleasedChanges)
                 .forgeName(forgeOrNull != null ? forgeOrNull.getForgeName() : null)
                 .forgeURL(getForgeURL(forgeOrNull, first.getURL()))
@@ -264,5 +263,13 @@ public class Heylogs {
             result = Stream.concat(result, next);
         }
         return result;
+    }
+
+    private static Stream<Versioning> versioningStreamOf(List<Versioning> list, List<Version> releases) {
+        return list.stream().filter(versioning ->
+                releases.stream()
+                        .map(Version::getRef)
+                        .allMatch(versioning.getVersioningPredicate(null))
+        );
     }
 }
