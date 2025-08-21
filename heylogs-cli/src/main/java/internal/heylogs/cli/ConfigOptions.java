@@ -3,8 +3,6 @@ package internal.heylogs.cli;
 import nbbrd.heylogs.Config;
 import picocli.CommandLine;
 
-import java.util.Objects;
-
 @lombok.Getter
 public class ConfigOptions {
 
@@ -31,12 +29,20 @@ public class ConfigOptions {
     )
     private String versioningArg;
 
+    @CommandLine.Option(
+            names = {"-g", "--forge"},
+            paramLabel = "<id>",
+            description = "Specify the forge used to host the versions."
+    )
+    private String forgeId;
+
     public Config getConfig() {
         return Config
                 .builder()
-                .versionTagPrefix(Objects.toString(getTagPrefix(), ""))
+                .versionTagPrefix(tagPrefix)
                 .versioningId(versioningId)
                 .versioningArg(versioningArg)
+                .forgeId(forgeId)
                 .build();
     }
 }

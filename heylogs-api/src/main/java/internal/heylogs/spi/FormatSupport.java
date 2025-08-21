@@ -2,8 +2,10 @@ package internal.heylogs.spi;
 
 import lombok.NonNull;
 import nbbrd.heylogs.Heylogs;
+import nbbrd.heylogs.spi.Format;
 import org.jspecify.annotations.Nullable;
 
+import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,4 +36,17 @@ public final class FormatSupport {
         return formatId != null && !formatId.isEmpty();
     }
 
+    public static @NonNull Predicate<Format> onFormatId(@NonNull String id) {
+        return format -> id.equals(Heylogs.FIRST_FORMAT_AVAILABLE) || format.getFormatId().equals(id);
+    }
+
+    public static @NonNull Predicate<Format> onFormatFileFilter(@NonNull Path file) {
+        return format -> {
+            try {
+                return format.getFormatFileFilter().accept(file);
+            } catch (IOException e) {
+                return false;
+            }
+        };
+    }
 }

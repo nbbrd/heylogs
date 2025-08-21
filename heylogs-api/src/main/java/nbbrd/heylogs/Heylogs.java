@@ -18,19 +18,21 @@ import nbbrd.heylogs.spi.*;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import static internal.heylogs.spi.FormatSupport.onFormatFileFilter;
+import static internal.heylogs.spi.FormatSupport.onFormatId;
 import static internal.heylogs.spi.RuleSupport.problemStreamOf;
+import static internal.heylogs.spi.VersioningSupport.onVersioningId;
 import static internal.heylogs.spi.VersioningSupport.versioningStreamOf;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.partitioningBy;
 import static java.util.stream.Collectors.toList;
 import static nbbrd.heylogs.TimeRange.toTimeRange;
+import static nbbrd.heylogs.spi.ForgeSupport.onCompareLink;
+import static nbbrd.heylogs.spi.ForgeSupport.onForgeId;
 
 @lombok.Value
 @lombok.Builder(toBuilder = true)
@@ -126,7 +128,7 @@ public class Heylogs {
 
     public void releaseChanges(@NonNull Document document, @NonNull Version newVersion, @NonNull Config config) throws IllegalArgumentException {
         if (config.getVersioningId() != null) {
-            Versioning versioning = getVersioningById(config.getVersioningId())
+            Versioning versioning = findVersioning(onVersioningId(config.getVersioningId()))
                     .orElseThrow(() -> new IllegalArgumentException("Cannot find versioning with id '" + config.getVersioningId() + "'"));
             if (!versioning.isValidVersion(newVersion.getRef(), config)) {
                 throw new IllegalArgumentException("Invalid version '" + newVersion.getRef() + "' for versioning '" + config.getVersioningId() + "'");
@@ -145,10 +147,11 @@ public class Heylogs {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Cannot locate unreleased header"));
 
-        Forge forge = findForge(unreleased)
-                .orElseThrow(() -> new IllegalArgumentException("Cannot determine forge"));
+        Forge forge = config.getForgeId() != null
+                ? findForge(onForgeId(config.getForgeId())).orElseThrow(() -> new IllegalArgumentException("Cannot find forge with id '" + config.getForgeId() + "'"))
+                : findForge(onCompareLink(unreleased.getURL())).orElseThrow(() -> new IllegalArgumentException("Cannot determine forge"));
 
-        URL releaseURL = forge.getCompareLink(unreleased.getURL()).derive(config.getVersionTagPrefix() + newVersion.getRef()).toURL();
+        URL releaseURL = forge.getCompareLink(unreleased.getURL()).derive(Objects.toString(config.getVersionTagPrefix(), "") + newVersion.getRef()).toURL();
         VersionHeading release = VersionHeading.of(newVersion, releaseURL);
 
         URL updatedURL = forge.getCompareLink(releaseURL).derive("HEAD").toURL();
@@ -194,7 +197,7 @@ public class Heylogs {
                 .orElse(0L);
 
         VersionHeading first = versions.get(0);
-        Forge forgeOrNull = findForge(first).orElse(null);
+        Forge forgeOrNull = findForge(onCompareLink(first.getURL())).orElse(null);
 
         return Summary
                 .builder()
@@ -209,53 +212,41 @@ public class Heylogs {
     }
 
     public void formatProblems(@NonNull String formatId, @NonNull Appendable appendable, @NonNull List<Check> list) throws IOException {
-        getFormatById(formatId)
+        findFormat(onFormatId(formatId))
                 .orElseThrow(() -> new IOException("Cannot find format '" + formatId + "'"))
                 .formatProblems(appendable, list);
     }
 
     public void formatStatus(@NonNull String formatId, @NonNull Appendable appendable, @NonNull List<Scan> list) throws IOException {
-        getFormatById(formatId)
+        findFormat(onFormatId(formatId))
                 .orElseThrow(() -> new IOException("Cannot find format '" + formatId + "'"))
                 .formatStatus(appendable, list);
     }
 
     public void formatResources(@NonNull String formatId, @NonNull Appendable appendable, @NonNull List<Resource> list) throws IOException {
-        getFormatById(formatId)
+        findFormat(onFormatId(formatId))
                 .orElseThrow(() -> new IOException("Cannot find format '" + formatId + "'"))
                 .formatResources(appendable, list);
     }
 
     public @NonNull Optional<String> getFormatIdByFile(@NonNull Path file) {
-        return getFormatByFile(file).map(Format::getFormatId);
+        return findFormat(onFormatFileFilter(file)).map(Format::getFormatId);
     }
 
     private URL getForgeURL(Forge forgeOrNull, URL url) {
         return forgeOrNull != null ? forgeOrNull.getCompareLink(url).getProjectURL() : URLExtractor.baseOf(url);
     }
 
-    private Optional<Forge> findForge(VersionHeading node) {
-        return forges.stream()
-                .filter(forge -> forge.isCompareLink(node.getURL()))
-                .findFirst();
+    private Optional<Forge> findForge(@NonNull Predicate<Forge> predicate) {
+        return forges.stream().filter(predicate).findFirst();
     }
 
-    private Optional<Format> getFormatById(String formatId) {
-        return formats.stream()
-                .filter(onId(formatId))
-                .findFirst();
+    private Optional<Versioning> findVersioning(@NonNull Predicate<Versioning> predicate) {
+        return versionings.stream().filter(predicate).findFirst();
     }
 
-    private Optional<Format> getFormatByFile(Path file) {
-        return formats.stream()
-                .filter(onFile(file))
-                .findFirst();
-    }
-
-    private Optional<Versioning> getVersioningById(String versioningId) {
-        return versionings.stream()
-                .filter(versioning -> versioning.getVersioningId().equals(versioningId))
-                .findFirst();
+    private Optional<Format> findFormat(@NonNull Predicate<Format> predicate) {
+        return formats.stream().filter(predicate).findFirst();
     }
 
     public static final String FIRST_FORMAT_AVAILABLE = "";
@@ -272,19 +263,5 @@ public class Heylogs {
             result = Stream.concat(result, next);
         }
         return result;
-    }
-
-    private static Predicate<Format> onId(String id) {
-        return format -> id.equals(FIRST_FORMAT_AVAILABLE) || format.getFormatId().equals(id);
-    }
-
-    private static Predicate<Format> onFile(Path file) {
-        return format -> {
-            try {
-                return format.getFormatFileFilter().accept(file);
-            } catch (IOException e) {
-                return false;
-            }
-        };
     }
 }

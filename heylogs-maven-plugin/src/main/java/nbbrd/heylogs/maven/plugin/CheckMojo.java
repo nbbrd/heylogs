@@ -50,6 +50,9 @@ public final class CheckMojo extends HeylogsMojo {
     @Parameter(property = "heylogs.versioningArg")
     private String versioningArg;
 
+    @Parameter(property = "heylogs.forgeId")
+    private String forgeId;
+
     @Parameter(property = "heylogs.formatId")
     private String formatId;
 
@@ -98,9 +101,10 @@ public final class CheckMojo extends HeylogsMojo {
     private @NonNull Config toConfig() {
         return Config
                 .builder()
-                .versionTagPrefix(Objects.toString(tagPrefix, ""))
+                .versionTagPrefix(tagPrefix)
                 .versioningId(versioningId)
                 .versioningArg(versioningArg)
+                .forgeId(forgeId)
                 .build();
     }
 }

@@ -42,6 +42,9 @@ public final class ReleaseMojo extends HeylogsMojo {
     @Parameter(property = "heylogs.versioningArg")
     private String versioningArg;
 
+    @Parameter(property = "heylogs.forgeId")
+    private String forgeId;
+
     @Override
     public void execute() throws MojoExecutionException {
         if (isSkip()) {
@@ -74,9 +77,10 @@ public final class ReleaseMojo extends HeylogsMojo {
     private @NonNull Config toConfig() {
         return Config
                 .builder()
-                .versionTagPrefix(Objects.toString(tagPrefix, ""))
+                .versionTagPrefix(tagPrefix)
                 .versioningId(versioningId)
                 .versioningArg(versioningArg)
+                .forgeId(forgeId)
                 .build();
     }
 

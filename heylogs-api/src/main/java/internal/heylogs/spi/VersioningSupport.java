@@ -1,10 +1,12 @@
 package internal.heylogs.spi;
 
+import lombok.NonNull;
 import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Version;
 import nbbrd.heylogs.spi.Versioning;
 
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public final class VersioningSupport {
@@ -16,5 +18,9 @@ public final class VersioningSupport {
     public static Stream<Versioning> versioningStreamOf(List<Versioning> list, List<Version> releases, Config config) {
         return list.stream()
                 .filter(versioning -> releases.stream().allMatch(release -> versioning.isValidVersion(release.getRef(), config)));
+    }
+
+    public static @NonNull Predicate<Versioning> onVersioningId(@NonNull String id) {
+        return versioning -> versioning.getVersioningId().equals(id);
     }
 }
