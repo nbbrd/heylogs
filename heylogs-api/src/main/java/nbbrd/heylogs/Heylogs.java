@@ -66,7 +66,7 @@ public class Heylogs {
     List<Forge> forges;
 
     public @NonNull List<Problem> checkFormat(@NonNull Document document, @NonNull Config config) {
-        getVersioningPredicate(config.getVersioningId(), config.getVersioningArg());
+        getVersioningPredicate(config.getVersioning());
 
         RuleContext context = RuleContext.builder().config(config).forges(forges).versionings(versionings).build();
         return problemStreamOf(document, rules, context).collect(toList());
@@ -130,9 +130,9 @@ public class Heylogs {
     }
 
     public void releaseChanges(@NonNull Document document, @NonNull Version newVersion, @NonNull Config config) throws IllegalArgumentException {
-        Predicate<CharSequence> versioningPredicate = getVersioningPredicate(config.getVersioningId(), config.getVersioningArg());
+        Predicate<CharSequence> versioningPredicate = getVersioningPredicate(config.getVersioning());
         if (versioningPredicate != null && !versioningPredicate.test(newVersion.getRef())) {
-            throw new IllegalArgumentException("Invalid version '" + newVersion.getRef() + "' for versioning '" + config.getVersioningId() + "' and argument '" + config.getVersioningArg() + "'");
+            throw new IllegalArgumentException("Invalid version '" + newVersion.getRef() + "' for versioning '" + config.getVersioning() + "'");
         }
 
         if (isNotValidAgainstGuidingPrinciples(document)) {
@@ -273,13 +273,13 @@ public class Heylogs {
         );
     }
 
-    private @Nullable Predicate<CharSequence> getVersioningPredicate(@Nullable String versioningId, @Nullable String versioningArg) {
-        if (versioningId != null) {
-            Versioning versioning = findVersioning(onVersioningId(versioningId))
-                    .orElseThrow(() -> new IllegalArgumentException("Cannot find versioning with id '" + versioningId + "'"));
-            Predicate<CharSequence> predicate = versioning.getVersioningPredicateOrNull(versioningArg);
+    private @Nullable Predicate<CharSequence> getVersioningPredicate(@Nullable VersioningConfig versioningConfig) {
+        if (versioningConfig != null) {
+            Versioning versioning = findVersioning(onVersioningId(versioningConfig.getId()))
+                    .orElseThrow(() -> new IllegalArgumentException("Cannot find versioning with id '" + versioningConfig.getId() + "'"));
+            Predicate<CharSequence> predicate = versioning.getVersioningPredicateOrNull(versioningConfig.getArg());
             if (predicate == null) {
-                throw new IllegalArgumentException("Invalid version argument '" + versioningArg + "'");
+                throw new IllegalArgumentException("Invalid version argument '" + versioningConfig.getArg() + "'");
             }
             return predicate;
         }

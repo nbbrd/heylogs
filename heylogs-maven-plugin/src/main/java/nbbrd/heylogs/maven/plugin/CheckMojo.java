@@ -7,10 +7,12 @@ import nbbrd.console.picocli.text.TextOutputSupport;
 import nbbrd.heylogs.Check;
 import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Heylogs;
+import nbbrd.heylogs.VersioningConfig;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +20,6 @@ import java.io.Writer;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static internal.heylogs.HeylogsParameters.DEFAULT_CHANGELOG_FILE;
 import static internal.heylogs.HeylogsParameters.DEFAULT_RECURSIVE;
@@ -44,11 +45,8 @@ public final class CheckMojo extends HeylogsMojo {
     @Parameter(property = "heylogs.tagPrefix")
     private String tagPrefix;
 
-    @Parameter(property = "heylogs.versioningId")
-    private String versioningId;
-
-    @Parameter(property = "heylogs.versioningArg")
-    private String versioningArg;
+    @Parameter(property = "heylogs.versioning")
+    private String versioning;
 
     @Parameter(property = "heylogs.forgeId")
     private String forgeId;
@@ -98,12 +96,20 @@ public final class CheckMojo extends HeylogsMojo {
     }
 
     @MojoParameterParsing
-    private @NonNull Config toConfig() {
+    private @Nullable VersioningConfig toVersioningConfig() throws MojoExecutionException {
+        try {
+            return versioning != null ? VersioningConfig.parse(versioning) : null;
+        } catch (IllegalArgumentException ex) {
+            throw new MojoExecutionException("Invalid format for 'versioning' parameter", ex);
+        }
+    }
+
+    @MojoParameterParsing
+    private @NonNull Config toConfig() throws MojoExecutionException {
         return Config
                 .builder()
                 .versionTagPrefix(tagPrefix)
-                .versioningId(versioningId)
-                .versioningArg(versioningArg)
+                .versioning(toVersioningConfig())
                 .forgeId(forgeId)
                 .build();
     }

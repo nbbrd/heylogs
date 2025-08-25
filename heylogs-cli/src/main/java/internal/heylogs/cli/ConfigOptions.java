@@ -1,6 +1,7 @@
 package internal.heylogs.cli;
 
 import nbbrd.heylogs.Config;
+import nbbrd.heylogs.VersioningConfig;
 import picocli.CommandLine;
 
 @lombok.Getter
@@ -16,18 +17,12 @@ public class ConfigOptions {
 
     @CommandLine.Option(
             names = {"-v", "--versioning"},
-            paramLabel = "<id>",
+            paramLabel = "<id:arg>",
             description = "Specify the versioning used to control the version references. Valid values: ${COMPLETION-CANDIDATES}.",
-            completionCandidates = VersioningCandidates.class
+            completionCandidates = VersioningCandidates.class,
+            converter = VersioningConverter.class
     )
-    private String versioningId;
-
-    @CommandLine.Option(
-            names = {"--versioning-arg"},
-            paramLabel = "<arg>",
-            description = "Specify the argument used to configure the versioning."
-    )
-    private String versioningArg;
+    private VersioningConfig versioning;
 
     @CommandLine.Option(
             names = {"-g", "--forge"},
@@ -40,8 +35,7 @@ public class ConfigOptions {
         return Config
                 .builder()
                 .versionTagPrefix(tagPrefix)
-                .versioningId(versioningId)
-                .versioningArg(versioningArg)
+                .versioning(versioning)
                 .forgeId(forgeId)
                 .build();
     }

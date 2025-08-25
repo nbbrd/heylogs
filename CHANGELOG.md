@@ -18,6 +18,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - Modify versioning configuration [#420](https://github.com/nbbrd/heylogs/issues/420)
+- Simplify versioning configuration [#425](https://github.com/nbbrd/heylogs/issues/425)
 
 ## [0.12.1] - 2025-08-18
 

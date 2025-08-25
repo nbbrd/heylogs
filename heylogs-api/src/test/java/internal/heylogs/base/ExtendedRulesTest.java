@@ -5,6 +5,7 @@ import com.vladsch.flexmark.ast.LinkNodeBase;
 import com.vladsch.flexmark.util.ast.Node;
 import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Nodes;
+import nbbrd.heylogs.VersioningConfig;
 import nbbrd.heylogs.spi.RuleContext;
 import nbbrd.heylogs.spi.RuleIssue;
 import org.assertj.core.api.Assertions;
@@ -12,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import tests.heylogs.api.Sample;
 
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 import static internal.heylogs.base.BaseVersionings.REGEX_VERSIONING;
 import static internal.heylogs.base.ExtendedRules.*;
@@ -115,8 +115,7 @@ public class ExtendedRulesTest {
                 .builder()
                 .config(Config
                         .builder()
-                        .versioningId(REGEX_VERSIONING.getVersioningId())
-                        .versioningArg(Pattern.compile("^\\d+\\.\\d+\\.\\d+$").pattern())
+                        .versioning(VersioningConfig.parse("regex:^\\d+\\.\\d+\\.\\d+$"))
                         .build())
                 .versioning(REGEX_VERSIONING)
                 .build();
@@ -130,6 +129,6 @@ public class ExtendedRulesTest {
                 .map(node -> VERSIONING_FORMAT.getRuleIssueOrNull(node, withSemver))
                 .filteredOn(Objects::nonNull)
                 .hasSize(1)
-                .contains(RuleIssue.builder().message("Invalid regex format: '.1.0'").line(4).column(1).build());
+                .contains(RuleIssue.builder().message("Invalid reference '.1.0' when using versioning 'regex:^\\d+\\.\\d+\\.\\d+$'").line(4).column(1).build());
     }
 }

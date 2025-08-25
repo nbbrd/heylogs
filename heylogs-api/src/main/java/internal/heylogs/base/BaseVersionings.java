@@ -23,7 +23,7 @@ public final class BaseVersionings implements VersioningBatch {
     }
 
     @VisibleForTesting
-    static final VersioningSupport REGEX_VERSIONING = VersioningSupport
+    public static final VersioningSupport REGEX_VERSIONING = VersioningSupport
             .builder()
             .id("regex")
             .name("Regex Versioning")

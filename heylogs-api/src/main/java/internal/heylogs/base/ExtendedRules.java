@@ -335,12 +335,6 @@ public enum ExtendedRules implements Rule {
 
     @VisibleForTesting
     static RuleIssue validateVersioningFormat(Heading heading, RuleContext context) {
-        Versioning versioning = context.findVersioning().orElse(null);
-
-        if (versioning == null) {
-            return NO_RULE_ISSUE;
-        }
-
         if (!Version.isVersionLevel(heading)) {
             return NO_RULE_ISSUE;
         }
@@ -353,12 +347,13 @@ public enum ExtendedRules implements Rule {
 
         String ref = version.getRef();
 
-        Predicate<CharSequence> predicate = versioning.getVersioningPredicateOrNull(context.getConfig().getVersioningArg());
+        Predicate<CharSequence> predicate = context.findVersioningPredicate();
+
         return predicate == null || predicate.test(ref)
                 ? NO_RULE_ISSUE
                 : RuleIssue
                 .builder()
-                .message(String.format(ROOT, "Invalid %s format: '%s'", versioning.getVersioningId(), ref))
+                .message(String.format(ROOT, "Invalid reference '%s' when using versioning '%s'", ref, context.getConfig().getVersioning()))
                 .location(heading)
                 .build();
     }
