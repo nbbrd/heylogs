@@ -11,7 +11,7 @@ import nbbrd.service.ServiceProvider;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import static nbbrd.heylogs.spi.VersioningSupport.composing;
+import static nbbrd.heylogs.spi.VersioningSupport.compilingArg;
 
 @DirectImpl
 @ServiceProvider
@@ -28,6 +28,6 @@ public final class BaseVersionings implements VersioningBatch {
             .id("regex")
             .name("Regex Versioning")
             .moduleId("api")
-            .validation(composing(Pattern::compile, (pattern, text) -> pattern.matcher(text).matches()))
+            .validation(compilingArg(Pattern::compile, (pattern, text) -> pattern.matcher(text).matches()))
             .build();
 }

@@ -3,8 +3,7 @@ package tests.heylogs.spi;
 import lombok.NonNull;
 import nbbrd.heylogs.spi.Versioning;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatNullPointerException;
+import static org.assertj.core.api.Assertions.*;
 
 public final class VersioningAssert {
 
@@ -22,9 +21,9 @@ public final class VersioningAssert {
                 .isNotNull();
 
         assertThatNullPointerException()
-                .isThrownBy(() -> x.getVersioningPredicate(null).test(null));
+                .isThrownBy(() -> x.getVersioningPredicateOrNull(null).test(null));
 
         assertThatNullPointerException()
-                .isThrownBy(() -> x.getVersioningPredicate("").test(null));
+                .isThrownBy(() -> x.getVersioningPredicateOrNull("").test(null));
     }
 }

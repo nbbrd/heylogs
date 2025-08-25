@@ -24,6 +24,6 @@ public interface Versioning {
     @NonNull
     String getVersioningModuleId();
 
-    @NonNull
-    Predicate<CharSequence> getVersioningPredicate(@Nullable String arg);
+    @Nullable
+    Predicate<CharSequence> getVersioningPredicateOrNull(@Nullable String arg);
 }

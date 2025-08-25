@@ -14,6 +14,7 @@ import lombok.NonNull;
 import nbbrd.design.MightBePromoted;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.spi.*;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.URL;
@@ -65,6 +66,8 @@ public class Heylogs {
     List<Forge> forges;
 
     public @NonNull List<Problem> checkFormat(@NonNull Document document, @NonNull Config config) {
+        getVersioningPredicate(config.getVersioningId(), config.getVersioningArg());
+
         RuleContext context = RuleContext.builder().config(config).forges(forges).versionings(versionings).build();
         return problemStreamOf(document, rules, context).collect(toList());
     }
@@ -127,12 +130,9 @@ public class Heylogs {
     }
 
     public void releaseChanges(@NonNull Document document, @NonNull Version newVersion, @NonNull Config config) throws IllegalArgumentException {
-        if (config.getVersioningId() != null) {
-            Versioning versioning = findVersioning(onVersioningId(config.getVersioningId()))
-                    .orElseThrow(() -> new IllegalArgumentException("Cannot find versioning with id '" + config.getVersioningId() + "'"));
-            if (!versioning.getVersioningPredicate(config.getVersioningArg()).test(newVersion.getRef())) {
-                throw new IllegalArgumentException("Invalid version '" + newVersion.getRef() + "' for versioning '" + config.getVersioningId() + "'");
-            }
+        Predicate<CharSequence> versioningPredicate = getVersioningPredicate(config.getVersioningId(), config.getVersioningArg());
+        if (versioningPredicate != null && !versioningPredicate.test(newVersion.getRef())) {
+            throw new IllegalArgumentException("Invalid version '" + newVersion.getRef() + "' for versioning '" + config.getVersioningId() + "' and argument '" + config.getVersioningArg() + "'");
         }
 
         if (isNotValidAgainstGuidingPrinciples(document)) {
@@ -266,10 +266,23 @@ public class Heylogs {
     }
 
     private static Stream<Versioning> versioningStreamOf(List<Versioning> list, List<Version> releases) {
-        return list.stream().filter(versioning ->
-                releases.stream()
-                        .map(Version::getRef)
-                        .allMatch(versioning.getVersioningPredicate(null))
+        return list.stream().filter(versioning -> {
+                    Predicate<CharSequence> predicate = versioning.getVersioningPredicateOrNull(null);
+                    return predicate != null && releases.stream().map(Version::getRef).allMatch(predicate);
+                }
         );
+    }
+
+    private @Nullable Predicate<CharSequence> getVersioningPredicate(@Nullable String versioningId, @Nullable String versioningArg) {
+        if (versioningId != null) {
+            Versioning versioning = findVersioning(onVersioningId(versioningId))
+                    .orElseThrow(() -> new IllegalArgumentException("Cannot find versioning with id '" + versioningId + "'"));
+            Predicate<CharSequence> predicate = versioning.getVersioningPredicateOrNull(versioningArg);
+            if (predicate == null) {
+                throw new IllegalArgumentException("Invalid version argument '" + versioningArg + "'");
+            }
+            return predicate;
+        }
+        return null;
     }
 }

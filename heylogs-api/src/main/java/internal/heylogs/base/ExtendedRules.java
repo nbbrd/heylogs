@@ -22,6 +22,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static internal.heylogs.spi.RuleSupport.linkToURL;
@@ -352,7 +353,8 @@ public enum ExtendedRules implements Rule {
 
         String ref = version.getRef();
 
-        return versioning.getVersioningPredicate(context.getConfig().getVersioningArg()).test(ref)
+        Predicate<CharSequence> predicate = versioning.getVersioningPredicateOrNull(context.getConfig().getVersioningArg());
+        return predicate == null || predicate.test(ref)
                 ? NO_RULE_ISSUE
                 : RuleIssue
                 .builder()

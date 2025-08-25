@@ -17,7 +17,10 @@ class SemVerTest {
     void testIsValidVersion() {
         Versioning x = new SemVer();
 
-        assertThat(x.getVersioningPredicate(null))
+        assertThat(x.getVersioningPredicateOrNull(""))
+                .isNull();
+
+        assertThat(x.getVersioningPredicateOrNull(null))
                 .accepts("1.1.0")
                 .rejects(".1.0");
     }

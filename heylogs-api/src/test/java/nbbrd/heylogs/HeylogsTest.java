@@ -21,6 +21,7 @@ import static java.util.Collections.singletonList;
 import static nbbrd.heylogs.Heylogs.FIRST_FORMAT_AVAILABLE;
 import static nbbrd.heylogs.Version.HYPHEN;
 import static nbbrd.heylogs.spi.RuleSeverity.ERROR;
+import static nbbrd.heylogs.spi.VersioningSupport.withoutArg;
 import static nbbrd.io.function.IOFunction.unchecked;
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.InstanceOfAssertFactories.list;
@@ -49,11 +50,25 @@ public class HeylogsTest {
 
     @Test
     public void testCheckFormat() {
-        assertThat(Heylogs.builder().build().checkFormat(using("/InvalidVersion.md"), Config.DEFAULT))
-                .isEmpty();
+        Heylogs api = Heylogs.ofServiceLoader();
+        Heylogs empty = Heylogs.builder().build();
 
-        assertThat(Heylogs.ofServiceLoader().checkFormat(using("/InvalidVersion.md"), Config.DEFAULT))
-                .isNotEmpty();
+        assertThat(api.checkFormat(using("/Main.md"), Config.DEFAULT)).isEmpty();
+        assertThat(empty.checkFormat(using("/Main.md"), Config.DEFAULT)).isEmpty();
+
+        assertThat(api.checkFormat(using("/InvalidVersion.md"), Config.DEFAULT)).isNotEmpty();
+        assertThat(empty.checkFormat(using("/InvalidVersion.md"), Config.DEFAULT)).isEmpty();
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> api.checkFormat(using("/Main.md"), Config.builder().versioningId("boom").build()))
+                .withMessage("Cannot find versioning with id 'boom'");
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> api.checkFormat(using("/Main.md"), Config.builder().versioningId("regex").build()))
+                .withMessage("Invalid version argument 'null'");
+
+        assertThat(api.checkFormat(using("/Main.md"), Config.builder().versioningId("regex").versioningArg("abc").build())).isNotEmpty();
+        assertThat(api.checkFormat(using("/Main.md"), Config.builder().versioningId("regex").versioningArg(".*").build())).isEmpty();
     }
 
     @Test
@@ -111,7 +126,7 @@ public class HeylogsTest {
                         .id("mocked-versioning")
                         .name("Mocked Versioning")
                         .moduleId("mocked-versioning")
-                        .validation(ignore -> HeylogsTest::isInteger)
+                        .validation(withoutArg(HeylogsTest::isInteger))
                         .build())
                 .build();
 

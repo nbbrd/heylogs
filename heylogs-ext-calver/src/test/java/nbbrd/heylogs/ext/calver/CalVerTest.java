@@ -17,12 +17,13 @@ class CalVerTest {
     void testIsValidVersion() {
         Versioning x = new CalVer();
 
-        assertThat(x.getVersioningPredicate(null))
-                .rejects("20.04")
-                .rejects("20.04.1");
+        assertThat(x.getVersioningPredicateOrNull(null))
+                .isNull();
 
-        assertThat(x.getVersioningPredicate("YY.0M.MICRO"))
+        assertThat(x.getVersioningPredicateOrNull("YY.0M.MICRO"))
                 .accepts("20.04")
-                .accepts("20.04.1");
+                .accepts("20.04.1")
+                .rejects("x20.04")
+                .rejects("2020.04");
     }
 }

@@ -13,6 +13,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Add forge configuration [#421](https://github.com/nbbrd/heylogs/issues/421)
 - Add generic versioning rule [#419](https://github.com/nbbrd/heylogs/issues/419)
 - Add Regex Versioning [#423](https://github.com/nbbrd/heylogs/issues/423)
+- Add versioning arg validation [#424](https://github.com/nbbrd/heylogs/issues/424)
 
 ### Changed
 

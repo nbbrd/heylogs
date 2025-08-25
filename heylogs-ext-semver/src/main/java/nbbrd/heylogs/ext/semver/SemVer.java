@@ -31,7 +31,7 @@ public final class SemVer implements Versioning {
     }
 
     @Override
-    public @NonNull Predicate<CharSequence> getVersioningPredicate(@Nullable String ignore) {
-        return text -> Semver.isValid(text.toString());
+    public @Nullable Predicate<CharSequence> getVersioningPredicateOrNull(@Nullable String arg) {
+        return arg == null ? text -> Semver.isValid(text.toString()) : null;
     }
 }
