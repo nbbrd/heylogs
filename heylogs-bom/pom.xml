@@ -114,7 +114,7 @@
                         <configuration>
                             <inputFile>${project.parent.basedir}/CHANGELOG.md</inputFile>
                             <inputFiles>${project.parent.basedir}/CHANGELOG.md</inputFiles>
-                            <semver>true</semver>
+                            <versioning>semver</versioning>
                         </configuration>
                     </execution>
                 </executions>
