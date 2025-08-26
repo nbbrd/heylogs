@@ -4,6 +4,7 @@ import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.util.ast.Node;
 import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Nodes;
+import nbbrd.heylogs.spi.RuleContext;
 import nbbrd.heylogs.spi.RuleIssue;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +29,7 @@ GuidingPrinciplesTest {
     public void testSample() {
         Node sample = using("/Main.md");
         for (GuidingPrinciples rule : GuidingPrinciples.values()) {
-            assertThat(Nodes.of(Node.class).descendants(sample).map(node -> rule.getRuleIssueOrNull(node, Config.DEFAULT)).filter(Objects::nonNull))
+            assertThat(Nodes.of(Node.class).descendants(sample).map(node -> rule.getRuleIssueOrNull(node, RuleContext.DEFAULT)).filter(Objects::nonNull))
                     .isEmpty();
         }
     }

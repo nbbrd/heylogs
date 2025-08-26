@@ -47,7 +47,7 @@ public final class ScanMojo extends HeylogsMojo {
             return;
         }
 
-        Heylogs heylogs = initHeylogs(false);
+        Heylogs heylogs = Heylogs.ofServiceLoader();
 
         List<Scan> list = new ArrayList<>();
         try {

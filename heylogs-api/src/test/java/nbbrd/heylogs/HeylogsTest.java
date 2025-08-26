@@ -3,6 +3,7 @@ package nbbrd.heylogs;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
 import internal.heylogs.FlexmarkIO;
+import internal.heylogs.base.BaseVersionings;
 import internal.heylogs.base.StylishFormat;
 import lombok.NonNull;
 import nbbrd.design.MightBePromoted;
@@ -49,11 +50,25 @@ public class HeylogsTest {
 
     @Test
     public void testCheckFormat() {
-        assertThat(Heylogs.builder().build().checkFormat(using("/InvalidVersion.md"), Config.DEFAULT))
-                .isEmpty();
+        Heylogs api = Heylogs.ofServiceLoader();
+        Heylogs empty = Heylogs.builder().build();
 
-        assertThat(Heylogs.ofServiceLoader().checkFormat(using("/InvalidVersion.md"), Config.DEFAULT))
-                .isNotEmpty();
+        assertThat(api.checkFormat(using("/Main.md"), Config.DEFAULT)).isEmpty();
+        assertThat(empty.checkFormat(using("/Main.md"), Config.DEFAULT)).isEmpty();
+
+        assertThat(api.checkFormat(using("/InvalidVersion.md"), Config.DEFAULT)).isNotEmpty();
+        assertThat(empty.checkFormat(using("/InvalidVersion.md"), Config.DEFAULT)).isEmpty();
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> api.checkFormat(using("/Main.md"), Config.builder().versioning(VersioningConfig.parse("boom")).build()))
+                .withMessage("Cannot find versioning with id 'boom'");
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> api.checkFormat(using("/Main.md"), Config.builder().versioning(VersioningConfig.parse("regex")).build()))
+                .withMessage("Invalid version argument 'null'");
+
+        assertThat(api.checkFormat(using("/Main.md"), Config.builder().versioning(VersioningConfig.parse("regex:abc")).build())).isNotEmpty();
+        assertThat(api.checkFormat(using("/Main.md"), Config.builder().versioning(VersioningConfig.parse("regex:.*")).build())).isEmpty();
     }
 
     @Test
@@ -105,22 +120,22 @@ public class HeylogsTest {
     public void testReleaseChanges() {
         Heylogs x = Heylogs.ofServiceLoader()
                 .toBuilder()
-                .forge(new MockedForge())
-                .versioning(new MockedVersioning())
+                .clearForges().forge(new MockedForge())
+                .clearVersionings().versioning(BaseVersionings.REGEX_VERSIONING)
                 .build();
 
         LocalDate date = LocalDate.of(2010, 1, 1);
 
-        assertThatIllegalArgumentException().isThrownBy(() -> releaseChangesToString(x, using("/Main.md"), Version.of("42", HYPHEN, date), "boom"))
+        assertThatIllegalArgumentException().isThrownBy(() -> releaseChangesToString(x, using("/Main.md"), Version.of("42", HYPHEN, date), VersioningConfig.parse("boom")))
                 .withMessageContaining("Cannot find versioning with id 'boom'");
 
-        assertThatIllegalArgumentException().isThrownBy(() -> releaseChangesToString(x, using("/Main.md"), Version.of("boom", HYPHEN, date), "mocked"))
-                .withMessageContaining("Invalid version 'boom' for versioning 'mocked'");
+        assertThatIllegalArgumentException().isThrownBy(() -> releaseChangesToString(x, using("/Main.md"), Version.of("boom", HYPHEN, date), VersioningConfig.parse("regex:\\d+")))
+                .withMessageContaining("Invalid version 'boom' for versioning 'regex:\\d+'");
 
         assertThatCode(() -> releaseChangesToString(x, using("/Main.md"), Version.of("boom", HYPHEN, date), null))
                 .doesNotThrowAnyException();
 
-        assertThatCode(() -> releaseChangesToString(x, using("/Main.md"), Version.of("42", HYPHEN, date), "mocked"))
+        assertThatCode(() -> releaseChangesToString(x, using("/Main.md"), Version.of("42", HYPHEN, date), VersioningConfig.parse("regex:\\d+")))
                 .doesNotThrowAnyException();
 
         Version v123 = Version.of("1.2.3", HYPHEN, date);
@@ -274,8 +289,8 @@ public class HeylogsTest {
         return unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc);
     }
 
-    private static String releaseChangesToString(Heylogs heylogs, Document doc, Version version, String versioningId) {
-        heylogs.releaseChanges(doc, version, Config.builder().versionTagPrefix("v").versioningId(versioningId).build());
+    private static String releaseChangesToString(Heylogs heylogs, Document doc, Version version, VersioningConfig versioning) {
+        heylogs.releaseChanges(doc, version, Config.builder().versionTagPrefix("v").versioning(versioning).build());
         return unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc);
     }
 
@@ -307,7 +322,7 @@ public class HeylogsTest {
         }
 
         @Override
-        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
             return null;
         }
     }
@@ -337,34 +352,6 @@ public class HeylogsTest {
         @Override
         public @NonNull CompareLink getCompareLink(@NonNull URL url) {
             return new MockedCompareLink(url);
-        }
-    }
-
-    private static final class MockedVersioning implements Versioning {
-
-        @Override
-        public @NonNull String getVersioningId() {
-            return "mocked";
-        }
-
-        @Override
-        public @NonNull String getVersioningName() {
-            return "";
-        }
-
-        @Override
-        public @NonNull String getVersioningModuleId() {
-            return "mocked";
-        }
-
-        @Override
-        public boolean isValidVersion(@NonNull CharSequence text) {
-            try {
-                Integer.parseInt(text.toString());
-                return true;
-            } catch (NumberFormatException ignore) {
-                return false;
-            }
         }
     }
 

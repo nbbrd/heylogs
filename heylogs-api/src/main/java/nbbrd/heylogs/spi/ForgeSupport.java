@@ -47,4 +47,12 @@ public final class ForgeSupport implements Forge {
     public @NonNull CompareLink getCompareLink(@NonNull URL url) {
         return compareLinkFactory.apply(url);
     }
+
+    public static @NonNull Predicate<Forge> onForgeId(@NonNull String id) {
+        return forge -> forge.getForgeId().equals(id);
+    }
+
+    public static @NonNull Predicate<Forge> onCompareLink(@NonNull URL link) {
+        return forge -> forge.isCompareLink(link);
+    }
 }

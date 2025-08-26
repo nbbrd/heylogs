@@ -7,6 +7,26 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.13.0] - 2025-08-26
+
+This release focuses on versioning schemes.  
+Note that it has a **breaking change** in the configuration of versioning:
+- `--semver` option has been replaced by `-v semver`.
+- `-D heylogs.semver` option has been replaced by `- D heylogs.versioning=semver`.
+
+### Added
+
+- Add Calendar Versioning [#253](https://github.com/nbbrd/heylogs/issues/253)
+- Add forge configuration [#421](https://github.com/nbbrd/heylogs/issues/421)
+- Add generic versioning rule [#419](https://github.com/nbbrd/heylogs/issues/419)
+- Add Regex Versioning [#423](https://github.com/nbbrd/heylogs/issues/423)
+- Add versioning arg validation [#424](https://github.com/nbbrd/heylogs/issues/424)
+
+### Changed
+
+- Modify versioning configuration [#420](https://github.com/nbbrd/heylogs/issues/420)
+- Simplify versioning configuration [#425](https://github.com/nbbrd/heylogs/issues/425)
+
 ## [0.12.1] - 2025-08-18
 
 ### Fixed
@@ -247,7 +267,8 @@ This release improves extension points and also aligns features of Maven plugin 
 
 - Initial release
 
-[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.12.1...HEAD
+[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.13.0...HEAD
+[0.13.0]: https://github.com/nbbrd/heylogs/compare/v0.12.1...v0.13.0
 [0.12.1]: https://github.com/nbbrd/heylogs/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/nbbrd/heylogs/compare/v0.11.1...v0.12.0
 [0.11.1]: https://github.com/nbbrd/heylogs/compare/v0.11.0...v0.11.1

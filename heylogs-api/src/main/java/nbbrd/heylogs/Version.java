@@ -84,7 +84,7 @@ public class Version implements Section {
     }
 
     @StaticFactoryMethod
-    public static @NonNull Version parse(@NonNull Heading heading) {
+    public static @NonNull Version parse(@NonNull Heading heading) throws IllegalArgumentException {
         if (!isVersionLevel(heading)) {
             throw new IllegalArgumentException("Invalid heading level");
         }

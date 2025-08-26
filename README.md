@@ -8,6 +8,7 @@
 
 Key points:
 
+- Follow the [Keep a Changelog](https://keepachangelog.com/) format.
 - Available as a [library](#library), a [command-line tool](#installation) and a [Maven plugin](#maven-plugin)
 - Java 8 minimum requirement
 
@@ -17,10 +18,12 @@ Features:
 - [Summarizes content](#scan-command) to provide a quick overview of a repository.
 - [Filters and extracts](#extract-command) versions for publication or searching.
 - [Modifies content](#release-command) to release unreleased changes.
-- Handles [GitHub, GitLab and Forgejo](#forge-references) references.
-- Validates semantic [versioning](#versioning-schemes).
+- Manages [GitHub, GitLab and Forgejo](#forge-references) references.
+- Validates [semantic, calendar and regex](#versioning-schemes) versioning schemes.
+- Seamlessly integrates into [CI/CD pipelines](#github-action).
 
-[ [Usage](#usage) | [Features](#features) | [Badges](#badges) | [Developing](#developing) | [Contributing](#contributing)  | [Licensing](#licensing) | [Related work](#related-work)]
+
+[ [Usage](#usage) | [Features](#features) | [Cookbook](#cookbook) | [Developing](#developing) | [Contributing](#contributing)  | [Licensing](#licensing) | [Related work](#related-work)]
 
 ## Usage
 
@@ -69,7 +72,13 @@ Most probably, one wants to check the `CHANGELOG.md` file, thus the command is a
 - uses: jbangdev/jbang-action@latest
   with:
     script: com.github.nbbrd.heylogs:heylogs-cli:_VERSION_:bin
-    scriptargs: "check"
+    scriptargs: "check -o result.json"
+```
+
+An alternative is to use the Maven command-line:
+
+```yml
+- run: mvn com.github.nbbrd.heylogs:heylogs-maven-plugin:_VERSION_:check -D heylogs.outputFile=result.json
 ```
 
 ### Command-line tool
@@ -163,7 +172,7 @@ To use the CLI without installing it:
 
 ### Maven plugin
 
-**Heylogs Maven plugin** allows the tool to be part of a Maven build workflow.
+**Heylogs Maven plugin** allows the tool to be part of a Maven build workflow but can also be used as a standalone tool.
 
 #### Examples
 
@@ -180,7 +189,7 @@ Check the changelog on every build:
             </goals>
             <inherited>false</inherited>
             <configuration>
-                <semver>true</semver>
+                <versioning>semver</versioning>
             </configuration>
         </execution>
     </executions>
@@ -211,6 +220,11 @@ Extract the latest version from the changelog during a release:
 ```
 
 ## Features
+
+Heylogs provides several commands to interact with changelog files.
+These commands can be used through the CLI, the Maven plugin or the Java API.
+The examples below use the CLI for the sake of simplicity.
+Command options are available through the `--help` option.
 
 ### Check command
 
@@ -289,9 +303,25 @@ Heylogs supports the following forge references:
 
 ### Versioning schemes
 
-Heylogs validates [semantic versioning](https://semver.org/).
+Heylogs validates several versioning schemes:
 
-## Badges
+|    ID    | Description                                | Example      | Argument       |
+|:--------:|--------------------------------------------|--------------|----------------|
+| `semver` | [Semantic versioning](https://semver.org/) | `1.0.0`      | -              |
+| `calver` | [Calendar versioning](https://calver.org/) | `2023.04.01` | calver pattern |
+| `regex`  | Custom regex-based versioning              | `X13`        | regex pattern  |
+
+Heylogs can detect the versioning scheme automatically when scanning a changelog, 
+but you need to specify it explicitly to enable validation.
+
+Examples:
+- `$ heylogs check -v semver`  
+- `$ heylogs check -v calver:YYYY.MM.DD`  
+- `$ heylogs check -v regex:X\d+`
+
+## Cookbook
+
+### Badges
 
 Heylogs makes it possible to generate badges for the unreleased changes of a changelog using a [GitHub workflow](https://github.com/nbbrd/heylogs/blob/develop/.github/workflows/heylogs.yml) and the [shields.io API](https://shields.io/badges/endpoint-badge).  
 

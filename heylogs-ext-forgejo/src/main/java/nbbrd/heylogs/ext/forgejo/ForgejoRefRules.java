@@ -16,7 +16,7 @@ import static java.util.Locale.ROOT;
 
 @DirectImpl
 @ServiceProvider
-public final class ForgejoRules implements RuleBatch {
+public final class ForgejoRefRules implements RuleBatch {
 
     @Override
     public @NonNull Stream<Rule> getProviders() {
@@ -51,7 +51,7 @@ public final class ForgejoRules implements RuleBatch {
             .id("forgejo-mention-ref")
             .name("Forgejo mention ref")
             .moduleId("forgejo")
-            .linkPredicate(ForgejoRules::isForgejoHost)
+            .linkPredicate(ForgejoRefRules::isForgejoHost)
             .parsableMessage((link, ref) -> String.format(ROOT, "Expecting mention ref %s, found %s", ForgejoMentionRef.of(link), ref))
             .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting mention ref %s, found %s", ForgejoMentionRef.of(link), ref))
             .build();
@@ -62,7 +62,7 @@ public final class ForgejoRules implements RuleBatch {
             .id("forgejo-commit-ref")
             .name("Forgejo commit ref")
             .moduleId("forgejo")
-            .linkPredicate(ForgejoRules::isForgejoHost)
+            .linkPredicate(ForgejoRefRules::isForgejoHost)
             .parsableMessage((link, ref) -> String.format(ROOT, "Expecting commit ref %s, found %s", ForgejoCommitRef.of(link, ForgejoCommitRef.Type.HASH), ref))
             .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting commit ref %s, found %s", ForgejoCommitRef.of(link, ref.getType()), ref))
             .build();

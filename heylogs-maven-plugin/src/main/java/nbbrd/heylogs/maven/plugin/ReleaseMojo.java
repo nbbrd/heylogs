@@ -4,7 +4,9 @@ import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.maven.plugin.MojoParameterParsing;
 import lombok.NonNull;
 import nbbrd.heylogs.Config;
+import nbbrd.heylogs.Heylogs;
 import nbbrd.heylogs.Version;
+import nbbrd.heylogs.VersioningConfig;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -14,10 +16,8 @@ import org.jspecify.annotations.Nullable;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.Objects;
 
 import static internal.heylogs.HeylogsParameters.DEFAULT_CHANGELOG_FILE;
-import static internal.heylogs.HeylogsParameters.DEFAULT_SEMVER;
 
 @lombok.Getter
 @lombok.Setter
@@ -36,8 +36,11 @@ public final class ReleaseMojo extends HeylogsMojo {
     @Parameter(property = "heylogs.tagPrefix")
     private String tagPrefix;
 
-    @Parameter(property = "heylogs.semver", defaultValue = DEFAULT_SEMVER)
-    private boolean semver;
+    @Parameter(property = "heylogs.versioning")
+    private String versioning;
+
+    @Parameter(property = "heylogs.forgeId")
+    private String forgeId;
 
     @Override
     public void execute() throws MojoExecutionException {
@@ -57,7 +60,7 @@ public final class ReleaseMojo extends HeylogsMojo {
         Config config = toConfig();
 
         getLog().info("Releasing " + version + " with config '" + config + "'");
-        initHeylogs(semver).releaseChanges(document, version, config);
+        Heylogs.ofServiceLoader().releaseChanges(document, version, config);
 
         writeChangelog(document, inputFile);
     }
@@ -68,11 +71,21 @@ public final class ReleaseMojo extends HeylogsMojo {
     }
 
     @MojoParameterParsing
-    private @NonNull Config toConfig() {
+    private @Nullable VersioningConfig toVersioningConfig() throws MojoExecutionException {
+        try {
+            return versioning != null ? VersioningConfig.parse(versioning) : null;
+        } catch (IllegalArgumentException ex) {
+            throw new MojoExecutionException("Invalid format for 'versioning' parameter", ex);
+        }
+    }
+
+    @MojoParameterParsing
+    private @NonNull Config toConfig() throws MojoExecutionException {
         return Config
                 .builder()
-                .versionTagPrefix(Objects.toString(tagPrefix, ""))
-                .versioningId(semver ? "semver" : null)
+                .versionTagPrefix(tagPrefix)
+                .versioning(toVersioningConfig())
+                .forgeId(forgeId)
                 .build();
     }
 

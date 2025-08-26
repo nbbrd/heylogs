@@ -6,7 +6,7 @@
 
     <groupId>com.github.nbbrd.heylogs</groupId>
     <artifactId>heylogs-parent</artifactId>
-    <version>0.12.1</version>
+    <version>0.13.0</version>
     <packaging>pom</packaging>
 
     <name>heylogs</name>
@@ -39,7 +39,7 @@
     <properties>
         <!-- Java 8+ config -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.build.outputTimestamp>2025-08-18T08:31:51Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2025-08-26T07:49:12Z</project.build.outputTimestamp>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
 
@@ -144,7 +144,7 @@
                 <plugin>
                     <groupId>org.gaul</groupId>
                     <artifactId>modernizer-maven-plugin</artifactId>
-                    <version>3.1.0</version>
+                    <version>3.2.0</version>
                 </plugin>
                 <plugin>
                     <groupId>de.thetaphi</groupId>
@@ -239,6 +239,7 @@
         <module>heylogs-ext-gitlab</module>
         <module>heylogs-ext-json</module>
         <module>heylogs-ext-semver</module>
+        <module>heylogs-ext-calver</module>
         <module>heylogs-maven-plugin</module>
         <module>heylogs-bom</module>
     </modules>

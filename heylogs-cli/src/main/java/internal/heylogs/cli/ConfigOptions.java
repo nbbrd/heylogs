@@ -1,11 +1,8 @@
 package internal.heylogs.cli;
 
 import nbbrd.heylogs.Config;
+import nbbrd.heylogs.VersioningConfig;
 import picocli.CommandLine;
-
-import java.util.Objects;
-
-import static internal.heylogs.HeylogsParameters.DEFAULT_SEMVER;
 
 @lombok.Getter
 public class ConfigOptions {
@@ -19,17 +16,27 @@ public class ConfigOptions {
     private String tagPrefix;
 
     @CommandLine.Option(
-            names = {"-s", "--semver"},
-            defaultValue = DEFAULT_SEMVER,
-            description = "Mention if this changelog follows Semantic Versioning."
+            names = {"-v", "--versioning"},
+            paramLabel = "<id:arg>",
+            description = "Specify the versioning used to control the version references. Valid values: ${COMPLETION-CANDIDATES}.",
+            completionCandidates = VersioningCandidates.class,
+            converter = VersioningConverter.class
     )
-    private boolean semver;
+    private VersioningConfig versioning;
+
+    @CommandLine.Option(
+            names = {"-g", "--forge"},
+            paramLabel = "<id>",
+            description = "Specify the forge used to host the versions."
+    )
+    private String forgeId;
 
     public Config getConfig() {
         return Config
                 .builder()
-                .versionTagPrefix(Objects.toString(getTagPrefix(), ""))
-                .versioningId(isSemver() ? "semver" : null)
+                .versionTagPrefix(tagPrefix)
+                .versioning(versioning)
+                .forgeId(forgeId)
                 .build();
     }
 }

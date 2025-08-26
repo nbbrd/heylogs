@@ -4,7 +4,6 @@ import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.util.ast.Node;
 import internal.heylogs.spi.URLExtractor;
 import lombok.NonNull;
-import nbbrd.heylogs.Config;
 import nbbrd.io.text.Parser;
 import org.jspecify.annotations.Nullable;
 
@@ -67,8 +66,8 @@ public final class ForgeRefRuleSupport<L extends ForgeLink, R extends ForgeRef<L
     }
 
     @Override
-    public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
-        return node instanceof Link ? validateLink((Link) node, config.getForgeId()) : NO_RULE_ISSUE;
+    public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
+        return node instanceof Link ? validateLink((Link) node, context.getConfig().getForgeId()) : NO_RULE_ISSUE;
     }
 
     private @Nullable RuleIssue validateLink(@NonNull Link link, @Nullable String forgeId) {

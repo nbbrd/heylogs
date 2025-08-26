@@ -16,7 +16,7 @@ import static java.util.Locale.ROOT;
 
 @DirectImpl
 @ServiceProvider
-public final class GitLabRules implements RuleBatch {
+public final class GitLabRefRules implements RuleBatch {
 
     @Override
     public @NonNull Stream<Rule> getProviders() {
@@ -29,7 +29,7 @@ public final class GitLabRules implements RuleBatch {
             .id("gitlab-commit-ref")
             .name("GitLab commit ref")
             .moduleId("gitlab")
-            .linkPredicate(GitLabRules::isGitLabHost)
+            .linkPredicate(GitLabRefRules::isGitLabHost)
             .parsableMessage((link, ref) -> String.format(ROOT, "Expecting commit ref %s, found %s", GitLabCommitRef.of(link, GitLabRefType.SAME_PROJECT), ref))
             .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting commit ref %s, found %s", GitLabCommitRef.of(link, ref.getType()), ref))
             .build();
@@ -40,7 +40,7 @@ public final class GitLabRules implements RuleBatch {
             .id("gitlab-issue-ref")
             .name("GitLab issue ref")
             .moduleId("gitlab")
-            .linkPredicate(GitLabRules::isGitLabHost)
+            .linkPredicate(GitLabRefRules::isGitLabHost)
             .parsableMessage((link, ref) -> String.format(ROOT, "Expecting issue ref %s, found %s", GitLabIssueRef.of(link, GitLabRefType.SAME_PROJECT), ref))
             .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting issue ref %s, found %s", GitLabIssueRef.of(link, ref.getType()), ref))
             .build();
@@ -51,7 +51,7 @@ public final class GitLabRules implements RuleBatch {
             .id("gitlab-merge-request-ref")
             .name("GitLab merge request ref")
             .moduleId("gitlab")
-            .linkPredicate(GitLabRules::isGitLabHost)
+            .linkPredicate(GitLabRefRules::isGitLabHost)
             .parsableMessage((link, ref) -> String.format(ROOT, "Expecting merge request ref %s, found %s", GitLabMergeRequestRef.of(link, GitLabRefType.SAME_PROJECT), ref))
             .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting merge request ref %s, found %s", GitLabMergeRequestRef.of(link, ref.getType()), ref))
             .build();
@@ -62,7 +62,7 @@ public final class GitLabRules implements RuleBatch {
             .id("gitlab-mention-ref")
             .name("GitLab mention ref")
             .moduleId("gitlab")
-            .linkPredicate(GitLabRules::isGitLabHost)
+            .linkPredicate(GitLabRefRules::isGitLabHost)
             .parsableMessage((link, ref) -> String.format(ROOT, "Expecting mention ref %s, found %s", GitLabMentionRef.of(link), ref))
             .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting mention ref %s, found %s", GitLabMentionRef.of(link), ref))
             .build();

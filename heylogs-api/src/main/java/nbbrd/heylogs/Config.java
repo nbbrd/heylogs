@@ -1,6 +1,5 @@
 package nbbrd.heylogs;
 
-import lombok.NonNull;
 import org.jspecify.annotations.Nullable;
 
 @lombok.Value
@@ -9,12 +8,11 @@ public class Config {
 
     public static final Config DEFAULT = Config.builder().build();
 
-    @NonNull
-    @lombok.Builder.Default
-    String versionTagPrefix = "";
+    @Nullable
+    String versionTagPrefix;
 
     @Nullable
-    String versioningId;
+    VersioningConfig versioning;
 
     @Nullable
     String forgeId;

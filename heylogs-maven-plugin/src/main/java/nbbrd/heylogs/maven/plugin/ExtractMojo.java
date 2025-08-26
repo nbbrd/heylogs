@@ -4,6 +4,7 @@ import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.maven.plugin.MojoParameterParsing;
 import lombok.NonNull;
 import nbbrd.heylogs.Filter;
+import nbbrd.heylogs.Heylogs;
 import nbbrd.heylogs.TimeRange;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -67,7 +68,7 @@ public final class ExtractMojo extends HeylogsMojo {
         Filter filter = toFilter();
 
         getLog().info("Extracting with " + filter);
-        initHeylogs(false).extractVersions(changelog, filter);
+        Heylogs.ofServiceLoader().extractVersions(changelog, filter);
 
         writeChangelog(changelog, outputFile);
     }

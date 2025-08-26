@@ -5,6 +5,7 @@ import lombok.NonNull;
 import nbbrd.heylogs.Config;
 import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleBatch;
+import nbbrd.heylogs.spi.RuleContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
@@ -36,7 +37,7 @@ public final class RuleAssert {
                 .isNotNull();
 
         assertThatNullPointerException()
-                .isThrownBy(() -> x.getRuleIssueOrNull(null, Config.DEFAULT));
+                .isThrownBy(() -> x.getRuleIssueOrNull(null, RuleContext.DEFAULT));
 
         assertThatNullPointerException()
                 .isThrownBy(() -> x.getRuleIssueOrNull(Document.NULL, null));

@@ -1,9 +1,12 @@
 package internal.heylogs.base;
 
+import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.ast.LinkNodeBase;
 import com.vladsch.flexmark.util.ast.Node;
 import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Nodes;
+import nbbrd.heylogs.VersioningConfig;
+import nbbrd.heylogs.spi.RuleContext;
 import nbbrd.heylogs.spi.RuleIssue;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -11,6 +14,7 @@ import tests.heylogs.api.Sample;
 
 import java.util.Objects;
 
+import static internal.heylogs.base.BaseVersionings.REGEX_VERSIONING;
 import static internal.heylogs.base.ExtendedRules.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Index.atIndex;
@@ -28,7 +32,7 @@ public class ExtendedRulesTest {
     public void test() {
         Node sample = Sample.using("/Main.md");
         for (ExtendedRules rule : ExtendedRules.values()) {
-            Assertions.assertThat(Nodes.of(Node.class).descendants(sample).map(node -> rule.getRuleIssueOrNull(node, Config.DEFAULT)).filter(Objects::nonNull))
+            Assertions.assertThat(Nodes.of(Node.class).descendants(sample).map(node -> rule.getRuleIssueOrNull(node, RuleContext.DEFAULT)).filter(Objects::nonNull))
                     .isEmpty();
         }
     }
@@ -102,5 +106,29 @@ public class ExtendedRulesTest {
         assertThat(hasImbalancedBraces("[(])")).isTrue();
         assertThat(hasImbalancedBraces("{(})")).isTrue();
         assertThat(hasImbalancedBraces("(()")).isTrue();
+    }
+
+    @Test
+    public void testValidateVersioningFormat() {
+        RuleContext withoutSemver = RuleContext.DEFAULT;
+        RuleContext withSemver = RuleContext
+                .builder()
+                .config(Config
+                        .builder()
+                        .versioning(VersioningConfig.parse("regex:^\\d+\\.\\d+\\.\\d+$"))
+                        .build())
+                .versioning(REGEX_VERSIONING)
+                .build();
+
+        assertThat(Nodes.of(Heading.class).descendants(using("/InvalidSemver.md")))
+                .map(node -> VERSIONING_FORMAT.getRuleIssueOrNull(node, withoutSemver))
+                .filteredOn(Objects::nonNull)
+                .isEmpty();
+
+        assertThat(Nodes.of(Heading.class).descendants(using("/InvalidSemver.md")))
+                .map(node -> VERSIONING_FORMAT.getRuleIssueOrNull(node, withSemver))
+                .filteredOn(Objects::nonNull)
+                .hasSize(1)
+                .contains(RuleIssue.builder().message("Invalid reference '.1.0' when using versioning 'regex:^\\d+\\.\\d+\\.\\d+$'").line(4).column(1).build());
     }
 }

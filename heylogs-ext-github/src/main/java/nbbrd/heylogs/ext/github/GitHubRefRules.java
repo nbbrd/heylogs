@@ -16,7 +16,7 @@ import static java.util.Locale.ROOT;
 
 @DirectImpl
 @ServiceProvider
-public final class GitHubRules implements RuleBatch {
+public final class GitHubRefRules implements RuleBatch {
 
     @Override
     public @NonNull Stream<Rule> getProviders() {
@@ -51,7 +51,7 @@ public final class GitHubRules implements RuleBatch {
             .id("github-mention-ref")
             .name("GitHub mention ref")
             .moduleId("github")
-            .linkPredicate(GitHubRules::isGitHubHost)
+            .linkPredicate(GitHubRefRules::isGitHubHost)
             .parsableMessage((link, ref) -> String.format(ROOT, "Expecting mention ref %s, found %s", GitHubMentionRef.of(link), ref))
             .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting mention ref %s, found %s", GitHubMentionRef.of(link), ref))
             .build();
@@ -59,10 +59,10 @@ public final class GitHubRules implements RuleBatch {
     @VisibleForTesting
     static final Rule GITHUB_COMMIT_REF = ForgeRefRuleSupport
             .builder(GitHubCommitLink::parse, GitHubCommitRef::parse)
-            .id("github-commit-ef")
+            .id("github-commit-ref")
             .name("GitHub commit ref")
             .moduleId("github")
-            .linkPredicate(GitHubRules::isGitHubHost)
+            .linkPredicate(GitHubRefRules::isGitHubHost)
             .parsableMessage((link, ref) -> String.format(ROOT, "Expecting commit ref %s, found %s", GitHubCommitRef.of(link, GitHubCommitRef.Type.HASH), ref))
             .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting commit ref %s, found %s", GitHubCommitRef.of(link, ref.getType()), ref))
             .build();

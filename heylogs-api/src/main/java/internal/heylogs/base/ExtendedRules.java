@@ -1,5 +1,6 @@
 package internal.heylogs.base;
 
+import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.ast.LinkNodeBase;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
@@ -10,14 +11,10 @@ import lombok.NonNull;
 import nbbrd.design.DirectImpl;
 import nbbrd.design.MightBeGenerated;
 import nbbrd.design.VisibleForTesting;
-import nbbrd.heylogs.Config;
 import nbbrd.heylogs.TypeOfChange;
 import nbbrd.heylogs.Util;
 import nbbrd.heylogs.Version;
-import nbbrd.heylogs.spi.Rule;
-import nbbrd.heylogs.spi.RuleBatch;
-import nbbrd.heylogs.spi.RuleIssue;
-import nbbrd.heylogs.spi.RuleSeverity;
+import nbbrd.heylogs.spi.*;
 import nbbrd.service.ServiceProvider;
 import org.jspecify.annotations.Nullable;
 
@@ -25,18 +22,21 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static internal.heylogs.spi.RuleSupport.linkToURL;
 import static internal.heylogs.spi.RuleSupport.nameToId;
+import static java.util.Locale.ROOT;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.*;
+import static nbbrd.heylogs.Util.illegalArgumentToNull;
 
 public enum ExtendedRules implements Rule {
 
     HTTPS {
         @Override
-        public RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
+        public RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
             return node instanceof LinkNodeBase ? validateHttps((LinkNodeBase) node) : NO_RULE_ISSUE;
         }
 
@@ -47,7 +47,7 @@ public enum ExtendedRules implements Rule {
     },
     CONSISTENT_SEPARATOR {
         @Override
-        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
             return node instanceof Document ? validateConsistentSeparator((Document) node) : NO_RULE_ISSUE;
         }
 
@@ -58,7 +58,7 @@ public enum ExtendedRules implements Rule {
     },
     UNIQUE_HEADINGS {
         @Override
-        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
             return node instanceof Document ? validateUniqueHeadings((Document) node) : NO_RULE_ISSUE;
         }
 
@@ -69,7 +69,7 @@ public enum ExtendedRules implements Rule {
     },
     NO_EMPTY_GROUP {
         @Override
-        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
             return node instanceof Document ? validateNoEmptyGroup((Document) node) : NO_RULE_ISSUE;
         }
 
@@ -80,7 +80,7 @@ public enum ExtendedRules implements Rule {
     },
     NO_EMPTY_RELEASE {
         @Override
-        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
             return node instanceof Document ? validateNoEmptyRelease((Document) node) : NO_RULE_ISSUE;
         }
 
@@ -96,7 +96,7 @@ public enum ExtendedRules implements Rule {
     },
     UNIQUE_RELEASE {
         @Override
-        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
             return node instanceof Document ? validateUniqueRelease((Document) node) : NO_RULE_ISSUE;
         }
 
@@ -107,13 +107,25 @@ public enum ExtendedRules implements Rule {
     },
     IMBALANCED_BRACES {
         @Override
-        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull Config config) {
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
             return node instanceof Document ? validateImbalancedBraces((Document) node) : NO_RULE_ISSUE;
         }
 
         @Override
         public @NonNull String getRuleName() {
             return "Imbalanced braces";
+        }
+    },
+    VERSIONING_FORMAT {
+        @Override
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
+            return node instanceof Heading
+                    ? validateVersioningFormat((Heading) node, context) : NO_RULE_ISSUE;
+        }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "Versioning format";
         }
     };
 
@@ -319,6 +331,31 @@ public enum ExtendedRules implements Rule {
             }
         }
         return !stack.isEmpty(); // true if any unmatched opening braces remain
+    }
+
+    @VisibleForTesting
+    static RuleIssue validateVersioningFormat(Heading heading, RuleContext context) {
+        if (!Version.isVersionLevel(heading)) {
+            return NO_RULE_ISSUE;
+        }
+
+        Version version = illegalArgumentToNull(Version::parse).apply(heading);
+
+        if (version == null || version.isUnreleased()) {
+            return NO_RULE_ISSUE;
+        }
+
+        String ref = version.getRef();
+
+        Predicate<CharSequence> predicate = context.findVersioningPredicate();
+
+        return predicate == null || predicate.test(ref)
+                ? NO_RULE_ISSUE
+                : RuleIssue
+                .builder()
+                .message(String.format(ROOT, "Invalid reference '%s' when using versioning '%s'", ref, context.getConfig().getVersioning()))
+                .location(heading)
+                .build();
     }
 
     @SuppressWarnings("unused")
