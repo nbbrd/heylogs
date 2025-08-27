@@ -2,6 +2,7 @@ package nbbrd.heylogs.spi;
 
 import lombok.NonNull;
 import nbbrd.heylogs.Config;
+import nbbrd.heylogs.RuleConfig;
 import nbbrd.heylogs.VersioningConfig;
 import org.jspecify.annotations.Nullable;
 
@@ -26,7 +27,7 @@ public class RuleContext {
     @lombok.Singular
     List<Versioning> versionings;
 
-    public @Nullable Predicate<CharSequence> findVersioningPredicate() {
+    public @Nullable Predicate<CharSequence> findVersioningPredicateOrNull() {
         VersioningConfig versioningConfig = config.getVersioning();
         return versioningConfig != null
                 ? versionings.stream()
@@ -35,5 +36,14 @@ public class RuleContext {
                 .map(v -> v.getVersioningPredicateOrNull(versioningConfig.getArg()))
                 .orElse(null)
                 : null;
+    }
+
+    public @Nullable RuleSeverity findRuleSeverityOrNull(@NonNull String ruleId) {
+        return config.getRules()
+                .stream()
+                .filter(ruleConfig -> ruleConfig.getId().equals(ruleId))
+                .findFirst()
+                .map(RuleConfig::getSeverity)
+                .orElse(null);
     }
 }

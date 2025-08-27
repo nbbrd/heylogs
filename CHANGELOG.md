@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Add rule severity configuration [#224](https://github.com/nbbrd/heylogs/issues/224)
+
 ## [0.13.0] - 2025-08-26
 
 This release focuses on versioning schemes.  

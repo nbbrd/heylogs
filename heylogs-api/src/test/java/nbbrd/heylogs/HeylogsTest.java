@@ -60,15 +60,18 @@ public class HeylogsTest {
         assertThat(empty.checkFormat(using("/InvalidVersion.md"), Config.DEFAULT)).isEmpty();
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> api.checkFormat(using("/Main.md"), Config.builder().versioning(VersioningConfig.parse("boom")).build()))
+                .isThrownBy(() -> api.checkFormat(using("/Main.md"), Config.builder().versioningOf("boom").build()))
                 .withMessage("Cannot find versioning with id 'boom'");
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> api.checkFormat(using("/Main.md"), Config.builder().versioning(VersioningConfig.parse("regex")).build()))
+                .isThrownBy(() -> api.checkFormat(using("/Main.md"), Config.builder().versioningOf("regex").build()))
                 .withMessage("Invalid version argument 'null'");
 
-        assertThat(api.checkFormat(using("/Main.md"), Config.builder().versioning(VersioningConfig.parse("regex:abc")).build())).isNotEmpty();
-        assertThat(api.checkFormat(using("/Main.md"), Config.builder().versioning(VersioningConfig.parse("regex:.*")).build())).isEmpty();
+        assertThat(api.checkFormat(using("/Main.md"), Config.builder().versioningOf("regex:abc").build())).isNotEmpty();
+
+        assertThat(api.checkFormat(using("/Main.md"), Config.builder().versioningOf("regex:abc").ruleOf("versioning-format:OFF").build())).isEmpty();
+
+        assertThat(api.checkFormat(using("/Main.md"), Config.builder().versioningOf("regex:.*").build())).isEmpty();
     }
 
     @Test
@@ -126,16 +129,16 @@ public class HeylogsTest {
 
         LocalDate date = LocalDate.of(2010, 1, 1);
 
-        assertThatIllegalArgumentException().isThrownBy(() -> releaseChangesToString(x, using("/Main.md"), Version.of("42", HYPHEN, date), VersioningConfig.parse("boom")))
+        assertThatIllegalArgumentException().isThrownBy(() -> releaseChangesToString(x, using("/Main.md"), Version.of("42", HYPHEN, date), "boom"))
                 .withMessageContaining("Cannot find versioning with id 'boom'");
 
-        assertThatIllegalArgumentException().isThrownBy(() -> releaseChangesToString(x, using("/Main.md"), Version.of("boom", HYPHEN, date), VersioningConfig.parse("regex:\\d+")))
+        assertThatIllegalArgumentException().isThrownBy(() -> releaseChangesToString(x, using("/Main.md"), Version.of("boom", HYPHEN, date), "regex:\\d+"))
                 .withMessageContaining("Invalid version 'boom' for versioning 'regex:\\d+'");
 
         assertThatCode(() -> releaseChangesToString(x, using("/Main.md"), Version.of("boom", HYPHEN, date), null))
                 .doesNotThrowAnyException();
 
-        assertThatCode(() -> releaseChangesToString(x, using("/Main.md"), Version.of("42", HYPHEN, date), VersioningConfig.parse("regex:\\d+")))
+        assertThatCode(() -> releaseChangesToString(x, using("/Main.md"), Version.of("42", HYPHEN, date), "regex:\\d+"))
                 .doesNotThrowAnyException();
 
         Version v123 = Version.of("1.2.3", HYPHEN, date);
@@ -289,8 +292,8 @@ public class HeylogsTest {
         return unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc);
     }
 
-    private static String releaseChangesToString(Heylogs heylogs, Document doc, Version version, VersioningConfig versioning) {
-        heylogs.releaseChanges(doc, version, Config.builder().versionTagPrefix("v").versioning(versioning).build());
+    private static String releaseChangesToString(Heylogs heylogs, Document doc, Version version, CharSequence versioning) {
+        heylogs.releaseChanges(doc, version, Config.builder().versionTagPrefix("v").versioningOf(versioning).build());
         return unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc);
     }
 

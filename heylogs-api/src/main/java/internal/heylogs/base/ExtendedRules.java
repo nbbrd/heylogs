@@ -347,7 +347,7 @@ public enum ExtendedRules implements Rule {
 
         String ref = version.getRef();
 
-        Predicate<CharSequence> predicate = context.findVersioningPredicate();
+        Predicate<CharSequence> predicate = context.findVersioningPredicateOrNull();
 
         return predicate == null || predicate.test(ref)
                 ? NO_RULE_ISSUE

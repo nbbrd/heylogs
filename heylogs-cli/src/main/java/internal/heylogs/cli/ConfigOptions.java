@@ -1,8 +1,13 @@
 package internal.heylogs.cli;
 
 import nbbrd.heylogs.Config;
+import nbbrd.heylogs.RuleConfig;
 import nbbrd.heylogs.VersioningConfig;
 import picocli.CommandLine;
+
+import java.util.List;
+
+import static java.util.Collections.emptyList;
 
 @lombok.Getter
 public class ConfigOptions {
@@ -31,12 +36,22 @@ public class ConfigOptions {
     )
     private String forgeId;
 
+    @CommandLine.Option(
+            names = {"-u", "--rule"},
+            paramLabel = "<id:severity>",
+            description = "Specify the rule severity used to check changelogs. Valid values: ${COMPLETION-CANDIDATES}.",
+            completionCandidates = RuleCandidates.class,
+            converter = RuleConverter.class
+    )
+    private List<RuleConfig> rules;
+
     public Config getConfig() {
         return Config
                 .builder()
                 .versionTagPrefix(tagPrefix)
                 .versioning(versioning)
                 .forgeId(forgeId)
+                .rules(rules != null ? rules : emptyList())
                 .build();
     }
 }

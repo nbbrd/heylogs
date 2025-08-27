@@ -7,12 +7,11 @@ import nbbrd.console.picocli.text.TextOutputSupport;
 import nbbrd.heylogs.Check;
 import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Heylogs;
-import nbbrd.heylogs.VersioningConfig;
+import nbbrd.heylogs.RuleConfig;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,6 +49,9 @@ public final class CheckMojo extends HeylogsMojo {
 
     @Parameter(property = "heylogs.forgeId")
     private String forgeId;
+
+    @Parameter(property = "heylogs.rules")
+    private List<String> rules;
 
     @Parameter(property = "heylogs.formatId")
     private String formatId;
@@ -96,21 +98,17 @@ public final class CheckMojo extends HeylogsMojo {
     }
 
     @MojoParameterParsing
-    private @Nullable VersioningConfig toVersioningConfig() throws MojoExecutionException {
-        try {
-            return versioning != null ? VersioningConfig.parse(versioning) : null;
-        } catch (IllegalArgumentException ex) {
-            throw new MojoExecutionException("Invalid format for 'versioning' parameter", ex);
-        }
-    }
-
-    @MojoParameterParsing
     private @NonNull Config toConfig() throws MojoExecutionException {
-        return Config
-                .builder()
-                .versionTagPrefix(tagPrefix)
-                .versioning(toVersioningConfig())
-                .forgeId(forgeId)
-                .build();
+        try {
+            return Config
+                    .builder()
+                    .versionTagPrefix(tagPrefix)
+                    .versioningOf(versioning)
+                    .forgeId(forgeId)
+                    .rules(rules != null ? rules.stream().map(RuleConfig::parse).collect(toList()) : null)
+                    .build();
+        } catch (IllegalArgumentException ex) {
+            throw new MojoExecutionException("Invalid config parameter", ex);
+        }
     }
 }

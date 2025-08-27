@@ -6,7 +6,6 @@ import lombok.NonNull;
 import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Heylogs;
 import nbbrd.heylogs.Version;
-import nbbrd.heylogs.VersioningConfig;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -71,22 +70,17 @@ public final class ReleaseMojo extends HeylogsMojo {
     }
 
     @MojoParameterParsing
-    private @Nullable VersioningConfig toVersioningConfig() throws MojoExecutionException {
-        try {
-            return versioning != null ? VersioningConfig.parse(versioning) : null;
-        } catch (IllegalArgumentException ex) {
-            throw new MojoExecutionException("Invalid format for 'versioning' parameter", ex);
-        }
-    }
-
-    @MojoParameterParsing
     private @NonNull Config toConfig() throws MojoExecutionException {
-        return Config
-                .builder()
-                .versionTagPrefix(tagPrefix)
-                .versioning(toVersioningConfig())
-                .forgeId(forgeId)
-                .build();
+        try {
+            return Config
+                    .builder()
+                    .versionTagPrefix(tagPrefix)
+                    .versioningOf(versioning)
+                    .forgeId(forgeId)
+                    .build();
+        } catch (IllegalArgumentException ex) {
+            throw new MojoExecutionException("Invalid config parameter", ex);
+        }
     }
 
     private static @NonNull LocalDate parseLocalDate(@Nullable String date) throws MojoExecutionException {
