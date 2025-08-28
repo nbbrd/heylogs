@@ -31,14 +31,23 @@ class ForgejoIssueRef implements ForgeRef<ForgejoIssueLink> {
     }
 
     @StaticFactoryMethod
+    public static @NonNull ForgejoIssueRef of(@NonNull ForgejoIssueLink link, @Nullable ForgejoIssueRef baseRef) {
+        return of(link, baseRef == null ? ForgejoIssueRef.Type.NUMBER : baseRef.getType());
+    }
+
+    @StaticFactoryMethod
     public static @NonNull ForgejoIssueRef of(@NonNull ForgejoIssueLink link, @NonNull Type type) {
         return type.equals(Type.NUMBER)
                 ? new ForgejoIssueRef(null, null, link.getIssueNumber())
                 : new ForgejoIssueRef(link.getOwner(), link.getRepo(), link.getIssueNumber());
     }
 
-    @Nullable String owner;
-    @Nullable String repo;
+    @Nullable
+    String owner;
+
+    @Nullable
+    String repo;
+
     int issueNumber;
 
     @Override

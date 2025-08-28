@@ -15,15 +15,15 @@ import static java.lang.Integer.parseInt;
 @RepresentableAsString
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class GitHubIssueRef implements ForgeRef<GitHubIssueLink> {
+class GitHubRequestRef implements ForgeRef<GitHubRequestLink> {
 
     public enum Type {NUMBER, OWNER_REPO_NUMBER}
 
     @StaticFactoryMethod
-    public static @NonNull GitHubIssueRef parse(@NonNull CharSequence text) {
+    public static @NonNull GitHubRequestRef parse(@NonNull CharSequence text) {
         Matcher m = PATTERN.matcher(text);
         if (!m.matches()) throw new IllegalArgumentException(text.toString());
-        return new GitHubIssueRef(
+        return new GitHubRequestRef(
                 m.group("owner"),
                 m.group("repo"),
                 parseInt(m.group("issueNumber"))
@@ -31,15 +31,15 @@ class GitHubIssueRef implements ForgeRef<GitHubIssueLink> {
     }
 
     @StaticFactoryMethod
-    public static @NonNull GitHubIssueRef of(@NonNull GitHubIssueLink link, @Nullable GitHubIssueRef baseRef) {
-        return of(link, baseRef == null ? GitHubIssueRef.Type.NUMBER : baseRef.getType());
+    public static @NonNull GitHubRequestRef of(@NonNull GitHubRequestLink link, @Nullable GitHubRequestRef baseRef) {
+        return of(link, baseRef == null ? GitHubRequestRef.Type.NUMBER : baseRef.getType());
     }
 
     @StaticFactoryMethod
-    public static @NonNull GitHubIssueRef of(@NonNull GitHubIssueLink link, @NonNull Type type) {
+    public static @NonNull GitHubRequestRef of(@NonNull GitHubRequestLink link, @NonNull Type type) {
         return type.equals(Type.NUMBER)
-                ? new GitHubIssueRef(null, null, link.getIssueNumber())
-                : new GitHubIssueRef(link.getOwner(), link.getRepo(), link.getIssueNumber());
+                ? new GitHubRequestRef(null, null, link.getRequestNumber())
+                : new GitHubRequestRef(link.getOwner(), link.getRepo(), link.getRequestNumber());
     }
 
     @Nullable
@@ -48,17 +48,17 @@ class GitHubIssueRef implements ForgeRef<GitHubIssueLink> {
     @Nullable
     String repo;
 
-    int issueNumber;
+    int requestNumber;
 
     @Override
     public String toString() {
-        return getType().equals(Type.NUMBER) ? "#" + issueNumber : owner + "/" + repo + "#" + issueNumber;
+        return getType().equals(Type.NUMBER) ? "#" + requestNumber : owner + "/" + repo + "#" + requestNumber;
     }
 
     @Override
-    public boolean isCompatibleWith(@NonNull GitHubIssueLink link) {
+    public boolean isCompatibleWith(@NonNull GitHubRequestLink link) {
         return (getType().equals(Type.NUMBER) || (link.getOwner().equals(owner) && link.getRepo().equals(repo)))
-                && link.getIssueNumber() == issueNumber;
+                && link.getRequestNumber() == requestNumber;
     }
 
     public @NonNull Type getType() {

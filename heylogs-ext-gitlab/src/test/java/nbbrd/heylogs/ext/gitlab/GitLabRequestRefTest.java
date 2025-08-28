@@ -7,12 +7,12 @@ import org.junit.jupiter.params.provider.CsvFileSource;
 import java.util.Arrays;
 
 import static internal.heylogs.spi.URLExtractor.urlOf;
-import static nbbrd.heylogs.ext.gitlab.GitLabMergeRequestRef.of;
-import static nbbrd.heylogs.ext.gitlab.GitLabMergeRequestRef.parse;
+import static nbbrd.heylogs.ext.gitlab.GitLabRequestRef.of;
+import static nbbrd.heylogs.ext.gitlab.GitLabRequestRef.parse;
 import static org.assertj.core.api.Assertions.*;
 import static tests.heylogs.spi.ForgeRefAssert.assertForgeRefCompliance;
 
-class GitLabMergeRequestRefTest {
+class GitLabRequestRefTest {
 
     @Test
     public void testCompliance() {
@@ -25,9 +25,9 @@ class GitLabMergeRequestRefTest {
         if (error == null || error.isEmpty()) {
             assertThat(parse(input))
                     .describedAs(description)
-                    .returns(Arrays.asList(namespace.split("/", -1)), GitLabMergeRequestRef::getNamespace)
-                    .returns(project, GitLabMergeRequestRef::getProject)
-                    .returns(number, GitLabMergeRequestRef::getNumber)
+                    .returns(Arrays.asList(namespace.split("/", -1)), GitLabRequestRef::getNamespace)
+                    .returns(project, GitLabRequestRef::getProject)
+                    .returns(number, GitLabRequestRef::getNumber)
                     .hasToString(output);
         } else {
             assertThatIllegalArgumentException()
@@ -42,7 +42,7 @@ class GitLabMergeRequestRefTest {
     @Test
     public void testFactories() {
         assertThatNullPointerException().isThrownBy(() -> of(null, GitLabRefType.SAME_PROJECT));
-        assertThatNullPointerException().isThrownBy(() -> of(link, null));
+        assertThatNullPointerException().isThrownBy(() -> of(link, (GitLabRefType) null));
 
         assertThat(of(link, GitLabRefType.SAME_PROJECT).isCompatibleWith(link)).isTrue();
         assertThat(of(link, GitLabRefType.SAME_NAMESPACE).isCompatibleWith(link)).isTrue();
@@ -74,5 +74,5 @@ class GitLabMergeRequestRefTest {
         assertThat(parse("nbbrd/heylogs-ext-gitlab!1").getType()).isEqualTo(GitLabRefType.CROSS_PROJECT);
     }
 
-    private final GitLabMergeRequestLink link = GitLabMergeRequestLink.parse(urlOf("https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/merge_requests/1"));
+    private final GitLabRequestLink link = GitLabRequestLink.parse(urlOf("https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/merge_requests/1"));
 }

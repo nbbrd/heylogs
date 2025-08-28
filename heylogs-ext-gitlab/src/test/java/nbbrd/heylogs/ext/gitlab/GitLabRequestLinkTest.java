@@ -8,12 +8,12 @@ import java.net.URL;
 import java.util.Arrays;
 
 import static internal.heylogs.spi.URLExtractor.urlOf;
-import static nbbrd.heylogs.ext.gitlab.GitLabMergeRequestLink.parse;
+import static nbbrd.heylogs.ext.gitlab.GitLabRequestLink.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static tests.heylogs.spi.ForgeLinkAssert.assertForgeLinkCompliance;
 
-class GitLabMergeRequestsLinkTest {
+class GitLabRequestLinkTest {
 
     @Test
     public void testCompliance() {
@@ -26,11 +26,11 @@ class GitLabMergeRequestsLinkTest {
         if (error == null || error.isEmpty()) {
             assertThat(parse(input))
                     .describedAs(description)
-                    .returns(base, GitLabMergeRequestLink::getBase)
-                    .returns(Arrays.asList(namespace.split("/", -1)), GitLabMergeRequestLink::getNamespace)
-                    .returns(project, GitLabMergeRequestLink::getProject)
-                    .returns(number, GitLabMergeRequestLink::getNumber)
-                    .returns(output, GitLabMergeRequestLink::toURL);
+                    .returns(base, GitLabRequestLink::getBase)
+                    .returns(Arrays.asList(namespace.split("/", -1)), GitLabRequestLink::getNamespace)
+                    .returns(project, GitLabRequestLink::getProject)
+                    .returns(number, GitLabRequestLink::getNumber)
+                    .returns(output, GitLabRequestLink::toURL);
         } else {
             assertThatIllegalArgumentException()
                     .describedAs(description)

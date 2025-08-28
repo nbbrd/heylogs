@@ -5,6 +5,7 @@ import lombok.NonNull;
 import nbbrd.design.RepresentableAsString;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.spi.ForgeRef;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -39,6 +40,11 @@ class GitLabMentionRef implements ForgeRef<GitLabMentionLink> {
         }
 
         return new GitLabMentionRef(unmodifiableList(Arrays.asList(pathArray)));
+    }
+
+    @StaticFactoryMethod
+    public static @NonNull GitLabMentionRef of(@NonNull GitLabMentionLink link, @Nullable GitLabMentionRef baseRef) {
+        return new GitLabMentionRef(link.getNamespace());
     }
 
     @StaticFactoryMethod

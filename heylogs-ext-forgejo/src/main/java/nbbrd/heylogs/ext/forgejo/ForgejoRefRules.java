@@ -3,16 +3,10 @@ package nbbrd.heylogs.ext.forgejo;
 import lombok.NonNull;
 import nbbrd.design.DirectImpl;
 import nbbrd.design.VisibleForTesting;
-import nbbrd.heylogs.spi.ForgeLink;
-import nbbrd.heylogs.spi.ForgeRefRuleSupport;
-import nbbrd.heylogs.spi.Rule;
-import nbbrd.heylogs.spi.RuleBatch;
+import nbbrd.heylogs.spi.*;
 import nbbrd.service.ServiceProvider;
-import org.jspecify.annotations.Nullable;
 
 import java.util.stream.Stream;
-
-import static java.util.Locale.ROOT;
 
 @DirectImpl
 @ServiceProvider
@@ -25,50 +19,45 @@ public final class ForgejoRefRules implements RuleBatch {
 
     @VisibleForTesting
     static final Rule FORGEJO_ISSUE_REF = ForgeRefRuleSupport
-            .builder(ForgejoIssueLink::parse, ForgejoIssueRef::parse)
+            .builder(ForgeRefFactory.of(ForgejoIssueLink::parse, ForgejoIssueRef::parse, ForgejoIssueRef::of))
+            .refType(ForgeRefType.ISSUE)
             .id("fj-issue-ref")
             .name("Forgejo issue ref")
             .moduleId("forgejo")
-            .linkPredicate((link, forgeId) -> link.getType().equals(ForgejoIssueLink.ISSUES_TYPE) && isForgejoHost(link, forgeId))
-            .parsableMessage((link, ref) -> String.format(ROOT, "Expecting issue ref %s, found %s", ForgejoIssueRef.of(link, ForgejoIssueRef.Type.NUMBER), ref))
-            .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting issue ref %s, found %s", ForgejoIssueRef.of(link, ref.getType()), ref))
+            .forgeId(Forgejo.ID)
+            .linkPredicate(Forgejo::isKnownHost)
             .build();
 
     @VisibleForTesting
     static final Rule FORGEJO_PULL_REQUEST_REF = ForgeRefRuleSupport
-            .builder(ForgejoIssueLink::parse, ForgejoIssueRef::parse)
+            .builder(ForgeRefFactory.of(ForgejoRequestLink::parse, ForgejoRequestRef::parse, ForgejoRequestRef::of))
+            .refType(ForgeRefType.REQUEST)
             .id("fj-pull-request-ref")
             .name("Forgejo pull request ref")
             .moduleId("forgejo")
-            .linkPredicate((link, forgeId) -> link.getType().equals(ForgejoIssueLink.PULL_REQUEST_TYPE) && isForgejoHost(link, forgeId))
-            .parsableMessage((link, ref) -> String.format(ROOT, "Expecting pull request ref %s, found %s", ForgejoIssueRef.of(link, ForgejoIssueRef.Type.NUMBER), ref))
-            .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting pull request ref %s, found %s", ForgejoIssueRef.of(link, ref.getType()), ref))
+            .forgeId(Forgejo.ID)
+            .linkPredicate(Forgejo::isKnownHost)
             .build();
 
     @VisibleForTesting
     static final Rule FORGEJO_MENTION_REF = ForgeRefRuleSupport
-            .builder(ForgejoMentionLink::parse, ForgejoMentionRef::parse)
+            .builder(ForgeRefFactory.of(ForgejoMentionLink::parse, ForgejoMentionRef::parse, ForgejoMentionRef::of))
+            .refType(ForgeRefType.MENTION)
             .id("fj-mention-ref")
             .name("Forgejo mention ref")
             .moduleId("forgejo")
-            .linkPredicate(ForgejoRefRules::isForgejoHost)
-            .parsableMessage((link, ref) -> String.format(ROOT, "Expecting mention ref %s, found %s", ForgejoMentionRef.of(link), ref))
-            .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting mention ref %s, found %s", ForgejoMentionRef.of(link), ref))
+            .forgeId(Forgejo.ID)
+            .linkPredicate(Forgejo::isKnownHost)
             .build();
 
     @VisibleForTesting
     static final Rule FORGEJO_COMMIT_REF = ForgeRefRuleSupport
-            .builder(ForgejoCommitLink::parse, ForgejoCommitRef::parse)
+            .builder(ForgeRefFactory.of(ForgejoCommitLink::parse, ForgejoCommitRef::parse, ForgejoCommitRef::of))
+            .refType(ForgeRefType.COMMIT)
             .id("fj-commit-ref")
             .name("Forgejo commit ref")
             .moduleId("forgejo")
-            .linkPredicate(ForgejoRefRules::isForgejoHost)
-            .parsableMessage((link, ref) -> String.format(ROOT, "Expecting commit ref %s, found %s", ForgejoCommitRef.of(link, ForgejoCommitRef.Type.HASH), ref))
-            .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting commit ref %s, found %s", ForgejoCommitRef.of(link, ref.getType()), ref))
+            .forgeId(Forgejo.ID)
+            .linkPredicate(Forgejo::isKnownHost)
             .build();
-
-    @VisibleForTesting
-    static boolean isForgejoHost(@NonNull ForgeLink expected, @Nullable String forgeId) {
-        return Forgejo.ID.equals(forgeId) || Forgejo.isKnownHost(expected);
-    }
 }

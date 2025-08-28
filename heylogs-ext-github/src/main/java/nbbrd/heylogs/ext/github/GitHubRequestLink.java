@@ -17,21 +17,21 @@ import static java.lang.Integer.parseInt;
 @RepresentableAs(URL.class)
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class GitHubIssueLink implements ForgeLink {
+class GitHubRequestLink implements ForgeLink {
 
-    private static final String ISSUES_KEYWORD = "issues";
+    private static final String PULL_REQUEST_KEYWORD = "pull";
 
     @StaticFactoryMethod
-    public static @NonNull GitHubIssueLink parse(@NonNull URL url) {
+    public static @NonNull GitHubRequestLink parse(@NonNull URL url) {
         String[] pathArray = getPathArray(url);
 
         checkPathLength(pathArray, 4);
         checkPathItem(pathArray, 0, OWNER_PATTERN);
         checkPathItem(pathArray, 1, REPO_PATTERN);
-        checkPathItem(pathArray, 2, ISSUES_KEYWORD);
+        checkPathItem(pathArray, 2, PULL_REQUEST_KEYWORD);
         checkPathItem(pathArray, 3, NUMBER_PATTERN);
 
-        return new GitHubIssueLink(baseOf(url), pathArray[0], pathArray[1], parseInt(pathArray[3]));
+        return new GitHubRequestLink(baseOf(url), pathArray[0], pathArray[1], parseInt(pathArray[3]));
     }
 
     @NonNull
@@ -43,11 +43,11 @@ class GitHubIssueLink implements ForgeLink {
     @NonNull
     String repo;
 
-    int issueNumber;
+    int requestNumber;
 
     @Override
     public String toString() {
-        return URLQueryBuilder.of(base).path(owner).path(repo).path(ISSUES_KEYWORD).path(String.valueOf(issueNumber)).toString();
+        return URLQueryBuilder.of(base).path(owner).path(repo).path(PULL_REQUEST_KEYWORD).path(String.valueOf(requestNumber)).toString();
     }
 
     @Override

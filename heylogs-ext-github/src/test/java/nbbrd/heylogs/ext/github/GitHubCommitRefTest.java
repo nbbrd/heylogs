@@ -54,7 +54,7 @@ class GitHubCommitRefTest {
     @Test
     public void testFactories() {
         assertThatNullPointerException().isThrownBy(() -> of(null, GitHubCommitRef.Type.HASH));
-        assertThatNullPointerException().isThrownBy(() -> of(commit, null));
+        assertThatNullPointerException().isThrownBy(() -> of(commit, (GitHubCommitRef.Type) null));
 
         assertThat(of(commit, GitHubCommitRef.Type.HASH).isCompatibleWith(commit)).isTrue();
         assertThat(of(commit, GitHubCommitRef.Type.OWNER_HASH).isCompatibleWith(commit)).isTrue();

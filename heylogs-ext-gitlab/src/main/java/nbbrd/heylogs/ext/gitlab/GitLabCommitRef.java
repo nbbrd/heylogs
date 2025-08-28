@@ -28,6 +28,11 @@ class GitLabCommitRef implements ForgeRef<GitLabCommitLink> {
     }
 
     @StaticFactoryMethod
+    public static @NonNull GitLabCommitRef of(@NonNull GitLabCommitLink link, @Nullable GitLabCommitRef baseRef) {
+        return of(link, baseRef == null ? GitLabRefType.SAME_PROJECT : baseRef.getType());
+    }
+
+    @StaticFactoryMethod
     public static @NonNull GitLabCommitRef of(@NonNull GitLabCommitLink link, @NonNull GitLabRefType type) {
         switch (type) {
             case SAME_PROJECT:

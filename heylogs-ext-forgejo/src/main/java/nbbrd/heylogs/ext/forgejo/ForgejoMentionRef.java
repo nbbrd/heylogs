@@ -30,13 +30,23 @@ class ForgejoMentionRef implements ForgeRef<ForgejoMentionLink> {
     }
 
     @StaticFactoryMethod
+    public static @NonNull ForgejoMentionRef of(@NonNull ForgejoMentionLink link, @Nullable ForgejoMentionRef baseRef) {
+        return of(link);
+    }
+
+    @StaticFactoryMethod
     public static @NonNull ForgejoMentionRef of(@NonNull ForgejoMentionLink link) {
         return new ForgejoMentionRef(link.getUser(), link.getOrganization(), link.getTeamName());
     }
 
-    @Nullable String user;
-    @Nullable String organization;
-    @Nullable String teamName;
+    @Nullable
+    String user;
+
+    @Nullable
+    String organization;
+
+    @Nullable
+    String teamName;
 
     @Override
     public String toString() {

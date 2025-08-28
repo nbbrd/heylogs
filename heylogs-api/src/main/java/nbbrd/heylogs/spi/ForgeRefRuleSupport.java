@@ -9,10 +9,10 @@ import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
 import java.util.Properties;
-import java.util.function.BiFunction;
-import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import static java.util.Locale.ROOT;
 
 @lombok.Builder(toBuilder = true)
 public final class ForgeRefRuleSupport<L extends ForgeLink, R extends ForgeRef<L>> implements Rule {
@@ -23,22 +23,20 @@ public final class ForgeRefRuleSupport<L extends ForgeLink, R extends ForgeRef<L
 
     private final @NonNull String moduleId;
 
+    private final @NonNull String forgeId;
+
+    private final @NonNull ForgeRefType refType;
+
     @lombok.Builder.Default
     private final @NonNull Predicate<Properties> availability = properties -> true;
 
     @lombok.Builder.Default
     private final @NonNull RuleSeverity severity = RuleSeverity.ERROR;
 
-    private final @NonNull Function<? super URL, L> linkParser;
-
-    private final @NonNull Function<? super CharSequence, R> refParser;
+    private final @NonNull ForgeRefFactory<L, R> factory;
 
     @lombok.Builder.Default
-    private final @NonNull BiPredicate<L, String> linkPredicate = (ignoreLink, ignoreForgeId) -> true;
-
-    private final @NonNull BiFunction<L, CharSequence, String> parsableMessage;
-
-    private final @NonNull BiFunction<L, R, String> compatibleMessage;
+    private final @NonNull Predicate<L> linkPredicate = ignoreLink -> true;
 
     @Override
     public @NonNull String getRuleId() {
@@ -71,20 +69,15 @@ public final class ForgeRefRuleSupport<L extends ForgeLink, R extends ForgeRef<L
     }
 
     private @Nullable RuleIssue validateLink(@NonNull Link link, @Nullable String forgeId) {
-        L expected = Parser.of(linkParser.compose(URLExtractor::urlOf)).parse(link.getUrl());
-        if (expected != null && linkPredicate.test(expected, forgeId)) {
-            R found = Parser.of(refParser).parse(link.getText());
-            if (found == null) {
+        L expectedLink = Parser.of(((Function<URL, L>) factory::parseLink).compose(URLExtractor::urlOf)).parse(link.getUrl());
+        if (expectedLink != null && (this.forgeId.equals(forgeId) || linkPredicate.test(expectedLink))) {
+            R foundRef = Parser.of(factory::parseRef).parse(link.getText());
+            if (foundRef == null || !foundRef.isCompatibleWith(expectedLink)) {
+                R expectedRef = factory.toRef(expectedLink, foundRef);
+                String foundText = foundRef == null ? link.getText().toString() : foundRef.toString();
                 return RuleIssue
                         .builder()
-                        .message(parsableMessage.apply(expected, link.getText()))
-                        .location(link)
-                        .build();
-            }
-            if (!found.isCompatibleWith(expected)) {
-                return RuleIssue
-                        .builder()
-                        .message(compatibleMessage.apply(expected, found))
+                        .message(String.format(ROOT, "Expecting %s ref %s, found %s", refType, expectedRef, foundText))
                         .location(link)
                         .build();
             }
@@ -93,9 +86,8 @@ public final class ForgeRefRuleSupport<L extends ForgeLink, R extends ForgeRef<L
     }
 
     public static <L extends ForgeLink, R extends ForgeRef<L>> @NonNull Builder<L, R> builder(
-            Function<? super URL, L> linkParser,
-            Function<? super CharSequence, R> refParser
+            ForgeRefFactory<L, R> factory
     ) {
-        return new Builder<L, R>().linkParser(linkParser).refParser(refParser);
+        return new Builder<L, R>().factory(factory);
     }
 }

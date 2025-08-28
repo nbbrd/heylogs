@@ -30,6 +30,11 @@ class GitHubCommitRef implements ForgeRef<GitHubCommitLink> {
     }
 
     @StaticFactoryMethod
+    public static @NonNull GitHubCommitRef of(@NonNull GitHubCommitLink link, @Nullable GitHubCommitRef baseRef) {
+        return of(link, baseRef == null ? GitHubCommitRef.Type.HASH : baseRef.getType());
+    }
+
+    @StaticFactoryMethod
     public static @NonNull GitHubCommitRef of(@NonNull GitHubCommitLink link, @NonNull Type type) {
         switch (type) {
             case HASH:

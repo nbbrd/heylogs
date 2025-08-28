@@ -30,6 +30,11 @@ class ForgejoCommitRef implements ForgeRef<ForgejoCommitLink> {
     }
 
     @StaticFactoryMethod
+    public static @NonNull ForgejoCommitRef of(@NonNull ForgejoCommitLink link, @Nullable ForgejoCommitRef baseRef) {
+        return of(link, baseRef == null ? ForgejoCommitRef.Type.HASH : baseRef.getType());
+    }
+
+    @StaticFactoryMethod
     public static @NonNull ForgejoCommitRef of(@NonNull ForgejoCommitLink link, @NonNull Type type) {
         switch (type) {
             case HASH:

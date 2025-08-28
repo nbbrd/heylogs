@@ -15,11 +15,11 @@ import static nbbrd.heylogs.ext.gitlab.GitLabSupport.*;
 @RepresentableAs(URL.class)
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class GitLabMergeRequestLink implements ForgeLink {
+class GitLabRequestLink implements ForgeLink {
 
     @StaticFactoryMethod
-    public static @NonNull GitLabMergeRequestLink parse(@NonNull URL url) {
-        return parseLink(GitLabMergeRequestLink::new, MERGE_REQUEST_KEYWORD, NUMBER_PATTERN, Integer::parseInt, url);
+    public static @NonNull GitLabRequestLink parse(@NonNull URL url) {
+        return parseLink(GitLabRequestLink::new, MERGE_REQUEST_KEYWORD, NUMBER_PATTERN, Integer::parseInt, url);
     }
 
     @NonNull

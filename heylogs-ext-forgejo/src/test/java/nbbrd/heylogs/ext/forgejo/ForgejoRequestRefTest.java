@@ -3,11 +3,11 @@ package nbbrd.heylogs.ext.forgejo;
 import org.junit.jupiter.api.Test;
 
 import static internal.heylogs.spi.URLExtractor.urlOf;
-import static nbbrd.heylogs.ext.forgejo.ForgejoIssueRef.*;
+import static nbbrd.heylogs.ext.forgejo.ForgejoRequestRef.*;
 import static org.assertj.core.api.Assertions.*;
 import static tests.heylogs.spi.ForgeRefAssert.assertForgeRefCompliance;
 
-class ForgejoIssueRefTest {
+class ForgejoRequestRefTest {
 
     @Test
     public void testCompliance() {
@@ -23,22 +23,22 @@ class ForgejoIssueRefTest {
                 .isThrownBy(() -> parse("Gadgetbridge#5173"));
 
         assertThat(parse("#5173"))
-                .returns(null, ForgejoIssueRef::getOwner)
-                .returns(null, ForgejoIssueRef::getRepo)
-                .returns(5173, ForgejoIssueRef::getIssueNumber)
+                .returns(null, ForgejoRequestRef::getOwner)
+                .returns(null, ForgejoRequestRef::getRepo)
+                .returns(5173, ForgejoRequestRef::getRequestNumber)
                 .hasToString("#5173");
 
         assertThat(parse("Freeyourgadget/Gadgetbridge#5173"))
-                .returns("Freeyourgadget", ForgejoIssueRef::getOwner)
-                .returns("Gadgetbridge", ForgejoIssueRef::getRepo)
-                .returns(5173, ForgejoIssueRef::getIssueNumber)
+                .returns("Freeyourgadget", ForgejoRequestRef::getOwner)
+                .returns("Gadgetbridge", ForgejoRequestRef::getRepo)
+                .returns(5173, ForgejoRequestRef::getRequestNumber)
                 .hasToString("Freeyourgadget/Gadgetbridge#5173");
 
         assertThat(parse("FreeyourGADGET/GadgetBRIDGE#5173"))
                 .describedAs("case sensitivity")
-                .returns("FreeyourGADGET", ForgejoIssueRef::getOwner)
-                .returns("GadgetBRIDGE", ForgejoIssueRef::getRepo)
-                .returns(5173, ForgejoIssueRef::getIssueNumber)
+                .returns("FreeyourGADGET", ForgejoRequestRef::getOwner)
+                .returns("GadgetBRIDGE", ForgejoRequestRef::getRepo)
+                .returns(5173, ForgejoRequestRef::getRequestNumber)
                 .hasToString("FreeyourGADGET/GadgetBRIDGE#5173");
     }
 
@@ -69,6 +69,6 @@ class ForgejoIssueRefTest {
         assertThat(parse("Freeyourgadget/Gadgetbridge#5173").getType()).isEqualTo(Type.OWNER_REPO_NUMBER);
     }
 
-    private final ForgejoIssueLink issue5173 = ForgejoIssueLink.parse(urlOf("https://codeberg.org/Freeyourgadget/Gadgetbridge/issues/5173"));
-    private final ForgejoIssueLink issue51730 = ForgejoIssueLink.parse(urlOf("https://codeberg.org/Freeyourgadget/Gadgetbridge/issues/51700"));
+    private final ForgejoRequestLink issue5173 = ForgejoRequestLink.parse(urlOf("https://codeberg.org/Freeyourgadget/Gadgetbridge/pulls/5173"));
+    private final ForgejoRequestLink issue51730 = ForgejoRequestLink.parse(urlOf("https://codeberg.org/Freeyourgadget/Gadgetbridge/pulls/51700"));
 }

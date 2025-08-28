@@ -25,6 +25,11 @@ class GitLabIssueRef implements ForgeRef<GitLabIssueLink> {
     }
 
     @StaticFactoryMethod
+    public static @NonNull GitLabIssueRef of(@NonNull GitLabIssueLink link, @Nullable GitLabIssueRef baseRef) {
+        return of(link, baseRef == null ? GitLabRefType.SAME_PROJECT : baseRef.getType());
+    }
+
+    @StaticFactoryMethod
     public static @NonNull GitLabIssueRef of(@NonNull GitLabIssueLink link, @NonNull GitLabRefType type) {
         switch (type) {
             case SAME_PROJECT:

@@ -1,4 +1,4 @@
-package nbbrd.heylogs.ext.github;
+package nbbrd.heylogs.ext.forgejo;
 
 import lombok.AccessLevel;
 import lombok.NonNull;
@@ -13,25 +13,25 @@ import java.util.regex.Pattern;
 import static internal.heylogs.spi.URLExtractor.*;
 import static java.lang.Integer.parseInt;
 
-// https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/autolinked-references-and-urls#issues-and-pull-requests
+// https://forgejo.org/docs/latest/user/linked-references/
 @RepresentableAs(URL.class)
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class GitHubIssueLink implements ForgeLink {
+class ForgejoRequestLink implements ForgeLink {
 
-    private static final String ISSUES_KEYWORD = "issues";
+    private static final String PULL_REQUEST_KEYWORD = "pulls";
 
     @StaticFactoryMethod
-    public static @NonNull GitHubIssueLink parse(@NonNull URL url) {
+    public static @NonNull ForgejoRequestLink parse(@NonNull URL url) {
         String[] pathArray = getPathArray(url);
 
         checkPathLength(pathArray, 4);
         checkPathItem(pathArray, 0, OWNER_PATTERN);
         checkPathItem(pathArray, 1, REPO_PATTERN);
-        checkPathItem(pathArray, 2, ISSUES_KEYWORD);
+        checkPathItem(pathArray, 2, PULL_REQUEST_KEYWORD);
         checkPathItem(pathArray, 3, NUMBER_PATTERN);
 
-        return new GitHubIssueLink(baseOf(url), pathArray[0], pathArray[1], parseInt(pathArray[3]));
+        return new ForgejoRequestLink(baseOf(url), pathArray[0], pathArray[1], parseInt(pathArray[3]));
     }
 
     @NonNull
@@ -47,7 +47,7 @@ class GitHubIssueLink implements ForgeLink {
 
     @Override
     public String toString() {
-        return URLQueryBuilder.of(base).path(owner).path(repo).path(ISSUES_KEYWORD).path(String.valueOf(issueNumber)).toString();
+        return URLQueryBuilder.of(base).path(owner).path(repo).path(PULL_REQUEST_KEYWORD).path(String.valueOf(issueNumber)).toString();
     }
 
     @Override

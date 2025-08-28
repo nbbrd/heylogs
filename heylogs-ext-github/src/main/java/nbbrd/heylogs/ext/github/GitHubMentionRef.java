@@ -30,13 +30,23 @@ class GitHubMentionRef implements ForgeRef<GitHubMentionLink> {
     }
 
     @StaticFactoryMethod
+    public static @NonNull GitHubMentionRef of(@NonNull GitHubMentionLink link, @Nullable GitHubMentionRef baseRef) {
+        return of(link);
+    }
+
+    @StaticFactoryMethod
     public static @NonNull GitHubMentionRef of(@NonNull GitHubMentionLink link) {
         return new GitHubMentionRef(link.getUser(), link.getOrganization(), link.getTeamName());
     }
 
-    @Nullable String user;
-    @Nullable String organization;
-    @Nullable String teamName;
+    @Nullable
+    String user;
+
+    @Nullable
+    String organization;
+
+    @Nullable
+    String teamName;
 
     @Override
     public String toString() {

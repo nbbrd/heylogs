@@ -3,16 +3,10 @@ package nbbrd.heylogs.ext.gitlab;
 import lombok.NonNull;
 import nbbrd.design.DirectImpl;
 import nbbrd.design.VisibleForTesting;
-import nbbrd.heylogs.spi.ForgeLink;
-import nbbrd.heylogs.spi.ForgeRefRuleSupport;
-import nbbrd.heylogs.spi.Rule;
-import nbbrd.heylogs.spi.RuleBatch;
+import nbbrd.heylogs.spi.*;
 import nbbrd.service.ServiceProvider;
-import org.jspecify.annotations.Nullable;
 
 import java.util.stream.Stream;
-
-import static java.util.Locale.ROOT;
 
 @DirectImpl
 @ServiceProvider
@@ -25,50 +19,45 @@ public final class GitLabRefRules implements RuleBatch {
 
     @VisibleForTesting
     static final Rule GITLAB_COMMIT_REF = ForgeRefRuleSupport
-            .builder(GitLabCommitLink::parse, GitLabCommitRef::parse)
+            .builder(ForgeRefFactory.of(GitLabCommitLink::parse, GitLabCommitRef::parse, GitLabCommitRef::of))
+            .refType(ForgeRefType.COMMIT)
             .id("gl-commit-ref")
             .name("GitLab commit ref")
             .moduleId("gitlab")
-            .linkPredicate(GitLabRefRules::isGitLabHost)
-            .parsableMessage((link, ref) -> String.format(ROOT, "Expecting commit ref %s, found %s", GitLabCommitRef.of(link, GitLabRefType.SAME_PROJECT), ref))
-            .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting commit ref %s, found %s", GitLabCommitRef.of(link, ref.getType()), ref))
+            .forgeId(GitLab.ID)
+            .linkPredicate(GitLab::isKnownHost)
             .build();
 
     @VisibleForTesting
     static final Rule GITLAB_ISSUE_REF = ForgeRefRuleSupport
-            .builder(GitLabIssueLink::parse, GitLabIssueRef::parse)
+            .builder(ForgeRefFactory.of(GitLabIssueLink::parse, GitLabIssueRef::parse, GitLabIssueRef::of))
+            .refType(ForgeRefType.ISSUE)
             .id("gl-issue-ref")
             .name("GitLab issue ref")
             .moduleId("gitlab")
-            .linkPredicate(GitLabRefRules::isGitLabHost)
-            .parsableMessage((link, ref) -> String.format(ROOT, "Expecting issue ref %s, found %s", GitLabIssueRef.of(link, GitLabRefType.SAME_PROJECT), ref))
-            .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting issue ref %s, found %s", GitLabIssueRef.of(link, ref.getType()), ref))
+            .forgeId(GitLab.ID)
+            .linkPredicate(GitLab::isKnownHost)
             .build();
 
     @VisibleForTesting
     static final Rule GITLAB_MERGE_REQUEST_REF = ForgeRefRuleSupport
-            .builder(GitLabMergeRequestLink::parse, GitLabMergeRequestRef::parse)
+            .builder(ForgeRefFactory.of(GitLabRequestLink::parse, GitLabRequestRef::parse, GitLabRequestRef::of))
+            .refType(ForgeRefType.REQUEST)
             .id("gl-merge-request-ref")
             .name("GitLab merge request ref")
             .moduleId("gitlab")
-            .linkPredicate(GitLabRefRules::isGitLabHost)
-            .parsableMessage((link, ref) -> String.format(ROOT, "Expecting merge request ref %s, found %s", GitLabMergeRequestRef.of(link, GitLabRefType.SAME_PROJECT), ref))
-            .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting merge request ref %s, found %s", GitLabMergeRequestRef.of(link, ref.getType()), ref))
+            .forgeId(GitLab.ID)
+            .linkPredicate(GitLab::isKnownHost)
             .build();
 
     @VisibleForTesting
     static final Rule GITLAB_MENTION_REF = ForgeRefRuleSupport
-            .builder(GitLabMentionLink::parse, GitLabMentionRef::parse)
+            .builder(ForgeRefFactory.of(GitLabMentionLink::parse, GitLabMentionRef::parse, GitLabMentionRef::of))
+            .refType(ForgeRefType.MENTION)
             .id("gl-mention-ref")
             .name("GitLab mention ref")
             .moduleId("gitlab")
-            .linkPredicate(GitLabRefRules::isGitLabHost)
-            .parsableMessage((link, ref) -> String.format(ROOT, "Expecting mention ref %s, found %s", GitLabMentionRef.of(link), ref))
-            .compatibleMessage((link, ref) -> String.format(ROOT, "Expecting mention ref %s, found %s", GitLabMentionRef.of(link), ref))
+            .forgeId(GitLab.ID)
+            .linkPredicate(GitLab::isKnownHost)
             .build();
-
-    @VisibleForTesting
-    static boolean isGitLabHost(@NonNull ForgeLink expected, @Nullable String forgeId) {
-        return GitLab.ID.equals(forgeId) || GitLab.isKnownHost(expected);
-    }
 }
