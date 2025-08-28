@@ -26,7 +26,7 @@ public final class ForgejoRefRules implements RuleBatch {
     @VisibleForTesting
     static final Rule FORGEJO_ISSUE_REF = ForgeRefRuleSupport
             .builder(ForgejoIssueLink::parse, ForgejoIssueRef::parse)
-            .id("forgejo-issue-ref")
+            .id("fj-issue-ref")
             .name("Forgejo issue ref")
             .moduleId("forgejo")
             .linkPredicate((link, forgeId) -> link.getType().equals(ForgejoIssueLink.ISSUES_TYPE) && isForgejoHost(link, forgeId))
@@ -37,7 +37,7 @@ public final class ForgejoRefRules implements RuleBatch {
     @VisibleForTesting
     static final Rule FORGEJO_PULL_REQUEST_REF = ForgeRefRuleSupport
             .builder(ForgejoIssueLink::parse, ForgejoIssueRef::parse)
-            .id("forgejo-pull-request-ref")
+            .id("fj-pull-request-ref")
             .name("Forgejo pull request ref")
             .moduleId("forgejo")
             .linkPredicate((link, forgeId) -> link.getType().equals(ForgejoIssueLink.PULL_REQUEST_TYPE) && isForgejoHost(link, forgeId))
@@ -48,7 +48,7 @@ public final class ForgejoRefRules implements RuleBatch {
     @VisibleForTesting
     static final Rule FORGEJO_MENTION_REF = ForgeRefRuleSupport
             .builder(ForgejoMentionLink::parse, ForgejoMentionRef::parse)
-            .id("forgejo-mention-ref")
+            .id("fj-mention-ref")
             .name("Forgejo mention ref")
             .moduleId("forgejo")
             .linkPredicate(ForgejoRefRules::isForgejoHost)
@@ -59,7 +59,7 @@ public final class ForgejoRefRules implements RuleBatch {
     @VisibleForTesting
     static final Rule FORGEJO_COMMIT_REF = ForgeRefRuleSupport
             .builder(ForgejoCommitLink::parse, ForgejoCommitRef::parse)
-            .id("forgejo-commit-ref")
+            .id("fj-commit-ref")
             .name("Forgejo commit ref")
             .moduleId("forgejo")
             .linkPredicate(ForgejoRefRules::isForgejoHost)

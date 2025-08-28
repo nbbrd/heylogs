@@ -26,7 +26,7 @@ public final class GitLabRefRules implements RuleBatch {
     @VisibleForTesting
     static final Rule GITLAB_COMMIT_REF = ForgeRefRuleSupport
             .builder(GitLabCommitLink::parse, GitLabCommitRef::parse)
-            .id("gitlab-commit-ref")
+            .id("gl-commit-ref")
             .name("GitLab commit ref")
             .moduleId("gitlab")
             .linkPredicate(GitLabRefRules::isGitLabHost)
@@ -37,7 +37,7 @@ public final class GitLabRefRules implements RuleBatch {
     @VisibleForTesting
     static final Rule GITLAB_ISSUE_REF = ForgeRefRuleSupport
             .builder(GitLabIssueLink::parse, GitLabIssueRef::parse)
-            .id("gitlab-issue-ref")
+            .id("gl-issue-ref")
             .name("GitLab issue ref")
             .moduleId("gitlab")
             .linkPredicate(GitLabRefRules::isGitLabHost)
@@ -48,7 +48,7 @@ public final class GitLabRefRules implements RuleBatch {
     @VisibleForTesting
     static final Rule GITLAB_MERGE_REQUEST_REF = ForgeRefRuleSupport
             .builder(GitLabMergeRequestLink::parse, GitLabMergeRequestRef::parse)
-            .id("gitlab-merge-request-ref")
+            .id("gl-merge-request-ref")
             .name("GitLab merge request ref")
             .moduleId("gitlab")
             .linkPredicate(GitLabRefRules::isGitLabHost)
@@ -59,7 +59,7 @@ public final class GitLabRefRules implements RuleBatch {
     @VisibleForTesting
     static final Rule GITLAB_MENTION_REF = ForgeRefRuleSupport
             .builder(GitLabMentionLink::parse, GitLabMentionRef::parse)
-            .id("gitlab-mention-ref")
+            .id("gl-mention-ref")
             .name("GitLab mention ref")
             .moduleId("gitlab")
             .linkPredicate(GitLabRefRules::isGitLabHost)

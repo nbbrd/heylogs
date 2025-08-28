@@ -26,7 +26,7 @@ public final class GitHubRefRules implements RuleBatch {
     @VisibleForTesting
     static final Rule GITHUB_ISSUE_REF = ForgeRefRuleSupport
             .builder(GitHubIssueLink::parse, GitHubIssueRef::parse)
-            .id("github-issue-ref")
+            .id("gh-issue-ref")
             .name("GitHub issue ref")
             .moduleId("github")
             .linkPredicate((link, forgeId) -> link.getType().equals(GitHubIssueLink.ISSUES_TYPE) && isGitHubHost(link, forgeId))
@@ -37,7 +37,7 @@ public final class GitHubRefRules implements RuleBatch {
     @VisibleForTesting
     static final Rule GITHUB_PULL_REQUEST_REF = ForgeRefRuleSupport
             .builder(GitHubIssueLink::parse, GitHubIssueRef::parse)
-            .id("github-pull-request-ref")
+            .id("gh-pull-request-ref")
             .name("GitHub pull request ref")
             .moduleId("github")
             .linkPredicate((link, forgeId) -> link.getType().equals(GitHubIssueLink.PULL_REQUEST_TYPE) && isGitHubHost(link, forgeId))
@@ -48,7 +48,7 @@ public final class GitHubRefRules implements RuleBatch {
     @VisibleForTesting
     static final Rule GITHUB_MENTION_REF = ForgeRefRuleSupport
             .builder(GitHubMentionLink::parse, GitHubMentionRef::parse)
-            .id("github-mention-ref")
+            .id("gh-mention-ref")
             .name("GitHub mention ref")
             .moduleId("github")
             .linkPredicate(GitHubRefRules::isGitHubHost)
@@ -59,7 +59,7 @@ public final class GitHubRefRules implements RuleBatch {
     @VisibleForTesting
     static final Rule GITHUB_COMMIT_REF = ForgeRefRuleSupport
             .builder(GitHubCommitLink::parse, GitHubCommitRef::parse)
-            .id("github-commit-ref")
+            .id("gh-commit-ref")
             .name("GitHub commit ref")
             .moduleId("github")
             .linkPredicate(GitHubRefRules::isGitHubHost)
