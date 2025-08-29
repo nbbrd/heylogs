@@ -1,6 +1,7 @@
 package nbbrd.heylogs;
 
 import com.vladsch.flexmark.ast.Heading;
+import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.ast.LinkRef;
 import com.vladsch.flexmark.ast.Text;
 import com.vladsch.flexmark.util.ast.Node;
@@ -12,10 +13,13 @@ import nbbrd.design.StaticFactoryMethod;
 import nbbrd.design.VisibleForTesting;
 import org.jspecify.annotations.Nullable;
 
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.Iterator;
+
+import static internal.heylogs.spi.URLExtractor.urlOf;
 
 @lombok.Value(staticConstructor = "of")
 @RepresentableAs(Heading.class)
@@ -43,6 +47,9 @@ public class Version implements Section {
 
     @lombok.NonNull
     String ref;
+
+    @Nullable
+    URL link;
 
     char separator;
 
@@ -96,14 +103,24 @@ public class Version implements Section {
         }
         Node firstPart = parts.next();
 
-        String ref = parseRef(firstPart);
+        String ref;
+        URL link;
+        if (firstPart instanceof LinkRef) {
+            ref = ((LinkRef) firstPart).getReference().toString();
+            link = null;
+        } else if (firstPart instanceof Link) {
+            ref = ((Link) firstPart).getText().toString();
+            link = urlOf(((Link) firstPart).getUrl());
+        } else {
+            throw new IllegalArgumentException("Missing ref link");
+        }
 
         if (ref.equalsIgnoreCase(UNRELEASED_KEYWORD)) {
             if (parts.hasNext()) {
                 throw new IllegalArgumentException("Unexpected additional part: '" + parts.next().getChars() + "'");
             }
 
-            return new Version(ref, UNRELEASED_SEPARATOR, UNRELEASED_DATE);
+            return new Version(ref, link, UNRELEASED_SEPARATOR, UNRELEASED_DATE);
         }
 
         if (!parts.hasNext()) {
@@ -118,14 +135,7 @@ public class Version implements Section {
             throw new IllegalArgumentException("Unexpected additional part: '" + parts.next().getChars() + "'");
         }
 
-        return new Version(ref, separator, date);
-    }
-
-    private static String parseRef(Node firstPart) throws IllegalArgumentException {
-        if (!(firstPart instanceof LinkRef)) {
-            throw new IllegalArgumentException("Missing ref link");
-        }
-        return ((LinkRef) firstPart).getReference().toString();
+        return new Version(ref, link, separator, date);
     }
 
     private static char parseSeparator(Node secondPart) throws IllegalArgumentException {

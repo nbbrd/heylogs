@@ -66,7 +66,7 @@ public final class ReleaseMojo extends HeylogsMojo {
 
     @MojoParameterParsing
     private @NonNull Version toVersion() throws MojoExecutionException {
-        return Version.of(ref, '-', parseLocalDate(date));
+        return Version.of(ref, null, '-', parseLocalDate(date));
     }
 
     @MojoParameterParsing

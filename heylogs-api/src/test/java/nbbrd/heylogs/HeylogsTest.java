@@ -129,19 +129,19 @@ public class HeylogsTest {
 
         LocalDate date = LocalDate.of(2010, 1, 1);
 
-        assertThatIllegalArgumentException().isThrownBy(() -> releaseChangesToString(x, using("/Main.md"), Version.of("42", HYPHEN, date), "boom"))
+        assertThatIllegalArgumentException().isThrownBy(() -> releaseChangesToString(x, using("/Main.md"), Version.of("42", null, HYPHEN, date), "boom"))
                 .withMessageContaining("Cannot find versioning with id 'boom'");
 
-        assertThatIllegalArgumentException().isThrownBy(() -> releaseChangesToString(x, using("/Main.md"), Version.of("boom", HYPHEN, date), "regex:\\d+"))
+        assertThatIllegalArgumentException().isThrownBy(() -> releaseChangesToString(x, using("/Main.md"), Version.of("boom", null, HYPHEN, date), "regex:\\d+"))
                 .withMessageContaining("Invalid version 'boom' for versioning 'regex:\\d+'");
 
-        assertThatCode(() -> releaseChangesToString(x, using("/Main.md"), Version.of("boom", HYPHEN, date), null))
+        assertThatCode(() -> releaseChangesToString(x, using("/Main.md"), Version.of("boom", null, HYPHEN, date), null))
                 .doesNotThrowAnyException();
 
-        assertThatCode(() -> releaseChangesToString(x, using("/Main.md"), Version.of("42", HYPHEN, date), "regex:\\d+"))
+        assertThatCode(() -> releaseChangesToString(x, using("/Main.md"), Version.of("42", null, HYPHEN, date), "regex:\\d+"))
                 .doesNotThrowAnyException();
 
-        Version v123 = Version.of("1.2.3", HYPHEN, date);
+        Version v123 = Version.of("1.2.3", null, HYPHEN, date);
 
         assertThatIllegalArgumentException().isThrownBy(() -> releaseChangesToString(x, using("/Empty.md"), v123, null))
                 .withMessageContaining("Invalid changelog");
