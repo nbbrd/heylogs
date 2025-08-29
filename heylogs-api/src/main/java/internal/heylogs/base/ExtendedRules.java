@@ -1,6 +1,7 @@
 package internal.heylogs.base;
 
 import com.vladsch.flexmark.ast.Heading;
+import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.ast.LinkNodeBase;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
@@ -15,13 +16,16 @@ import nbbrd.heylogs.TypeOfChange;
 import nbbrd.heylogs.Util;
 import nbbrd.heylogs.Version;
 import nbbrd.heylogs.spi.*;
+import nbbrd.io.text.Parser;
 import nbbrd.service.ServiceProvider;
 import org.jspecify.annotations.Nullable;
 
+import java.net.URL;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -126,6 +130,17 @@ public enum ExtendedRules implements Rule {
         @Override
         public @NonNull String getRuleName() {
             return "Versioning format";
+        }
+    },
+    FORGE_REF {
+        @Override
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
+            return node instanceof Link ? validateForgeRef((Link) node, context) : NO_RULE_ISSUE;
+        }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "Forge reference";
         }
     };
 
@@ -356,6 +371,36 @@ public enum ExtendedRules implements Rule {
                 .message(String.format(ROOT, "Invalid reference '%s' when using versioning '%s'", ref, context.getConfig().getVersioning()))
                 .location(heading)
                 .build();
+    }
+
+    @VisibleForTesting
+    public static @Nullable RuleIssue validateForgeRef(@NonNull Link link, @NonNull RuleContext context) {
+        URL url = Parser.onURL().parse(link.getUrl());
+        if (url != null) {
+            for (Forge forge : context.getForges()) {
+                if (forge.getForgeId().equals(context.getConfig().getForgeId()) || forge.isKnownHost(url)) {
+                    for (ForgeRefType type : ForgeRefType.values()) {
+                        Function<? super URL, ForgeLink> linkParser = forge.getLinkParser(type);
+                        ForgeLink expectedLink = linkParser != null ? illegalArgumentToNull(linkParser).apply(url) : null;
+                        if (expectedLink != null) {
+                            Function<? super CharSequence, ForgeRef> refParser = forge.getRefParser(type);
+                            ForgeRef foundRef = refParser != null ? illegalArgumentToNull(refParser).apply(link.getText()) : null;
+                            if (foundRef == null || !foundRef.isCompatibleWith(expectedLink)) {
+                                ForgeRef expectedRef = expectedLink.toRef(foundRef);
+                                String foundText = foundRef == null ? link.getText().toString() : foundRef.toString();
+                                return RuleIssue
+                                        .builder()
+                                        .message(String.format(ROOT, "Expecting %s ref %s, found %s", type, expectedRef, foundText))
+                                        .location(link)
+                                        .build();
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+        return NO_RULE_ISSUE;
     }
 
     @SuppressWarnings("unused")

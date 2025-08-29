@@ -1,31 +1,27 @@
 package nbbrd.heylogs.ext.github;
 
-import lombok.NonNull;
 import nbbrd.design.DirectImpl;
 import nbbrd.heylogs.spi.Forge;
 import nbbrd.heylogs.spi.ForgeSupport;
 import nbbrd.service.ServiceProvider;
 
-import java.net.URL;
-import java.util.Arrays;
+import static nbbrd.heylogs.spi.ForgeRefType.*;
 
 @DirectImpl
 @ServiceProvider
 public final class GitHub implements Forge {
 
-    static final String ID = "github";
-
     @lombok.experimental.Delegate
     private final Forge delegate = ForgeSupport
             .builder()
-            .id(ID)
+            .id("github")
             .moduleId("github")
             .name("GitHub")
             .compareLinkFactory(GitHubCompareLink::parse)
-            .linkPredicate(GitHub::isGitHubHost)
+            .knownHostPredicate(ForgeSupport.onHostContaining("github"))
+            .parser(COMMIT, GitHubCommitLink::parse, GitHubCommitRef::parse)
+            .parser(ISSUE, GitHubIssueLink::parse, GitHubIssueRef::parse)
+            .parser(REQUEST, GitHubRequestLink::parse, GitHubRequestRef::parse)
+            .parser(MENTION, GitHubMentionLink::parse, GitHubMentionRef::parse)
             .build();
-
-    static boolean isGitHubHost(@NonNull URL expected) {
-        return Arrays.asList(expected.getHost().split("\\.", -1)).contains("github");
-    }
 }

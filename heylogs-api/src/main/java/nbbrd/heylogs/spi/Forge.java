@@ -4,8 +4,10 @@ import lombok.NonNull;
 import nbbrd.service.Quantifier;
 import nbbrd.service.ServiceDefinition;
 import nbbrd.service.ServiceId;
+import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
+import java.util.function.Function;
 
 @ServiceDefinition(
         quantifier = Quantifier.MULTIPLE
@@ -26,4 +28,12 @@ public interface Forge {
 
     @NonNull
     CompareLink getCompareLink(@NonNull URL url);
+
+    @Nullable
+    Function<? super URL, ForgeLink> getLinkParser(@NonNull ForgeRefType type);
+
+    @Nullable
+    Function<? super CharSequence, ForgeRef> getRefParser(@NonNull ForgeRefType type);
+
+    boolean isKnownHost(@NonNull URL url);
 }

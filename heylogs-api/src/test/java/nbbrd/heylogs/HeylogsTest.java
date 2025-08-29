@@ -356,6 +356,21 @@ public class HeylogsTest {
         public @NonNull CompareLink getCompareLink(@NonNull URL url) {
             return new MockedCompareLink(url);
         }
+
+        @Override
+        public @Nullable Function<? super URL, ForgeLink> getLinkParser(@NonNull ForgeRefType type) {
+            return null;
+        }
+
+        @Override
+        public @Nullable Function<? super CharSequence, ForgeRef> getRefParser(@NonNull ForgeRefType type) {
+            return null;
+        }
+
+        @Override
+        public boolean isKnownHost(@NonNull URL url) {
+            return false;
+        }
     }
 
     @lombok.Value
