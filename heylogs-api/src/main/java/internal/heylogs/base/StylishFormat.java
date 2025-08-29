@@ -142,6 +142,7 @@ public final class StylishFormat implements Format {
                 .column(Formatter.of(Resource::getModule))
                 .column(Formatter.of(Resource::getId))
                 .column(Formatter.of(Resource::getName))
+                .column(Formatter.of(Resource::getOptions))
                 .build()
                 .write(appendable, "Resources", list, getResourcesSummary(list));
     }
@@ -206,6 +207,7 @@ public final class StylishFormat implements Format {
                 rows.add(row);
             }
             int[] sizes = new int[columns.size()];
+            Arrays.fill(sizes, 1);
             for (CharSequence[] row : rows) {
                 for (int i = 0; i < row.length; i++) {
                     sizes[i] = Math.max(sizes[i], row[i].length());

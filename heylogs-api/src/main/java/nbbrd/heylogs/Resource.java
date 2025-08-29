@@ -22,6 +22,8 @@ public class Resource {
     String id;
     @NonNull
     String name;
+    @NonNull
+    String options;
 
     static Resource of(Rule rule) {
         return Resource
@@ -30,6 +32,7 @@ public class Resource {
                 .module(rule.getRuleModuleId())
                 .id(rule.getRuleId())
                 .name(rule.getRuleName())
+                .options(rule.getRuleSeverity().name())
                 .build();
     }
 
@@ -40,6 +43,7 @@ public class Resource {
                 .module(format.getFormatModuleId())
                 .id(format.getFormatId())
                 .name(format.getFormatName())
+                .options("")
                 .build();
     }
 
@@ -50,6 +54,7 @@ public class Resource {
                 .module(versioning.getVersioningModuleId())
                 .id(versioning.getVersioningId())
                 .name(versioning.getVersioningName())
+                .options("")
                 .build();
     }
 
@@ -60,6 +65,7 @@ public class Resource {
                 .module(forge.getForgeModuleId())
                 .id(forge.getForgeId())
                 .name(forge.getForgeName())
+                .options("")
                 .build();
     }
 

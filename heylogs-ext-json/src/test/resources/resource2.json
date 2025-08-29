@@ -3,6 +3,7 @@
     "type": "a",
     "module": "stuff",
     "id": "hello",
-    "name": "(A) Hello"
+    "name": "(A) Hello",
+    "options": "*"
   }
 ]
