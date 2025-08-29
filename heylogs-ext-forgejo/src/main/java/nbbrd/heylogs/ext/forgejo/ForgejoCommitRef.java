@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAsString;
 import nbbrd.design.StaticFactoryMethod;
+import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.ForgeRef;
 import org.jspecify.annotations.Nullable;
 
@@ -14,7 +15,7 @@ import java.util.regex.Pattern;
 @RepresentableAsString
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class ForgejoCommitRef implements ForgeRef<ForgejoCommitLink> {
+class ForgejoCommitRef implements ForgeRef {
 
     public enum Type {HASH, OWNER_HASH, OWNER_REPO_HASH}
 
@@ -72,7 +73,11 @@ class ForgejoCommitRef implements ForgeRef<ForgejoCommitLink> {
     }
 
     @Override
-    public boolean isCompatibleWith(@NonNull ForgejoCommitLink link) {
+    public boolean isCompatibleWith(@NonNull ForgeLink link) {
+        return link instanceof ForgejoCommitLink && isCompatibleWith((ForgejoCommitLink) link);
+    }
+
+    private boolean isCompatibleWith(@NonNull ForgejoCommitLink link) {
         switch (getType()) {
             case HASH:
                 return hash.isCompatibleWith(link.getHash());

@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAsString;
 import nbbrd.design.StaticFactoryMethod;
+import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.ForgeRef;
 import org.jspecify.annotations.Nullable;
 
@@ -15,7 +16,7 @@ import static java.lang.Integer.parseInt;
 @RepresentableAsString
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class ForgejoIssueRef implements ForgeRef<ForgejoIssueLink> {
+class ForgejoIssueRef implements ForgeRef {
 
     public enum Type {NUMBER, OWNER_REPO_NUMBER}
 
@@ -56,7 +57,11 @@ class ForgejoIssueRef implements ForgeRef<ForgejoIssueLink> {
     }
 
     @Override
-    public boolean isCompatibleWith(@NonNull ForgejoIssueLink link) {
+    public boolean isCompatibleWith(@NonNull ForgeLink link) {
+        return link instanceof ForgejoIssueLink && isCompatibleWith((ForgejoIssueLink) link);
+    }
+
+    private boolean isCompatibleWith(@NonNull ForgejoIssueLink link) {
         return (getType().equals(Type.NUMBER) || (link.getOwner().equals(owner) && link.getRepo().equals(repo)))
                 && link.getIssueNumber() == issueNumber;
     }

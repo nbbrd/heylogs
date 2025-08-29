@@ -369,6 +369,11 @@ public class HeylogsTest {
         }
 
         @Override
+        public @Nullable ForgeRef toRef(@Nullable ForgeRef baseRef) {
+            return null;
+        }
+
+        @Override
         public @NonNull CompareLink derive(@NonNull String tag) {
             String urlAsString = url.toString();
             int oidIndex = urlAsString.lastIndexOf("/") + 1;

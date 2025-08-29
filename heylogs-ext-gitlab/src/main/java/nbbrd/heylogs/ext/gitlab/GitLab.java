@@ -3,10 +3,10 @@ package nbbrd.heylogs.ext.gitlab;
 import lombok.NonNull;
 import nbbrd.design.DirectImpl;
 import nbbrd.heylogs.spi.Forge;
-import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.ForgeSupport;
 import nbbrd.service.ServiceProvider;
 
+import java.net.URL;
 import java.util.Arrays;
 
 @DirectImpl
@@ -22,10 +22,10 @@ public final class GitLab implements Forge {
             .moduleId("gitlab")
             .name("GitLab")
             .compareLinkFactory(GitLabCompareLink::parse)
-            .linkPredicate(GitLab::isKnownHost)
+            .linkPredicate(GitLab::isGitLabHost)
             .build();
 
-    static boolean isKnownHost(@NonNull ForgeLink expected) {
-        return Arrays.asList(expected.toURL().getHost().split("\\.", -1)).contains("gitlab");
+    static boolean isGitLabHost(@NonNull URL expected) {
+        return Arrays.asList(expected.getHost().split("\\.", -1)).contains("gitlab");
     }
 }

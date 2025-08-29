@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAsString;
 import nbbrd.design.StaticFactoryMethod;
+import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.ForgeRef;
 import org.jspecify.annotations.Nullable;
 
@@ -19,7 +20,7 @@ import static nbbrd.heylogs.ext.gitlab.GitLabSupport.PATH_SEPARATOR;
 @RepresentableAsString
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class GitLabMentionRef implements ForgeRef<GitLabMentionLink> {
+class GitLabMentionRef implements ForgeRef {
 
     @StaticFactoryMethod
     public static @NonNull GitLabMentionRef parse(@NonNull CharSequence text) {
@@ -61,7 +62,11 @@ class GitLabMentionRef implements ForgeRef<GitLabMentionLink> {
     }
 
     @Override
-    public boolean isCompatibleWith(@NonNull GitLabMentionLink link) {
+    public boolean isCompatibleWith(@NonNull ForgeLink link) {
+        return link instanceof GitLabMentionLink && isCompatibleWith((GitLabMentionLink) link);
+    }
+
+    private boolean isCompatibleWith(@NonNull GitLabMentionLink link) {
         return Objects.equals(link.getNamespace(), getNamespace());
     }
 }

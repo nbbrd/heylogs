@@ -8,7 +8,6 @@ import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleContext;
 import nbbrd.heylogs.spi.RuleIssue;
 import org.junit.jupiter.api.Test;
-import tests.heylogs.spi.MockedForgeLink;
 
 import java.util.Objects;
 
@@ -113,9 +112,9 @@ public class GitLabRefRulesTest {
 
     @Test
     public void testIsGitLabHost() {
-        assertThat(GitLab.isKnownHost(MockedForgeLink.parse(URLExtractor.urlOf("https://gitlab.com")))).isTrue();
-        assertThat(GitLab.isKnownHost(MockedForgeLink.parse(URLExtractor.urlOf("https://gitlabgitlab.com")))).isFalse();
-        assertThat(GitLab.isKnownHost(MockedForgeLink.parse(URLExtractor.urlOf("https://gitlab.example.com")))).isTrue();
-        assertThat(GitLab.isKnownHost(MockedForgeLink.parse(URLExtractor.urlOf("https://localhost:8080")))).isFalse();
+        assertThat(GitLab.isGitLabHost(URLExtractor.urlOf("https://gitlab.com"))).isTrue();
+        assertThat(GitLab.isGitLabHost(URLExtractor.urlOf("https://gitlabgitlab.com"))).isFalse();
+        assertThat(GitLab.isGitLabHost(URLExtractor.urlOf("https://gitlab.example.com"))).isTrue();
+        assertThat(GitLab.isGitLabHost(URLExtractor.urlOf("https://localhost:8080"))).isFalse();
     }
 }

@@ -9,7 +9,6 @@ import nbbrd.heylogs.spi.RuleContext;
 import nbbrd.heylogs.spi.RuleIssue;
 import org.junit.jupiter.api.Test;
 import tests.heylogs.api.Sample;
-import tests.heylogs.spi.MockedForgeLink;
 
 import java.util.Objects;
 
@@ -128,9 +127,9 @@ public class ForgejoRefRulesTest {
 
     @Test
     public void testIsForgejoHost() {
-        assertThat(Forgejo.isKnownHost(MockedForgeLink.parse(URLExtractor.urlOf("https://codeberg.org")))).isTrue();
-        assertThat(Forgejo.isKnownHost(MockedForgeLink.parse(URLExtractor.urlOf("https://codebergcodeberg.org")))).isFalse();
-        assertThat(Forgejo.isKnownHost(MockedForgeLink.parse(URLExtractor.urlOf("https://codeberg.example.com")))).isTrue();
-        assertThat(Forgejo.isKnownHost(MockedForgeLink.parse(URLExtractor.urlOf("https://localhost:8080")))).isFalse();
+        assertThat(Forgejo.isForgejoHost(URLExtractor.urlOf("https://codeberg.org"))).isTrue();
+        assertThat(Forgejo.isForgejoHost(URLExtractor.urlOf("https://codebergcodeberg.org"))).isFalse();
+        assertThat(Forgejo.isForgejoHost(URLExtractor.urlOf("https://codeberg.example.com"))).isTrue();
+        assertThat(Forgejo.isForgejoHost(URLExtractor.urlOf("https://localhost:8080"))).isFalse();
     }
 }

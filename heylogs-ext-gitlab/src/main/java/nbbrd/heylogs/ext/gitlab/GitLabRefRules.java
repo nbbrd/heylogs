@@ -3,7 +3,10 @@ package nbbrd.heylogs.ext.gitlab;
 import lombok.NonNull;
 import nbbrd.design.DirectImpl;
 import nbbrd.design.VisibleForTesting;
-import nbbrd.heylogs.spi.*;
+import nbbrd.heylogs.spi.ForgeRefRuleSupport;
+import nbbrd.heylogs.spi.ForgeRefType;
+import nbbrd.heylogs.spi.Rule;
+import nbbrd.heylogs.spi.RuleBatch;
 import nbbrd.service.ServiceProvider;
 
 import java.util.stream.Stream;
@@ -19,45 +22,53 @@ public final class GitLabRefRules implements RuleBatch {
 
     @VisibleForTesting
     static final Rule GITLAB_COMMIT_REF = ForgeRefRuleSupport
-            .builder(ForgeRefFactory.of(GitLabCommitLink::parse, GitLabCommitRef::parse, GitLabCommitRef::of))
+            .builder()
+            .linkParser(GitLabCommitLink::parse)
+            .refParser(GitLabCommitRef::parse)
             .refType(ForgeRefType.COMMIT)
             .id("gl-commit-ref")
             .name("GitLab commit ref")
             .moduleId("gitlab")
             .forgeId(GitLab.ID)
-            .linkPredicate(GitLab::isKnownHost)
+            .linkPredicate(GitLab::isGitLabHost)
             .build();
 
     @VisibleForTesting
     static final Rule GITLAB_ISSUE_REF = ForgeRefRuleSupport
-            .builder(ForgeRefFactory.of(GitLabIssueLink::parse, GitLabIssueRef::parse, GitLabIssueRef::of))
+            .builder()
+            .linkParser(GitLabIssueLink::parse)
+            .refParser(GitLabIssueRef::parse)
             .refType(ForgeRefType.ISSUE)
             .id("gl-issue-ref")
             .name("GitLab issue ref")
             .moduleId("gitlab")
             .forgeId(GitLab.ID)
-            .linkPredicate(GitLab::isKnownHost)
+            .linkPredicate(GitLab::isGitLabHost)
             .build();
 
     @VisibleForTesting
     static final Rule GITLAB_MERGE_REQUEST_REF = ForgeRefRuleSupport
-            .builder(ForgeRefFactory.of(GitLabRequestLink::parse, GitLabRequestRef::parse, GitLabRequestRef::of))
+            .builder()
+            .linkParser(GitLabRequestLink::parse)
+            .refParser(GitLabRequestRef::parse)
             .refType(ForgeRefType.REQUEST)
             .id("gl-merge-request-ref")
             .name("GitLab merge request ref")
             .moduleId("gitlab")
             .forgeId(GitLab.ID)
-            .linkPredicate(GitLab::isKnownHost)
+            .linkPredicate(GitLab::isGitLabHost)
             .build();
 
     @VisibleForTesting
     static final Rule GITLAB_MENTION_REF = ForgeRefRuleSupport
-            .builder(ForgeRefFactory.of(GitLabMentionLink::parse, GitLabMentionRef::parse, GitLabMentionRef::of))
+            .builder()
+            .linkParser(GitLabMentionLink::parse)
+            .refParser(GitLabMentionRef::parse)
             .refType(ForgeRefType.MENTION)
             .id("gl-mention-ref")
             .name("GitLab mention ref")
             .moduleId("gitlab")
             .forgeId(GitLab.ID)
-            .linkPredicate(GitLab::isKnownHost)
+            .linkPredicate(GitLab::isGitLabHost)
             .build();
 }

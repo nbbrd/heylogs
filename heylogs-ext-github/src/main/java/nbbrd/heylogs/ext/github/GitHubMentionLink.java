@@ -5,6 +5,7 @@ import lombok.NonNull;
 import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.spi.ForgeLink;
+import nbbrd.heylogs.spi.ForgeRef;
 import nbbrd.io.http.URLQueryBuilder;
 import org.jspecify.annotations.Nullable;
 
@@ -60,6 +61,11 @@ class GitHubMentionLink implements ForgeLink {
     @Override
     public @NonNull URL toURL() {
         return urlOf(toString());
+    }
+
+    @Override
+    public @NonNull ForgeRef toRef(@Nullable ForgeRef baseRef) {
+        return GitHubMentionRef.of(this, baseRef instanceof GitHubMentionRef ? (GitHubMentionRef) baseRef : null);
     }
 
     public boolean isUser() {

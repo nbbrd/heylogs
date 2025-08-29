@@ -17,7 +17,7 @@ public final class ForgeSupport implements Forge {
 
     private final @NonNull Function<URL, CompareLink> compareLinkFactory;
 
-    private final @NonNull Predicate<ForgeLink> linkPredicate;
+    private final @NonNull Predicate<URL> linkPredicate;
 
     @Override
     public @NonNull String getForgeId() {
@@ -37,7 +37,7 @@ public final class ForgeSupport implements Forge {
     @Override
     public boolean isCompareLink(@NonNull URL url) {
         try {
-            return linkPredicate.test(compareLinkFactory.apply(url));
+            return linkPredicate.test(url) && compareLinkFactory.apply(url) != null;
         } catch (IllegalArgumentException ex) {
             return false;
         }

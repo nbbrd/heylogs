@@ -9,7 +9,6 @@ import nbbrd.heylogs.spi.RuleContext;
 import nbbrd.heylogs.spi.RuleIssue;
 import org.junit.jupiter.api.Test;
 import tests.heylogs.api.Sample;
-import tests.heylogs.spi.MockedForgeLink;
 
 import java.util.Objects;
 
@@ -128,9 +127,9 @@ public class GitHubRefRulesTest {
 
     @Test
     public void testIsGitHubHost() {
-        assertThat(GitHub.isKnownHost(MockedForgeLink.parse(URLExtractor.urlOf("https://github.com")))).isTrue();
-        assertThat(GitHub.isKnownHost(MockedForgeLink.parse(URLExtractor.urlOf("https://githubgithub.com")))).isFalse();
-        assertThat(GitHub.isKnownHost(MockedForgeLink.parse(URLExtractor.urlOf("https://github.example.com")))).isTrue();
-        assertThat(GitHub.isKnownHost(MockedForgeLink.parse(URLExtractor.urlOf("https://localhost:8080")))).isFalse();
+        assertThat(GitHub.isGitHubHost(URLExtractor.urlOf("https://github.com"))).isTrue();
+        assertThat(GitHub.isGitHubHost(URLExtractor.urlOf("https://githubgithub.com"))).isFalse();
+        assertThat(GitHub.isGitHubHost(URLExtractor.urlOf("https://github.example.com"))).isTrue();
+        assertThat(GitHub.isGitHubHost(URLExtractor.urlOf("https://localhost:8080"))).isFalse();
     }
 }

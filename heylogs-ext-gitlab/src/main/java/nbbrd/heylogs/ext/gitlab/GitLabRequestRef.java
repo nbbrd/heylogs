@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAsString;
 import nbbrd.design.StaticFactoryMethod;
+import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.ForgeRef;
 import org.jspecify.annotations.Nullable;
 
@@ -14,7 +15,7 @@ import static nbbrd.heylogs.ext.gitlab.GitLabSupport.*;
 @RepresentableAsString
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class GitLabRequestRef implements ForgeRef<GitLabRequestLink> {
+class GitLabRequestRef implements ForgeRef {
 
     @StaticFactoryMethod
     public static @NonNull GitLabRequestRef parse(@NonNull CharSequence text) {
@@ -57,7 +58,11 @@ class GitLabRequestRef implements ForgeRef<GitLabRequestLink> {
     }
 
     @Override
-    public boolean isCompatibleWith(@NonNull GitLabRequestLink link) {
+    public boolean isCompatibleWith(@NonNull ForgeLink link) {
+        return link instanceof GitLabRequestLink && isCompatibleWith((GitLabRequestLink) link);
+    }
+
+    private boolean isCompatibleWith(@NonNull GitLabRequestLink link) {
         switch (getType()) {
             case SAME_PROJECT:
                 return link.getNumber() == number;

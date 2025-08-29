@@ -6,7 +6,9 @@ import lombok.NonNull;
 import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.spi.CompareLink;
+import nbbrd.heylogs.spi.ForgeRef;
 import nbbrd.io.http.URLQueryBuilder;
+import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
 import java.util.regex.Pattern;
@@ -52,6 +54,11 @@ class ForgejoCompareLink implements CompareLink {
     @Override
     public @NonNull URL toURL() {
         return urlOf(toString());
+    }
+
+    @Override
+    public @Nullable ForgeRef toRef(@Nullable ForgeRef baseRef) {
+        return null;
     }
 
     @Override

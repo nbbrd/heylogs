@@ -5,6 +5,8 @@ import lombok.NonNull;
 import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.spi.ForgeLink;
+import nbbrd.heylogs.spi.ForgeRef;
+import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
 import java.util.List;
@@ -41,6 +43,11 @@ class GitLabIssueLink implements ForgeLink {
     @Override
     public @NonNull URL toURL() {
         return urlOf(toString());
+    }
+
+    @Override
+    public @NonNull ForgeRef toRef(@Nullable ForgeRef baseRef) {
+        return GitLabIssueRef.of(this, baseRef instanceof GitLabIssueRef ? (GitLabIssueRef) baseRef : null);
     }
 
     private static final String ISSUES_KEYWORD = "issues";

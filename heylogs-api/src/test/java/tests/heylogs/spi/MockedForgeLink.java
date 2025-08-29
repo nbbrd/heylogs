@@ -5,6 +5,8 @@ import lombok.NonNull;
 import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.spi.ForgeLink;
+import nbbrd.heylogs.spi.ForgeRef;
+import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
 
@@ -29,5 +31,10 @@ public class MockedForgeLink implements ForgeLink {
     @Override
     public @NonNull URL toURL() {
         return base;
+    }
+
+    @Override
+    public @Nullable ForgeRef toRef(@Nullable ForgeRef baseRef) {
+        return null;
     }
 }

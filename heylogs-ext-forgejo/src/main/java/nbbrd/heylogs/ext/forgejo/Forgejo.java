@@ -3,10 +3,10 @@ package nbbrd.heylogs.ext.forgejo;
 import lombok.NonNull;
 import nbbrd.design.DirectImpl;
 import nbbrd.heylogs.spi.Forge;
-import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.ForgeSupport;
 import nbbrd.service.ServiceProvider;
 
+import java.net.URL;
 import java.util.Arrays;
 
 @DirectImpl
@@ -22,10 +22,10 @@ public final class Forgejo implements Forge {
             .moduleId("forgejo")
             .name("Forgejo")
             .compareLinkFactory(ForgejoCompareLink::parse)
-            .linkPredicate(Forgejo::isKnownHost)
+            .linkPredicate(Forgejo::isForgejoHost)
             .build();
 
-    static boolean isKnownHost(@NonNull ForgeLink expected) {
-        return Arrays.asList(expected.toURL().getHost().split("\\.", -1)).contains("codeberg");
+    static boolean isForgejoHost(@NonNull URL expected) {
+        return Arrays.asList(expected.getHost().split("\\.", -1)).contains("codeberg");
     }
 }
