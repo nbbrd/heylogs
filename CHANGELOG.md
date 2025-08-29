@@ -11,6 +11,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Add rule severity configuration [#224](https://github.com/nbbrd/heylogs/issues/224)
 - Add generic forge ref rule [#429](https://github.com/nbbrd/heylogs/issues/429)
+- Add rule severity to the list command output [#430](https://github.com/nbbrd/heylogs/issues/430)
 
 ## [0.13.0] - 2025-08-26
 
