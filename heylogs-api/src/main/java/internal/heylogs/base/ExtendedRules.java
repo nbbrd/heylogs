@@ -390,7 +390,7 @@ public enum ExtendedRules implements Rule {
                                 String foundText = foundRef == null ? link.getText().toString() : foundRef.toString();
                                 return RuleIssue
                                         .builder()
-                                        .message(String.format(ROOT, "Expecting %s ref %s, found %s", type, expectedRef, foundText))
+                                        .message(String.format(ROOT, "Expecting %s %s ref %s, found %s", forge.getForgeId(), type, expectedRef, foundText))
                                         .location(link)
                                         .build();
                             }

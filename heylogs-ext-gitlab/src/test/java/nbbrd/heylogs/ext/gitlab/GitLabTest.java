@@ -57,28 +57,28 @@ class GitLabTest {
                 .map(node -> ExtendedRules.validateForgeRef(node, context))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains(RuleIssue.builder().message("Expecting COMMIT ref 656ad7d, found 0000000").line(2).column(1).build(), atIndex(0))
+                .contains(RuleIssue.builder().message("Expecting gitlab COMMIT ref 656ad7d, found 0000000").line(2).column(1).build(), atIndex(0))
                 .hasSize(1);
 
         assertThat(Nodes.of(Link.class).descendants(using("/InvalidGitLabIssueRef.md")))
                 .map(node -> ExtendedRules.validateForgeRef(node, context))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains(RuleIssue.builder().message("Expecting ISSUE ref 1, found 0").line(2).column(1).build(), atIndex(0))
+                .contains(RuleIssue.builder().message("Expecting gitlab ISSUE ref 1, found 0").line(2).column(1).build(), atIndex(0))
                 .hasSize(1);
 
         assertThat(Nodes.of(Link.class).descendants(using("/InvalidGitLabMergeRequestRef.md")))
                 .map(node -> ExtendedRules.validateForgeRef(node, context))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains(RuleIssue.builder().message("Expecting REQUEST ref 1, found 0").line(2).column(1).build(), atIndex(0))
+                .contains(RuleIssue.builder().message("Expecting gitlab REQUEST ref 1, found 0").line(2).column(1).build(), atIndex(0))
                 .hasSize(1);
 
         assertThat(Nodes.of(Link.class).descendants(using("/InvalidGitLabMentionRef.md")))
                 .map(node -> ExtendedRules.validateForgeRef(node, context))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains(RuleIssue.builder().message("Expecting MENTION ref @charphi, found @nbbrd").line(2).column(1).build(), atIndex(0))
+                .contains(RuleIssue.builder().message("Expecting gitlab MENTION ref @charphi, found @nbbrd").line(2).column(1).build(), atIndex(0))
                 .hasSize(1);
     }
 

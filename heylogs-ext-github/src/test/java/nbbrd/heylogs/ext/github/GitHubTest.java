@@ -58,42 +58,42 @@ class GitHubTest {
                 .map(node -> ExtendedRules.validateForgeRef(node, context))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains(RuleIssue.builder().message("Expecting ISSUE ref #172, found #173").line(2).column(1).build(), atIndex(0))
+                .contains(RuleIssue.builder().message("Expecting github ISSUE ref #172, found #173").line(2).column(1).build(), atIndex(0))
                 .hasSize(1);
 
         assertThat(Nodes.of(Link.class).descendants(using("/InvalidGitHubIssueRefPrefix.md")))
                 .map(node -> ExtendedRules.validateForgeRef(node, context))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains(RuleIssue.builder().message("Expecting ISSUE ref #172, found 172").line(2).column(1).build(), atIndex(0))
+                .contains(RuleIssue.builder().message("Expecting github ISSUE ref #172, found 172").line(2).column(1).build(), atIndex(0))
                 .hasSize(1);
 
         assertThat(Nodes.of(Link.class).descendants(using("/InvalidGitHubPullRequestRef.md")))
                 .map(node -> ExtendedRules.validateForgeRef(node, context))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains(RuleIssue.builder().message("Expecting REQUEST ref #172, found #173").line(2).column(1).build(), atIndex(0))
+                .contains(RuleIssue.builder().message("Expecting github REQUEST ref #172, found #173").line(2).column(1).build(), atIndex(0))
                 .hasSize(1);
 
         assertThat(Nodes.of(Link.class).descendants(using("/InvalidGitHubPullRequestRefPrefix.md")))
                 .map(node -> ExtendedRules.validateForgeRef(node, context))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains(RuleIssue.builder().message("Expecting REQUEST ref #172, found 172").line(2).column(1).build(), atIndex(0))
+                .contains(RuleIssue.builder().message("Expecting github REQUEST ref #172, found 172").line(2).column(1).build(), atIndex(0))
                 .hasSize(1);
 
         assertThat(Nodes.of(Link.class).descendants(using("/InvalidGitHubMentionRef.md")))
                 .map(node -> ExtendedRules.validateForgeRef(node, context))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains(RuleIssue.builder().message("Expecting MENTION ref @charphi, found @user").line(2).column(1).build(), atIndex(0))
+                .contains(RuleIssue.builder().message("Expecting github MENTION ref @charphi, found @user").line(2).column(1).build(), atIndex(0))
                 .hasSize(1);
 
         assertThat(Nodes.of(Link.class).descendants(using("/InvalidGitHubCommitRef.md")))
                 .map(node -> ExtendedRules.validateForgeRef(node, context))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains(RuleIssue.builder().message("Expecting COMMIT ref 862157d, found 0000000").line(2).column(1).build(), atIndex(0))
+                .contains(RuleIssue.builder().message("Expecting github COMMIT ref 862157d, found 0000000").line(2).column(1).build(), atIndex(0))
                 .hasSize(1);
     }
 
