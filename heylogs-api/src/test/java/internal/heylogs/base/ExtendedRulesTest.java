@@ -12,12 +12,15 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import tests.heylogs.api.Sample;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Objects;
 
 import static internal.heylogs.base.BaseVersionings.REGEX_VERSIONING;
 import static internal.heylogs.base.ExtendedRules.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Index.atIndex;
+import static tests.heylogs.api.Sample.asHeading;
 import static tests.heylogs.api.Sample.using;
 import static tests.heylogs.spi.RuleAssert.assertRuleCompliance;
 
@@ -130,5 +133,25 @@ public class ExtendedRulesTest {
                 .filteredOn(Objects::nonNull)
                 .hasSize(1)
                 .contains(RuleIssue.builder().message("Invalid reference '.1.0' when using versioning 'regex:^\\d+\\.\\d+\\.\\d+$'").line(4).column(1).build());
+    }
+
+    @Test
+    public void testValidateReleaseDate() {
+        assertThat(validateReleaseDate(asHeading("## [Unreleased]"), RuleContext.DEFAULT))
+                .isEqualTo(NO_RULE_ISSUE);
+
+        LocalDate now = LocalDate.now(ZoneId.systemDefault());
+
+        assertThat(validateReleaseDate(asHeading("## [1.0.0] - " + now), RuleContext.DEFAULT))
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateReleaseDate(asHeading("## [1.0.0] - " + now.minusDays(1)), RuleContext.DEFAULT))
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateReleaseDate(asHeading("## [1.0.0] - " + now.plusDays(1)), RuleContext.DEFAULT))
+                .isEqualTo(RuleIssue.builder().message("Release date " + now.plusDays(1) + " is in the future").line(1).column(1).build());
+
+        assertThat(validateReleaseDate(asHeading("### [1.0.0] - " + now.plusDays(1)), RuleContext.DEFAULT))
+                .isEqualTo(NO_RULE_ISSUE);
     }
 }

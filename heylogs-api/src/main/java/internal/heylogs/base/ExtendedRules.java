@@ -21,6 +21,8 @@ import nbbrd.service.ServiceProvider;
 import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
@@ -136,6 +138,22 @@ public enum ExtendedRules implements Rule {
         @Override
         public @NonNull String getRuleName() {
             return "Forge reference";
+        }
+    },
+    RELEASE_DATE {
+        @Override
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
+            return node instanceof Heading ? validateReleaseDate((Heading) node, context) : NO_RULE_ISSUE;
+        }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "Release date";
+        }
+
+        @Override
+        public @NonNull RuleSeverity getRuleSeverity() {
+            return RuleSeverity.WARN;
         }
     };
 
@@ -396,6 +414,29 @@ public enum ExtendedRules implements Rule {
             }
         }
         return NO_RULE_ISSUE;
+    }
+
+    @VisibleForTesting
+    static @Nullable RuleIssue validateReleaseDate(@NonNull Heading heading, @NonNull RuleContext context) {
+        if (!Version.isVersionLevel(heading)) {
+            return NO_RULE_ISSUE;
+        }
+
+        Version version = illegalArgumentToNull(Version::parse).apply(heading);
+
+        if (version == null || version.isUnreleased()) {
+            return NO_RULE_ISSUE;
+        }
+
+        LocalDate date = version.getDate();
+
+        return date.isAfter(LocalDate.now(ZoneId.systemDefault()))
+                ? RuleIssue
+                .builder()
+                .message(String.format(ROOT, "Release date %s is in the future", date))
+                .location(heading)
+                .build()
+                : NO_RULE_ISSUE;
     }
 
     @SuppressWarnings("unused")
