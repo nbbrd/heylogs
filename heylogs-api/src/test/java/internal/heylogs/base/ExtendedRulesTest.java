@@ -1,23 +1,30 @@
 package internal.heylogs.base;
 
+import com.vladsch.flexmark.ast.BulletListItem;
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.ast.LinkNodeBase;
 import com.vladsch.flexmark.util.ast.Node;
+import internal.heylogs.FlexmarkIO;
 import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Nodes;
 import nbbrd.heylogs.VersioningConfig;
+import nbbrd.heylogs.spi.ForgeRefType;
+import nbbrd.heylogs.spi.ForgeSupport;
 import nbbrd.heylogs.spi.RuleContext;
 import nbbrd.heylogs.spi.RuleIssue;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import tests.heylogs.api.Sample;
+import tests.heylogs.spi.MockedForgeLink;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Objects;
+import java.util.stream.StreamSupport;
 
 import static internal.heylogs.base.BaseVersionings.REGEX_VERSIONING;
 import static internal.heylogs.base.ExtendedRules.*;
+import static nbbrd.io.function.IOFunction.unchecked;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Index.atIndex;
 import static tests.heylogs.api.Sample.asHeading;
@@ -153,5 +160,44 @@ public class ExtendedRulesTest {
 
         assertThat(validateReleaseDate(asHeading("### [1.0.0] - " + now.plusDays(1)), RuleContext.DEFAULT))
                 .isEqualTo(NO_RULE_ISSUE);
+    }
+
+    @Test
+    public void testValidateDotSpaceLinkStyle() {
+        RuleContext invalidURL = RuleContext.DEFAULT;
+        RuleContext validURL = RuleContext
+                .builder()
+                .forge(ForgeSupport
+                        .builder()
+                        .id("").name("").moduleId("")
+                        .compareLinkFactory(url -> null)
+                        .knownHostPredicate(url -> true)
+                        .linkParser(ForgeRefType.ISSUE, MockedForgeLink::parse)
+                        .build())
+                .build();
+
+        assertThat(validateDotSpaceLinkStyle(asBulletListItem("- hello. "), invalidURL))
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateDotSpaceLinkStyle(asBulletListItem("- hello. "), validURL))
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateDotSpaceLinkStyle(asBulletListItem("- hello. [abc](http://localhost)"), invalidURL))
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateDotSpaceLinkStyle(asBulletListItem("- hello. [abc](http://localhost)"), validURL))
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateDotSpaceLinkStyle(asBulletListItem("- hello [abc](http://localhost)"), invalidURL))
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateDotSpaceLinkStyle(asBulletListItem("- hello [abc](http://localhost)"), validURL))
+                .isEqualTo(RuleIssue.builder().message("Expecting '. ' before link to issue or request, found 'o '").line(1).column(9).build());
+    }
+
+    private static BulletListItem asBulletListItem(String text) {
+        return unchecked(FlexmarkIO.newTextParser()::parseChars)
+                .andThen(doc -> (BulletListItem) StreamSupport.stream(doc.getDescendants().spliterator(), false).filter(item -> item instanceof BulletListItem).findFirst().orElseThrow(IllegalArgumentException::new))
+                .apply(text);
     }
 }

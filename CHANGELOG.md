@@ -14,6 +14,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Add rule severity to the list command output [#430](https://github.com/nbbrd/heylogs/issues/430)
 - Add support of version with direct link [#206](https://github.com/nbbrd/heylogs/issues/206)
 - Add release date rule [#25](https://github.com/nbbrd/heylogs/issues/25)
+- Add dot-space-link-style rule [#165](https://github.com/nbbrd/heylogs/issues/165),[#323](https://github.com/nbbrd/heylogs/issues/323)
 
 ### Changed
 

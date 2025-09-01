@@ -1,13 +1,12 @@
 package internal.heylogs.base;
 
-import com.vladsch.flexmark.ast.Heading;
-import com.vladsch.flexmark.ast.Link;
-import com.vladsch.flexmark.ast.LinkNodeBase;
+import com.vladsch.flexmark.ast.*;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
 import internal.heylogs.ChangelogHeading;
 import internal.heylogs.TypeOfChangeHeading;
 import internal.heylogs.VersionHeading;
+import internal.heylogs.spi.URLExtractor;
 import lombok.NonNull;
 import nbbrd.design.DirectImpl;
 import nbbrd.design.MightBeGenerated;
@@ -23,10 +22,7 @@ import org.jspecify.annotations.Nullable;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -154,6 +150,23 @@ public enum ExtendedRules implements Rule {
         @Override
         public @NonNull RuleSeverity getRuleSeverity() {
             return RuleSeverity.WARN;
+        }
+    },
+    DOT_SPACE_LINK_STYLE {;
+
+        @Override
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
+            return node instanceof BulletListItem ? validateDotSpaceLinkStyle((BulletListItem) node, context) : NO_RULE_ISSUE;
+        }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "Dot-space-link style";
+        }
+
+        @Override
+        public @NonNull RuleSeverity getRuleSeverity() {
+            return RuleSeverity.OFF;
         }
     };
 
@@ -437,6 +450,40 @@ public enum ExtendedRules implements Rule {
                 .location(heading)
                 .build()
                 : NO_RULE_ISSUE;
+    }
+
+    @VisibleForTesting
+    static @Nullable RuleIssue validateDotSpaceLinkStyle(@NonNull BulletListItem item, @NonNull RuleContext context) {
+        Link lastLink = getLastLink(item);
+
+        if (lastLink != null && isIssueOrMergeLink(context, lastLink)) {
+            Node text = lastLink.getPrevious();
+            if (text instanceof Text && !text.getChars().endsWith(". ")) {
+                return RuleIssue
+                        .builder()
+                        .message("Expecting '. ' before link to issue or request, found '" + text.getChars().subSequence(text.getChars().length() - Math.min(2, text.getChars().length()), text.getChars().length()) + "'")
+                        .location(lastLink)
+                        .build();
+            }
+        }
+
+        return NO_RULE_ISSUE;
+    }
+
+    private static Link getLastLink(BulletListItem item) {
+        Node lastLink = item;
+        while (lastLink != null && !(lastLink instanceof Link)) {
+            lastLink = lastLink.getLastChild();
+        }
+        return (Link) lastLink;
+    }
+
+    private static boolean isIssueOrMergeLink(RuleContext context, Link x) {
+        return context.getForges()
+                .stream()
+                .flatMap(forge -> Stream.<Function<? super URL, ForgeLink>>of(forge.getLinkParser(ForgeRefType.ISSUE), forge.getLinkParser(ForgeRefType.REQUEST)))
+                .filter(Objects::nonNull)
+                .anyMatch(linkParser -> illegalArgumentToNull(linkParser).apply(URLExtractor.urlOf(x.getUrl())) != null);
     }
 
     @SuppressWarnings("unused")
