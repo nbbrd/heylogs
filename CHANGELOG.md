@@ -14,6 +14,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Add rule severity to the list command output [#430](https://github.com/nbbrd/heylogs/issues/430)
 - Add support of version with direct link [#206](https://github.com/nbbrd/heylogs/issues/206)
 
+### Changed
+
+- Change default severity of no-empty-release rule from WARN to ERROR 
+
 ## [0.13.0] - 2025-08-26
 
 This release focuses on versioning schemes.  

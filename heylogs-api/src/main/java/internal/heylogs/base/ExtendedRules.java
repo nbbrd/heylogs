@@ -92,11 +92,6 @@ public enum ExtendedRules implements Rule {
         public @NonNull String getRuleName() {
             return "No empty release";
         }
-
-        @Override
-        public @NonNull RuleSeverity getRuleSeverity() {
-            return RuleSeverity.WARN;
-        }
     },
     UNIQUE_RELEASE {
         @Override
