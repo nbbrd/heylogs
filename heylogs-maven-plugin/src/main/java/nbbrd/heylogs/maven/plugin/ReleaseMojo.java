@@ -38,8 +38,8 @@ public final class ReleaseMojo extends HeylogsMojo {
     @Parameter(property = "heylogs.versioning")
     private String versioning;
 
-    @Parameter(property = "heylogs.forgeId")
-    private String forgeId;
+    @Parameter(property = "heylogs.forge")
+    private String forge;
 
     @Override
     public void execute() throws MojoExecutionException {
@@ -76,7 +76,7 @@ public final class ReleaseMojo extends HeylogsMojo {
                     .builder()
                     .taggingOf(tagging)
                     .versioningOf(versioning)
-                    .forgeId(forgeId)
+                    .forgeOf(forge)
                     .build();
         } catch (IllegalArgumentException ex) {
             throw new MojoExecutionException("Invalid config parameter", ex);

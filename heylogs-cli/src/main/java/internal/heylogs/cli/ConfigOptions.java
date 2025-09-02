@@ -1,9 +1,6 @@
 package internal.heylogs.cli;
 
-import nbbrd.heylogs.Config;
-import nbbrd.heylogs.RuleConfig;
-import nbbrd.heylogs.TaggingConfig;
-import nbbrd.heylogs.VersioningConfig;
+import nbbrd.heylogs.*;
 import picocli.CommandLine;
 
 import java.util.List;
@@ -34,9 +31,11 @@ public class ConfigOptions {
     @CommandLine.Option(
             names = {"-g", "--forge"},
             paramLabel = "<id>",
-            description = "Specify the forge used to host the versions."
+            description = "Specify the forge used to host the versions. Valid values: ${COMPLETION-CANDIDATES}.",
+            completionCandidates = ForgeCandidates.class,
+            converter = ForgeConverter.class
     )
-    private String forgeId;
+    private ForgeConfig forge;
 
     @CommandLine.Option(
             names = {"-u", "--rule"},
@@ -52,7 +51,7 @@ public class ConfigOptions {
                 .builder()
                 .tagging(tagging)
                 .versioning(versioning)
-                .forgeId(forgeId)
+                .forge(forge)
                 .rules(rules != null ? rules : emptyList())
                 .build();
     }

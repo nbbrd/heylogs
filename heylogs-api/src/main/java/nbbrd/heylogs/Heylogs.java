@@ -158,8 +158,8 @@ public class Heylogs {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Cannot locate unreleased header"));
 
-        Forge forge = config.getForgeId() != null
-                ? findForge(onForgeId(config.getForgeId())).orElseThrow(() -> new IllegalArgumentException("Cannot find forge with id '" + config.getForgeId() + "'"))
+        Forge forge = config.getForge() != null
+                ? findForge(onForgeId(config.getForge().getId())).orElseThrow(() -> new IllegalArgumentException("Cannot find forge with id '" + config.getForge().getId() + "'"))
                 : findForge(onCompareLink(unreleased.getURL())).orElseThrow(() -> new IllegalArgumentException("Cannot determine forge"));
 
         Function<String, String> tagFormatter = getTagFormatter(config.getTagging());

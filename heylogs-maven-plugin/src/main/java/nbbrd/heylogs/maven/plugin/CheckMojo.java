@@ -47,8 +47,8 @@ public final class CheckMojo extends HeylogsMojo {
     @Parameter(property = "heylogs.versioning")
     private String versioning;
 
-    @Parameter(property = "heylogs.forgeId")
-    private String forgeId;
+    @Parameter(property = "heylogs.forge")
+    private String forge;
 
     @Parameter(property = "heylogs.rules")
     private List<String> rules;
@@ -104,7 +104,7 @@ public final class CheckMojo extends HeylogsMojo {
                     .builder()
                     .taggingOf(tagging)
                     .versioningOf(versioning)
-                    .forgeId(forgeId)
+                    .forgeOf(forge)
                     .rules(rules != null ? rules.stream().map(RuleConfig::parse).collect(toList()) : null)
                     .build();
         } catch (IllegalArgumentException ex) {

@@ -20,6 +20,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - Change default severity of no-empty-release rule from WARN to ERROR 
+- Simplify forge configuration
 
 ## [0.13.0] - 2025-08-26
 

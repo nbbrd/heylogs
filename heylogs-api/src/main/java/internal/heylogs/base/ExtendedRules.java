@@ -11,6 +11,7 @@ import lombok.NonNull;
 import nbbrd.design.DirectImpl;
 import nbbrd.design.MightBeGenerated;
 import nbbrd.design.VisibleForTesting;
+import nbbrd.heylogs.ForgeConfig;
 import nbbrd.heylogs.TypeOfChange;
 import nbbrd.heylogs.Util;
 import nbbrd.heylogs.Version;
@@ -404,7 +405,8 @@ public enum ExtendedRules implements Rule {
         URL url = Parser.onURL().parse(link.getUrl());
         if (url != null) {
             for (Forge forge : context.getForges()) {
-                if (forge.getForgeId().equals(context.getConfig().getForgeId()) || forge.isKnownHost(url)) {
+                ForgeConfig forgeConfig = context.getConfig().getForge();
+                if ((forgeConfig != null && forge.getForgeId().equals(forgeConfig.getId())) || forge.isKnownHost(url)) {
                     for (ForgeRefType type : ForgeRefType.values()) {
                         Function<? super URL, ForgeLink> linkParser = forge.getLinkParser(type);
                         ForgeLink expectedLink = linkParser != null ? illegalArgumentToNull(linkParser).apply(url) : null;

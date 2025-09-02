@@ -18,12 +18,16 @@ public class Config {
     VersioningConfig versioning;
 
     @Nullable
-    String forgeId;
+    ForgeConfig forge;
 
     @lombok.Singular
     List<RuleConfig> rules;
 
     public static final class Builder {
+
+        public @NonNull Builder forgeOf(@Nullable CharSequence forgeConfig) {
+            return forgeConfig != null ? forge(ForgeConfig.parse(forgeConfig)) : this;
+        }
 
         public @NonNull Builder taggingOf(@Nullable CharSequence taggingConfig) {
             return taggingConfig != null ? tagging(TaggingConfig.parse(taggingConfig)) : this;
