@@ -12,7 +12,7 @@ public class Config {
     public static final Config DEFAULT = Config.builder().build();
 
     @Nullable
-    String versionTagPrefix;
+    TaggingConfig tagging;
 
     @Nullable
     VersioningConfig versioning;
@@ -24,6 +24,10 @@ public class Config {
     List<RuleConfig> rules;
 
     public static final class Builder {
+
+        public @NonNull Builder taggingOf(@Nullable CharSequence taggingConfig) {
+            return taggingConfig != null ? tagging(TaggingConfig.parse(taggingConfig)) : this;
+        }
 
         public @NonNull Builder versioningOf(@Nullable CharSequence versioningConfig) {
             return versioningConfig != null ? versioning(VersioningConfig.parse(versioningConfig)) : this;

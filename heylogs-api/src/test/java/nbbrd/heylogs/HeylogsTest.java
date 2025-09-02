@@ -293,7 +293,7 @@ public class HeylogsTest {
     }
 
     private static String releaseChangesToString(Heylogs heylogs, Document doc, Version version, CharSequence versioning) {
-        heylogs.releaseChanges(doc, version, Config.builder().versionTagPrefix("v").versioningOf(versioning).build());
+        heylogs.releaseChanges(doc, version, Config.builder().tagging(TaggingConfig.of("prefix", "v")).versioningOf(versioning).build());
         return unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc);
     }
 

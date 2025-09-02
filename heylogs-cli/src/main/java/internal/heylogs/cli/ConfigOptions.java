@@ -2,6 +2,7 @@ package internal.heylogs.cli;
 
 import nbbrd.heylogs.Config;
 import nbbrd.heylogs.RuleConfig;
+import nbbrd.heylogs.TaggingConfig;
 import nbbrd.heylogs.VersioningConfig;
 import picocli.CommandLine;
 
@@ -13,12 +14,13 @@ import static java.util.Collections.emptyList;
 public class ConfigOptions {
 
     @CommandLine.Option(
-            names = {"-t", "--tag-prefix"},
-            paramLabel = "<prefix>",
-            description = "Version tag prefix.",
-            required = false
+            names = {"-t", "--tagging"},
+            paramLabel = "<id:arg>",
+            description = "Specify the tagging used to control the tag references. Valid values: ${COMPLETION-CANDIDATES}.",
+            completionCandidates = TaggingCandidates.class,
+            converter = TaggingConverter.class
     )
-    private String tagPrefix;
+    private TaggingConfig tagging;
 
     @CommandLine.Option(
             names = {"-v", "--versioning"},
@@ -48,7 +50,7 @@ public class ConfigOptions {
     public Config getConfig() {
         return Config
                 .builder()
-                .versionTagPrefix(tagPrefix)
+                .tagging(tagging)
                 .versioning(versioning)
                 .forgeId(forgeId)
                 .rules(rules != null ? rules : emptyList())

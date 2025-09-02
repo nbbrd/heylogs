@@ -1,10 +1,7 @@
 package nbbrd.heylogs;
 
 import lombok.NonNull;
-import nbbrd.heylogs.spi.Forge;
-import nbbrd.heylogs.spi.Format;
-import nbbrd.heylogs.spi.Rule;
-import nbbrd.heylogs.spi.Versioning;
+import nbbrd.heylogs.spi.*;
 
 import java.util.Comparator;
 
@@ -65,6 +62,17 @@ public class Resource {
                 .module(forge.getForgeModuleId())
                 .id(forge.getForgeId())
                 .name(forge.getForgeName())
+                .options("")
+                .build();
+    }
+
+    static Resource of(Tagging tagging) {
+        return Resource
+                .builder()
+                .type("tagging")
+                .module(tagging.getTaggingModuleId())
+                .id(tagging.getTaggingId())
+                .name(tagging.getTaggingName())
                 .options("")
                 .build();
     }

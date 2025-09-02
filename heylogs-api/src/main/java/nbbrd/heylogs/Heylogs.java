@@ -19,7 +19,11 @@ import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -32,6 +36,7 @@ import static java.util.stream.Collectors.toList;
 import static nbbrd.heylogs.TimeRange.toTimeRange;
 import static nbbrd.heylogs.spi.ForgeSupport.onCompareLink;
 import static nbbrd.heylogs.spi.ForgeSupport.onForgeId;
+import static nbbrd.heylogs.spi.Tagging.onTaggingId;
 import static nbbrd.heylogs.spi.VersioningSupport.onVersioningId;
 
 @lombok.Value
@@ -46,6 +51,7 @@ public class Heylogs {
                 .formats(FormatLoader.load())
                 .versionings(VersioningLoader.load())
                 .forges(ForgeLoader.load())
+                .taggings(TaggingLoader.load())
                 .build();
     }
 
@@ -64,6 +70,10 @@ public class Heylogs {
     @NonNull
     @lombok.Singular
     List<Forge> forges;
+
+    @NonNull
+    @lombok.Singular
+    List<Tagging> taggings;
 
     public @NonNull List<Problem> checkFormat(@NonNull Document document, @NonNull Config config) {
         getVersioningPredicate(config.getVersioning());
@@ -125,7 +135,8 @@ public class Heylogs {
                 rules.stream().map(Resource::of),
                 formats.stream().map(Resource::of),
                 versionings.stream().map(Resource::of),
-                forges.stream().map(Resource::of)
+                forges.stream().map(Resource::of),
+                taggings.stream().map(Resource::of)
         ).sorted(Resource.DEFAULT_COMPARATOR).collect(toList());
     }
 
@@ -151,7 +162,9 @@ public class Heylogs {
                 ? findForge(onForgeId(config.getForgeId())).orElseThrow(() -> new IllegalArgumentException("Cannot find forge with id '" + config.getForgeId() + "'"))
                 : findForge(onCompareLink(unreleased.getURL())).orElseThrow(() -> new IllegalArgumentException("Cannot determine forge"));
 
-        URL releaseURL = forge.getCompareLink(unreleased.getURL()).derive(Objects.toString(config.getVersionTagPrefix(), "") + newVersion.getRef()).toURL();
+        Function<String, String> tagFormatter = getTagFormatter(config.getTagging());
+
+        URL releaseURL = forge.getCompareLink(unreleased.getURL()).derive(tagFormatter.apply(newVersion.getRef())).toURL();
         VersionHeading release = VersionHeading.of(newVersion, releaseURL);
 
         URL updatedURL = forge.getCompareLink(releaseURL).derive("HEAD").toURL();
@@ -237,6 +250,10 @@ public class Heylogs {
         return forgeOrNull != null ? forgeOrNull.getCompareLink(url).getProjectURL() : URLExtractor.baseOf(url);
     }
 
+    private Optional<Tagging> findTagging(@NonNull Predicate<Tagging> predicate) {
+        return taggings.stream().filter(predicate).findFirst();
+    }
+
     private Optional<Forge> findForge(@NonNull Predicate<Forge> predicate) {
         return forges.stream().filter(predicate).findFirst();
     }
@@ -284,5 +301,18 @@ public class Heylogs {
             return predicate;
         }
         return null;
+    }
+
+    private Function<String, String> getTagFormatter(@Nullable TaggingConfig taggingConfig) {
+        if (taggingConfig != null) {
+            Tagging tagging = findTagging(onTaggingId(taggingConfig.getId()))
+                    .orElseThrow(() -> new IllegalArgumentException("Cannot find tagging with id '" + taggingConfig.getId() + "'"));
+            Function<String, String> result = tagging.getTagFormatterOrNull(taggingConfig.getArg());
+            if (result == null) {
+                throw new IllegalArgumentException("Invalid tag argument '" + taggingConfig.getArg() + "'");
+            }
+            return result;
+        }
+        return Function.identity();
     }
 }

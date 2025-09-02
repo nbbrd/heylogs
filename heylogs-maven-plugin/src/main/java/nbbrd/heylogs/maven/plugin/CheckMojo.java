@@ -41,8 +41,8 @@ public final class CheckMojo extends HeylogsMojo {
     @Parameter(property = "heylogs.outputFile", defaultValue = DEFAULT_STDOUT_FILE)
     private File outputFile;
 
-    @Parameter(property = "heylogs.tagPrefix")
-    private String tagPrefix;
+    @Parameter(property = "heylogs.tagging")
+    private String tagging;
 
     @Parameter(property = "heylogs.versioning")
     private String versioning;
@@ -102,7 +102,7 @@ public final class CheckMojo extends HeylogsMojo {
         try {
             return Config
                     .builder()
-                    .versionTagPrefix(tagPrefix)
+                    .taggingOf(tagging)
                     .versioningOf(versioning)
                     .forgeId(forgeId)
                     .rules(rules != null ? rules.stream().map(RuleConfig::parse).collect(toList()) : null)

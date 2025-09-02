@@ -32,8 +32,8 @@ public final class ReleaseMojo extends HeylogsMojo {
     @Parameter(property = "heylogs.date")
     private String date;
 
-    @Parameter(property = "heylogs.tagPrefix")
-    private String tagPrefix;
+    @Parameter(property = "heylogs.tagging")
+    private String tagging;
 
     @Parameter(property = "heylogs.versioning")
     private String versioning;
@@ -74,7 +74,7 @@ public final class ReleaseMojo extends HeylogsMojo {
         try {
             return Config
                     .builder()
-                    .versionTagPrefix(tagPrefix)
+                    .taggingOf(tagging)
                     .versioningOf(versioning)
                     .forgeId(forgeId)
                     .build();
