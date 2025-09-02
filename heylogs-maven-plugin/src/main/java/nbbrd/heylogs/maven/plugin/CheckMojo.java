@@ -4,10 +4,7 @@ import internal.heylogs.maven.plugin.MojoParameterParsing;
 import lombok.NonNull;
 import nbbrd.console.picocli.MultiFileInputOptions;
 import nbbrd.console.picocli.text.TextOutputSupport;
-import nbbrd.heylogs.Check;
-import nbbrd.heylogs.Config;
-import nbbrd.heylogs.Heylogs;
-import nbbrd.heylogs.RuleConfig;
+import nbbrd.heylogs.*;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -53,8 +50,8 @@ public final class CheckMojo extends HeylogsMojo {
     @Parameter(property = "heylogs.rules")
     private List<String> rules;
 
-    @Parameter(property = "heylogs.formatId")
-    private String formatId;
+    @Parameter(property = "heylogs.format")
+    private String format;
 
     @Override
     public void execute() throws MojoExecutionException {
@@ -85,7 +82,7 @@ public final class CheckMojo extends HeylogsMojo {
         boolean hasErrors = list.stream().anyMatch(Check::hasErrors);
 
         TextOutputSupport outputSupport = newTextOutputSupport();
-        String formatId = resolveFormatId(getFormatId(), heylogs, outputSupport::isStdoutFile, outputFile.toPath());
+        String formatId = resolveFormatId(format != null ? FormatConfig.parse(format) : null, heylogs, outputSupport::isStdoutFile, outputFile.toPath());
 
         try (Writer writer = newWriter(outputFile, hasErrors ? getLog()::error : getLog()::info)) {
             heylogs.formatProblems(formatId, writer, list);

@@ -57,7 +57,7 @@ public final class ScanCommand implements Callable<Void> {
 
         TextOutputSupport outputSupport = newTextOutputSupport();
         Path outputFile = output.getFile();
-        String formatId = resolveFormatId(formatOptions.getFormatId(), heylogs, outputSupport::isStdoutFile, outputFile);
+        String formatId = resolveFormatId(formatOptions.getFormat(), heylogs, outputSupport::isStdoutFile, outputFile);
 
         try (Writer writer = outputSupport.newBufferedWriter(outputFile)) {
             heylogs.formatStatus(formatId, writer, list);

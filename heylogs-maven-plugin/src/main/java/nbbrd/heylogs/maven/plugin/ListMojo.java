@@ -1,6 +1,7 @@
 package nbbrd.heylogs.maven.plugin;
 
 import nbbrd.console.picocli.text.TextOutputSupport;
+import nbbrd.heylogs.FormatConfig;
 import nbbrd.heylogs.Heylogs;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -23,8 +24,8 @@ public final class ListMojo extends HeylogsMojo {
     @Parameter(property = "heylogs.outputFile", defaultValue = DEFAULT_STDOUT_FILE)
     private File outputFile;
 
-    @Parameter(property = "heylogs.formatId")
-    private String formatId;
+    @Parameter(property = "heylogs.format")
+    private String format;
 
     @Override
     public void execute() throws MojoExecutionException {
@@ -36,7 +37,7 @@ public final class ListMojo extends HeylogsMojo {
         Heylogs heylogs = Heylogs.ofServiceLoader();
 
         TextOutputSupport outputSupport = newTextOutputSupport();
-        String formatId = resolveFormatId(getFormatId(), heylogs, outputSupport::isStdoutFile, outputFile.toPath());
+        String formatId = resolveFormatId(format != null ? FormatConfig.parse(format) : null, heylogs, outputSupport::isStdoutFile, outputFile.toPath());
 
         try (Writer writer = newWriter(outputFile, getLog()::info)) {
             heylogs.formatResources(formatId, writer, heylogs.listResources());
