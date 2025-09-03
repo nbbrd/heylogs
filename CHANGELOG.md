@@ -16,6 +16,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Add release date rule [#25](https://github.com/nbbrd/heylogs/issues/25)
 - Add dot-space-link-style rule [#165](https://github.com/nbbrd/heylogs/issues/165),[#323](https://github.com/nbbrd/heylogs/issues/323)
 - Add tagging SPI [#431](https://github.com/nbbrd/heylogs/issues/431)
+- Add tag versioning rule [#432](https://github.com/nbbrd/heylogs/issues/432)
 
 ### Changed
 

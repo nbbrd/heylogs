@@ -34,6 +34,6 @@ public final class PrefixTagging implements Tagging {
 
     @Override
     public Function<String, String> getTagParserOrNull(@Nullable String arg) {
-        return arg != null ? (tag -> arg.length() <= tag.length() ? tag.substring(arg.length()) : tag) : null;
+        return arg != null ? (tag -> tag.startsWith(arg) ? tag.substring(arg.length()) : null) : null;
     }
 }

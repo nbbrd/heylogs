@@ -64,5 +64,15 @@ class GitLabCompareLink implements CompareLink {
         return urlOf(URLQueryBuilder.of(base).path(namespace).path(project).toString());
     }
 
+    @Override
+    public @NonNull String getCompareBaseRef() {
+        return diff.getFrom();
+    }
+
+    @Override
+    public @NonNull String getCompareHeadRef() {
+        return diff.getTo();
+    }
+
     private static final String COMPARE_KEYWORD = "compare";
 }

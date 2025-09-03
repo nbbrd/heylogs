@@ -6,7 +6,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 @lombok.Value
-@lombok.Builder
+@lombok.Builder(toBuilder = true)
 public class Config {
 
     public static final Config DEFAULT = Config.builder().build();
@@ -26,15 +26,15 @@ public class Config {
     public static final class Builder {
 
         public @NonNull Builder forgeOf(@Nullable CharSequence forgeConfig) {
-            return forgeConfig != null ? forge(ForgeConfig.parse(forgeConfig)) : this;
+            return forge(forgeConfig != null ? ForgeConfig.parse(forgeConfig) : null);
         }
 
         public @NonNull Builder taggingOf(@Nullable CharSequence taggingConfig) {
-            return taggingConfig != null ? tagging(TaggingConfig.parse(taggingConfig)) : this;
+            return tagging(taggingConfig != null ? TaggingConfig.parse(taggingConfig) : null);
         }
 
         public @NonNull Builder versioningOf(@Nullable CharSequence versioningConfig) {
-            return versioningConfig != null ? versioning(VersioningConfig.parse(versioningConfig)) : this;
+            return versioning(versioningConfig != null ? VersioningConfig.parse(versioningConfig) : null);
         }
 
         public @NonNull Builder ruleOf(@Nullable CharSequence ruleConfig) {

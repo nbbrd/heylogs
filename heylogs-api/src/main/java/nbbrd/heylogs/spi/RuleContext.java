@@ -3,21 +3,24 @@ package nbbrd.heylogs.spi;
 import lombok.NonNull;
 import nbbrd.heylogs.Config;
 import nbbrd.heylogs.RuleConfig;
+import nbbrd.heylogs.TaggingConfig;
 import nbbrd.heylogs.VersioningConfig;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static nbbrd.heylogs.spi.VersioningSupport.onVersioningId;
 
 @lombok.Value
-@lombok.Builder
+@lombok.Builder(toBuilder = true)
 public class RuleContext {
 
     public static final RuleContext DEFAULT = RuleContext.builder().build();
 
     @NonNull
+    @lombok.With
     @lombok.Builder.Default
     Config config = Config.DEFAULT;
 
@@ -26,6 +29,9 @@ public class RuleContext {
 
     @lombok.Singular
     List<Versioning> versionings;
+
+    @lombok.Singular
+    List<Tagging> taggings;
 
     public @Nullable Predicate<CharSequence> findVersioningPredicateOrNull() {
         VersioningConfig versioningConfig = config.getVersioning();
@@ -45,5 +51,16 @@ public class RuleContext {
                 .findFirst()
                 .map(RuleConfig::getSeverity)
                 .orElse(null);
+    }
+
+    public @Nullable Function<String, String> findTagParserOrNull() {
+        TaggingConfig taggingConfig = config.getTagging();
+        return taggingConfig != null
+                ? taggings.stream()
+                .filter(Tagging.onTaggingId(taggingConfig.getId()))
+                .findFirst()
+                .map(o -> o.getTagParserOrNull(taggingConfig.getArg()))
+                .orElse(null)
+                : null;
     }
 }

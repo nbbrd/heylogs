@@ -77,8 +77,9 @@ public class Heylogs {
 
     public @NonNull List<Problem> checkFormat(@NonNull Document document, @NonNull Config config) {
         getVersioningPredicate(config.getVersioning());
+        getTagFormatter(config.getTagging());
 
-        RuleContext context = RuleContext.builder().config(config).forges(forges).versionings(versionings).build();
+        RuleContext context = RuleContext.builder().config(config).forges(forges).versionings(versionings).taggings(taggings).build();
         return problemStreamOf(document, rules, context).collect(toList());
     }
 

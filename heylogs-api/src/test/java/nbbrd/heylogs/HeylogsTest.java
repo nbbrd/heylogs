@@ -6,10 +6,10 @@ import internal.heylogs.FlexmarkIO;
 import internal.heylogs.base.BaseVersionings;
 import internal.heylogs.base.StylishFormat;
 import lombok.NonNull;
-import nbbrd.design.MightBePromoted;
 import nbbrd.heylogs.spi.*;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
+import tests.heylogs.spi.MockedCompareLink;
 
 import java.io.IOException;
 import java.net.URL;
@@ -370,43 +370,6 @@ public class HeylogsTest {
         @Override
         public boolean isKnownHost(@NonNull URL url) {
             return false;
-        }
-    }
-
-    @lombok.Value
-    private static class MockedCompareLink implements CompareLink {
-
-        URL url;
-
-        @Override
-        public @NonNull URL toURL() {
-            return url;
-        }
-
-        @Override
-        public @Nullable ForgeRef toRef(@Nullable ForgeRef baseRef) {
-            return null;
-        }
-
-        @Override
-        public @NonNull CompareLink derive(@NonNull String tag) {
-            String urlAsString = url.toString();
-            int oidIndex = urlAsString.lastIndexOf("/") + 1;
-            return new MockedCompareLink(urlOf(urlAsString.substring(0, oidIndex) + deriveOID(tag, urlAsString.substring(oidIndex))));
-        }
-
-        @MightBePromoted
-        private static String deriveOID(String nextTag, String oid) {
-            return oid.endsWith("...HEAD")
-                    ? oid.startsWith("HEAD...") ? (nextTag + "..." + nextTag) : (oid.substring(0, oid.length() - 4) + nextTag)
-                    : (oid.substring(oid.indexOf("...") + 3) + "..." + nextTag);
-        }
-
-        @Override
-        public @NonNull URL getProjectURL() {
-            String urlAsString = url.toString();
-            int index = urlAsString.indexOf("/compare");
-            return index == -1 ? url : urlOf(urlAsString.substring(0, index));
         }
     }
 }

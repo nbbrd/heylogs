@@ -2,6 +2,7 @@ package internal.heylogs.base;
 
 import com.vladsch.flexmark.ast.BulletListItem;
 import com.vladsch.flexmark.ast.Heading;
+import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.ast.LinkNodeBase;
 import com.vladsch.flexmark.util.ast.Node;
 import internal.heylogs.FlexmarkIO;
@@ -12,9 +13,8 @@ import nbbrd.heylogs.spi.ForgeRefType;
 import nbbrd.heylogs.spi.ForgeSupport;
 import nbbrd.heylogs.spi.RuleContext;
 import nbbrd.heylogs.spi.RuleIssue;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import tests.heylogs.api.Sample;
+import tests.heylogs.spi.MockedCompareLink;
 import tests.heylogs.spi.MockedForgeLink;
 
 import java.time.LocalDate;
@@ -40,9 +40,9 @@ public class ExtendedRulesTest {
 
     @Test
     public void test() {
-        Node sample = Sample.using("/Main.md");
+        Node sample = using("/Main.md");
         for (ExtendedRules rule : ExtendedRules.values()) {
-            Assertions.assertThat(Nodes.of(Node.class).descendants(sample).map(node -> rule.getRuleIssueOrNull(node, RuleContext.DEFAULT)).filter(Objects::nonNull))
+            assertThat(Nodes.of(Node.class).descendants(sample).map(node -> rule.getRuleIssueOrNull(node, RuleContext.DEFAULT)).filter(Objects::nonNull))
                     .isEmpty();
         }
     }
@@ -195,9 +195,82 @@ public class ExtendedRulesTest {
                 .isEqualTo(RuleIssue.builder().message("Expecting '. ' before link to issue or request, found 'o '").line(1).column(9).build());
     }
 
+    @Test
+    public void testValidateTagVersioning() {
+        RuleContext baseContext = RuleContext
+                .builder()
+                .forge(ForgeSupport
+                        .builder()
+                        .id("").name("").moduleId("")
+                        .compareLinkFactory(MockedCompareLink::parse)
+                        .knownHostPredicate(url -> url.getHost().contains("github") || url.getHost().contains("host"))
+                        .linkParser(ForgeRefType.ISSUE, MockedForgeLink::parse)
+                        .build())
+                .versioning(REGEX_VERSIONING)
+                .tagging(new PrefixTagging())
+                .build();
+
+        Config config = Config
+                .builder()
+                .versioningOf("regex:^\\d+$")
+                .taggingOf("prefix:v")
+                .build();
+
+        assertThat(config)
+                .extracting(baseContext::withConfig)
+                .satisfies(context -> {
+                    assertThat(validateTagVersioning(asLink("[abc](http://host/compare/v1...v2)"), context))
+                            .isEqualTo(NO_RULE_ISSUE);
+
+                    assertThat(validateTagVersioning(asLink("[abc](http://host/compare/v1...HEAD)"), context))
+                            .isEqualTo(NO_RULE_ISSUE);
+
+                    assertThat(validateTagVersioning(asLink("[abc](http://host/compare/HEAD...v2)"), context))
+                            .isEqualTo(NO_RULE_ISSUE);
+
+                    assertThat(validateTagVersioning(asLink("[abc](http://host/compare/v1...v2BOOM)"), context))
+                            .isEqualTo(RuleIssue.builder().message("Invalid head reference '2BOOM' when using versioning 'regex:^\\d+$'").line(1).column(1).build());
+
+                    assertThat(validateTagVersioning(asLink("[abc](http://host/compare/v1BOOM...v2)"), context))
+                            .isEqualTo(RuleIssue.builder().message("Invalid base reference '1BOOM' when using versioning 'regex:^\\d+$'").line(1).column(1).build());
+                });
+
+        for (Config c : new Config[]{
+                config.toBuilder().versioningOf(null).build(),
+                config.toBuilder().taggingOf(null).build()})
+            assertThat(c)
+                    .extracting(baseContext::withConfig)
+                    .satisfies(context -> {
+                        assertThat(validateTagVersioning(asLink("[abc](http://host/compare/v1...v2)"), context))
+                                .isEqualTo(NO_RULE_ISSUE);
+
+                        assertThat(validateTagVersioning(asLink("[abc](http://host/compare/v1...HEAD)"), context))
+                                .isEqualTo(NO_RULE_ISSUE);
+
+                        assertThat(validateTagVersioning(asLink("[abc](http://host/compare/HEAD...v2)"), context))
+                                .isEqualTo(NO_RULE_ISSUE);
+
+                        assertThat(validateTagVersioning(asLink("[abc](http://host/compare/v1...v2BOOM)"), context))
+                                .isEqualTo(NO_RULE_ISSUE);
+
+                        assertThat(validateTagVersioning(asLink("[abc](http://host/compare/v1BOOM...v2)"), context))
+                                .isEqualTo(NO_RULE_ISSUE);
+                    });
+
+        assertThat(Nodes.of(Node.class).descendants(using("/Main.md")).map(node -> TAG_VERSIONING.getRuleIssueOrNull(node, baseContext.withConfig(config))).filter(Objects::nonNull))
+                .hasSize(13)
+                .allMatch(ruleIssue -> ruleIssue.getMessage().contains("Invalid base reference"));
+    }
+
     private static BulletListItem asBulletListItem(String text) {
         return unchecked(FlexmarkIO.newTextParser()::parseChars)
                 .andThen(doc -> (BulletListItem) StreamSupport.stream(doc.getDescendants().spliterator(), false).filter(item -> item instanceof BulletListItem).findFirst().orElseThrow(IllegalArgumentException::new))
+                .apply(text);
+    }
+
+    private static Link asLink(String text) {
+        return unchecked(FlexmarkIO.newTextParser()::parseChars)
+                .andThen(doc -> (Link) StreamSupport.stream(doc.getDescendants().spliterator(), false).filter(item -> item instanceof Link).findFirst().orElseThrow(IllegalArgumentException::new))
                 .apply(text);
     }
 }

@@ -169,6 +169,16 @@ public enum ExtendedRules implements Rule {
         public @NonNull RuleSeverity getRuleSeverity() {
             return RuleSeverity.OFF;
         }
+    }, TAG_VERSIONING {
+        @Override
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
+            return node instanceof LinkNodeBase ? validateTagVersioning((LinkNodeBase) node, context) : NO_RULE_ISSUE;
+        }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "Tag versioning";
+        }
     };
 
     @Override
@@ -486,6 +496,40 @@ public enum ExtendedRules implements Rule {
                 .flatMap(forge -> Stream.<Function<? super URL, ForgeLink>>of(forge.getLinkParser(ForgeRefType.ISSUE), forge.getLinkParser(ForgeRefType.REQUEST)))
                 .filter(Objects::nonNull)
                 .anyMatch(linkParser -> illegalArgumentToNull(linkParser).apply(URLExtractor.urlOf(x.getUrl())) != null);
+    }
+
+    @VisibleForTesting
+    public static @Nullable RuleIssue validateTagVersioning(@NonNull LinkNodeBase link, @NonNull RuleContext context) {
+        URL url = Parser.onURL().parse(link.getUrl());
+        Function<String, String> tagParser = context.findTagParserOrNull();
+        Predicate<CharSequence> versioningPredicate = context.findVersioningPredicateOrNull();
+        if (url != null && tagParser != null && versioningPredicate != null) {
+            for (Forge forge : context.getForges()) {
+                ForgeConfig forgeConfig = context.getConfig().getForge();
+                if ((forgeConfig != null && forge.getForgeId().equals(forgeConfig.getId())) || forge.isKnownHost(url)) {
+                    if (forge.isCompareLink(url)) {
+                        CompareLink compareLink = forge.getCompareLink(url);
+                        String baseVersion = tagParser.apply(compareLink.getCompareBaseRef());
+                        if (baseVersion != null && !versioningPredicate.test(baseVersion)) {
+                            return RuleIssue
+                                    .builder()
+                                    .message(String.format(ROOT, "Invalid base reference '%s' when using versioning '%s'", baseVersion, context.getConfig().getVersioning()))
+                                    .location(link)
+                                    .build();
+                        }
+                        String headVersion = tagParser.apply(compareLink.getCompareHeadRef());
+                        if (headVersion != null && !versioningPredicate.test(headVersion)) {
+                            return RuleIssue
+                                    .builder()
+                                    .message(String.format(ROOT, "Invalid head reference '%s' when using versioning '%s'", headVersion, context.getConfig().getVersioning()))
+                                    .location(link)
+                                    .build();
+                        }
+                    }
+                }
+            }
+        }
+        return NO_RULE_ISSUE;
     }
 
     @SuppressWarnings("unused")

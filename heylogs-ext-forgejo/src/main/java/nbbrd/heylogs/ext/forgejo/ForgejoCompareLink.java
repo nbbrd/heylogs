@@ -71,6 +71,16 @@ class ForgejoCompareLink implements CompareLink {
         return urlOf(URLQueryBuilder.of(base).path(owner).path(repo).toString());
     }
 
+    @Override
+    public @NonNull String getCompareBaseRef() {
+        return diff.getFrom();
+    }
+
+    @Override
+    public @NonNull String getCompareHeadRef() {
+        return diff.getTo();
+    }
+
     private static final Pattern OWNER_PATTERN = Pattern.compile("[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38}", Pattern.CASE_INSENSITIVE);
     private static final Pattern REPO_PATTERN = Pattern.compile("[a-z\\d._-]{1,100}", Pattern.CASE_INSENSITIVE);
     private static final String COMPARE_KEYWORD = "compare";

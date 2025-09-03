@@ -26,4 +26,21 @@ class PrefixTaggingTest {
         assertThat(x.getTagFormatterOrNull("v").apply("1.0.0"))
                 .isEqualTo("v1.0.0");
     }
+
+    @Test
+    public void testParser() {
+        Tagging x = new PrefixTagging();
+
+        assertThat(x.getTagParserOrNull(null))
+                .isNull();
+
+        assertThat(x.getTagParserOrNull("").apply("1.0.0"))
+                .isEqualTo("1.0.0");
+
+        assertThat(x.getTagParserOrNull("v").apply("v1.0.0"))
+                .isEqualTo("1.0.0");
+
+        assertThat(x.getTagParserOrNull("v").apply("1.0.0"))
+                .isNull();
+    }
 }
