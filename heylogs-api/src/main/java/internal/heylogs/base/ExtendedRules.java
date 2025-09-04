@@ -11,7 +11,6 @@ import lombok.NonNull;
 import nbbrd.design.DirectImpl;
 import nbbrd.design.MightBeGenerated;
 import nbbrd.design.VisibleForTesting;
-import nbbrd.heylogs.ForgeConfig;
 import nbbrd.heylogs.TypeOfChange;
 import nbbrd.heylogs.Util;
 import nbbrd.heylogs.Version;
@@ -34,6 +33,8 @@ import static java.util.Locale.ROOT;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.*;
 import static nbbrd.heylogs.Util.illegalArgumentToNull;
+import static nbbrd.heylogs.spi.Tagging.CONVERSION_NOT_SUPPORTED;
+import static nbbrd.heylogs.spi.Versioning.NO_VERSIONING_FILTER;
 
 public enum ExtendedRules implements Rule {
 
@@ -401,7 +402,7 @@ public enum ExtendedRules implements Rule {
 
         Predicate<CharSequence> predicate = context.findVersioningPredicateOrNull();
 
-        return predicate == null || predicate.test(ref)
+        return predicate == NO_VERSIONING_FILTER || predicate.test(ref)
                 ? NO_RULE_ISSUE
                 : RuleIssue
                 .builder()
@@ -414,24 +415,21 @@ public enum ExtendedRules implements Rule {
     public static @Nullable RuleIssue validateForgeRef(@NonNull Link link, @NonNull RuleContext context) {
         URL url = Parser.onURL().parse(link.getUrl());
         if (url != null) {
-            for (Forge forge : context.getForges()) {
-                ForgeConfig forgeConfig = context.getConfig().getForge();
-                if ((forgeConfig != null && forge.getForgeId().equals(forgeConfig.getId())) || forge.isKnownHost(url)) {
-                    for (ForgeRefType type : ForgeRefType.values()) {
-                        Function<? super URL, ForgeLink> linkParser = forge.getLinkParser(type);
-                        ForgeLink expectedLink = linkParser != null ? illegalArgumentToNull(linkParser).apply(url) : null;
-                        if (expectedLink != null) {
-                            Function<? super CharSequence, ForgeRef> refParser = forge.getRefParser(type);
-                            ForgeRef foundRef = refParser != null ? illegalArgumentToNull(refParser).apply(link.getText()) : null;
-                            if (foundRef == null || !foundRef.isCompatibleWith(expectedLink)) {
-                                ForgeRef expectedRef = expectedLink.toRef(foundRef);
-                                String foundText = foundRef == null ? link.getText().toString() : foundRef.toString();
-                                return RuleIssue
-                                        .builder()
-                                        .message(String.format(ROOT, "Expecting %s %s ref %s, found %s", forge.getForgeId(), type, expectedRef, foundText))
-                                        .location(link)
-                                        .build();
-                            }
+            for (Forge forge : context.findAllForges(url)) {
+                for (ForgeRefType type : ForgeRefType.values()) {
+                    Function<? super URL, ForgeLink> linkParser = forge.getLinkParser(type);
+                    ForgeLink expectedLink = linkParser != null ? illegalArgumentToNull(linkParser).apply(url) : null;
+                    if (expectedLink != null) {
+                        Function<? super CharSequence, ForgeRef> refParser = forge.getRefParser(type);
+                        ForgeRef foundRef = refParser != null ? illegalArgumentToNull(refParser).apply(link.getText()) : null;
+                        if (foundRef == null || !foundRef.isCompatibleWith(expectedLink)) {
+                            ForgeRef expectedRef = expectedLink.toRef(foundRef);
+                            String foundText = foundRef == null ? link.getText().toString() : foundRef.toString();
+                            return RuleIssue
+                                    .builder()
+                                    .message(String.format(ROOT, "Expecting %s %s ref %s, found %s", forge.getForgeId(), type, expectedRef, foundText))
+                                    .location(link)
+                                    .build();
                         }
                     }
                 }
@@ -501,30 +499,28 @@ public enum ExtendedRules implements Rule {
     @VisibleForTesting
     public static @Nullable RuleIssue validateTagVersioning(@NonNull LinkNodeBase link, @NonNull RuleContext context) {
         URL url = Parser.onURL().parse(link.getUrl());
-        Function<String, String> tagParser = context.findTagParserOrNull();
+        Converter<String, String> tagParser = context.findTagParserOrNull();
         Predicate<CharSequence> versioningPredicate = context.findVersioningPredicateOrNull();
-        if (url != null && tagParser != null && versioningPredicate != null) {
-            for (Forge forge : context.getForges()) {
-                ForgeConfig forgeConfig = context.getConfig().getForge();
-                if ((forgeConfig != null && forge.getForgeId().equals(forgeConfig.getId())) || forge.isKnownHost(url)) {
-                    if (forge.isCompareLink(url)) {
-                        CompareLink compareLink = forge.getCompareLink(url);
-                        String baseVersion = tagParser.apply(compareLink.getCompareBaseRef());
-                        if (baseVersion != null && !versioningPredicate.test(baseVersion)) {
-                            return RuleIssue
-                                    .builder()
-                                    .message(String.format(ROOT, "Invalid base reference '%s' when using versioning '%s'", baseVersion, context.getConfig().getVersioning()))
-                                    .location(link)
-                                    .build();
-                        }
-                        String headVersion = tagParser.apply(compareLink.getCompareHeadRef());
-                        if (headVersion != null && !versioningPredicate.test(headVersion)) {
-                            return RuleIssue
-                                    .builder()
-                                    .message(String.format(ROOT, "Invalid head reference '%s' when using versioning '%s'", headVersion, context.getConfig().getVersioning()))
-                                    .location(link)
-                                    .build();
-                        }
+
+        if (url != null && tagParser != CONVERSION_NOT_SUPPORTED && versioningPredicate != NO_VERSIONING_FILTER) {
+            for (Forge forge : context.findAllForges(url)) {
+                if (forge.isCompareLink(url)) {
+                    CompareLink compareLink = forge.getCompareLink(url);
+                    String baseVersion = tagParser.applyOrNull(compareLink.getCompareBaseRef());
+                    if (baseVersion != null && !versioningPredicate.test(baseVersion)) {
+                        return RuleIssue
+                                .builder()
+                                .message(String.format(ROOT, "Invalid base reference '%s' when using versioning '%s'", baseVersion, context.getConfig().getVersioning()))
+                                .location(link)
+                                .build();
+                    }
+                    String headVersion = tagParser.applyOrNull(compareLink.getCompareHeadRef());
+                    if (headVersion != null && !versioningPredicate.test(headVersion)) {
+                        return RuleIssue
+                                .builder()
+                                .message(String.format(ROOT, "Invalid head reference '%s' when using versioning '%s'", headVersion, context.getConfig().getVersioning()))
+                                .location(link)
+                                .build();
                     }
                 }
             }

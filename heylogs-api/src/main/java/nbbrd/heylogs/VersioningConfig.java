@@ -3,6 +3,7 @@ package nbbrd.heylogs;
 import lombok.AccessLevel;
 import nbbrd.design.RepresentableAsString;
 import nbbrd.design.StaticFactoryMethod;
+import nbbrd.heylogs.spi.Versioning;
 import nbbrd.heylogs.spi.VersioningLoader;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -46,5 +47,9 @@ public class VersioningConfig {
     @Override
     public String toString() {
         return id + (arg != null ? (":" + arg) : "");
+    }
+
+    public boolean isCompatibleWith(@NonNull Versioning other) {
+        return this.id.equals(other.getVersioningId());
     }
 }

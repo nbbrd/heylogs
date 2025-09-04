@@ -20,10 +20,24 @@ public final class VersioningAssert {
                 .isNotEmpty()
                 .isNotNull();
 
-        assertThatNullPointerException()
-                .isThrownBy(() -> x.getVersioningPredicateOrNull(null).test(null));
+        assertThat(x.getVersioningModuleId())
+                .isNotEmpty()
+                .isNotNull();
 
-        assertThatNullPointerException()
-                .isThrownBy(() -> x.getVersioningPredicateOrNull("").test(null));
+        assertThat(x.getVersioningArgValidator())
+                .satisfies(validator -> {
+                    assertThat(validator).isNotNull();
+                    assertThatCode(() -> validator.apply(null)).doesNotThrowAnyException();
+                    String error = validator.apply(null);
+                    if (error == null) {
+                        assertThatCode(() -> x.getVersioningPredicateOrNull(null)).doesNotThrowAnyException();
+                        assertThatNullPointerException()
+                                .isThrownBy(() -> x.getVersioningPredicateOrNull(null).test(null));
+                    } else {
+                        assertThatIllegalArgumentException()
+                                .isThrownBy(() -> x.getVersioningPredicateOrNull(null))
+                                .withMessageContaining(error);
+                    }
+                });
     }
 }

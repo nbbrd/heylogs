@@ -24,6 +24,11 @@ public interface Versioning {
     @NonNull
     String getVersioningModuleId();
 
+    @NonNull
+    Validator<String> getVersioningArgValidator();
+
     @Nullable
-    Predicate<CharSequence> getVersioningPredicateOrNull(@Nullable String arg);
+    Predicate<CharSequence> getVersioningPredicateOrNull(@Nullable String arg) throws IllegalArgumentException;
+
+    Predicate<CharSequence> NO_VERSIONING_FILTER = null;
 }

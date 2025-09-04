@@ -3,8 +3,8 @@ package nbbrd.heylogs;
 import lombok.AccessLevel;
 import nbbrd.design.RepresentableAsString;
 import nbbrd.design.StaticFactoryMethod;
+import nbbrd.heylogs.spi.Tagging;
 import nbbrd.heylogs.spi.TaggingLoader;
-import nbbrd.heylogs.spi.VersioningLoader;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -47,5 +47,9 @@ public class TaggingConfig {
     @Override
     public String toString() {
         return id + (arg != null ? (":" + arg) : "");
+    }
+
+    public boolean isCompatibleWith(@NonNull Tagging other) {
+        return this.id.equals(other.getTaggingId());
     }
 }

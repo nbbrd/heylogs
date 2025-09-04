@@ -65,7 +65,7 @@ public class HeylogsTest {
 
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> api.checkFormat(using("/Main.md"), Config.builder().versioningOf("regex").build()))
-                .withMessage("Invalid version argument 'null'");
+                .withMessageContaining("Invalid versioning argument 'null': ");
 
         assertThat(api.checkFormat(using("/Main.md"), Config.builder().versioningOf("regex:abc").build())).isNotEmpty();
 

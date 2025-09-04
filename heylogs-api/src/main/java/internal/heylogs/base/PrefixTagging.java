@@ -3,37 +3,34 @@ package internal.heylogs.base;
 import lombok.NonNull;
 import nbbrd.design.DirectImpl;
 import nbbrd.heylogs.spi.Tagging;
+import nbbrd.heylogs.spi.TaggingSupport;
 import nbbrd.service.ServiceProvider;
-import org.jspecify.annotations.Nullable;
-
-import java.util.function.Function;
 
 @DirectImpl
 @ServiceProvider
 public final class PrefixTagging implements Tagging {
 
-    @Override
-    public @NonNull String getTaggingId() {
-        return "prefix";
+    @lombok.experimental.Delegate
+    private final Tagging delegate = TaggingSupport
+            .builder()
+            .id("prefix")
+            .name("Prefix tagging")
+            .moduleId("api")
+            .validator(PrefixTagging::validateArg)
+            .formatter(PrefixTagging::formatTag)
+            .parser(PrefixTagging::parseTag)
+            .build();
+
+    private static String validateArg(String arg) {
+        return arg == null || arg.isEmpty() ? "Prefix cannot be null or empty" : null;
     }
 
-    @Override
-    public @NonNull String getTaggingName() {
-        return "Prefix tagging";
+    private static String formatTag(String arg, String versionRef) {
+        return arg + versionRef;
     }
 
-    @Override
-    public @NonNull String getTaggingModuleId() {
-        return "api";
-    }
-
-    @Override
-    public Function<String, String> getTagFormatterOrNull(@Nullable String arg) {
-        return arg != null ? (versionRef -> arg + versionRef) : null;
-    }
-
-    @Override
-    public Function<String, String> getTagParserOrNull(@Nullable String arg) {
-        return arg != null ? (tag -> tag.startsWith(arg) ? tag.substring(arg.length()) : null) : null;
+    private static String parseTag(String arg, @NonNull String tag) {
+        if (tag.startsWith(arg)) return tag.substring(arg.length());
+        throw new IllegalArgumentException("Tag does not start with the specified prefix '" + arg + "'");
     }
 }

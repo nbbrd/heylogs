@@ -1,17 +1,17 @@
 package nbbrd.heylogs.spi;
 
 import lombok.NonNull;
-import nbbrd.heylogs.Config;
-import nbbrd.heylogs.RuleConfig;
-import nbbrd.heylogs.TaggingConfig;
-import nbbrd.heylogs.VersioningConfig;
+import nbbrd.heylogs.*;
 import org.jspecify.annotations.Nullable;
 
+import java.net.URL;
 import java.util.List;
-import java.util.function.Function;
+import java.util.Objects;
 import java.util.function.Predicate;
 
-import static nbbrd.heylogs.spi.VersioningSupport.onVersioningId;
+import static java.util.stream.Collectors.toList;
+import static nbbrd.heylogs.spi.Tagging.CONVERSION_NOT_SUPPORTED;
+import static nbbrd.heylogs.spi.Versioning.NO_VERSIONING_FILTER;
 
 @lombok.Value
 @lombok.Builder(toBuilder = true)
@@ -35,13 +35,12 @@ public class RuleContext {
 
     public @Nullable Predicate<CharSequence> findVersioningPredicateOrNull() {
         VersioningConfig versioningConfig = config.getVersioning();
-        return versioningConfig != null
-                ? versionings.stream()
-                .filter(onVersioningId(versioningConfig.getId()))
-                .findFirst()
+        return versioningConfig != null ? versionings.stream()
+                .filter(versioningConfig::isCompatibleWith)
                 .map(v -> v.getVersioningPredicateOrNull(versioningConfig.getArg()))
-                .orElse(null)
-                : null;
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(NO_VERSIONING_FILTER) : NO_VERSIONING_FILTER;
     }
 
     public @Nullable RuleSeverity findRuleSeverityOrNull(@NonNull String ruleId) {
@@ -53,14 +52,20 @@ public class RuleContext {
                 .orElse(null);
     }
 
-    public @Nullable Function<String, String> findTagParserOrNull() {
+    public @Nullable Converter<String, String> findTagParserOrNull() {
         TaggingConfig taggingConfig = config.getTagging();
-        return taggingConfig != null
-                ? taggings.stream()
-                .filter(Tagging.onTaggingId(taggingConfig.getId()))
-                .findFirst()
+        return taggingConfig != null ? taggings.stream()
+                .filter(taggingConfig::isCompatibleWith)
                 .map(o -> o.getTagParserOrNull(taggingConfig.getArg()))
-                .orElse(null)
-                : null;
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(CONVERSION_NOT_SUPPORTED) : CONVERSION_NOT_SUPPORTED;
+    }
+
+    public @NonNull List<Forge> findAllForges(@NonNull URL url) {
+        ForgeConfig forgeConfig = config.getForge();
+        return forges.stream()
+                .filter(forge -> forgeConfig != null && forgeConfig.isCompatibleWith(forge) || forge.isKnownHost(url))
+                .collect(toList());
     }
 }

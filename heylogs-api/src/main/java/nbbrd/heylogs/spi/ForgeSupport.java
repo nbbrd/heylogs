@@ -84,11 +84,6 @@ public final class ForgeSupport implements Forge {
     }
 
     @StaticFactoryMethod(Predicate.class)
-    public static @NonNull Predicate<Forge> onForgeId(@NonNull String id) {
-        return forge -> forge.getForgeId().equals(id);
-    }
-
-    @StaticFactoryMethod(Predicate.class)
     public static @NonNull Predicate<Forge> onCompareLink(@NonNull URL link) {
         return forge -> forge.isCompareLink(link);
     }

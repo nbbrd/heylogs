@@ -1,6 +1,7 @@
 package nbbrd.heylogs.spi;
 
 import lombok.NonNull;
+import nbbrd.design.StaticFactoryMethod;
 import org.jspecify.annotations.Nullable;
 
 import java.util.function.BiPredicate;
@@ -16,7 +17,9 @@ public final class VersioningSupport implements Versioning {
 
     private final @NonNull String moduleId;
 
-    private final @NonNull Function<@Nullable String, @Nullable Predicate<@NonNull CharSequence>> validation;
+    private final @NonNull Function<@Nullable String, @Nullable String> validator;
+
+    private final @NonNull Function<@Nullable String, @Nullable Predicate<@NonNull CharSequence>> predicate;
 
     @Override
     public @NonNull String getVersioningId() {
@@ -34,29 +37,27 @@ public final class VersioningSupport implements Versioning {
     }
 
     @Override
-    public @Nullable Predicate<CharSequence> getVersioningPredicateOrNull(@Nullable String arg) {
-        return validation.apply(arg);
+    public @NonNull Validator<String> getVersioningArgValidator() {
+        return validator::apply;
     }
 
-    public static @NonNull Predicate<Versioning> onVersioningId(@NonNull String id) {
-        return versioning -> versioning.getVersioningId().equals(id);
+    @Override
+    public @Nullable Predicate<CharSequence> getVersioningPredicateOrNull(@Nullable String arg) throws IllegalArgumentException {
+        String error = validator.apply(arg);
+        if (error != null) throw new IllegalArgumentException(error);
+        return predicate.apply(arg);
     }
 
-    public static Function<@Nullable String, Predicate<@NonNull CharSequence>> withoutArg(Predicate<CharSequence> predicate) {
+    @StaticFactoryMethod(Function.class)
+    public static Function<@Nullable String, Predicate<@NonNull CharSequence>> withoutArg(@NonNull Predicate<CharSequence> predicate) {
         return arg -> arg == null ? predicate : null;
     }
 
-    public static <X> Function<@Nullable String, Predicate<@NonNull CharSequence>> compilingArg(Function<String, X> factory, BiPredicate<X, CharSequence> predicate) {
+    @StaticFactoryMethod(Function.class)
+    public static <X> Function<@Nullable String, Predicate<@NonNull CharSequence>> compilingArg(@NonNull Function<String, X> factory, @NonNull BiPredicate<X, CharSequence> predicate) {
         return arg -> {
-            if (arg != null) {
-                try {
-                    X engine = factory.apply(arg);
-                    return text -> predicate.test(engine, text);
-                } catch (Exception ignore) {
-                    // Ignore exceptions and return null
-                }
-            }
-            return null;
+            X engine = factory.apply(arg);
+            return text -> predicate.test(engine, text);
         };
     }
 }

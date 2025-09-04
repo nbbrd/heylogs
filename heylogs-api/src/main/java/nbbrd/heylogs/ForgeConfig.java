@@ -3,6 +3,7 @@ package nbbrd.heylogs;
 import lombok.AccessLevel;
 import nbbrd.design.RepresentableAsString;
 import nbbrd.design.StaticFactoryMethod;
+import nbbrd.heylogs.spi.Forge;
 import nbbrd.heylogs.spi.ForgeLoader;
 import org.jspecify.annotations.NonNull;
 
@@ -30,5 +31,9 @@ public class ForgeConfig {
     @Override
     public String toString() {
         return id;
+    }
+
+    public boolean isCompatibleWith(@NonNull Forge other) {
+        return this.id.equals(other.getForgeId());
     }
 }
