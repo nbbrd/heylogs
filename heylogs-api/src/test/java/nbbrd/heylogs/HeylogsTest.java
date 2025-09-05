@@ -287,6 +287,46 @@ public class HeylogsTest {
                 );
     }
 
+    @Test
+    public void testCheckConfig() {
+        Heylogs x = Heylogs.ofServiceLoader()
+                .toBuilder()
+                .forge(new MockedForge())
+                .build();
+
+        assertThat(x.getForges()).isNotEmpty();
+        assertThat(x.getTaggings()).isNotEmpty();
+        assertThat(x.getVersionings()).isNotEmpty();
+        assertThat(x.getFormats()).isNotEmpty();
+        assertThat(x.getRules()).isNotEmpty();
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> x.checkConfig(Config.builder().versioningOf("boom").build()))
+                .withMessageContaining("Cannot find versioning with id 'boom'");
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> x.checkConfig(Config.builder().versioningOf("regex").build()))
+                .withMessageContaining("Invalid versioning argument 'null': ");
+        assertThatCode(() -> x.checkConfig(Config.builder().versioningOf("regex:.*").build()))
+                .doesNotThrowAnyException();
+
+        assertThatIllegalArgumentException().isThrownBy(() -> x.checkConfig(Config.builder().taggingOf("boom").build()))
+                .withMessageContaining("Cannot find tagging with id 'boom'");
+        assertThatIllegalArgumentException().isThrownBy(() -> x.checkConfig(Config.builder().taggingOf("prefix:").build()))
+                .withMessageContaining("Invalid tagging argument '': Prefix cannot be null or empty");
+        assertThatCode(() -> x.checkConfig(Config.builder().taggingOf("prefix:abc").build()))
+                .doesNotThrowAnyException();
+
+        assertThatIllegalArgumentException().isThrownBy(() -> x.checkConfig(Config.builder().ruleOf("boom").build()))
+                .withMessageContaining("Cannot find rule with id 'boom'");
+        assertThatCode(() -> x.checkConfig(Config.builder().ruleOf("https").build()))
+                .doesNotThrowAnyException();
+
+        assertThatIllegalArgumentException().isThrownBy(() -> x.checkConfig(Config.builder().domainOf("example:boom").build()))
+                .withMessageContaining("Cannot find forge with id 'boom'");
+        assertThatCode(() -> x.checkConfig(Config.builder().domainOf("example:github").build()))
+                .doesNotThrowAnyException();
+    }
+
     private static String extractVersionsToString(Heylogs heylogs, Document doc, Filter extractor) {
         heylogs.extractVersions(doc, extractor);
         return unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc);

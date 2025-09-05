@@ -46,6 +46,14 @@ public class ConfigOptions {
     )
     private List<RuleConfig> rules;
 
+    @CommandLine.Option(
+            names = {"-m", "--domain"},
+            paramLabel = "<domain:forge>",
+            description = "Specify the forge used for a specific domain.",
+            converter = DomainConverter.class
+    )
+    private List<DomainConfig> domains;
+
     public Config getConfig() {
         return Config
                 .builder()
@@ -53,6 +61,7 @@ public class ConfigOptions {
                 .versioning(versioning)
                 .forge(forge)
                 .rules(rules != null ? rules : emptyList())
+                .domains(domains != null ? domains : emptyList())
                 .build();
     }
 }

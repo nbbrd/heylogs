@@ -3,6 +3,7 @@ package nbbrd.heylogs;
 import lombok.AccessLevel;
 import nbbrd.design.RepresentableAsString;
 import nbbrd.design.StaticFactoryMethod;
+import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleLoader;
 import nbbrd.heylogs.spi.RuleSeverity;
 import org.jspecify.annotations.NonNull;
@@ -47,5 +48,9 @@ public class RuleConfig {
     @Override
     public String toString() {
         return id + (severity != null ? (":" + severity) : "");
+    }
+
+    public boolean isCompatibleWith(@NonNull Rule other) {
+        return this.id.equals(other.getRuleId());
     }
 }

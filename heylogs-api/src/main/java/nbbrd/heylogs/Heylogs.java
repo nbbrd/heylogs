@@ -13,6 +13,7 @@ import internal.heylogs.spi.URLExtractor;
 import lombok.NonNull;
 import nbbrd.design.MightBePromoted;
 import nbbrd.design.StaticFactoryMethod;
+import nbbrd.design.VisibleForTesting;
 import nbbrd.heylogs.spi.*;
 import org.jspecify.annotations.Nullable;
 
@@ -248,6 +249,10 @@ public class Heylogs {
         return forgeOrNull != null ? forgeOrNull.getCompareLink(url).getProjectURL() : URLExtractor.baseOf(url);
     }
 
+    private Optional<Rule> findRule(@NonNull Predicate<Rule> predicate) {
+        return rules.stream().filter(predicate).findFirst();
+    }
+
     private Optional<Tagging> findTagging(@NonNull Predicate<Tagging> predicate) {
         return taggings.stream().filter(predicate).findFirst();
     }
@@ -315,9 +320,12 @@ public class Heylogs {
         return versionRef;
     }
 
-    private void checkConfig(Config config) {
+    @VisibleForTesting
+    void checkConfig(@NonNull Config config) throws IllegalArgumentException {
         checkVersioningConfig(config.getVersioning());
         checkTaggingConfig(config.getTagging());
+        checkRuleConfigs(config.getRules());
+        checkDomainConfigs(config.getDomains());
     }
 
     private void checkVersioningConfig(VersioningConfig config) throws IllegalArgumentException {
@@ -341,6 +349,20 @@ public class Heylogs {
             if (error != null) {
                 throw new IllegalArgumentException("Invalid tagging argument '" + config.getArg() + "': " + error);
             }
+        }
+    }
+
+    private void checkRuleConfigs(List<RuleConfig> configs) throws IllegalArgumentException {
+        for (RuleConfig config : configs) {
+            findRule(config::isCompatibleWith)
+                    .orElseThrow(() -> new IllegalArgumentException("Cannot find rule with id '" + config.getId() + "'"));
+        }
+    }
+
+    private void checkDomainConfigs(List<DomainConfig> configs) throws IllegalArgumentException {
+        for (DomainConfig config : configs) {
+            findForge(config::isCompatibleWith)
+                    .orElseThrow(() -> new IllegalArgumentException("Cannot find forge with id '" + config.getForgeId() + "'"));
         }
     }
 }

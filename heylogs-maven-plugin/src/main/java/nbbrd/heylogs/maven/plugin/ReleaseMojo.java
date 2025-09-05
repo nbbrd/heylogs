@@ -15,6 +15,7 @@ import org.jspecify.annotations.Nullable;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 
 import static internal.heylogs.HeylogsParameters.DEFAULT_CHANGELOG_FILE;
 
@@ -40,6 +41,12 @@ public final class ReleaseMojo extends HeylogsMojo {
 
     @Parameter(property = "heylogs.forge")
     private String forge;
+
+    @Parameter(property = "heylogs.rules")
+    private List<String> rules;
+
+    @Parameter(property = "heylogs.domains")
+    private List<String> domains;
 
     @Override
     public void execute() throws MojoExecutionException {
@@ -77,6 +84,8 @@ public final class ReleaseMojo extends HeylogsMojo {
                     .taggingOf(tagging)
                     .versioningOf(versioning)
                     .forgeOf(forge)
+                    .rulesOf(rules)
+                    .domainsOf(domains)
                     .build();
         } catch (IllegalArgumentException ex) {
             throw new MojoExecutionException("Invalid config parameter", ex);

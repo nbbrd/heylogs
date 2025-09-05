@@ -4,7 +4,10 @@ import internal.heylogs.maven.plugin.MojoParameterParsing;
 import lombok.NonNull;
 import nbbrd.console.picocli.MultiFileInputOptions;
 import nbbrd.console.picocli.text.TextOutputSupport;
-import nbbrd.heylogs.*;
+import nbbrd.heylogs.Check;
+import nbbrd.heylogs.Config;
+import nbbrd.heylogs.FormatConfig;
+import nbbrd.heylogs.Heylogs;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -49,6 +52,9 @@ public final class CheckMojo extends HeylogsMojo {
 
     @Parameter(property = "heylogs.rules")
     private List<String> rules;
+
+    @Parameter(property = "heylogs.domains")
+    private List<String> domains;
 
     @Parameter(property = "heylogs.format")
     private String format;
@@ -102,7 +108,8 @@ public final class CheckMojo extends HeylogsMojo {
                     .taggingOf(tagging)
                     .versioningOf(versioning)
                     .forgeOf(forge)
-                    .rules(rules != null ? rules.stream().map(RuleConfig::parse).collect(toList()) : null)
+                    .rulesOf(rules)
+                    .domainsOf(domains)
                     .build();
         } catch (IllegalArgumentException ex) {
             throw new MojoExecutionException("Invalid config parameter", ex);

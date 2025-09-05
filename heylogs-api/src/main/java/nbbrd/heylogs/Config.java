@@ -5,6 +5,8 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
+
 @lombok.Value
 @lombok.Builder(toBuilder = true)
 public class Config {
@@ -23,6 +25,9 @@ public class Config {
     @lombok.Singular
     List<RuleConfig> rules;
 
+    @lombok.Singular
+    List<DomainConfig> domains;
+
     public static final class Builder {
 
         public @NonNull Builder forgeOf(@Nullable CharSequence forgeConfig) {
@@ -39,6 +44,18 @@ public class Config {
 
         public @NonNull Builder ruleOf(@Nullable CharSequence ruleConfig) {
             return ruleConfig != null ? rule(RuleConfig.parse(ruleConfig)) : this;
+        }
+
+        public @NonNull Builder rulesOf(@Nullable List<? extends CharSequence> ruleConfigs) {
+            return ruleConfigs != null ? rules(ruleConfigs.stream().map(RuleConfig::parse).collect(toList())) : this;
+        }
+
+        public @NonNull Builder domainOf(@Nullable CharSequence domainConfig) {
+            return domainConfig != null ? domain(DomainConfig.parse(domainConfig)) : this;
+        }
+
+        public @NonNull Builder domainsOf(@Nullable List<? extends CharSequence> domainConfigs) {
+            return domainConfigs != null ? domains(domainConfigs.stream().map(DomainConfig::parse).collect(toList())) : this;
         }
     }
 }
