@@ -28,7 +28,8 @@ import java.util.concurrent.Callable;
                 ScanCommand.class,
                 ExtractCommand.class,
                 ReleaseCommand.class,
-                ListCommand.class
+                ListCommand.class,
+                ScrapeCommand.class
         },
         description = {
                 "Set of tools to deal with the @|bold keep-a-changelog|@ format.",

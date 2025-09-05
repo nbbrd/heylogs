@@ -1,6 +1,7 @@
 package nbbrd.heylogs;
 
 import com.vladsch.flexmark.ast.Heading;
+import com.vladsch.flexmark.ast.LinkNodeBase;
 import com.vladsch.flexmark.ast.RefNode;
 import com.vladsch.flexmark.ast.Reference;
 import com.vladsch.flexmark.util.ast.Document;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -31,9 +33,11 @@ import static internal.heylogs.spi.FormatSupport.onFormatFileFilter;
 import static internal.heylogs.spi.FormatSupport.onFormatId;
 import static internal.heylogs.spi.RuleSupport.problemStreamOf;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.partitioningBy;
 import static java.util.stream.Collectors.toList;
 import static nbbrd.heylogs.TimeRange.toTimeRange;
+import static nbbrd.heylogs.Util.illegalArgumentToNull;
 import static nbbrd.heylogs.spi.ForgeSupport.onCompareLink;
 import static nbbrd.heylogs.spi.Versioning.NO_VERSIONING_FILTER;
 
@@ -76,8 +80,7 @@ public class Heylogs {
     public @NonNull List<Problem> check(@NonNull Document document, @NonNull Config config) {
         checkConfig(config);
 
-        RuleContext context = RuleContext.builder().config(config).forges(forges).versionings(versionings).taggings(taggings).build();
-        return problemStreamOf(document, rules, context).collect(toList());
+        return problemStreamOf(document, rules, initContext(config)).collect(toList());
     }
 
     public void extract(@NonNull Document document, @NonNull Filter filter) {
@@ -223,6 +226,31 @@ public class Heylogs {
                 .build();
     }
 
+    public @NonNull List<ScrapedLink> scrape(@NonNull Document doc, @NonNull Config config) {
+        RuleContext context = initContext(config);
+        return Nodes.of(LinkNodeBase.class)
+                .descendants(doc)
+                .map(link -> {
+                    String urlAsString = link.getUrl().toString();
+                    URL url = Util.illegalArgumentToNull(URLExtractor::urlOf).apply(link.getUrl());
+                    if (url != null) {
+                        List<String> result = new ArrayList<>();
+                        for (Forge forge : context.findAllForges(url)) {
+                            for (ForgeRefType type : ForgeRefType.values()) {
+                                Function<? super URL, ForgeLink> linkParser = forge.getLinkParser(type);
+                                ForgeLink expectedLink = linkParser != null ? illegalArgumentToNull(linkParser).apply(url) : null;
+                                if (expectedLink != null) {
+                                    result.add(forge.getForgeId() + ":" + type);
+                                }
+                            }
+                        }
+                        return new ScrapedLink(urlAsString.substring(0, Math.min(50, urlAsString.length())), link.getLineNumber(), result);
+                    }
+                    return new ScrapedLink(urlAsString, link.getLineNumber(), singletonList("invalid"));
+                })
+                .collect(toList());
+    }
+
     public void formatProblems(@NonNull String formatId, @NonNull Appendable appendable, @NonNull List<Check> list) throws IOException {
         findFormat(onFormatId(formatId))
                 .orElseThrow(() -> new IOException("Cannot find format '" + formatId + "'"))
@@ -364,5 +392,15 @@ public class Heylogs {
             findForge(config::isCompatibleWith)
                     .orElseThrow(() -> new IllegalArgumentException("Cannot find forge with id '" + config.getForgeId() + "'"));
         }
+    }
+
+    private RuleContext initContext(Config config) {
+        return RuleContext
+                .builder()
+                .config(config)
+                .forges(forges)
+                .versionings(versionings)
+                .taggings(taggings)
+                .build();
     }
 }
