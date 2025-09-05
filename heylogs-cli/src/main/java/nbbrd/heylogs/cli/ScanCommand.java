@@ -51,7 +51,7 @@ public final class ScanCommand implements Callable<Void> {
             list.add(Scan
                     .builder()
                     .source(inputSupport.getName(file))
-                    .summary(heylogs.scanContent(inputSupport.readDocument(file)))
+                    .summary(heylogs.scan(inputSupport.readDocument(file)))
                     .build());
         }
 

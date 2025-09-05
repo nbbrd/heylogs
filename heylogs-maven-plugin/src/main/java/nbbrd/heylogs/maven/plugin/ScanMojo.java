@@ -60,7 +60,7 @@ public final class ScanMojo extends HeylogsMojo {
                 list.add(Scan
                         .builder()
                         .source(file.toString())
-                        .summary(heylogs.scanContent(readChangelog(file.toFile())))
+                        .summary(heylogs.scan(readChangelog(file.toFile())))
                         .build());
             }
         } catch (IOException ex) {

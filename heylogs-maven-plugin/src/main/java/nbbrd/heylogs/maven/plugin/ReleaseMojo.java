@@ -66,7 +66,7 @@ public final class ReleaseMojo extends HeylogsMojo {
         Config config = toConfig();
 
         getLog().info("Releasing " + version + " with config '" + config + "'");
-        Heylogs.ofServiceLoader().releaseChanges(document, version, config);
+        Heylogs.ofServiceLoader().release(document, version, config);
 
         writeChangelog(document, inputFile);
     }

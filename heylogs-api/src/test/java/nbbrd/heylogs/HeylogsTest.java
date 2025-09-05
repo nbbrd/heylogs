@@ -49,36 +49,36 @@ public class HeylogsTest {
     }
 
     @Test
-    public void testCheckFormat() {
+    public void testCheck() {
         Heylogs api = Heylogs.ofServiceLoader();
         Heylogs empty = Heylogs.builder().build();
 
-        assertThat(api.checkFormat(using("/Main.md"), Config.DEFAULT)).isEmpty();
-        assertThat(empty.checkFormat(using("/Main.md"), Config.DEFAULT)).isEmpty();
+        assertThat(api.check(using("/Main.md"), Config.DEFAULT)).isEmpty();
+        assertThat(empty.check(using("/Main.md"), Config.DEFAULT)).isEmpty();
 
-        assertThat(api.checkFormat(using("/InvalidVersion.md"), Config.DEFAULT)).isNotEmpty();
-        assertThat(empty.checkFormat(using("/InvalidVersion.md"), Config.DEFAULT)).isEmpty();
+        assertThat(api.check(using("/InvalidVersion.md"), Config.DEFAULT)).isNotEmpty();
+        assertThat(empty.check(using("/InvalidVersion.md"), Config.DEFAULT)).isEmpty();
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> api.checkFormat(using("/Main.md"), Config.builder().versioningOf("boom").build()))
+                .isThrownBy(() -> api.check(using("/Main.md"), Config.builder().versioningOf("boom").build()))
                 .withMessage("Cannot find versioning with id 'boom'");
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> api.checkFormat(using("/Main.md"), Config.builder().versioningOf("regex").build()))
+                .isThrownBy(() -> api.check(using("/Main.md"), Config.builder().versioningOf("regex").build()))
                 .withMessageContaining("Invalid versioning argument 'null': ");
 
-        assertThat(api.checkFormat(using("/Main.md"), Config.builder().versioningOf("regex:abc").build())).isNotEmpty();
+        assertThat(api.check(using("/Main.md"), Config.builder().versioningOf("regex:abc").build())).isNotEmpty();
 
-        assertThat(api.checkFormat(using("/Main.md"), Config.builder().versioningOf("regex:abc").ruleOf("versioning-format:OFF").build())).isEmpty();
+        assertThat(api.check(using("/Main.md"), Config.builder().versioningOf("regex:abc").ruleOf("versioning-format:OFF").build())).isEmpty();
 
-        assertThat(api.checkFormat(using("/Main.md"), Config.builder().versioningOf("regex:.*").build())).isEmpty();
+        assertThat(api.check(using("/Main.md"), Config.builder().versioningOf("regex:.*").build())).isEmpty();
     }
 
     @Test
-    public void testExtractVersions() {
+    public void testExtract() {
         Heylogs x = Heylogs.ofServiceLoader();
 
-        Function<Filter, String> usingMain = extractor -> extractVersionsToString(x, using("/Main.md"), extractor);
+        Function<Filter, String> usingMain = extractor -> extractToString(x, using("/Main.md"), extractor);
 
         assertThat(Filter.builder().ref("1.1.0").build())
                 .extracting(usingMain, STRING)
@@ -111,16 +111,16 @@ public class HeylogsTest {
     }
 
     @Test
-    public void testListResources() {
-        assertThat(Heylogs.builder().build().listResources())
+    public void testList() {
+        assertThat(Heylogs.builder().build().list())
                 .isEmpty();
 
-        assertThat(Heylogs.ofServiceLoader().listResources())
+        assertThat(Heylogs.ofServiceLoader().list())
                 .isNotEmpty();
     }
 
     @Test
-    public void testReleaseChanges() {
+    public void testRelease() {
         Heylogs x = Heylogs.ofServiceLoader()
                 .toBuilder()
                 .clearForges().forge(new MockedForge())
@@ -129,24 +129,24 @@ public class HeylogsTest {
 
         LocalDate date = LocalDate.of(2010, 1, 1);
 
-        assertThatIllegalArgumentException().isThrownBy(() -> releaseChangesToString(x, using("/Main.md"), Version.of("42", null, HYPHEN, date), "boom"))
+        assertThatIllegalArgumentException().isThrownBy(() -> releaseToString(x, using("/Main.md"), Version.of("42", null, HYPHEN, date), "boom"))
                 .withMessageContaining("Cannot find versioning with id 'boom'");
 
-        assertThatIllegalArgumentException().isThrownBy(() -> releaseChangesToString(x, using("/Main.md"), Version.of("boom", null, HYPHEN, date), "regex:\\d+"))
+        assertThatIllegalArgumentException().isThrownBy(() -> releaseToString(x, using("/Main.md"), Version.of("boom", null, HYPHEN, date), "regex:\\d+"))
                 .withMessageContaining("Invalid version 'boom' for versioning 'regex:\\d+'");
 
-        assertThatCode(() -> releaseChangesToString(x, using("/Main.md"), Version.of("boom", null, HYPHEN, date), null))
+        assertThatCode(() -> releaseToString(x, using("/Main.md"), Version.of("boom", null, HYPHEN, date), null))
                 .doesNotThrowAnyException();
 
-        assertThatCode(() -> releaseChangesToString(x, using("/Main.md"), Version.of("42", null, HYPHEN, date), "regex:\\d+"))
+        assertThatCode(() -> releaseToString(x, using("/Main.md"), Version.of("42", null, HYPHEN, date), "regex:\\d+"))
                 .doesNotThrowAnyException();
 
         Version v123 = Version.of("1.2.3", null, HYPHEN, date);
 
-        assertThatIllegalArgumentException().isThrownBy(() -> releaseChangesToString(x, using("/Empty.md"), v123, null))
+        assertThatIllegalArgumentException().isThrownBy(() -> releaseToString(x, using("/Empty.md"), v123, null))
                 .withMessageContaining("Invalid changelog");
 
-        assertThat(releaseChangesToString(x, using("/Main.md"), v123, null))
+        assertThat(releaseToString(x, using("/Main.md"), v123, null))
                 .contains(
                         "## [Unreleased]",
                         "## [1.2.3] - 2010-01-01",
@@ -155,7 +155,7 @@ public class HeylogsTest {
                 .doesNotContain("[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.0...HEAD")
                 .endsWith("[0.0.1]: https://github.com/olivierlacan/keep-a-changelog/releases/tag/v0.0.1\n");
 
-        assertThat(releaseChangesToString(x, using("/UnreleasedChanges.md"), v123, null))
+        assertThat(releaseToString(x, using("/UnreleasedChanges.md"), v123, null))
                 .contains(
                         "## [Unreleased]",
                         "## [1.2.3] - 2010-01-01",
@@ -164,7 +164,7 @@ public class HeylogsTest {
                 .doesNotContain("[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.0...HEAD")
                 .endsWith("[1.1.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.0...v1.1.0\n");
 
-        assertThat(releaseChangesToString(x, using("/FirstRelease.md"), v123, null))
+        assertThat(releaseToString(x, using("/FirstRelease.md"), v123, null))
                 .contains(
                         "## [Unreleased]",
                         "## [1.2.3] - 2010-01-01",
@@ -175,13 +175,13 @@ public class HeylogsTest {
     }
 
     @Test
-    public void testScanContent() {
+    public void testScan() {
         Heylogs x = Heylogs.ofServiceLoader()
                 .toBuilder()
                 .forge(new MockedForge())
                 .build();
 
-        assertThat(x.scanContent(using("/Empty.md")))
+        assertThat(x.scan(using("/Empty.md")))
                 .isEqualTo(Summary
                         .builder()
                         .valid(false)
@@ -191,7 +191,7 @@ public class HeylogsTest {
                         .build()
                 );
 
-        assertThat(x.scanContent(using("/Main.md")))
+        assertThat(x.scan(using("/Main.md")))
                 .isEqualTo(Summary
                                 .builder()
                                 .valid(true)
@@ -204,7 +204,7 @@ public class HeylogsTest {
                                 .build()
                 );
 
-        assertThat(x.scanContent(using("/InvalidSemver.md")))
+        assertThat(x.scan(using("/InvalidSemver.md")))
                 .isEqualTo(Summary
                         .builder()
                         .valid(true)
@@ -216,7 +216,7 @@ public class HeylogsTest {
                         .build()
                 );
 
-        assertThat(x.scanContent(using("/InvalidVersion.md")))
+        assertThat(x.scan(using("/InvalidVersion.md")))
                 .isEqualTo(Summary
                         .builder()
                         .valid(false)
@@ -327,13 +327,13 @@ public class HeylogsTest {
                 .doesNotThrowAnyException();
     }
 
-    private static String extractVersionsToString(Heylogs heylogs, Document doc, Filter extractor) {
-        heylogs.extractVersions(doc, extractor);
+    private static String extractToString(Heylogs heylogs, Document doc, Filter extractor) {
+        heylogs.extract(doc, extractor);
         return unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc);
     }
 
-    private static String releaseChangesToString(Heylogs heylogs, Document doc, Version version, CharSequence versioning) {
-        heylogs.releaseChanges(doc, version, Config.builder().tagging(TaggingConfig.of("prefix", "v")).versioningOf(versioning).build());
+    private static String releaseToString(Heylogs heylogs, Document doc, Version version, CharSequence versioning) {
+        heylogs.release(doc, version, Config.builder().tagging(TaggingConfig.of("prefix", "v")).versioningOf(versioning).build());
         return unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc);
     }
 

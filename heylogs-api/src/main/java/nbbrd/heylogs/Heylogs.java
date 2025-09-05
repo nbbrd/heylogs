@@ -73,14 +73,14 @@ public class Heylogs {
     @lombok.Singular
     List<Tagging> taggings;
 
-    public @NonNull List<Problem> checkFormat(@NonNull Document document, @NonNull Config config) {
+    public @NonNull List<Problem> check(@NonNull Document document, @NonNull Config config) {
         checkConfig(config);
 
         RuleContext context = RuleContext.builder().config(config).forges(forges).versionings(versionings).taggings(taggings).build();
         return problemStreamOf(document, rules, context).collect(toList());
     }
 
-    public void extractVersions(@NonNull Document document, @NonNull Filter filter) {
+    public void extract(@NonNull Document document, @NonNull Filter filter) {
         if (isNotValidAgainstGuidingPrinciples(document)) {
             throw new IllegalArgumentException("Invalid changelog");
         }
@@ -128,7 +128,7 @@ public class Heylogs {
                 .forEach(Node::unlink);
     }
 
-    public @NonNull List<Resource> listResources() {
+    public @NonNull List<Resource> list() {
         return concat(
                 rules.stream().map(Resource::of),
                 formats.stream().map(Resource::of),
@@ -138,7 +138,7 @@ public class Heylogs {
         ).sorted(Resource.DEFAULT_COMPARATOR).collect(toList());
     }
 
-    public void releaseChanges(@NonNull Document document, @NonNull Version newVersion, @NonNull Config config) throws IllegalArgumentException {
+    public void release(@NonNull Document document, @NonNull Version newVersion, @NonNull Config config) throws IllegalArgumentException {
         checkConfig(config);
 
         Predicate<CharSequence> versioningPredicate = getVersioningPredicate(config.getVersioning());
@@ -178,7 +178,7 @@ public class Heylogs {
         unreleased.getReference().unlink();
     }
 
-    public @NonNull Summary scanContent(@NonNull Document document) {
+    public @NonNull Summary scan(@NonNull Document document) {
         if (isNotValidAgainstGuidingPrinciples(document)) {
             return Summary.INVALID;
         }

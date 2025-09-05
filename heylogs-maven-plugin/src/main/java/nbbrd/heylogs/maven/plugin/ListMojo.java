@@ -40,7 +40,7 @@ public final class ListMojo extends HeylogsMojo {
         String formatId = resolveFormatId(format != null ? FormatConfig.parse(format) : null, heylogs, outputSupport::isStdoutFile, outputFile.toPath());
 
         try (Writer writer = newWriter(outputFile, getLog()::info)) {
-            heylogs.formatResources(formatId, writer, heylogs.listResources());
+            heylogs.formatResources(formatId, writer, heylogs.list());
         } catch (IOException ex) {
             throw new MojoExecutionException("Error while writing", ex);
         }

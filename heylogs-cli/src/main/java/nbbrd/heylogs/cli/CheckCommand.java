@@ -53,7 +53,7 @@ public final class CheckCommand implements Callable<Integer> {
             list.add(Check
                     .builder()
                     .source(inputSupport.getName(file))
-                    .problems(heylogs.checkFormat(inputSupport.readDocument(file), config))
+                    .problems(heylogs.check(inputSupport.readDocument(file), config))
                     .build());
         }
 

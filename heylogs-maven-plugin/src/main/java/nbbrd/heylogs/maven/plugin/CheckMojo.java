@@ -79,7 +79,7 @@ public final class CheckMojo extends HeylogsMojo {
                 list.add(Check
                         .builder()
                         .source(file.toString())
-                        .problems(heylogs.checkFormat(readChangelog(file.toFile()), config))
+                        .problems(heylogs.check(readChangelog(file.toFile()), config))
                         .build());
             }
         } catch (IOException ex) {
