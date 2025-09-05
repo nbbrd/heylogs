@@ -17,11 +17,11 @@ public final class Forgejo implements Forge {
             .id("forgejo")
             .moduleId("forgejo")
             .name("Forgejo")
-            .compareLinkFactory(ForgejoCompareLink::parse)
             .knownHostPredicate(ForgeSupport.onHostContaining("codeberg"))
             .parser(COMMIT, ForgejoCommitLink::parse, ForgejoCommitRef::parse)
             .parser(ISSUE, ForgejoIssueLink::parse, ForgejoIssueRef::parse)
             .parser(REQUEST, ForgejoRequestLink::parse, ForgejoRequestRef::parse)
             .parser(MENTION, ForgejoMentionLink::parse, ForgejoMentionRef::parse)
+            .linkParser(COMPARE, ForgejoCompareLink::parse)
             .build();
 }

@@ -17,11 +17,11 @@ public final class GitLab implements Forge {
             .id("gitlab")
             .moduleId("gitlab")
             .name("GitLab")
-            .compareLinkFactory(GitLabCompareLink::parse)
             .knownHostPredicate(ForgeSupport.onHostContaining("gitlab"))
             .parser(COMMIT, GitLabCommitLink::parse, GitLabCommitRef::parse)
             .parser(ISSUE, GitLabIssueLink::parse, GitLabIssueRef::parse)
             .parser(REQUEST, GitLabRequestLink::parse, GitLabRequestRef::parse)
             .parser(MENTION, GitLabMentionLink::parse, GitLabMentionRef::parse)
+            .linkParser(COMPARE, GitLabCompareLink::parse)
             .build();
 }

@@ -19,8 +19,6 @@ public final class ForgeSupport implements Forge {
 
     private final @NonNull String moduleId;
 
-    private final @NonNull Function<URL, CompareLink> compareLinkFactory;
-
     private final @NonNull Predicate<URL> knownHostPredicate;
 
     @lombok.Singular
@@ -47,7 +45,8 @@ public final class ForgeSupport implements Forge {
     @Override
     public boolean isCompareLink(@NonNull URL url) {
         try {
-            return knownHostPredicate.test(url) && compareLinkFactory.apply(url) != null;
+            Function<? super URL, ForgeLink> parser = getLinkParser(ForgeRefType.COMPARE);
+            return knownHostPredicate.test(url) && parser != null && parser.apply(url) instanceof CompareLink;
         } catch (IllegalArgumentException ex) {
             return false;
         }
@@ -55,7 +54,15 @@ public final class ForgeSupport implements Forge {
 
     @Override
     public @NonNull CompareLink getCompareLink(@NonNull URL url) {
-        return compareLinkFactory.apply(url);
+        Function<? super URL, ForgeLink> parser = getLinkParser(ForgeRefType.COMPARE);
+        if (parser == null) {
+            throw new IllegalArgumentException("No compare link parser for forge: " + id);
+        }
+        ForgeLink result = parser.apply(url);
+        if (!(result instanceof CompareLink)) {
+            throw new IllegalArgumentException("Not a compare link: " + url);
+        }
+        return (CompareLink) result;
     }
 
     @Override

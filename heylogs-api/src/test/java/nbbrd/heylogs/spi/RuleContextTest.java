@@ -3,7 +3,6 @@ package nbbrd.heylogs.spi;
 import internal.heylogs.base.PrefixTagging;
 import nbbrd.heylogs.Config;
 import org.junit.jupiter.api.Test;
-import tests.heylogs.spi.MockedCompareLink;
 import tests.heylogs.spi.MockedForgeLink;
 
 import static internal.heylogs.base.BaseVersionings.REGEX_VERSIONING;
@@ -19,16 +18,16 @@ class RuleContextTest {
                 .forge(ForgeSupport
                         .builder()
                         .id("abc").name("").moduleId("")
-                        .compareLinkFactory(MockedCompareLink::parse)
                         .knownHostPredicate(url -> url.getHost().contains("github"))
                         .linkParser(ForgeRefType.ISSUE, MockedForgeLink::parse)
+                        .linkParser(ForgeRefType.COMPARE, MockedForgeLink::parse)
                         .build())
                 .forge(ForgeSupport
                         .builder()
                         .id("other").name("").moduleId("")
-                        .compareLinkFactory(MockedCompareLink::parse)
                         .knownHostPredicate(url -> url.getHost().contains("other"))
                         .linkParser(ForgeRefType.ISSUE, MockedForgeLink::parse)
+                        .linkParser(ForgeRefType.COMPARE, MockedForgeLink::parse)
                         .build())
                 .versioning(REGEX_VERSIONING)
                 .tagging(new PrefixTagging())

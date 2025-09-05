@@ -17,11 +17,11 @@ public final class GitHub implements Forge {
             .id("github")
             .moduleId("github")
             .name("GitHub")
-            .compareLinkFactory(GitHubCompareLink::parse)
             .knownHostPredicate(ForgeSupport.onHostContaining("github"))
             .parser(COMMIT, GitHubCommitLink::parse, GitHubCommitRef::parse)
             .parser(ISSUE, GitHubIssueLink::parse, GitHubIssueRef::parse)
             .parser(REQUEST, GitHubRequestLink::parse, GitHubRequestRef::parse)
             .parser(MENTION, GitHubMentionLink::parse, GitHubMentionRef::parse)
+            .linkParser(COMPARE, GitHubCompareLink::parse)
             .build();
 }
