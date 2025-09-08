@@ -330,8 +330,8 @@ Heylogs supports the following forge references:
 | **Forgejo** |   ✔    |    ✔    |   ✔   |    ✔    |    ✔    |
 
 > [!TIP]
-> Forge links are detected by using a list of default know hosts (e.g. `github.com`, `gitlab.com`, `forgejo.org`) but 
-> can also be customized using the `--domain` option. For example: `$ heylogs check --domain mygit.company.com:gitlab`
+> Forge links are detected by using a list of default known hosts (e.g. `github.com`, `gitlab.com`, `forgejo.org`) but 
+> the detection can also be customized using the `--domain` option. For example: `$ heylogs check --domain mygit.company.com:gitlab`
 
 ### Versioning schemes
 
