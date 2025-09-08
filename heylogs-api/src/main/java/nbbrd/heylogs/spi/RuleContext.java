@@ -65,7 +65,7 @@ public class RuleContext {
     public @NonNull List<Forge> findAllForges(@NonNull URL url) {
         DomainConfig domain = getDomainByUrl(url);
         return forges.stream()
-                .filter(forge -> isCompatible(forge, config.getForge()) || forge.isKnownHost(url) || isCompatible(forge, domain))
+                .filter(forge -> forge.isKnownHost(url) || isCompatible(forge, domain))
                 .collect(toList());
     }
 
@@ -74,10 +74,6 @@ public class RuleContext {
                 .filter(domainConfig -> url.getHost().contains(domainConfig.getDomain()))
                 .findFirst()
                 .orElse(null);
-    }
-
-    private static boolean isCompatible(Forge forge, ForgeConfig config) {
-        return config != null && config.isCompatibleWith(forge);
     }
 
     private static boolean isCompatible(Forge forge, DomainConfig config) {
