@@ -18,7 +18,7 @@ Features:
 - [Summarizes content](#scan-command) to provide a quick overview of a repository.
 - [Filters and extracts](#extract-command) versions for publication or searching.
 - [Modifies content](#release-command) to release unreleased changes.
-- Manages [GitHub, GitLab and Forgejo](#forge-references) references.
+- Manages [GitHub, GitLab and Forgejo](#forge-peculiarities) peculiarities.
 - Validates [semantic, calendar and regex](#versioning-schemes) versioning schemes.
 - Handles the [prefix](#tagging-strategy) tagging strategy.
 - Seamlessly integrates into [CI/CD pipelines](#github-action).
@@ -223,17 +223,23 @@ Extract the latest version from the changelog during a release:
 
 ## Features
 
-Heylogs provides several commands to interact with changelog files.
+Heylogs provides several **commands** to interact with changelog files.
 These commands can be used through the CLI, the Maven plugin or the Java API.
 
-- CLI: `$ heylogs check --versioning semver`
-- MVN: `$ mvn com.github.nbbrd.heylogs:heylogs-maven-plugin::check -D heylogs.versioning=semver`
-- API: `Heylogs.ofServiceLoader().check(document, Config.builder().versioningOf("semver").build())`
-
-The examples below use the CLI for the sake of simplicity.
-Command options are available through the `--help` option.
+| Interface | Example                                                                                      |
+|:---------:|----------------------------------------------------------------------------------------------|
+|    CLI    | `$ heylogs check --versioning semver`                                                        |
+|    MVN    | `$ mvn com.github.nbbrd.heylogs:heylogs-maven-plugin::check -D heylogs.versioning=semver`    |
+|    API    | `Heylogs.ofServiceLoader().check(document, Config.builder().versioningOf("semver").build())` |
 
 Commands: [ [check](#check-command) | [scan](#scan-command) | [extract](#extract-command) | [release](#release-command) | [list](#list-command) ]
+
+Heylogs also provides several **customizations** to adapt to various workflows.
+See forge, versioning and tagging sections below.
+
+> [!NOTE]
+> The examples below use the CLI for the sake of simplicity.
+> Command options are available through the `--help` option.
 
 ### Check command
 
@@ -246,7 +252,7 @@ CHANGELOG.md
   No problem
 ```
 
-> [!NOTE]
+> [!TIP]
 > A rule configuration can be modified by using the `--rule` option.
 > For example: the command `$ heylogs check --rule dot-space-link-style:WARN` upgrades the severity
 > of the `dot-space-link-style` rule from `OFF` to `WARN` while performing a changelog check.
@@ -310,7 +316,10 @@ Resources
   27 resources found
 ```
 
-### Forge references
+### Forge peculiarities
+
+A forge doesn't only host the source code but also provides additional services such as issue tracking, pull/merge requests, CI/CD pipelines, etc.
+Heylogs is able to validate and, in some cases, modify the reference links of these services.
 
 Heylogs supports the following forge references:
 
@@ -320,7 +329,7 @@ Heylogs supports the following forge references:
 | **GitLab**  |   ✔    |    ✔    |   ✔   |    ✔    |    ✔    |
 | **Forgejo** |   ✔    |    ✔    |   ✔   |    ✔    |    ✔    |
 
-> [!NOTE]
+> [!TIP]
 > Forge links are detected by using a list of default know hosts (e.g. `github.com`, `gitlab.com`, `forgejo.org`) but 
 > can also be customized using the `--domain` option. For example: `$ heylogs check --domain mygit.company.com:gitlab`
 
