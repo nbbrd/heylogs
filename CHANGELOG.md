@@ -7,6 +7,30 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.14.0] - 2025-09-08
+
+This release focuses on improving and extending rules.  
+Note that it has a **breaking change** in the configuration of tag prefix:
+- `--tag-prefix v` option has been replaced by `-t prefix:v`.
+
+### Added
+
+- Add rule severity configuration [#224](https://github.com/nbbrd/heylogs/issues/224)
+- Add generic forge ref rule [#429](https://github.com/nbbrd/heylogs/issues/429)
+- Add rule severity to the list command output [#430](https://github.com/nbbrd/heylogs/issues/430)
+- Add support of version with direct link [#206](https://github.com/nbbrd/heylogs/issues/206)
+- Add release date rule [#25](https://github.com/nbbrd/heylogs/issues/25)
+- Add dot-space-link-style rule [#165](https://github.com/nbbrd/heylogs/issues/165),[#323](https://github.com/nbbrd/heylogs/issues/323)
+- Add tagging SPI [#431](https://github.com/nbbrd/heylogs/issues/431)
+- Add tag versioning rule [#432](https://github.com/nbbrd/heylogs/issues/432)
+- Add domain configuration [#433](https://github.com/nbbrd/heylogs/issues/433)
+
+### Changed
+
+- Change default severity of no-empty-release rule from WARN to ERROR
+- Simplify forge and format configuration
+- Simplify command names in API
+
 ## [0.13.0] - 2025-08-26
 
 This release focuses on versioning schemes.  
@@ -267,7 +291,8 @@ This release improves extension points and also aligns features of Maven plugin 
 
 - Initial release
 
-[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.13.0...HEAD
+[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.14.0...HEAD
+[0.14.0]: https://github.com/nbbrd/heylogs/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/nbbrd/heylogs/compare/v0.12.1...v0.13.0
 [0.12.1]: https://github.com/nbbrd/heylogs/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/nbbrd/heylogs/compare/v0.11.1...v0.12.0

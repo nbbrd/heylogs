@@ -120,7 +120,7 @@ public class FilterTest {
         return new Condition<>(parent -> parent.contains(version), "Must contain %s", version);
     }
 
-    private final Version unreleased = Version.of("Unreleased", HYPHEN, LocalDate.MAX);
-    private final Version v1_1_0 = Version.of("1.1.0", HYPHEN, LocalDate.parse("2019-02-15"));
-    private final Version v1_0_0 = Version.of("1.0.0", HYPHEN, LocalDate.parse("2017-06-20"));
+    private final Version unreleased = Version.of("Unreleased", null, HYPHEN, LocalDate.MAX);
+    private final Version v1_1_0 = Version.of("1.1.0", null, HYPHEN, LocalDate.parse("2019-02-15"));
+    private final Version v1_0_0 = Version.of("1.0.0", null, HYPHEN, LocalDate.parse("2017-06-20"));
 }

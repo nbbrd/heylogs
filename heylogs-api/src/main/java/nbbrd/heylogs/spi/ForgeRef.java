@@ -2,7 +2,7 @@ package nbbrd.heylogs.spi;
 
 import lombok.NonNull;
 
-public interface ForgeRef<T extends ForgeLink> {
+public interface ForgeRef {
 
-    boolean isCompatibleWith(@NonNull T link);
+    boolean isCompatibleWith(@NonNull ForgeLink link);
 }

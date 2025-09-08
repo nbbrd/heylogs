@@ -43,7 +43,7 @@ class ForgejoCommitRefTest {
     @Test
     public void testFactories() {
         assertThatNullPointerException().isThrownBy(() -> of(null, ForgejoCommitRef.Type.HASH));
-        assertThatNullPointerException().isThrownBy(() -> of(commit, null));
+        assertThatNullPointerException().isThrownBy(() -> of(commit, (ForgejoCommitRef.Type) null));
 
         assertThat(of(commit, ForgejoCommitRef.Type.HASH).isCompatibleWith(commit)).isTrue();
         assertThat(of(commit, ForgejoCommitRef.Type.OWNER_HASH).isCompatibleWith(commit)).isTrue();

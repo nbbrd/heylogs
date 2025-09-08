@@ -46,7 +46,7 @@ class ForgejoIssueLinkTest {
         assertThatIllegalArgumentException()
                 .describedAs("invalid type")
                 .isThrownBy(() -> parse(urlOf("https://codeberg.org/Freeyourgadget/Gadgetbridge/isues/173")))
-                .withMessage("Invalid path item: expecting [issues, pulls], found 'isues'");
+                .withMessage("Invalid path item: expecting [issues], found 'isues'");
 
         assertThatIllegalArgumentException()
                 .describedAs("missing number")
@@ -62,24 +62,14 @@ class ForgejoIssueLinkTest {
                 .returns(URLExtractor.urlOf("https://codeberg.org"), ForgejoIssueLink::getBase)
                 .returns("Freeyourgadget", ForgejoIssueLink::getOwner)
                 .returns("Gadgetbridge", ForgejoIssueLink::getRepo)
-                .returns("issues", ForgejoIssueLink::getType)
                 .returns(173, ForgejoIssueLink::getIssueNumber)
                 .hasToString("https://codeberg.org/Freeyourgadget/Gadgetbridge/issues/173");
-
-        assertThat(parse(urlOf("https://codeberg.org/Freeyourgadget/Gadgetbridge/pulls/217")))
-                .returns(URLExtractor.urlOf("https://codeberg.org"), ForgejoIssueLink::getBase)
-                .returns("Freeyourgadget", ForgejoIssueLink::getOwner)
-                .returns("Gadgetbridge", ForgejoIssueLink::getRepo)
-                .returns("pulls", ForgejoIssueLink::getType)
-                .returns(217, ForgejoIssueLink::getIssueNumber)
-                .hasToString("https://codeberg.org/Freeyourgadget/Gadgetbridge/pulls/217");
 
         assertThat(parse(urlOf("https://codeberg.org/FreeyourGADGET/GadgetBRIDGE/issues/173")))
                 .describedAs("case sensitivity")
                 .returns(URLExtractor.urlOf("https://codeberg.org"), ForgejoIssueLink::getBase)
                 .returns("FreeyourGADGET", ForgejoIssueLink::getOwner)
                 .returns("GadgetBRIDGE", ForgejoIssueLink::getRepo)
-                .returns("issues", ForgejoIssueLink::getType)
                 .returns(173, ForgejoIssueLink::getIssueNumber)
                 .hasToString("https://codeberg.org/FreeyourGADGET/GadgetBRIDGE/issues/173");
 
@@ -87,7 +77,6 @@ class ForgejoIssueLinkTest {
                 .returns(URLExtractor.urlOf("https://localhost:8080"), ForgejoIssueLink::getBase)
                 .returns("Freeyourgadget", ForgejoIssueLink::getOwner)
                 .returns("Gadgetbridge", ForgejoIssueLink::getRepo)
-                .returns("issues", ForgejoIssueLink::getType)
                 .returns(173, ForgejoIssueLink::getIssueNumber)
                 .hasToString("https://localhost:8080/Freeyourgadget/Gadgetbridge/issues/173");
     }

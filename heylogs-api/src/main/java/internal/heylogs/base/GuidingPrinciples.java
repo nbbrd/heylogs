@@ -10,7 +10,10 @@ import lombok.NonNull;
 import nbbrd.design.DirectImpl;
 import nbbrd.design.MightBeGenerated;
 import nbbrd.design.VisibleForTesting;
-import nbbrd.heylogs.*;
+import nbbrd.heylogs.Changelog;
+import nbbrd.heylogs.Nodes;
+import nbbrd.heylogs.TypeOfChange;
+import nbbrd.heylogs.Version;
 import nbbrd.heylogs.spi.*;
 import nbbrd.service.ServiceProvider;
 
@@ -187,9 +190,9 @@ public enum GuidingPrinciples implements Rule {
             return NO_RULE_ISSUE;
         }
 
-        try {
-            Version version = Version.parse(heading);
+        Version version = illegalArgumentToNull(Version::parse).apply(heading);
 
+        if (version != null && version.getLink() == null) {
             ReferenceRepository repository = Parser.REFERENCES.get(heading.getDocument());
             String normalizeRef = repository.normalizeKey(version.getRef());
             Reference reference = repository.get(normalizeRef);
@@ -201,9 +204,8 @@ public enum GuidingPrinciples implements Rule {
                     .location(heading)
                     .build()
                     : NO_RULE_ISSUE;
-        } catch (IllegalArgumentException ex) {
-            return NO_RULE_ISSUE;
         }
+        return NO_RULE_ISSUE;
     }
 
     @VisibleForTesting

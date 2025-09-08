@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAsString;
 import nbbrd.design.StaticFactoryMethod;
+import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.ForgeRef;
 import org.jspecify.annotations.Nullable;
 
@@ -14,7 +15,7 @@ import java.util.regex.Pattern;
 @RepresentableAsString
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class GitHubCommitRef implements ForgeRef<GitHubCommitLink> {
+class GitHubCommitRef implements ForgeRef {
 
     public enum Type {HASH, OWNER_HASH, OWNER_REPO_HASH}
 
@@ -27,6 +28,11 @@ class GitHubCommitRef implements ForgeRef<GitHubCommitLink> {
                 m.group("repo"),
                 Hash.parse(m.group("hash"))
         );
+    }
+
+    @StaticFactoryMethod
+    public static @NonNull GitHubCommitRef of(@NonNull GitHubCommitLink link, @Nullable GitHubCommitRef baseRef) {
+        return of(link, baseRef == null ? GitHubCommitRef.Type.HASH : baseRef.getType());
     }
 
     @StaticFactoryMethod
@@ -67,7 +73,11 @@ class GitHubCommitRef implements ForgeRef<GitHubCommitLink> {
     }
 
     @Override
-    public boolean isCompatibleWith(@NonNull GitHubCommitLink link) {
+    public boolean isCompatibleWith(@NonNull ForgeLink link) {
+        return link instanceof GitHubCommitLink && isCompatibleWith((GitHubCommitLink) link);
+    }
+
+    private boolean isCompatibleWith(@NonNull GitHubCommitLink link) {
         switch (getType()) {
             case HASH:
                 return hash.isCompatibleWith(link.getHash());

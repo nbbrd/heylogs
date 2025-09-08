@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAsString;
 import nbbrd.design.StaticFactoryMethod;
+import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.ForgeRef;
 import org.jspecify.annotations.Nullable;
 
@@ -15,7 +16,7 @@ import static java.lang.Integer.parseInt;
 @RepresentableAsString
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class GitHubIssueRef implements ForgeRef<GitHubIssueLink> {
+class GitHubIssueRef implements ForgeRef {
 
     public enum Type {NUMBER, OWNER_REPO_NUMBER}
 
@@ -31,14 +32,23 @@ class GitHubIssueRef implements ForgeRef<GitHubIssueLink> {
     }
 
     @StaticFactoryMethod
+    public static @NonNull GitHubIssueRef of(@NonNull GitHubIssueLink link, @Nullable GitHubIssueRef baseRef) {
+        return of(link, baseRef == null ? GitHubIssueRef.Type.NUMBER : baseRef.getType());
+    }
+
+    @StaticFactoryMethod
     public static @NonNull GitHubIssueRef of(@NonNull GitHubIssueLink link, @NonNull Type type) {
         return type.equals(Type.NUMBER)
                 ? new GitHubIssueRef(null, null, link.getIssueNumber())
                 : new GitHubIssueRef(link.getOwner(), link.getRepo(), link.getIssueNumber());
     }
 
-    @Nullable String owner;
-    @Nullable String repo;
+    @Nullable
+    String owner;
+
+    @Nullable
+    String repo;
+
     int issueNumber;
 
     @Override
@@ -47,7 +57,11 @@ class GitHubIssueRef implements ForgeRef<GitHubIssueLink> {
     }
 
     @Override
-    public boolean isCompatibleWith(@NonNull GitHubIssueLink link) {
+    public boolean isCompatibleWith(@NonNull ForgeLink link) {
+        return link instanceof GitHubIssueLink && isCompatibleWith((GitHubIssueLink) link);
+    }
+
+    private boolean isCompatibleWith(@NonNull GitHubIssueLink link) {
         return (getType().equals(Type.NUMBER) || (link.getOwner().equals(owner) && link.getRepo().equals(repo)))
                 && link.getIssueNumber() == issueNumber;
     }

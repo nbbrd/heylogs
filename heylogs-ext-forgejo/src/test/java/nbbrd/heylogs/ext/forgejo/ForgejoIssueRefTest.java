@@ -46,17 +46,13 @@ class ForgejoIssueRefTest {
     @Test
     public void testFactories() {
         assertThatNullPointerException().isThrownBy(() -> of(null, Type.NUMBER));
-        assertThatNullPointerException().isThrownBy(() -> of(issue5173, null));
+        assertThatNullPointerException().isThrownBy(() -> of(issue5173, (Type) null));
 
         assertThat(of(issue5173, Type.NUMBER).isCompatibleWith(issue5173)).isTrue();
-        assertThat(of(issue5173, Type.NUMBER).isCompatibleWith(pullRequest5170)).isFalse();
-        assertThat(of(pullRequest5170, Type.NUMBER).isCompatibleWith(issue5173)).isFalse();
-        assertThat(of(pullRequest5170, Type.NUMBER).isCompatibleWith(pullRequest5170)).isTrue();
+        assertThat(of(issue5173, Type.NUMBER).isCompatibleWith(issue51730)).isFalse();
 
         assertThat(of(issue5173, Type.OWNER_REPO_NUMBER).isCompatibleWith(issue5173)).isTrue();
-        assertThat(of(issue5173, Type.OWNER_REPO_NUMBER).isCompatibleWith(pullRequest5170)).isFalse();
-        assertThat(of(pullRequest5170, Type.OWNER_REPO_NUMBER).isCompatibleWith(issue5173)).isFalse();
-        assertThat(of(pullRequest5170, Type.OWNER_REPO_NUMBER).isCompatibleWith(pullRequest5170)).isTrue();
+        assertThat(of(issue5173, Type.OWNER_REPO_NUMBER).isCompatibleWith(issue51730)).isFalse();
     }
 
     @Test
@@ -64,7 +60,7 @@ class ForgejoIssueRefTest {
         assertThat(parse("#5173").isCompatibleWith(issue5173)).isTrue();
         assertThat(parse("Freeyourgadget/Gadgetbridge#5173").isCompatibleWith(issue5173)).isTrue();
         assertThat(parse("jdemetra/jdplus-main#5173").isCompatibleWith(issue5173)).isFalse();
-        assertThat(parse("#5173").isCompatibleWith(pullRequest5170)).isFalse();
+        assertThat(parse("#5173").isCompatibleWith(issue51730)).isFalse();
     }
 
     @Test
@@ -74,5 +70,5 @@ class ForgejoIssueRefTest {
     }
 
     private final ForgejoIssueLink issue5173 = ForgejoIssueLink.parse(urlOf("https://codeberg.org/Freeyourgadget/Gadgetbridge/issues/5173"));
-    private final ForgejoIssueLink pullRequest5170 = ForgejoIssueLink.parse(urlOf("https://codeberg.org/Freeyourgadget/Gadgetbridge/pulls/5170"));
+    private final ForgejoIssueLink issue51730 = ForgejoIssueLink.parse(urlOf("https://codeberg.org/Freeyourgadget/Gadgetbridge/issues/51700"));
 }

@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAsString;
 import nbbrd.design.StaticFactoryMethod;
+import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.ForgeRef;
 import org.jspecify.annotations.Nullable;
 
@@ -14,25 +15,30 @@ import static nbbrd.heylogs.ext.gitlab.GitLabSupport.*;
 @RepresentableAsString
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class GitLabMergeRequestRef implements ForgeRef<GitLabMergeRequestLink> {
+class GitLabRequestRef implements ForgeRef {
 
     @StaticFactoryMethod
-    public static @NonNull GitLabMergeRequestRef parse(@NonNull CharSequence text) {
+    public static @NonNull GitLabRequestRef parse(@NonNull CharSequence text) {
         return GitLabSupport.parseRef(
-                (namespace, project, number) -> new GitLabMergeRequestRef(namespace, project, Integer.parseInt(number)),
+                (namespace, project, number) -> new GitLabRequestRef(namespace, project, Integer.parseInt(number)),
                 MERGE_REQUEST_SEPARATOR, NUMBER_PATTERN, true, text
         );
     }
 
     @StaticFactoryMethod
-    public static @NonNull GitLabMergeRequestRef of(@NonNull GitLabMergeRequestLink link, @NonNull GitLabRefType type) {
+    public static @NonNull GitLabRequestRef of(@NonNull GitLabRequestLink link, @Nullable GitLabRequestRef baseRef) {
+        return of(link, baseRef == null ? GitLabRefType.SAME_PROJECT : baseRef.getType());
+    }
+
+    @StaticFactoryMethod
+    public static @NonNull GitLabRequestRef of(@NonNull GitLabRequestLink link, @NonNull GitLabRefType type) {
         switch (type) {
             case SAME_PROJECT:
-                return new GitLabMergeRequestRef(null, null, link.getNumber());
+                return new GitLabRequestRef(null, null, link.getNumber());
             case SAME_NAMESPACE:
-                return new GitLabMergeRequestRef(null, link.getProject(), link.getNumber());
+                return new GitLabRequestRef(null, link.getProject(), link.getNumber());
             case CROSS_PROJECT:
-                return new GitLabMergeRequestRef(link.getNamespace(), link.getProject(), link.getNumber());
+                return new GitLabRequestRef(link.getNamespace(), link.getProject(), link.getNumber());
             default:
                 throw new RuntimeException();
         }
@@ -52,7 +58,11 @@ class GitLabMergeRequestRef implements ForgeRef<GitLabMergeRequestLink> {
     }
 
     @Override
-    public boolean isCompatibleWith(@NonNull GitLabMergeRequestLink link) {
+    public boolean isCompatibleWith(@NonNull ForgeLink link) {
+        return link instanceof GitLabRequestLink && isCompatibleWith((GitLabRequestLink) link);
+    }
+
+    private boolean isCompatibleWith(@NonNull GitLabRequestLink link) {
         switch (getType()) {
             case SAME_PROJECT:
                 return link.getNumber() == number;

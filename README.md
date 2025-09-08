@@ -18,8 +18,9 @@ Features:
 - [Summarizes content](#scan-command) to provide a quick overview of a repository.
 - [Filters and extracts](#extract-command) versions for publication or searching.
 - [Modifies content](#release-command) to release unreleased changes.
-- Manages [GitHub, GitLab and Forgejo](#forge-references) references.
+- Manages [GitHub, GitLab and Forgejo](#forge-peculiarities) peculiarities.
 - Validates [semantic, calendar and regex](#versioning-schemes) versioning schemes.
+- Handles the [prefix](#tagging-strategy) tagging strategy.
 - Seamlessly integrates into [CI/CD pipelines](#github-action).
 
 
@@ -34,7 +35,8 @@ The Java API is straightforward and has a single point of entry:
 ```java
 Heylogs heylogs = Heylogs.ofServiceLoader();
 Document flexmarkDocument = parseFileWithFlexmark(file);
-List<Problem> problems = heylogs.checkFormat(flexmarkDocument);
+Config config = Config.builder().versioningOf("semver").build();
+List<Problem> problems = heylogs.check(flexmarkDocument, config);
 ...
 ```
 
@@ -221,14 +223,27 @@ Extract the latest version from the changelog during a release:
 
 ## Features
 
-Heylogs provides several commands to interact with changelog files.
+Heylogs provides several **commands** to interact with changelog files.
 These commands can be used through the CLI, the Maven plugin or the Java API.
-The examples below use the CLI for the sake of simplicity.
-Command options are available through the `--help` option.
+
+| Interface | Example                                                                                      |
+|:---------:|----------------------------------------------------------------------------------------------|
+|    CLI    | `$ heylogs check --versioning semver`                                                        |
+|    MVN    | `$ mvn com.github.nbbrd.heylogs:heylogs-maven-plugin::check -D heylogs.versioning=semver`    |
+|    API    | `Heylogs.ofServiceLoader().check(document, Config.builder().versioningOf("semver").build())` |
+
+Commands: [ [check](#check-command) | [scan](#scan-command) | [extract](#extract-command) | [release](#release-command) | [list](#list-command) ]
+
+Heylogs also provides several **customizations** to adapt to various workflows.
+See forge, versioning and tagging sections below.
+
+> [!NOTE]
+> The examples below use the CLI for the sake of simplicity.
+> Command options are available through the `--help` option.
 
 ### Check command
 
-The check command checks the format against an extensive set of rules.
+The check command checks the format against an extensive [set of rules](#list-command).
 
 ```bash
 $ heylogs check
@@ -236,6 +251,11 @@ CHANGELOG.md
 
   No problem
 ```
+
+> [!TIP]
+> A rule configuration can be modified by using the `--rule` option.
+> For example: the command `$ heylogs check --rule dot-space-link-style:WARN` upgrades the severity
+> of the `dot-space-link-style` rule from `OFF` to `WARN` while performing a changelog check.
 
 ### Scan command
 
@@ -276,22 +296,30 @@ The release command modifies the content of a changelog file to release unreleas
 The list command lists all the resources of the application.
 
 ```bash
-$ heylogs list
 Resources
-  forge       main         forgejo                   Forgejo                   
-  forge       main         github                    GitHub                    
-  forge       main         gitlab                    GitLab                    
-  format      automation   json                      JSON-serialized output    
-  format      interaction  stylish                   Human-readable output     
-  rule        extension    consistent-separator      Consistent separator      
+  forge       forgejo  forgejo                   Forgejo                        
+  forge       github   github                    GitHub                         
+  forge       gitlab   gitlab                    GitLab                         
+  format      api      stylish                   Human-readable output          
+  format      json     json                      JSON-serialized output         
+  rule        api      all-h2-contain-a-version  All H2 contain a version  ERROR
+  rule        api      consistent-separator      Consistent separator      ERROR
+  rule        api      date-displayed            Date displayed            ERROR
+  rule        api      dot-space-link-style      Dot-space-link style      OFF  
   ...
-  rule        versioning   semver                    Semantic Versioning format
-  versioning  main         semver                    Semantic Versioning       
+  rule        api      versioning-format         Versioning format         ERROR
+  tagging     api      prefix                    Prefix tagging                 
+  versioning  api      regex                     Regex Versioning               
+  versioning  calver   calver                    Calendar Versioning            
+  versioning  semver   semver                    Semantic Versioning            
   
-  32 resources found
+  27 resources found
 ```
 
-### Forge references
+### Forge peculiarities
+
+A forge doesn't only host the source code but also provides additional services such as issue tracking, pull/merge requests, CI/CD pipelines, etc.
+Heylogs is able to validate and, in some cases, modify the reference links of these services.
 
 Heylogs supports the following forge references:
 
@@ -301,9 +329,13 @@ Heylogs supports the following forge references:
 | **GitLab**  |   ✔    |    ✔    |   ✔   |    ✔    |    ✔    |
 | **Forgejo** |   ✔    |    ✔    |   ✔   |    ✔    |    ✔    |
 
+> [!TIP]
+> Forge links are detected by using a list of default known hosts (e.g. `github.com`, `gitlab.com`, `forgejo.org`) but 
+> the detection can also be customized using the `--domain` option. For example: `$ heylogs check --domain mygit.company.com:gitlab`
+
 ### Versioning schemes
 
-Heylogs validates several versioning schemes:
+As versions are usually not random strings, Heylogs supports several versioning schemes to validate them:
 
 |    ID    | Description                                | Example      | Argument       |
 |:--------:|--------------------------------------------|--------------|----------------|
@@ -318,6 +350,20 @@ Examples:
 - `$ heylogs check -v semver`  
 - `$ heylogs check -v calver:YYYY.MM.DD`  
 - `$ heylogs check -v regex:X\d+`
+
+### Tagging strategy
+
+Versions and release tags are often linked for convenience.
+The most common convention is to use the version with a `v` prefix (i.e. version `1.0.0` is tagged as `v1.0.0`).
+
+Heylogs supports the following tagging strategies:
+
+|    ID    | Description               | Example | Argument         |
+|:--------:|---------------------------|---------|------------------|
+| `prefix` | Tags with a common prefix | `v1.0`  | non-empty string |
+
+Examples:
+- `$ heylogs check -t prefix:v`
 
 ## Cookbook
 

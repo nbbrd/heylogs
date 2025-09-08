@@ -4,6 +4,7 @@ import nbbrd.heylogs.spi.Versioning;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static tests.heylogs.spi.VersioningAssert.assertVersioningCompliance;
 
 class SemVerTest {
@@ -17,8 +18,9 @@ class SemVerTest {
     void testIsValidVersion() {
         Versioning x = new SemVer();
 
-        assertThat(x.getVersioningPredicateOrNull(""))
-                .isNull();
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> x.getVersioningPredicateOrNull(""))
+                .withMessage("Semver does not take any arguments");
 
         assertThat(x.getVersioningPredicateOrNull(null))
                 .accepts("1.1.0")

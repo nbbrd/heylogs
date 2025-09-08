@@ -6,7 +6,9 @@ import lombok.NonNull;
 import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.spi.CompareLink;
+import nbbrd.heylogs.spi.ForgeRef;
 import nbbrd.io.http.URLQueryBuilder;
+import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
 import java.util.List;
@@ -48,6 +50,11 @@ class GitLabCompareLink implements CompareLink {
     }
 
     @Override
+    public @Nullable ForgeRef toRef(@Nullable ForgeRef baseRef) {
+        return null;
+    }
+
+    @Override
     public @NonNull GitLabCompareLink derive(@NonNull String tag) {
         return new GitLabCompareLink(base, namespace, project, diff.derive(tag));
     }
@@ -55,6 +62,16 @@ class GitLabCompareLink implements CompareLink {
     @Override
     public @NonNull URL getProjectURL() {
         return urlOf(URLQueryBuilder.of(base).path(namespace).path(project).toString());
+    }
+
+    @Override
+    public @NonNull String getCompareBaseRef() {
+        return diff.getFrom();
+    }
+
+    @Override
+    public @NonNull String getCompareHeadRef() {
+        return diff.getTo();
     }
 
     private static final String COMPARE_KEYWORD = "compare";

@@ -3,12 +3,14 @@
     "type": "a",
     "module": "stuff",
     "id": "hello",
-    "name": "(A) Hello"
+    "name": "(A) Hello",
+    "options": "*"
   },
   {
     "type": "world",
     "module": "stuff",
     "id": "b",
-    "name": "World (B)"
+    "name": "World (B)",
+    "options": ""
   }
 ]

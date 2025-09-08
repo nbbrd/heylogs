@@ -87,13 +87,13 @@ class GitLabSupport {
     }
 
     @FunctionalInterface
-    interface GitLabRefFactory<R extends ForgeRef<?>> {
+    interface GitLabRefFactory<R extends ForgeRef> {
 
         @NonNull
         R create(@Nullable List<String> namespace, @Nullable String project, @NonNull String value);
     }
 
-    public static <R extends ForgeRef<?>> @NonNull R parseRef(@NonNull GitLabRefFactory<R> factory, char typeSeparator, @NonNull Pattern typePattern, boolean enforceTypeSeparator, @NonNull CharSequence text) {
+    public static <R extends ForgeRef> @NonNull R parseRef(@NonNull GitLabRefFactory<R> factory, char typeSeparator, @NonNull Pattern typePattern, boolean enforceTypeSeparator, @NonNull CharSequence text) {
         String textString = text.toString();
 
         int separatorIndex = textString.lastIndexOf(typeSeparator);

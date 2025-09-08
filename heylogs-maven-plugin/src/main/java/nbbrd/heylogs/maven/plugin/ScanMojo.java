@@ -2,6 +2,7 @@ package nbbrd.heylogs.maven.plugin;
 
 import nbbrd.console.picocli.MultiFileInputOptions;
 import nbbrd.console.picocli.text.TextOutputSupport;
+import nbbrd.heylogs.FormatConfig;
 import nbbrd.heylogs.Heylogs;
 import nbbrd.heylogs.Scan;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -37,8 +38,8 @@ public final class ScanMojo extends HeylogsMojo {
     @Parameter(property = "heylogs.outputFile", defaultValue = DEFAULT_STDOUT_FILE)
     private File outputFile;
 
-    @Parameter(property = "heylogs.formatId")
-    private String formatId;
+    @Parameter(property = "heylogs.format")
+    private String format;
 
     @Override
     public void execute() throws MojoExecutionException {
@@ -59,7 +60,7 @@ public final class ScanMojo extends HeylogsMojo {
                 list.add(Scan
                         .builder()
                         .source(file.toString())
-                        .summary(heylogs.scanContent(readChangelog(file.toFile())))
+                        .summary(heylogs.scan(readChangelog(file.toFile())))
                         .build());
             }
         } catch (IOException ex) {
@@ -67,7 +68,7 @@ public final class ScanMojo extends HeylogsMojo {
         }
 
         TextOutputSupport outputSupport = newTextOutputSupport();
-        String formatId = resolveFormatId(getFormatId(), heylogs, outputSupport::isStdoutFile, outputFile.toPath());
+        String formatId = resolveFormatId(format != null ? FormatConfig.parse(format) : null, heylogs, outputSupport::isStdoutFile, outputFile.toPath());
 
         try (Writer writer = newWriter(outputFile, getLog()::info)) {
             heylogs.formatStatus(formatId, writer, list);

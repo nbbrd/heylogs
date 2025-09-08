@@ -68,7 +68,7 @@ public final class ExtractMojo extends HeylogsMojo {
         Filter filter = toFilter();
 
         getLog().info("Extracting with " + filter);
-        Heylogs.ofServiceLoader().extractVersions(changelog, filter);
+        Heylogs.ofServiceLoader().extract(changelog, filter);
 
         writeChangelog(changelog, outputFile);
     }

@@ -6,7 +6,9 @@ import lombok.NonNull;
 import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.spi.CompareLink;
+import nbbrd.heylogs.spi.ForgeRef;
 import nbbrd.io.http.URLQueryBuilder;
+import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
 import java.util.regex.Pattern;
@@ -55,6 +57,11 @@ class ForgejoCompareLink implements CompareLink {
     }
 
     @Override
+    public @Nullable ForgeRef toRef(@Nullable ForgeRef baseRef) {
+        return null;
+    }
+
+    @Override
     public @NonNull ForgejoCompareLink derive(@NonNull String tag) {
         return new ForgejoCompareLink(base, owner, repo, diff.derive(tag));
     }
@@ -62,6 +69,16 @@ class ForgejoCompareLink implements CompareLink {
     @Override
     public @NonNull URL getProjectURL() {
         return urlOf(URLQueryBuilder.of(base).path(owner).path(repo).toString());
+    }
+
+    @Override
+    public @NonNull String getCompareBaseRef() {
+        return diff.getFrom();
+    }
+
+    @Override
+    public @NonNull String getCompareHeadRef() {
+        return diff.getTo();
     }
 
     private static final Pattern OWNER_PATTERN = Pattern.compile("[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38}", Pattern.CASE_INSENSITIVE);

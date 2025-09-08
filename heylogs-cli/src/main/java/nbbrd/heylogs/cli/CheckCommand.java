@@ -53,13 +53,13 @@ public final class CheckCommand implements Callable<Integer> {
             list.add(Check
                     .builder()
                     .source(inputSupport.getName(file))
-                    .problems(heylogs.checkFormat(inputSupport.readDocument(file), config))
+                    .problems(heylogs.check(inputSupport.readDocument(file), config))
                     .build());
         }
 
         TextOutputSupport outputSupport = newTextOutputSupport();
         Path outputFile = output.getFile();
-        String formatId = resolveFormatId(formatOptions.getFormatId(), heylogs, outputSupport::isStdoutFile, outputFile);
+        String formatId = resolveFormatId(formatOptions.getFormat(), heylogs, outputSupport::isStdoutFile, outputFile);
 
         try (Writer writer = outputSupport.newBufferedWriter(outputFile)) {
             heylogs.formatProblems(formatId, writer, list);

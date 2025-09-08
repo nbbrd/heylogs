@@ -46,7 +46,7 @@ class GitHubIssueLinkTest {
         assertThatIllegalArgumentException()
                 .describedAs("invalid type")
                 .isThrownBy(() -> parse(urlOf("https://github.com/nbbrd/heylogs/isues/173")))
-                .withMessage("Invalid path item: expecting [issues, pull], found 'isues'");
+                .withMessage("Invalid path item: expecting [issues], found 'isues'");
 
         assertThatIllegalArgumentException()
                 .describedAs("missing number")
@@ -62,24 +62,14 @@ class GitHubIssueLinkTest {
                 .returns(URLExtractor.urlOf("https://github.com"), GitHubIssueLink::getBase)
                 .returns("nbbrd", GitHubIssueLink::getOwner)
                 .returns("heylogs", GitHubIssueLink::getRepo)
-                .returns("issues", GitHubIssueLink::getType)
                 .returns(173, GitHubIssueLink::getIssueNumber)
                 .hasToString("https://github.com/nbbrd/heylogs/issues/173");
-
-        assertThat(parse(urlOf("https://github.com/nbbrd/heylogs/pull/217")))
-                .returns(URLExtractor.urlOf("https://github.com"), GitHubIssueLink::getBase)
-                .returns("nbbrd", GitHubIssueLink::getOwner)
-                .returns("heylogs", GitHubIssueLink::getRepo)
-                .returns("pull", GitHubIssueLink::getType)
-                .returns(217, GitHubIssueLink::getIssueNumber)
-                .hasToString("https://github.com/nbbrd/heylogs/pull/217");
 
         assertThat(parse(urlOf("https://github.com/nbbRD/heyLOGS/issues/173")))
                 .describedAs("case sensitivity")
                 .returns(URLExtractor.urlOf("https://github.com"), GitHubIssueLink::getBase)
                 .returns("nbbRD", GitHubIssueLink::getOwner)
                 .returns("heyLOGS", GitHubIssueLink::getRepo)
-                .returns("issues", GitHubIssueLink::getType)
                 .returns(173, GitHubIssueLink::getIssueNumber)
                 .hasToString("https://github.com/nbbRD/heyLOGS/issues/173");
 
@@ -87,7 +77,6 @@ class GitHubIssueLinkTest {
                 .returns(URLExtractor.urlOf("https://localhost:8080"), GitHubIssueLink::getBase)
                 .returns("nbbrd", GitHubIssueLink::getOwner)
                 .returns("heylogs", GitHubIssueLink::getRepo)
-                .returns("issues", GitHubIssueLink::getType)
                 .returns(173, GitHubIssueLink::getIssueNumber)
                 .hasToString("https://localhost:8080/nbbrd/heylogs/issues/173");
     }

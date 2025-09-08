@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAsString;
 import nbbrd.design.StaticFactoryMethod;
+import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.ForgeRef;
 import org.jspecify.annotations.Nullable;
 
@@ -14,7 +15,7 @@ import java.util.regex.Pattern;
 @RepresentableAsString
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class ForgejoMentionRef implements ForgeRef<ForgejoMentionLink> {
+class ForgejoMentionRef implements ForgeRef {
 
     public enum Type {USER, TEAM}
 
@@ -30,13 +31,23 @@ class ForgejoMentionRef implements ForgeRef<ForgejoMentionLink> {
     }
 
     @StaticFactoryMethod
+    public static @NonNull ForgejoMentionRef of(@NonNull ForgejoMentionLink link, @Nullable ForgejoMentionRef baseRef) {
+        return of(link);
+    }
+
+    @StaticFactoryMethod
     public static @NonNull ForgejoMentionRef of(@NonNull ForgejoMentionLink link) {
         return new ForgejoMentionRef(link.getUser(), link.getOrganization(), link.getTeamName());
     }
 
-    @Nullable String user;
-    @Nullable String organization;
-    @Nullable String teamName;
+    @Nullable
+    String user;
+
+    @Nullable
+    String organization;
+
+    @Nullable
+    String teamName;
 
     @Override
     public String toString() {
@@ -50,7 +61,11 @@ class ForgejoMentionRef implements ForgeRef<ForgejoMentionLink> {
     }
 
     @Override
-    public boolean isCompatibleWith(@NonNull ForgejoMentionLink link) {
+    public boolean isCompatibleWith(@NonNull ForgeLink link) {
+        return link instanceof ForgejoMentionLink && isCompatibleWith((ForgejoMentionLink) link);
+    }
+
+    private boolean isCompatibleWith(@NonNull ForgejoMentionLink link) {
         return getType().equals(Type.USER)
                 ? link.isUser() && Objects.equals(link.getUser(), getUser())
                 : !link.isUser() && Objects.equals(link.getOrganization(), getOrganization()) && Objects.equals(link.getTeamName(), getTeamName());

@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAsString;
 import nbbrd.design.StaticFactoryMethod;
+import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.ForgeRef;
 import org.jspecify.annotations.Nullable;
 
@@ -15,7 +16,7 @@ import static java.lang.Integer.parseInt;
 @RepresentableAsString
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class ForgejoIssueRef implements ForgeRef<ForgejoIssueLink> {
+class ForgejoIssueRef implements ForgeRef {
 
     public enum Type {NUMBER, OWNER_REPO_NUMBER}
 
@@ -31,14 +32,23 @@ class ForgejoIssueRef implements ForgeRef<ForgejoIssueLink> {
     }
 
     @StaticFactoryMethod
+    public static @NonNull ForgejoIssueRef of(@NonNull ForgejoIssueLink link, @Nullable ForgejoIssueRef baseRef) {
+        return of(link, baseRef == null ? ForgejoIssueRef.Type.NUMBER : baseRef.getType());
+    }
+
+    @StaticFactoryMethod
     public static @NonNull ForgejoIssueRef of(@NonNull ForgejoIssueLink link, @NonNull Type type) {
         return type.equals(Type.NUMBER)
                 ? new ForgejoIssueRef(null, null, link.getIssueNumber())
                 : new ForgejoIssueRef(link.getOwner(), link.getRepo(), link.getIssueNumber());
     }
 
-    @Nullable String owner;
-    @Nullable String repo;
+    @Nullable
+    String owner;
+
+    @Nullable
+    String repo;
+
     int issueNumber;
 
     @Override
@@ -47,7 +57,11 @@ class ForgejoIssueRef implements ForgeRef<ForgejoIssueLink> {
     }
 
     @Override
-    public boolean isCompatibleWith(@NonNull ForgejoIssueLink link) {
+    public boolean isCompatibleWith(@NonNull ForgeLink link) {
+        return link instanceof ForgejoIssueLink && isCompatibleWith((ForgejoIssueLink) link);
+    }
+
+    private boolean isCompatibleWith(@NonNull ForgejoIssueLink link) {
         return (getType().equals(Type.NUMBER) || (link.getOwner().equals(owner) && link.getRepo().equals(repo)))
                 && link.getIssueNumber() == issueNumber;
     }

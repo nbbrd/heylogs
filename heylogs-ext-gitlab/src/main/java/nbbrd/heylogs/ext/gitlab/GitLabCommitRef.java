@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAsString;
 import nbbrd.design.StaticFactoryMethod;
+import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.ForgeRef;
 import org.jspecify.annotations.Nullable;
 
@@ -17,7 +18,7 @@ import static nbbrd.heylogs.ext.gitlab.GitLabSupport.refToString;
 @RepresentableAsString
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class GitLabCommitRef implements ForgeRef<GitLabCommitLink> {
+class GitLabCommitRef implements ForgeRef {
 
     @StaticFactoryMethod
     public static @NonNull GitLabCommitRef parse(@NonNull CharSequence text) {
@@ -25,6 +26,11 @@ class GitLabCommitRef implements ForgeRef<GitLabCommitLink> {
                 (namespace, project, hash) -> new GitLabCommitRef(namespace, project, Hash.parse(hash)),
                 HASH_SEPARATOR, HASH_PATTERN, false, text
         );
+    }
+
+    @StaticFactoryMethod
+    public static @NonNull GitLabCommitRef of(@NonNull GitLabCommitLink link, @Nullable GitLabCommitRef baseRef) {
+        return of(link, baseRef == null ? GitLabRefType.SAME_PROJECT : baseRef.getType());
     }
 
     @StaticFactoryMethod
@@ -56,7 +62,11 @@ class GitLabCommitRef implements ForgeRef<GitLabCommitLink> {
     }
 
     @Override
-    public boolean isCompatibleWith(@NonNull GitLabCommitLink link) {
+    public boolean isCompatibleWith(@NonNull ForgeLink link) {
+        return link instanceof GitLabCommitLink && isCompatibleWith((GitLabCommitLink) link);
+    }
+
+    private boolean isCompatibleWith(@NonNull GitLabCommitLink link) {
         switch (getType()) {
             case SAME_PROJECT:
                 return hash.isCompatibleWith(link.getHash());

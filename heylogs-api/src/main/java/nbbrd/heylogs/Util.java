@@ -12,7 +12,7 @@ public final class Util {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 
-    public static <X, Y> Function<X, @Nullable Y> illegalArgumentToNull(Function<X, Y> function) {
+    public static <X, Y> @NonNull Function<X, @Nullable Y> illegalArgumentToNull(@NonNull Function<X, Y> function) {
         return x -> {
             try {
                 return function.apply(x);

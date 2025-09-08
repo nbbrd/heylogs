@@ -1,10 +1,7 @@
 package nbbrd.heylogs;
 
 import lombok.NonNull;
-import nbbrd.heylogs.spi.Forge;
-import nbbrd.heylogs.spi.Format;
-import nbbrd.heylogs.spi.Rule;
-import nbbrd.heylogs.spi.Versioning;
+import nbbrd.heylogs.spi.*;
 
 import java.util.Comparator;
 
@@ -22,6 +19,8 @@ public class Resource {
     String id;
     @NonNull
     String name;
+    @NonNull
+    String options;
 
     static Resource of(Rule rule) {
         return Resource
@@ -30,6 +29,7 @@ public class Resource {
                 .module(rule.getRuleModuleId())
                 .id(rule.getRuleId())
                 .name(rule.getRuleName())
+                .options(rule.getRuleSeverity().name())
                 .build();
     }
 
@@ -40,6 +40,7 @@ public class Resource {
                 .module(format.getFormatModuleId())
                 .id(format.getFormatId())
                 .name(format.getFormatName())
+                .options("")
                 .build();
     }
 
@@ -50,6 +51,7 @@ public class Resource {
                 .module(versioning.getVersioningModuleId())
                 .id(versioning.getVersioningId())
                 .name(versioning.getVersioningName())
+                .options("")
                 .build();
     }
 
@@ -60,6 +62,18 @@ public class Resource {
                 .module(forge.getForgeModuleId())
                 .id(forge.getForgeId())
                 .name(forge.getForgeName())
+                .options("")
+                .build();
+    }
+
+    static Resource of(Tagging tagging) {
+        return Resource
+                .builder()
+                .type("tagging")
+                .module(tagging.getTaggingModuleId())
+                .id(tagging.getTaggingId())
+                .name(tagging.getTaggingName())
+                .options("")
                 .build();
     }
 

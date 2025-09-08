@@ -98,6 +98,12 @@ GuidingPrinciplesTest {
                 .filteredOn(Objects::nonNull)
                 .contains(RuleIssue.builder().message("Missing reference '1.1.0'").line(5).column(1).build(), atIndex(0))
                 .hasSize(1);
+
+        assertThat(Nodes.of(Heading.class).descendants(using("/DirectLink.md")))
+                .map(GuidingPrinciples::validateLinkable)
+                .isNotEmpty()
+                .filteredOn(Objects::nonNull)
+                .isEmpty();
     }
 
     @Test

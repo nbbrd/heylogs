@@ -87,7 +87,7 @@ public final class ExtractCommand implements Callable<Void> {
     }
 
     private Document extract(Document document) {
-        Heylogs.ofServiceLoader().extractVersions(document, getFilter());
+        Heylogs.ofServiceLoader().extract(document, getFilter());
         return document;
     }
 

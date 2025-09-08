@@ -5,6 +5,8 @@ import lombok.NonNull;
 import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.spi.ForgeLink;
+import nbbrd.heylogs.spi.ForgeRef;
+import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
 import java.util.List;
@@ -15,11 +17,11 @@ import static nbbrd.heylogs.ext.gitlab.GitLabSupport.*;
 @RepresentableAs(URL.class)
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class GitLabMergeRequestLink implements ForgeLink {
+class GitLabRequestLink implements ForgeLink {
 
     @StaticFactoryMethod
-    public static @NonNull GitLabMergeRequestLink parse(@NonNull URL url) {
-        return parseLink(GitLabMergeRequestLink::new, MERGE_REQUEST_KEYWORD, NUMBER_PATTERN, Integer::parseInt, url);
+    public static @NonNull GitLabRequestLink parse(@NonNull URL url) {
+        return parseLink(GitLabRequestLink::new, MERGE_REQUEST_KEYWORD, NUMBER_PATTERN, Integer::parseInt, url);
     }
 
     @NonNull
@@ -41,6 +43,11 @@ class GitLabMergeRequestLink implements ForgeLink {
     @Override
     public @NonNull URL toURL() {
         return urlOf(toString());
+    }
+
+    @Override
+    public @NonNull ForgeRef toRef(@Nullable ForgeRef baseRef) {
+        return GitLabRequestRef.of(this, baseRef instanceof GitLabRequestRef ? (GitLabRequestRef) baseRef : null);
     }
 
     private static final String MERGE_REQUEST_KEYWORD = "merge_requests";

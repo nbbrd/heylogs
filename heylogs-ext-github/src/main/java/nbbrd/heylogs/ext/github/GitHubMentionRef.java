@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAsString;
 import nbbrd.design.StaticFactoryMethod;
+import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.ForgeRef;
 import org.jspecify.annotations.Nullable;
 
@@ -14,7 +15,7 @@ import java.util.regex.Pattern;
 @RepresentableAsString
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class GitHubMentionRef implements ForgeRef<GitHubMentionLink> {
+class GitHubMentionRef implements ForgeRef {
 
     public enum Type {USER, TEAM}
 
@@ -30,13 +31,23 @@ class GitHubMentionRef implements ForgeRef<GitHubMentionLink> {
     }
 
     @StaticFactoryMethod
+    public static @NonNull GitHubMentionRef of(@NonNull GitHubMentionLink link, @Nullable GitHubMentionRef baseRef) {
+        return of(link);
+    }
+
+    @StaticFactoryMethod
     public static @NonNull GitHubMentionRef of(@NonNull GitHubMentionLink link) {
         return new GitHubMentionRef(link.getUser(), link.getOrganization(), link.getTeamName());
     }
 
-    @Nullable String user;
-    @Nullable String organization;
-    @Nullable String teamName;
+    @Nullable
+    String user;
+
+    @Nullable
+    String organization;
+
+    @Nullable
+    String teamName;
 
     @Override
     public String toString() {
@@ -50,7 +61,11 @@ class GitHubMentionRef implements ForgeRef<GitHubMentionLink> {
     }
 
     @Override
-    public boolean isCompatibleWith(@NonNull GitHubMentionLink link) {
+    public boolean isCompatibleWith(@NonNull ForgeLink link) {
+        return link instanceof GitHubMentionLink && isCompatibleWith((GitHubMentionLink) link);
+    }
+
+    private boolean isCompatibleWith(@NonNull GitHubMentionLink link) {
         return getType().equals(Type.USER)
                 ? link.isUser() && Objects.equals(link.getUser(), getUser())
                 : !link.isUser() && Objects.equals(link.getOrganization(), getOrganization()) && Objects.equals(link.getTeamName(), getTeamName());

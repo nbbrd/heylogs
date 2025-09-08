@@ -105,7 +105,7 @@ class StylishFormatTest {
         assertThat(writing(appendable -> x.formatResources(appendable, singletonList(RESOURCE1))))
                 .isEqualToNormalizingNewlines(
                         "Resources\n"
-                                + "  a  stuff  hello  (A) Hello\n"
+                                + "  a  stuff  hello  (A) Hello  *\n"
                                 + "  \n"
                                 + "  1 resource found\n"
                 );
@@ -113,8 +113,8 @@ class StylishFormatTest {
         assertThat(writing(appendable -> x.formatResources(appendable, asList(RESOURCE1, RESOURCE2))))
                 .isEqualToNormalizingNewlines(
                         "Resources\n"
-                                + "  a      stuff  hello  (A) Hello\n"
-                                + "  world  stuff  b      World (B)\n"
+                                + "  a      stuff  hello  (A) Hello  *\n"
+                                + "  world  stuff  b      World (B)   \n"
                                 + "  \n"
                                 + "  2 resources found\n"
                 );

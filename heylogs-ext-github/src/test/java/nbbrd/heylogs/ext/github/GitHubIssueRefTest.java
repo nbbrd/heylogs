@@ -46,17 +46,13 @@ class GitHubIssueRefTest {
     @Test
     public void testFactories() {
         assertThatNullPointerException().isThrownBy(() -> of(null, Type.NUMBER));
-        assertThatNullPointerException().isThrownBy(() -> of(issue173, null));
+        assertThatNullPointerException().isThrownBy(() -> of(issue173, (Type) null));
 
         assertThat(of(issue173, Type.NUMBER).isCompatibleWith(issue173)).isTrue();
-        assertThat(of(issue173, Type.NUMBER).isCompatibleWith(pullRequest217)).isFalse();
-        assertThat(of(pullRequest217, Type.NUMBER).isCompatibleWith(issue173)).isFalse();
-        assertThat(of(pullRequest217, Type.NUMBER).isCompatibleWith(pullRequest217)).isTrue();
+        assertThat(of(issue173, Type.NUMBER).isCompatibleWith(issue1730)).isFalse();
 
         assertThat(of(issue173, Type.OWNER_REPO_NUMBER).isCompatibleWith(issue173)).isTrue();
-        assertThat(of(issue173, Type.OWNER_REPO_NUMBER).isCompatibleWith(pullRequest217)).isFalse();
-        assertThat(of(pullRequest217, Type.OWNER_REPO_NUMBER).isCompatibleWith(issue173)).isFalse();
-        assertThat(of(pullRequest217, Type.OWNER_REPO_NUMBER).isCompatibleWith(pullRequest217)).isTrue();
+        assertThat(of(issue173, Type.OWNER_REPO_NUMBER).isCompatibleWith(issue1730)).isFalse();
     }
 
     @Test
@@ -64,7 +60,7 @@ class GitHubIssueRefTest {
         assertThat(parse("#173").isCompatibleWith(issue173)).isTrue();
         assertThat(parse("nbbrd/heylogs#173").isCompatibleWith(issue173)).isTrue();
         assertThat(parse("jdemetra/jdplus-main#173").isCompatibleWith(issue173)).isFalse();
-        assertThat(parse("#173").isCompatibleWith(pullRequest217)).isFalse();
+        assertThat(parse("#173").isCompatibleWith(issue1730)).isFalse();
     }
 
     @Test
@@ -74,5 +70,5 @@ class GitHubIssueRefTest {
     }
 
     private final GitHubIssueLink issue173 = GitHubIssueLink.parse(urlOf("https://github.com/nbbrd/heylogs/issues/173"));
-    private final GitHubIssueLink pullRequest217 = GitHubIssueLink.parse(urlOf("https://github.com/nbbrd/heylogs/pull/217"));
+    private final GitHubIssueLink issue1730 = GitHubIssueLink.parse(urlOf("https://github.com/nbbrd/heylogs/issues/1730"));
 }

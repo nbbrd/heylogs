@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAsString;
 import nbbrd.design.StaticFactoryMethod;
+import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.ForgeRef;
 import org.jspecify.annotations.Nullable;
 
@@ -14,7 +15,7 @@ import static nbbrd.heylogs.ext.gitlab.GitLabSupport.*;
 @RepresentableAsString
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class GitLabIssueRef implements ForgeRef<GitLabIssueLink> {
+class GitLabIssueRef implements ForgeRef {
 
     @StaticFactoryMethod
     public static @NonNull GitLabIssueRef parse(@NonNull CharSequence text) {
@@ -22,6 +23,11 @@ class GitLabIssueRef implements ForgeRef<GitLabIssueLink> {
                 (namespace, project, number) -> new GitLabIssueRef(namespace, project, Integer.parseInt(number)),
                 ISSUE_SEPARATOR, NUMBER_PATTERN, true, text
         );
+    }
+
+    @StaticFactoryMethod
+    public static @NonNull GitLabIssueRef of(@NonNull GitLabIssueLink link, @Nullable GitLabIssueRef baseRef) {
+        return of(link, baseRef == null ? GitLabRefType.SAME_PROJECT : baseRef.getType());
     }
 
     @StaticFactoryMethod
@@ -52,7 +58,11 @@ class GitLabIssueRef implements ForgeRef<GitLabIssueLink> {
     }
 
     @Override
-    public boolean isCompatibleWith(@NonNull GitLabIssueLink link) {
+    public boolean isCompatibleWith(@NonNull ForgeLink link) {
+        return link instanceof GitLabIssueLink && isCompatibleWith((GitLabIssueLink) link);
+    }
+
+    private boolean isCompatibleWith(@NonNull GitLabIssueLink link) {
         switch (getType()) {
             case SAME_PROJECT:
                 return link.getNumber() == number;

@@ -6,13 +6,12 @@ import nbbrd.console.picocli.MultiFileInputOptions;
 import nbbrd.console.picocli.text.TextOutputSupport;
 import nbbrd.heylogs.Check;
 import nbbrd.heylogs.Config;
+import nbbrd.heylogs.FormatConfig;
 import nbbrd.heylogs.Heylogs;
-import nbbrd.heylogs.VersioningConfig;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,17 +41,23 @@ public final class CheckMojo extends HeylogsMojo {
     @Parameter(property = "heylogs.outputFile", defaultValue = DEFAULT_STDOUT_FILE)
     private File outputFile;
 
-    @Parameter(property = "heylogs.tagPrefix")
-    private String tagPrefix;
+    @Parameter(property = "heylogs.tagging")
+    private String tagging;
 
     @Parameter(property = "heylogs.versioning")
     private String versioning;
 
-    @Parameter(property = "heylogs.forgeId")
-    private String forgeId;
+    @Parameter(property = "heylogs.forge")
+    private String forge;
 
-    @Parameter(property = "heylogs.formatId")
-    private String formatId;
+    @Parameter(property = "heylogs.rules")
+    private List<String> rules;
+
+    @Parameter(property = "heylogs.domains")
+    private List<String> domains;
+
+    @Parameter(property = "heylogs.format")
+    private String format;
 
     @Override
     public void execute() throws MojoExecutionException {
@@ -74,7 +79,7 @@ public final class CheckMojo extends HeylogsMojo {
                 list.add(Check
                         .builder()
                         .source(file.toString())
-                        .problems(heylogs.checkFormat(readChangelog(file.toFile()), config))
+                        .problems(heylogs.check(readChangelog(file.toFile()), config))
                         .build());
             }
         } catch (IOException ex) {
@@ -83,7 +88,7 @@ public final class CheckMojo extends HeylogsMojo {
         boolean hasErrors = list.stream().anyMatch(Check::hasErrors);
 
         TextOutputSupport outputSupport = newTextOutputSupport();
-        String formatId = resolveFormatId(getFormatId(), heylogs, outputSupport::isStdoutFile, outputFile.toPath());
+        String formatId = resolveFormatId(format != null ? FormatConfig.parse(format) : null, heylogs, outputSupport::isStdoutFile, outputFile.toPath());
 
         try (Writer writer = newWriter(outputFile, hasErrors ? getLog()::error : getLog()::info)) {
             heylogs.formatProblems(formatId, writer, list);
@@ -96,21 +101,18 @@ public final class CheckMojo extends HeylogsMojo {
     }
 
     @MojoParameterParsing
-    private @Nullable VersioningConfig toVersioningConfig() throws MojoExecutionException {
-        try {
-            return versioning != null ? VersioningConfig.parse(versioning) : null;
-        } catch (IllegalArgumentException ex) {
-            throw new MojoExecutionException("Invalid format for 'versioning' parameter", ex);
-        }
-    }
-
-    @MojoParameterParsing
     private @NonNull Config toConfig() throws MojoExecutionException {
-        return Config
-                .builder()
-                .versionTagPrefix(tagPrefix)
-                .versioning(toVersioningConfig())
-                .forgeId(forgeId)
-                .build();
+        try {
+            return Config
+                    .builder()
+                    .taggingOf(tagging)
+                    .versioningOf(versioning)
+                    .forgeOf(forge)
+                    .rulesOf(rules)
+                    .domainsOf(domains)
+                    .build();
+        } catch (IllegalArgumentException ex) {
+            throw new MojoExecutionException("Invalid config parameter", ex);
+        }
     }
 }

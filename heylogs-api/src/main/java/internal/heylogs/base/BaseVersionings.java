@@ -3,6 +3,7 @@ package internal.heylogs.base;
 import lombok.NonNull;
 import nbbrd.design.DirectImpl;
 import nbbrd.design.VisibleForTesting;
+import nbbrd.heylogs.spi.Validator;
 import nbbrd.heylogs.spi.Versioning;
 import nbbrd.heylogs.spi.VersioningBatch;
 import nbbrd.heylogs.spi.VersioningSupport;
@@ -28,6 +29,7 @@ public final class BaseVersionings implements VersioningBatch {
             .id("regex")
             .name("Regex Versioning")
             .moduleId("api")
-            .validation(compilingArg(Pattern::compile, (pattern, text) -> pattern.matcher(text).matches()))
+            .validator(Validator.of(Pattern::compile))
+            .predicate(compilingArg(Pattern::compile, (pattern, text) -> pattern.matcher(text).matches()))
             .build();
 }

@@ -3,7 +3,6 @@ package tests.heylogs.spi;
 import lombok.NonNull;
 import nbbrd.heylogs.spi.ForgeRef;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 public final class ForgeRefAssert {
@@ -13,7 +12,7 @@ public final class ForgeRefAssert {
     }
 
     @SuppressWarnings("DataFlowIssue")
-    public static void assertForgeRefCompliance(@NonNull ForgeRef<?> x) {
+    public static void assertForgeRefCompliance(@NonNull ForgeRef x) {
         assertThatNullPointerException()
                 .isThrownBy(() -> x.isCompatibleWith(null));
     }

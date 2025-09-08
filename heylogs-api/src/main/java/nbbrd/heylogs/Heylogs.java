@@ -1,6 +1,7 @@
 package nbbrd.heylogs;
 
 import com.vladsch.flexmark.ast.Heading;
+import com.vladsch.flexmark.ast.LinkNodeBase;
 import com.vladsch.flexmark.ast.RefNode;
 import com.vladsch.flexmark.ast.Reference;
 import com.vladsch.flexmark.util.ast.Document;
@@ -13,13 +14,18 @@ import internal.heylogs.spi.URLExtractor;
 import lombok.NonNull;
 import nbbrd.design.MightBePromoted;
 import nbbrd.design.StaticFactoryMethod;
+import nbbrd.design.VisibleForTesting;
 import nbbrd.heylogs.spi.*;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -27,12 +33,13 @@ import static internal.heylogs.spi.FormatSupport.onFormatFileFilter;
 import static internal.heylogs.spi.FormatSupport.onFormatId;
 import static internal.heylogs.spi.RuleSupport.problemStreamOf;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.partitioningBy;
 import static java.util.stream.Collectors.toList;
 import static nbbrd.heylogs.TimeRange.toTimeRange;
+import static nbbrd.heylogs.Util.illegalArgumentToNull;
 import static nbbrd.heylogs.spi.ForgeSupport.onCompareLink;
-import static nbbrd.heylogs.spi.ForgeSupport.onForgeId;
-import static nbbrd.heylogs.spi.VersioningSupport.onVersioningId;
+import static nbbrd.heylogs.spi.Versioning.NO_VERSIONING_FILTER;
 
 @lombok.Value
 @lombok.Builder(toBuilder = true)
@@ -46,6 +53,7 @@ public class Heylogs {
                 .formats(FormatLoader.load())
                 .versionings(VersioningLoader.load())
                 .forges(ForgeLoader.load())
+                .taggings(TaggingLoader.load())
                 .build();
     }
 
@@ -65,14 +73,17 @@ public class Heylogs {
     @lombok.Singular
     List<Forge> forges;
 
-    public @NonNull List<Problem> checkFormat(@NonNull Document document, @NonNull Config config) {
-        getVersioningPredicate(config.getVersioning());
+    @NonNull
+    @lombok.Singular
+    List<Tagging> taggings;
 
-        RuleContext context = RuleContext.builder().config(config).forges(forges).versionings(versionings).build();
-        return problemStreamOf(document, rules, context).collect(toList());
+    public @NonNull List<Problem> check(@NonNull Document document, @NonNull Config config) {
+        checkConfig(config);
+
+        return problemStreamOf(document, rules, initContext(config)).collect(toList());
     }
 
-    public void extractVersions(@NonNull Document document, @NonNull Filter filter) {
+    public void extract(@NonNull Document document, @NonNull Filter filter) {
         if (isNotValidAgainstGuidingPrinciples(document)) {
             throw new IllegalArgumentException("Invalid changelog");
         }
@@ -120,16 +131,19 @@ public class Heylogs {
                 .forEach(Node::unlink);
     }
 
-    public @NonNull List<Resource> listResources() {
+    public @NonNull List<Resource> list() {
         return concat(
                 rules.stream().map(Resource::of),
                 formats.stream().map(Resource::of),
                 versionings.stream().map(Resource::of),
-                forges.stream().map(Resource::of)
+                forges.stream().map(Resource::of),
+                taggings.stream().map(Resource::of)
         ).sorted(Resource.DEFAULT_COMPARATOR).collect(toList());
     }
 
-    public void releaseChanges(@NonNull Document document, @NonNull Version newVersion, @NonNull Config config) throws IllegalArgumentException {
+    public void release(@NonNull Document document, @NonNull Version newVersion, @NonNull Config config) throws IllegalArgumentException {
+        checkConfig(config);
+
         Predicate<CharSequence> versioningPredicate = getVersioningPredicate(config.getVersioning());
         if (versioningPredicate != null && !versioningPredicate.test(newVersion.getRef())) {
             throw new IllegalArgumentException("Invalid version '" + newVersion.getRef() + "' for versioning '" + config.getVersioning() + "'");
@@ -147,11 +161,12 @@ public class Heylogs {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Cannot locate unreleased header"));
 
-        Forge forge = config.getForgeId() != null
-                ? findForge(onForgeId(config.getForgeId())).orElseThrow(() -> new IllegalArgumentException("Cannot find forge with id '" + config.getForgeId() + "'"))
+        Forge forge = config.getForge() != null
+                ? findForge(config.getForge()::isCompatibleWith).orElseThrow(() -> new IllegalArgumentException("Cannot find forge with id '" + config.getForge().getId() + "'"))
                 : findForge(onCompareLink(unreleased.getURL())).orElseThrow(() -> new IllegalArgumentException("Cannot determine forge"));
 
-        URL releaseURL = forge.getCompareLink(unreleased.getURL()).derive(Objects.toString(config.getVersionTagPrefix(), "") + newVersion.getRef()).toURL();
+        String releaseTag = getTag(config.getTagging(), newVersion.getRef());
+        URL releaseURL = forge.getCompareLink(unreleased.getURL()).derive(releaseTag).toURL();
         VersionHeading release = VersionHeading.of(newVersion, releaseURL);
 
         URL updatedURL = forge.getCompareLink(releaseURL).derive("HEAD").toURL();
@@ -166,7 +181,7 @@ public class Heylogs {
         unreleased.getReference().unlink();
     }
 
-    public @NonNull Summary scanContent(@NonNull Document document) {
+    public @NonNull Summary scan(@NonNull Document document) {
         if (isNotValidAgainstGuidingPrinciples(document)) {
             return Summary.INVALID;
         }
@@ -211,6 +226,31 @@ public class Heylogs {
                 .build();
     }
 
+    public @NonNull List<ScrapedLink> scrape(@NonNull Document doc, @NonNull Config config) {
+        RuleContext context = initContext(config);
+        return Nodes.of(LinkNodeBase.class)
+                .descendants(doc)
+                .map(link -> {
+                    String urlAsString = link.getUrl().toString();
+                    URL url = Util.illegalArgumentToNull(URLExtractor::urlOf).apply(link.getUrl());
+                    if (url != null) {
+                        List<String> result = new ArrayList<>();
+                        for (Forge forge : context.findAllForges(url)) {
+                            for (ForgeRefType type : ForgeRefType.values()) {
+                                Function<? super URL, ForgeLink> linkParser = forge.getLinkParser(type);
+                                ForgeLink expectedLink = linkParser != null ? illegalArgumentToNull(linkParser).apply(url) : null;
+                                if (expectedLink != null) {
+                                    result.add(forge.getForgeId() + ":" + type);
+                                }
+                            }
+                        }
+                        return new ScrapedLink(urlAsString.substring(0, Math.min(50, urlAsString.length())), link.getLineNumber(), result);
+                    }
+                    return new ScrapedLink(urlAsString, link.getLineNumber(), singletonList("invalid"));
+                })
+                .collect(toList());
+    }
+
     public void formatProblems(@NonNull String formatId, @NonNull Appendable appendable, @NonNull List<Check> list) throws IOException {
         findFormat(onFormatId(formatId))
                 .orElseThrow(() -> new IOException("Cannot find format '" + formatId + "'"))
@@ -235,6 +275,14 @@ public class Heylogs {
 
     private URL getForgeURL(Forge forgeOrNull, URL url) {
         return forgeOrNull != null ? forgeOrNull.getCompareLink(url).getProjectURL() : URLExtractor.baseOf(url);
+    }
+
+    private Optional<Rule> findRule(@NonNull Predicate<Rule> predicate) {
+        return rules.stream().filter(predicate).findFirst();
+    }
+
+    private Optional<Tagging> findTagging(@NonNull Predicate<Tagging> predicate) {
+        return taggings.stream().filter(predicate).findFirst();
     }
 
     private Optional<Forge> findForge(@NonNull Predicate<Forge> predicate) {
@@ -266,23 +314,93 @@ public class Heylogs {
     }
 
     private static Stream<Versioning> versioningStreamOf(List<Versioning> list, List<Version> releases) {
-        return list.stream().filter(versioning -> {
-                    Predicate<CharSequence> predicate = versioning.getVersioningPredicateOrNull(null);
-                    return predicate != null && releases.stream().map(Version::getRef).allMatch(predicate);
-                }
-        );
+        return list.stream()
+                .filter(versioning -> versioning.getVersioningArgValidator().apply(null) == null)
+                .filter(versioning -> {
+                            Predicate<CharSequence> predicate = versioning.getVersioningPredicateOrNull(null);
+                            return predicate != NO_VERSIONING_FILTER && releases.stream().map(Version::getRef).allMatch(predicate);
+                        }
+                );
     }
 
     private @Nullable Predicate<CharSequence> getVersioningPredicate(@Nullable VersioningConfig versioningConfig) {
         if (versioningConfig != null) {
-            Versioning versioning = findVersioning(onVersioningId(versioningConfig.getId()))
+            Versioning versioning = findVersioning(versioningConfig::isCompatibleWith)
                     .orElseThrow(() -> new IllegalArgumentException("Cannot find versioning with id '" + versioningConfig.getId() + "'"));
             Predicate<CharSequence> predicate = versioning.getVersioningPredicateOrNull(versioningConfig.getArg());
-            if (predicate == null) {
+            if (predicate == NO_VERSIONING_FILTER) {
                 throw new IllegalArgumentException("Invalid version argument '" + versioningConfig.getArg() + "'");
             }
             return predicate;
         }
         return null;
+    }
+
+    private @NonNull String getTag(@Nullable TaggingConfig config, @NonNull String versionRef) {
+        if (config != null) {
+            Converter<String, String> tagFormatterOrNull = findTagging(config::isCompatibleWith)
+                    .orElseThrow(() -> new IllegalArgumentException("Cannot find tagging with id '" + config.getId() + "'"))
+                    .getTagFormatterOrNull(config.getArg());
+            if (tagFormatterOrNull != Tagging.CONVERSION_NOT_SUPPORTED) {
+                return tagFormatterOrNull.apply(versionRef);
+            }
+        }
+        return versionRef;
+    }
+
+    @VisibleForTesting
+    void checkConfig(@NonNull Config config) throws IllegalArgumentException {
+        checkVersioningConfig(config.getVersioning());
+        checkTaggingConfig(config.getTagging());
+        checkRuleConfigs(config.getRules());
+        checkDomainConfigs(config.getDomains());
+    }
+
+    private void checkVersioningConfig(VersioningConfig config) throws IllegalArgumentException {
+        if (config != null) {
+            String error = findVersioning(config::isCompatibleWith)
+                    .orElseThrow(() -> new IllegalArgumentException("Cannot find versioning with id '" + config.getId() + "'"))
+                    .getVersioningArgValidator()
+                    .apply(config.getArg());
+            if (error != null) {
+                throw new IllegalArgumentException("Invalid versioning argument '" + config.getArg() + "': " + error);
+            }
+        }
+    }
+
+    private void checkTaggingConfig(TaggingConfig config) throws IllegalArgumentException {
+        if (config != null) {
+            String error = findTagging(config::isCompatibleWith)
+                    .orElseThrow(() -> new IllegalArgumentException("Cannot find tagging with id '" + config.getId() + "'"))
+                    .getTaggingArgValidator()
+                    .apply(config.getArg());
+            if (error != null) {
+                throw new IllegalArgumentException("Invalid tagging argument '" + config.getArg() + "': " + error);
+            }
+        }
+    }
+
+    private void checkRuleConfigs(List<RuleConfig> configs) throws IllegalArgumentException {
+        for (RuleConfig config : configs) {
+            findRule(config::isCompatibleWith)
+                    .orElseThrow(() -> new IllegalArgumentException("Cannot find rule with id '" + config.getId() + "'"));
+        }
+    }
+
+    private void checkDomainConfigs(List<DomainConfig> configs) throws IllegalArgumentException {
+        for (DomainConfig config : configs) {
+            findForge(config::isCompatibleWith)
+                    .orElseThrow(() -> new IllegalArgumentException("Cannot find forge with id '" + config.getForgeId() + "'"));
+        }
+    }
+
+    private RuleContext initContext(Config config) {
+        return RuleContext
+                .builder()
+                .config(config)
+                .forges(forges)
+                .versionings(versionings)
+                .taggings(taggings)
+                .build();
     }
 }

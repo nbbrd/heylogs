@@ -4,6 +4,7 @@ import nbbrd.heylogs.spi.Versioning;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static tests.heylogs.spi.VersioningAssert.assertVersioningCompliance;
 
 class CalVerTest {
@@ -17,8 +18,9 @@ class CalVerTest {
     void testIsValidVersion() {
         Versioning x = new CalVer();
 
-        assertThat(x.getVersioningPredicateOrNull(null))
-                .isNull();
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> x.getVersioningPredicateOrNull(null))
+                .withMessageContaining("Value is null");
 
         assertThat(x.getVersioningPredicateOrNull("YY.0M.MICRO"))
                 .accepts("20.04")

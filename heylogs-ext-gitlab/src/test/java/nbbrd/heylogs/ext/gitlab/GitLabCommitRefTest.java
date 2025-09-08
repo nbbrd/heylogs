@@ -46,7 +46,7 @@ class GitLabCommitRefTest {
     @Test
     public void testFactories() {
         assertThatNullPointerException().isThrownBy(() -> of(null, GitLabRefType.SAME_PROJECT));
-        assertThatNullPointerException().isThrownBy(() -> of(link, null));
+        assertThatNullPointerException().isThrownBy(() -> of(link, (GitLabRefType) null));
 
         assertThat(of(link, GitLabRefType.SAME_PROJECT).isCompatibleWith(link)).isTrue();
         assertThat(of(link, GitLabRefType.SAME_NAMESPACE).isCompatibleWith(link)).isTrue();

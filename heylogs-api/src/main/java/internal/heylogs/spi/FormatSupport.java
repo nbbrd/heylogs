@@ -1,6 +1,7 @@
 package internal.heylogs.spi;
 
 import lombok.NonNull;
+import nbbrd.heylogs.FormatConfig;
 import nbbrd.heylogs.Heylogs;
 import nbbrd.heylogs.spi.Format;
 import org.jspecify.annotations.Nullable;
@@ -28,7 +29,8 @@ public final class FormatSupport {
         return file.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(extension);
     }
 
-    public static @NonNull String resolveFormatId(@Nullable String formatId, @NonNull Heylogs heylogs, @NonNull Predicate<? super Path> stdio, @NonNull Path file) {
+    public static @NonNull String resolveFormatId(@Nullable FormatConfig format, @NonNull Heylogs heylogs, @NonNull Predicate<? super Path> stdio, @NonNull Path file) {
+        String formatId = format != null ? format.getId() : null;
         return isSpecified(formatId) ? formatId : !stdio.test(file) ? heylogs.getFormatIdByFile(file).orElse(DEFAULT_FORMAT_ID) : DEFAULT_FORMAT_ID;
     }
 

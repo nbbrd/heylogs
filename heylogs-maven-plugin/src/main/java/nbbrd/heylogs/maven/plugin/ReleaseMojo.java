@@ -6,7 +6,6 @@ import lombok.NonNull;
 import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Heylogs;
 import nbbrd.heylogs.Version;
-import nbbrd.heylogs.VersioningConfig;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -16,6 +15,7 @@ import org.jspecify.annotations.Nullable;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 
 import static internal.heylogs.HeylogsParameters.DEFAULT_CHANGELOG_FILE;
 
@@ -33,14 +33,20 @@ public final class ReleaseMojo extends HeylogsMojo {
     @Parameter(property = "heylogs.date")
     private String date;
 
-    @Parameter(property = "heylogs.tagPrefix")
-    private String tagPrefix;
+    @Parameter(property = "heylogs.tagging")
+    private String tagging;
 
     @Parameter(property = "heylogs.versioning")
     private String versioning;
 
-    @Parameter(property = "heylogs.forgeId")
-    private String forgeId;
+    @Parameter(property = "heylogs.forge")
+    private String forge;
+
+    @Parameter(property = "heylogs.rules")
+    private List<String> rules;
+
+    @Parameter(property = "heylogs.domains")
+    private List<String> domains;
 
     @Override
     public void execute() throws MojoExecutionException {
@@ -60,33 +66,30 @@ public final class ReleaseMojo extends HeylogsMojo {
         Config config = toConfig();
 
         getLog().info("Releasing " + version + " with config '" + config + "'");
-        Heylogs.ofServiceLoader().releaseChanges(document, version, config);
+        Heylogs.ofServiceLoader().release(document, version, config);
 
         writeChangelog(document, inputFile);
     }
 
     @MojoParameterParsing
     private @NonNull Version toVersion() throws MojoExecutionException {
-        return Version.of(ref, '-', parseLocalDate(date));
-    }
-
-    @MojoParameterParsing
-    private @Nullable VersioningConfig toVersioningConfig() throws MojoExecutionException {
-        try {
-            return versioning != null ? VersioningConfig.parse(versioning) : null;
-        } catch (IllegalArgumentException ex) {
-            throw new MojoExecutionException("Invalid format for 'versioning' parameter", ex);
-        }
+        return Version.of(ref, null, '-', parseLocalDate(date));
     }
 
     @MojoParameterParsing
     private @NonNull Config toConfig() throws MojoExecutionException {
-        return Config
-                .builder()
-                .versionTagPrefix(tagPrefix)
-                .versioning(toVersioningConfig())
-                .forgeId(forgeId)
-                .build();
+        try {
+            return Config
+                    .builder()
+                    .taggingOf(tagging)
+                    .versioningOf(versioning)
+                    .forgeOf(forge)
+                    .rulesOf(rules)
+                    .domainsOf(domains)
+                    .build();
+        } catch (IllegalArgumentException ex) {
+            throw new MojoExecutionException("Invalid config parameter", ex);
+        }
     }
 
     private static @NonNull LocalDate parseLocalDate(@Nullable String date) throws MojoExecutionException {

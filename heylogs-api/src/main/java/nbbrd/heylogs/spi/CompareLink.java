@@ -12,4 +12,9 @@ public interface CompareLink extends ForgeLink {
     @NonNull
     URL getProjectURL();
 
+    @NonNull
+    String getCompareBaseRef();
+
+    @NonNull
+    String getCompareHeadRef();
 }

@@ -6,6 +6,8 @@ import lombok.NonNull;
 import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.spi.ForgeLink;
+import nbbrd.heylogs.spi.ForgeRef;
+import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
 import java.util.List;
@@ -45,6 +47,11 @@ class GitLabCommitLink implements ForgeLink {
     @Override
     public @NonNull URL toURL() {
         return urlOf(toString());
+    }
+
+    @Override
+    public @NonNull ForgeRef toRef(@Nullable ForgeRef baseRef) {
+        return GitLabCommitRef.of(this, baseRef instanceof GitLabCommitRef ? (GitLabCommitRef) baseRef : null);
     }
 
     private static final String COMMIT_KEYWORD = "commit";

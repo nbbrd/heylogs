@@ -1,37 +1,24 @@
 package nbbrd.heylogs.ext.semver;
 
-import lombok.NonNull;
 import nbbrd.design.DirectImpl;
 import nbbrd.heylogs.spi.Versioning;
+import nbbrd.heylogs.spi.VersioningSupport;
 import nbbrd.service.ServiceProvider;
-import org.jspecify.annotations.Nullable;
 import org.semver4j.Semver;
 
-import java.util.function.Predicate;
+import static nbbrd.heylogs.spi.VersioningSupport.withoutArg;
 
 @DirectImpl
 @ServiceProvider
 public final class SemVer implements Versioning {
 
-    static final String ID = "semver";
-
-    @Override
-    public @NonNull String getVersioningId() {
-        return ID;
-    }
-
-    @Override
-    public @NonNull String getVersioningName() {
-        return "Semantic Versioning";
-    }
-
-    @Override
-    public @NonNull String getVersioningModuleId() {
-        return "semver";
-    }
-
-    @Override
-    public @Nullable Predicate<CharSequence> getVersioningPredicateOrNull(@Nullable String arg) {
-        return arg == null ? text -> Semver.isValid(text.toString()) : null;
-    }
+    @lombok.experimental.Delegate
+    private final Versioning delegate = VersioningSupport
+            .builder()
+            .id("semver")
+            .name("Semantic Versioning")
+            .moduleId("semver")
+            .validator(arg -> arg == null ? null : "Semver does not take any arguments")
+            .predicate(withoutArg(text -> Semver.isValid(text.toString())))
+            .build();
 }
