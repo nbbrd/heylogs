@@ -178,7 +178,7 @@ To use the CLI without installing it:
 
 #### Examples
 
-Check the changelog on every build:
+Check the changelog automatically on every build:
 
 ```xml
 <plugin>
@@ -190,35 +190,22 @@ Check the changelog on every build:
                 <goal>check</goal>
             </goals>
             <inherited>false</inherited>
-            <configuration>
-                <versioning>semver</versioning>
-            </configuration>
         </execution>
     </executions>
+    <configuration>
+        <versioning>semver</versioning>
+    </configuration>
 </plugin>
 ```
 
-Extract the latest version from the changelog during a release:
+> [!TIP]
+> Versioning, tagging and forge should be configured globally in the plugin configuration section
+> instead of the execution configuration section to avoid repetition and basic mistakes.
 
-```xml
-<profile>
-    <id>release</id>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>com.github.nbbrd.heylogs</groupId>
-                <artifactId>heylogs-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>extract</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-</profile>
+This check can also be performed manually by calling it directly from the command-line:
+
+```shell
+mvn heylogs:check
 ```
 
 ## Features
