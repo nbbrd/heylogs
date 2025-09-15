@@ -71,7 +71,7 @@ List<Problem> problems = heylogs.check(flexmarkDocument, config);
 Most probably, one wants to check the `CHANGELOG.md` file, thus the command is as follows:
 
 ```yml
-- uses: jbangdev/jbang-action@latest
+- uses: jbangdev/jbang-action@v0.130.0
   with:
     script: com.github.nbbrd.heylogs:heylogs-cli:_VERSION_:bin
     scriptargs: "check -o result.json"
