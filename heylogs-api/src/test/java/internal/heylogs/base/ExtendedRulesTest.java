@@ -16,6 +16,7 @@ import nbbrd.heylogs.spi.RuleIssue;
 import org.junit.jupiter.api.Test;
 import tests.heylogs.spi.MockedCompareLink;
 import tests.heylogs.spi.MockedForgeLink;
+import tests.heylogs.spi.MockedForgeRef;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -24,6 +25,7 @@ import java.util.stream.StreamSupport;
 
 import static internal.heylogs.base.BaseVersionings.REGEX_VERSIONING;
 import static internal.heylogs.base.ExtendedRules.*;
+import static nbbrd.heylogs.spi.ForgeRefType.ISSUE;
 import static nbbrd.io.function.IOFunction.unchecked;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Index.atIndex;
@@ -143,6 +145,51 @@ public class ExtendedRulesTest {
     }
 
     @Test
+    public void testValidateForgeRef() {
+        assertThat(validateForgeRef(asLink("[stuff](invalidURL)"), RuleContext.DEFAULT))
+                .describedAs("Invalid URL")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateForgeRef(asLink("[stuff](https://issue)"), RuleContext.DEFAULT))
+                .describedAs("No forge configured")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        ForgeSupport forge = ForgeSupport
+                .builder()
+                .id("f1").name("").moduleId("")
+                .knownHostPredicate(url -> true)
+                .build();
+
+        assertThat(validateForgeRef(asLink("[stuff](https://issue)"), RuleContext.builder().forge(forge).build()))
+                .describedAs("No link parser")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateForgeRef(asLink("[stuff](https://issue)"), RuleContext.builder().forge(forge.toBuilder().linkParser(ISSUE, url -> null).build()).build()))
+                .describedAs("No expected link")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateForgeRef(asLink("[stuff](https://issue)"), RuleContext.builder().forge(forge.toBuilder().linkParser(ISSUE, url -> MockedForgeLink.of(url, null)).build()).build()))
+                .describedAs("No ref parser")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateForgeRef(asLink("[stuff](https://issue)"), RuleContext.builder().forge(forge.toBuilder().linkParser(ISSUE, url -> MockedForgeLink.of(url, null)).refParser(ISSUE, ref -> MockedForgeRef.of(true)).build()).build()))
+                .describedAs("Compatible ref")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateForgeRef(asLink("[stuff](https://issue)"), RuleContext.builder().forge(forge.toBuilder().linkParser(ISSUE, url -> MockedForgeLink.of(url, null)).refParser(ISSUE, ref -> null).build()).build()))
+                .describedAs("No expected ref")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateForgeRef(asLink("[stuff](https://issue)"), RuleContext.builder().forge(forge.toBuilder().linkParser(ISSUE, url -> MockedForgeLink.of(url, MockedForgeRef.of(true))).refParser(ISSUE, ref -> null).build()).build()))
+                .describedAs("No found ref")
+                .isEqualTo(RuleIssue.builder().message("Expecting f1 ISSUE ref MockedForgeRef(compatibility=true), found stuff").line(1).column(1).build());
+
+        assertThat(validateForgeRef(asLink("[stuff](https://issue)"), RuleContext.builder().forge(forge.toBuilder().linkParser(ISSUE, url -> MockedForgeLink.of(url, MockedForgeRef.of(true))).refParser(ISSUE, ref -> MockedForgeRef.of(false)).build()).build()))
+                .describedAs("Incompatible ref")
+                .isEqualTo(RuleIssue.builder().message("Expecting f1 ISSUE ref MockedForgeRef(compatibility=true), found MockedForgeRef(compatibility=false)").line(1).column(1).build());
+    }
+
+    @Test
     public void testValidateReleaseDate() {
         assertThat(validateReleaseDate(asHeading("## [Unreleased]"), RuleContext.DEFAULT))
                 .isEqualTo(NO_RULE_ISSUE);
@@ -171,7 +218,7 @@ public class ExtendedRulesTest {
                         .builder()
                         .id("").name("").moduleId("")
                         .knownHostPredicate(url -> true)
-                        .linkParser(ForgeRefType.ISSUE, MockedForgeLink::parse)
+                        .linkParser(ISSUE, MockedForgeLink::parse)
                         .build())
                 .build();
 
@@ -202,7 +249,7 @@ public class ExtendedRulesTest {
                         .builder()
                         .id("").name("").moduleId("")
                         .knownHostPredicate(url -> url.getHost().contains("github") || url.getHost().contains("host"))
-                        .linkParser(ForgeRefType.ISSUE, MockedForgeLink::parse)
+                        .linkParser(ISSUE, MockedForgeLink::parse)
                         .linkParser(ForgeRefType.COMPARE, MockedCompareLink::parse)
                         .build())
                 .versioning(REGEX_VERSIONING)
