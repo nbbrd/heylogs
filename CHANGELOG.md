@@ -7,6 +7,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.14.1] - 2025-09-16
+
+### Fixed
+
+- Fix forge ref validation if ref parser is missing [#445](https://github.com/nbbrd/heylogs/issues/445)
+- Improve error message of Changelog section [#444](https://github.com/nbbrd/heylogs/issues/444)
+
 ## [0.14.0] - 2025-09-08
 
 This release focuses on improving and extending rules.  
@@ -291,7 +298,8 @@ This release improves extension points and also aligns features of Maven plugin 
 
 - Initial release
 
-[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.14.0...HEAD
+[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.14.1...HEAD
+[0.14.1]: https://github.com/nbbrd/heylogs/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/nbbrd/heylogs/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/nbbrd/heylogs/compare/v0.12.1...v0.13.0
 [0.12.1]: https://github.com/nbbrd/heylogs/compare/v0.12.0...v0.12.1

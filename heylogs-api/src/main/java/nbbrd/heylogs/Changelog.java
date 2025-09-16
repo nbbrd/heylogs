@@ -20,7 +20,7 @@ public enum Changelog implements Section {
             throw new IllegalArgumentException("Invalid heading level");
         }
         if (!"Changelog".contentEquals(heading.getText())) {
-            throw new IllegalArgumentException("Invalid text");
+            throw new IllegalArgumentException("Invalid text: expecting 'Changelog', found '" + heading.getText() + "'");
         }
         return INSTANCE;
     }

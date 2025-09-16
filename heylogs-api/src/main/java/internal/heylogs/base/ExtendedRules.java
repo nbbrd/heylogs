@@ -424,12 +424,14 @@ public enum ExtendedRules implements Rule {
                         ForgeRef foundRef = refParser != null ? illegalArgumentToNull(refParser).apply(link.getText()) : null;
                         if (foundRef == null || !foundRef.isCompatibleWith(expectedLink)) {
                             ForgeRef expectedRef = expectedLink.toRef(foundRef);
-                            String foundText = foundRef == null ? link.getText().toString() : foundRef.toString();
-                            return RuleIssue
-                                    .builder()
-                                    .message(String.format(ROOT, "Expecting %s %s ref %s, found %s", forge.getForgeId(), type, expectedRef, foundText))
-                                    .location(link)
-                                    .build();
+                            if (expectedRef != null) {
+                                String foundText = foundRef == null ? link.getText().toString() : foundRef.toString();
+                                return RuleIssue
+                                        .builder()
+                                        .message(String.format(ROOT, "Expecting %s %s ref %s, found %s", forge.getForgeId(), type, expectedRef, foundText))
+                                        .location(link)
+                                        .build();
+                            }
                         }
                     }
                 }

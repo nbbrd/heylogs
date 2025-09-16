@@ -22,11 +22,11 @@ public class ChangelogTest {
 
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> parse(asHeading("## Changelog")))
-                .withMessageContaining("Invalid heading level");
+                .withMessage("Invalid heading level");
 
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> parse(asHeading("# hello")))
-                .withMessageContaining("Invalid text");
+                .withMessage("Invalid text: expecting 'Changelog', found 'hello'");
 
         assertThat(Nodes.of(Heading.class).descendants(using("/Main.md")).filter(Changelog::isChangelogLevel).map(Changelog::parse))
                 .hasSize(1)

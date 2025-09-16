@@ -1,6 +1,5 @@
 package tests.heylogs.spi;
 
-import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
@@ -11,30 +10,32 @@ import org.jspecify.annotations.Nullable;
 import java.net.URL;
 
 @RepresentableAs(URL.class)
-@lombok.Value
-@lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
+@lombok.Value(staticConstructor = "of")
 public class MockedForgeLink implements ForgeLink {
 
     @StaticFactoryMethod
     public static MockedForgeLink parse(@NonNull URL url) {
-        return new MockedForgeLink(url);
+        return new MockedForgeLink(url, null);
     }
 
     @NonNull
-    URL base;
+    URL url;
+
+    @Nullable
+    MockedForgeRef ref;
 
     @Override
     public String toString() {
-        return base.toString();
+        return url.toString();
     }
 
     @Override
     public @NonNull URL toURL() {
-        return base;
+        return url;
     }
 
     @Override
     public @Nullable ForgeRef toRef(@Nullable ForgeRef baseRef) {
-        return null;
+        return ref;
     }
 }
