@@ -10,6 +10,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Fixed
 
 - Fix forge ref validation if ref parser is missing [#445](https://github.com/nbbrd/heylogs/issues/445)
+- Improve error message of Changelog section [#444](https://github.com/nbbrd/heylogs/issues/444)
 
 ## [0.14.0] - 2025-09-08
 

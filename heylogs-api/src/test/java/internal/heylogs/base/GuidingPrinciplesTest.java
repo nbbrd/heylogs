@@ -43,7 +43,7 @@ GuidingPrinciplesTest {
                 .isEqualTo(RuleIssue.builder().message("Missing Changelog heading").line(1).column(1).build());
 
         assertThat(validateForHumans(using("/NoChangelog.md")))
-                .isEqualTo(RuleIssue.builder().message("Invalid text").line(1).column(1).build());
+                .isEqualTo(RuleIssue.builder().message("Invalid text: expecting 'Changelog', found 'Stuff'").line(1).column(1).build());
 
         assertThat(validateForHumans(using("/TooManyChangelog.md")))
                 .isEqualTo(RuleIssue.builder().message("Too many Changelog headings").line(1).column(1).build());
