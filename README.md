@@ -241,8 +241,11 @@ CHANGELOG.md
 
 > [!TIP]
 > A rule configuration can be modified by using the `--rule` option.
-> For example: the command `$ heylogs check --rule dot-space-link-style:WARN` upgrades the severity
-> of the `dot-space-link-style` rule from `OFF` to `WARN` while performing a changelog check.
+> 
+> For example, upgrading the severity of the `dot-space-link-style` rule
+> from `OFF` to `WARN` and disabling the `no-empty-group` rule
+> can be done with the following command:  
+> `$ heylogs check --rule dot-space-link-style:WARN --rule no-empty-group:OFF`
 
 ### Scan command
 
