@@ -491,11 +491,12 @@ public enum ExtendedRules implements Rule {
     }
 
     private static boolean isIssueOrMergeLink(RuleContext context, Link x) {
-        return context.getForges()
+        URL url = illegalArgumentToNull(URLExtractor::urlOf).apply(x.getUrl());
+        return url != null && context.getForges()
                 .stream()
                 .flatMap(forge -> Stream.<Function<? super URL, ForgeLink>>of(forge.getLinkParser(ForgeRefType.ISSUE), forge.getLinkParser(ForgeRefType.REQUEST)))
                 .filter(Objects::nonNull)
-                .anyMatch(linkParser -> illegalArgumentToNull(linkParser).apply(URLExtractor.urlOf(x.getUrl())) != null);
+                .anyMatch(linkParser -> illegalArgumentToNull(linkParser).apply(url) != null);
     }
 
     @VisibleForTesting

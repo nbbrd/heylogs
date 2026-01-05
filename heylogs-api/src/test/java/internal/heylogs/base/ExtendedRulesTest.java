@@ -239,6 +239,9 @@ public class ExtendedRulesTest {
 
         assertThat(validateDotSpaceLinkStyle(asBulletListItem("- hello [abc](http://localhost)"), validURL))
                 .isEqualTo(RuleIssue.builder().message("Expecting '. ' before link to issue or request, found 'o '").line(1).column(9).build());
+
+        assertThat(validateDotSpaceLinkStyle(asBulletListItem("- hello [abc](localhost)"), validURL))
+                .isEqualTo(NO_RULE_ISSUE);
     }
 
     @Test
