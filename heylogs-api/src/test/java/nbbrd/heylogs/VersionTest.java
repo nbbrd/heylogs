@@ -23,33 +23,33 @@ public class VersionTest {
                 .isThrownBy(() -> parse(null));
 
         assertThat(parse(asHeading("## [Unreleased]")))
-                .isEqualTo(Version.of("Unreleased", null, HYPHEN, LocalDate.MAX));
+                .isEqualTo(Version.of("Unreleased", null, HYPHEN, LocalDate.MAX, false));
 
         assertThat(parse(asHeading("## [Unreleased ]")))
-                .isEqualTo(Version.of("Unreleased", null, HYPHEN, LocalDate.MAX));
+                .isEqualTo(Version.of("Unreleased", null, HYPHEN, LocalDate.MAX, false));
 
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> parse(asHeading("## [Unreleased] - 2019-02-15")))
                 .withMessageContaining("Unexpected additional part");
 
         assertThat(parse(asHeading("## [1.1.0] - 2019-02-15")))
-                .isEqualTo(Version.of("1.1.0", null, HYPHEN, d20190215));
+                .isEqualTo(Version.of("1.1.0", null, HYPHEN, d20190215, false));
 
         // Unicode en dash as separator
         assertThat(parse(asHeading("## [1.1.0] – 2019-02-15")))
-                .isEqualTo(Version.of("1.1.0", null, EN_DASH, d20190215));
+                .isEqualTo(Version.of("1.1.0", null, EN_DASH, d20190215, false));
 
         // Unicode em dash as separator
         assertThat(parse(asHeading("## [1.1.0] — 2019-02-15")))
-                .isEqualTo(Version.of("1.1.0", null, EM_DASH, d20190215));
+                .isEqualTo(Version.of("1.1.0", null, EM_DASH, d20190215, false));
 
         assertThat(parse(asHeading("## [1.1.0](https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.0...v1.1.0) - 2019-02-15")))
                 .describedAs("Version with direct link")
-                .isEqualTo(Version.of("1.1.0", urlOf("https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.0...v1.1.0"), HYPHEN, d20190215));
+                .isEqualTo(Version.of("1.1.0", urlOf("https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.0...v1.1.0"), HYPHEN, d20190215, false));
 
         assertThat(parse(asHeading("## [Unreleased](https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.0...HEAD)")))
                 .describedAs("Unreleased with direct link")
-                .isEqualTo(Version.of("Unreleased", urlOf("https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.0...HEAD"), HYPHEN, LocalDate.MAX));
+                .isEqualTo(Version.of("Unreleased", urlOf("https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.0...HEAD"), HYPHEN, LocalDate.MAX, false));
 
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> parse(asHeading("# [1.1.0] - 2019-02-15")))
@@ -93,29 +93,68 @@ public class VersionTest {
 
         assertThat(Nodes.of(Heading.class).descendants(using("/Main.md")).filter(Version::isVersionLevel).map(Version::parse))
                 .hasSize(14)
-                .contains(Version.of("Unreleased", null, HYPHEN, LocalDate.MAX), atIndex(0))
-                .contains(Version.of("1.1.0", null, HYPHEN, d20190215), atIndex(1));
+                .contains(Version.of("Unreleased", null, HYPHEN, LocalDate.MAX, false), atIndex(0))
+                .contains(Version.of("1.1.0", null, HYPHEN, d20190215, false), atIndex(1));
     }
 
     @Test
     public void testToHeading() {
-        assertThat(Version.of("Unreleased", null, HYPHEN, LocalDate.MAX).toHeading())
+        assertThat(Version.of("Unreleased", null, HYPHEN, LocalDate.MAX, false).toHeading())
                 .extracting(Sample::asText)
                 .asString()
                 .isEqualTo("## [Unreleased]");
 
-        assertThat(Version.of("1.1.0", null, HYPHEN, d20190215).toHeading())
+        assertThat(Version.of("1.1.0", null, HYPHEN, d20190215, false).toHeading())
                 .extracting(Sample::asText, STRING)
                 .isEqualTo("## [1.1.0] - 2019-02-15");
     }
 
     @Test
     public void testToString() {
-        assertThat(Version.of("Unreleased", null, HYPHEN, LocalDate.MAX))
-                .hasToString("Version(ref=Unreleased, separator=\\u002d, date=+999999999-12-31)");
+        assertThat(Version.of("Unreleased", null, HYPHEN, LocalDate.MAX, false))
+                .hasToString("Version(ref=Unreleased, separator=\\u002d, date=+999999999-12-31, yanked=false)");
 
-        assertThat(Version.of("1.1.0", null, HYPHEN, d20190215))
-                .hasToString("Version(ref=1.1.0, separator=\\u002d, date=2019-02-15)");
+        assertThat(Version.of("1.1.0", null, HYPHEN, d20190215, false))
+                .hasToString("Version(ref=1.1.0, separator=\\u002d, date=2019-02-15, yanked=false)");
+    }
+
+    @Test
+    public void testParseYanked() {
+        assertThat(parse(asHeading("## [1.0.0] - 2017-06-20 [YANKED]")))
+                .isEqualTo(Version.of("1.0.0", null, HYPHEN, LocalDate.of(2017, 6, 20), true));
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> parse(asHeading("## [1.0.0] - 2017-06-20 [Yanked]")))
+                .withMessageContaining("Unexpected additional part");
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> parse(asHeading("## [1.0.0] - 2017-06-20 [yanked]")))
+                .withMessageContaining("Unexpected additional part");
+    }
+
+    @Test
+    public void testToHeadingYanked() {
+        assertThat(Version.of("1.0.0", null, HYPHEN, LocalDate.of(2017, 6, 20), true).toHeading())
+                .extracting(Sample::asText, STRING)
+                .isEqualTo("## [1.0.0] - 2017-06-20 [YANKED]");
+    }
+
+    @Test
+    public void testToStringYanked() {
+        assertThat(Version.of("1.0.0", null, HYPHEN, LocalDate.of(2017, 6, 20), true))
+                .hasToString("Version(ref=1.0.0, separator=\\u002d, date=2017-06-20, yanked=true)");
+    }
+
+    @Test
+    public void testIsYanked() {
+        assertThat(Version.of("1.0.0", null, HYPHEN, LocalDate.of(2017, 6, 20), true).isYanked())
+                .isTrue();
+
+        assertThat(Version.of("1.0.0", null, HYPHEN, LocalDate.of(2017, 6, 20), false).isYanked())
+                .isFalse();
+
+        assertThat(Version.of("Unreleased", null, HYPHEN, LocalDate.MAX, false).isYanked())
+                .isFalse();
     }
 
     @Test

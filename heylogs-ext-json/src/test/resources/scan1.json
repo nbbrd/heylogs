@@ -4,6 +4,7 @@
     "summary": {
       "valid": false,
       "releaseCount": 0,
+      "yankedReleaseCount": 0,
       "timeRange": {
         "from": "-999999999-01-01",
         "to": "+999999999-12-31"

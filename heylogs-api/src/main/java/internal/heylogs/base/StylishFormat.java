@@ -118,6 +118,9 @@ public final class StylishFormat implements Format {
                 result.add("No release found");
             } else {
                 result.add(String.format(ROOT, "Found %d releases", summary.getReleaseCount()));
+                if (summary.getYankedReleaseCount() > 0) {
+                    result.add(String.format(ROOT, "Has %d yanked releases", summary.getYankedReleaseCount()));
+                }
                 result.add(String.format(ROOT, "Ranging from %s to %s", summary.getTimeRange().getFrom(), summary.getTimeRange().getTo()));
                 result.add(summary.getCompatibilities().isEmpty()
                         ? "Not compatible with known versioning"

@@ -129,19 +129,19 @@ public class HeylogsTest {
 
         LocalDate date = LocalDate.of(2010, 1, 1);
 
-        assertThatIllegalArgumentException().isThrownBy(() -> releaseToString(x, using("/Main.md"), Version.of("42", null, HYPHEN, date), "boom"))
+        assertThatIllegalArgumentException().isThrownBy(() -> releaseToString(x, using("/Main.md"), Version.of("42", null, HYPHEN, date, false), "boom"))
                 .withMessageContaining("Cannot find versioning with id 'boom'");
 
-        assertThatIllegalArgumentException().isThrownBy(() -> releaseToString(x, using("/Main.md"), Version.of("boom", null, HYPHEN, date), "regex:\\d+"))
+        assertThatIllegalArgumentException().isThrownBy(() -> releaseToString(x, using("/Main.md"), Version.of("boom", null, HYPHEN, date, false), "regex:\\d+"))
                 .withMessageContaining("Invalid version 'boom' for versioning 'regex:\\d+'");
 
-        assertThatCode(() -> releaseToString(x, using("/Main.md"), Version.of("boom", null, HYPHEN, date), null))
+        assertThatCode(() -> releaseToString(x, using("/Main.md"), Version.of("boom", null, HYPHEN, date, false), null))
                 .doesNotThrowAnyException();
 
-        assertThatCode(() -> releaseToString(x, using("/Main.md"), Version.of("42", null, HYPHEN, date), "regex:\\d+"))
+        assertThatCode(() -> releaseToString(x, using("/Main.md"), Version.of("42", null, HYPHEN, date, false), "regex:\\d+"))
                 .doesNotThrowAnyException();
 
-        Version v123 = Version.of("1.2.3", null, HYPHEN, date);
+        Version v123 = Version.of("1.2.3", null, HYPHEN, date, false);
 
         assertThatIllegalArgumentException().isThrownBy(() -> releaseToString(x, using("/Empty.md"), v123, null))
                 .withMessageContaining("Invalid changelog");
@@ -223,6 +223,19 @@ public class HeylogsTest {
                         .releaseCount(0)
                         .timeRange(TimeRange.ALL)
                         .unreleasedChanges(0)
+                        .build()
+                );
+
+        assertThat(x.scan(using("/YankedRelease.md")))
+                .isEqualTo(Summary
+                        .builder()
+                        .valid(true)
+                        .releaseCount(3)
+                        .yankedReleaseCount(1)
+                        .timeRange(TimeRange.of(LocalDate.of(2017, 6, 1), LocalDate.of(2019, 2, 15)))
+                        .unreleasedChanges(1)
+                        .forgeName("GitHub")
+                        .forgeURL(urlOf("https://github.com/example/project"))
                         .build()
                 );
     }

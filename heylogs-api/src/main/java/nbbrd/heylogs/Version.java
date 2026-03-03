@@ -45,6 +45,8 @@ public class Version implements Section {
     // The unicode en dash ("–") and em dash ("—") are also accepted as separators
     private static final CharPredicate VALID_SEPARATOR = CharPredicate.anyOf(HYPHEN, EN_DASH, EM_DASH);
 
+    private static final String YANKED_KEYWORD = "YANKED";
+
     @lombok.NonNull
     String ref;
 
@@ -56,6 +58,8 @@ public class Version implements Section {
     @lombok.NonNull
     LocalDate date;
 
+    boolean yanked;
+
     public boolean isUnreleased() {
         return UNRELEASED_KEYWORD.equalsIgnoreCase(ref);
     }
@@ -66,7 +70,7 @@ public class Version implements Section {
 
     @Override
     public String toString() {
-        return "Version(ref=" + ref + ", separator=" + Util.toUnicode(separator) + ", date=" + date + ")";
+        return "Version(ref=" + ref + ", separator=" + Util.toUnicode(separator) + ", date=" + date + ", yanked=" + yanked + ")";
     }
 
     @Override
@@ -83,8 +87,20 @@ public class Version implements Section {
 
         if (!isUnreleased()) {
             Text secondPart = new Text();
-            secondPart.setChars(BasedSequence.of(" " + separator + " ").append(date.toString()));
+            String dateText = " " + separator + " " + date;
+            if (yanked) {
+                dateText += " ";
+            }
+            secondPart.setChars(BasedSequence.of(dateText));
             result.appendChild(secondPart);
+
+            if (yanked) {
+                LinkRef yankedPart = new LinkRef();
+                yankedPart.setReferenceOpeningMarker(BasedSequence.of("["));
+                yankedPart.setReferenceClosingMarker(BasedSequence.of("]"));
+                yankedPart.setReference(BasedSequence.of(YANKED_KEYWORD));
+                result.appendChild(yankedPart);
+            }
         }
 
         return result;
@@ -120,7 +136,7 @@ public class Version implements Section {
                 throw new IllegalArgumentException("Unexpected additional part: '" + parts.next().getChars() + "'");
             }
 
-            return new Version(ref, link, UNRELEASED_SEPARATOR, UNRELEASED_DATE);
+            return new Version(ref, link, UNRELEASED_SEPARATOR, UNRELEASED_DATE, false);
         }
 
         if (!parts.hasNext()) {
@@ -131,11 +147,21 @@ public class Version implements Section {
         char separator = parseSeparator(secondPart);
         LocalDate date = parseDate(secondPart);
 
+        boolean yanked = false;
+        if (parts.hasNext()) {
+            Node thirdPart = parts.next();
+            if (thirdPart instanceof LinkRef && YANKED_KEYWORD.equals(((LinkRef) thirdPart).getReference().toString())) {
+                yanked = true;
+            } else {
+                throw new IllegalArgumentException("Unexpected additional part: '" + thirdPart.getChars() + "'");
+            }
+        }
+
         if (parts.hasNext()) {
             throw new IllegalArgumentException("Unexpected additional part: '" + parts.next().getChars() + "'");
         }
 
-        return new Version(ref, link, separator, date);
+        return new Version(ref, link, separator, date, yanked);
     }
 
     private static char parseSeparator(Node secondPart) throws IllegalArgumentException {

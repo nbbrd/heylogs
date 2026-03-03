@@ -205,6 +205,8 @@ public class Heylogs {
                 .map(VersionHeading::getSection)
                 .collect(toList());
 
+        long yankedReleaseCount = releases.stream().filter(Version::isYanked).count();
+
         long unreleasedChanges = versionsByStatus.get(false)
                 .stream()
                 .findFirst()
@@ -218,6 +220,7 @@ public class Heylogs {
                 .builder()
                 .valid(true)
                 .releaseCount(releases.size())
+                .yankedReleaseCount((int) yankedReleaseCount)
                 .timeRange(releases.stream().map(Version::getDate).collect(toTimeRange()).orElse(TimeRange.ALL))
                 .compatibilities(versioningStreamOf(versionings, releases).map(Versioning::getVersioningName).collect(toList()))
                 .unreleasedChanges((int) unreleasedChanges)
