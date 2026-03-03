@@ -340,6 +340,44 @@ public class HeylogsTest {
                 .doesNotThrowAnyException();
     }
 
+    @Test
+    public void testPush() {
+        Heylogs x = Heylogs.ofServiceLoader();
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> x.push(using("/Empty.md"), TypeOfChange.ADDED, "some message"))
+                .withMessageContaining("Cannot locate changelog header");
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> x.push(using("/Main.md"), TypeOfChange.ADDED, ""))
+                .withMessageContaining("Message must not be empty");
+
+        // Push to existing type-of-change group
+        assertThat(pushToString(x, using("/UnreleasedChanges.md"), TypeOfChange.ADDED, "New feature"))
+                .contains("### Added")
+                .contains("- New feature");
+
+        // Push to non-existing type-of-change group
+        assertThat(pushToString(x, using("/UnreleasedChanges.md"), TypeOfChange.SECURITY, "Fix vulnerability"))
+                .contains("### Security")
+                .contains("- Fix vulnerability");
+
+        // Push message with markdown links
+        String msg = "Add check on GitHub Pull Request links [#173](https://github.com/nbbrd/heylogs/issues/173)";
+        assertThat(pushToString(x, using("/UnreleasedChanges.md"), TypeOfChange.ADDED, msg))
+                .contains("- " + msg);
+
+        // Push to empty unreleased section
+        assertThat(pushToString(x, using("/FirstRelease.md"), TypeOfChange.ADDED, "First change"))
+                .contains("### Added")
+                .contains("- First change");
+    }
+
+    private static String pushToString(Heylogs heylogs, Document doc, TypeOfChange typeOfChange, String message) {
+        heylogs.push(doc, typeOfChange, message);
+        return unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc);
+    }
+
     private static String extractToString(Heylogs heylogs, Document doc, Filter extractor) {
         heylogs.extract(doc, extractor);
         return unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc);

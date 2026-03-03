@@ -12,6 +12,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Add option to set system properties from command-line [#500](https://github.com/nbbrd/heylogs/issues/500)
 - Add Maven Enforcer custom rule [#3](https://github.com/nbbrd/heylogs/issues/3)
 - Add support of yanked releases [#229](https://github.com/nbbrd/heylogs/issues/229)
+- Add push command to insert a change to the Unreleased section [#230](https://github.com/nbbrd/heylogs/issues/230)
 
 ### Fixed
 

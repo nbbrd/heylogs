@@ -29,6 +29,7 @@ import java.util.concurrent.Callable;
                 ScanCommand.class,
                 ExtractCommand.class,
                 ReleaseCommand.class,
+                PushCommand.class,
                 ListCommand.class,
                 ScrapeCommand.class
         },
