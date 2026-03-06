@@ -1,8 +1,10 @@
 package internal.heylogs.cli;
 
 import nbbrd.heylogs.*;
+import org.jspecify.annotations.Nullable;
 import picocli.CommandLine;
 
+import java.nio.file.Path;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
@@ -54,6 +56,12 @@ public class ConfigOptions {
     )
     private List<DomainConfig> domains;
 
+    @CommandLine.Option(
+            names = {"--no-config"},
+            description = "Ignore heylogs.properties configuration files."
+    )
+    private boolean noConfig;
+
     public Config getConfig() {
         return Config
                 .builder()
@@ -63,5 +71,21 @@ public class ConfigOptions {
                 .rules(rules != null ? rules : emptyList())
                 .domains(domains != null ? domains : emptyList())
                 .build();
+    }
+
+    /**
+     * Gets configuration by first loading from heylogs.properties files in the directory hierarchy,
+     * then merging with command-line options (CLI options take precedence).
+     * If --no-config is specified, only command-line options are used.
+     *
+     * @param directory the directory to start searching for config files (typically the parent of the changelog file)
+     * @return the merged configuration
+     */
+    public Config getConfigFromDirectory(@Nullable Path directory) {
+        if (noConfig) {
+            // Ignore config file, only use command-line options
+            return getConfig();
+        }
+        return Config.loadFromDirectory(directory).mergeWith(getConfig());
     }
 }

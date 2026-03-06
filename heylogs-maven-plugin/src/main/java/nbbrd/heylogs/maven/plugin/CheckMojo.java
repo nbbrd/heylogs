@@ -59,6 +59,9 @@ public final class CheckMojo extends HeylogsMojo {
     @Parameter(property = "heylogs.format")
     private String format;
 
+    @Parameter(property = "heylogs.noConfig", defaultValue = "false")
+    private boolean noConfig;
+
     @Override
     public void execute() throws MojoExecutionException {
         if (isSkip()) {
@@ -103,7 +106,8 @@ public final class CheckMojo extends HeylogsMojo {
     @MojoParameterParsing
     private @NonNull Config toConfig() throws MojoExecutionException {
         try {
-            return Config
+            // Build mojo parameters config
+            Config mojoConfig = Config
                     .builder()
                     .taggingOf(tagging)
                     .versioningOf(versioning)
@@ -111,6 +115,18 @@ public final class CheckMojo extends HeylogsMojo {
                     .rulesOf(rules)
                     .domainsOf(domains)
                     .build();
+
+            if (noConfig) {
+                // Ignore config file, only use mojo parameters
+                return mojoConfig;
+            }
+
+            // Load config from file hierarchy starting from first input file's parent or current directory
+            Path firstInputFile = (inputFiles != null && !inputFiles.isEmpty()) ? inputFiles.get(0).toPath() : null;
+            Config fileConfig = Config.loadFromDirectory(Config.resolveStartDir(firstInputFile));
+
+            // Merge with mojo parameters taking precedence
+            return fileConfig.mergeWith(mojoConfig);
         } catch (IllegalArgumentException ex) {
             throw new MojoExecutionException("Invalid config parameter", ex);
         }

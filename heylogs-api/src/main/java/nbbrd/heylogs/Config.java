@@ -1,8 +1,12 @@
 package nbbrd.heylogs;
 
+import internal.heylogs.ConfigFileLoader;
 import lombok.NonNull;
+import nbbrd.design.StaticFactoryMethod;
 import org.jspecify.annotations.Nullable;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -12,6 +16,45 @@ import static java.util.stream.Collectors.toList;
 public class Config {
 
     public static final Config DEFAULT = Config.builder().build();
+
+    /**
+     * Loads configuration from heylogs.properties files in the directory hierarchy.
+     * Walks up from the specified directory to find and merge configuration files.
+     *
+     * @param directory the directory to start searching from (typically project root or working directory)
+     * @return the merged configuration, or DEFAULT if no config files found
+     */
+    @StaticFactoryMethod
+    public static @NonNull Config loadFromDirectory(@Nullable Path directory) {
+        return ConfigFileLoader.loadConfig(directory);
+    }
+
+    /**
+     * Resolves the start directory for configuration loading from a nullable input path.
+     * Returns the parent directory of the path if it exists, otherwise returns the current directory.
+     *
+     * @param inputPath the input path to resolve the directory from (can be null)
+     * @return the resolved directory path, never null
+     */
+    public static @NonNull Path resolveStartDir(@Nullable Path inputPath) {
+        if (inputPath != null && inputPath.getParent() != null) {
+            return inputPath.getParent();
+        }
+        return Paths.get("").toAbsolutePath();
+    }
+
+    /**
+     * Resolves the start directory for configuration loading, preferring project basedir over input file.
+     * Returns the project basedir if available, otherwise the parent directory of the input file,
+     * and falls back to the current directory if neither is available.
+     *
+     * @param projectBasedir the Maven project basedir (can be null)
+     * @param inputFile      the input file to resolve the directory from (can be null)
+     * @return the resolved directory path, never null
+     */
+    public static @NonNull Path resolveStartDir(@Nullable Path projectBasedir, @Nullable Path inputFile) {
+        return projectBasedir != null ? projectBasedir : resolveStartDir(inputFile);
+    }
 
     @Nullable
     TaggingConfig tagging;
@@ -27,6 +70,24 @@ public class Config {
 
     @lombok.Singular
     List<DomainConfig> domains;
+
+    /**
+     * Merges this configuration with another configuration, with the other configuration taking precedence.
+     * Null values in the other configuration are replaced by values from this configuration.
+     * Non-empty lists in the other configuration completely replace lists from this configuration.
+     *
+     * @param other the configuration to merge with (higher precedence)
+     * @return a new merged configuration
+     */
+    public @NonNull Config mergeWith(@NonNull Config other) {
+        return Config.builder()
+                .tagging(other.getTagging() != null ? other.getTagging() : this.getTagging())
+                .versioning(other.getVersioning() != null ? other.getVersioning() : this.getVersioning())
+                .forge(other.getForge() != null ? other.getForge() : this.getForge())
+                .rules(!other.getRules().isEmpty() ? other.getRules() : this.getRules())
+                .domains(!other.getDomains().isEmpty() ? other.getDomains() : this.getDomains())
+                .build();
+    }
 
     public static final class Builder {
 

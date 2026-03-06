@@ -61,7 +61,7 @@ public final class ReleaseCommand implements Callable<Void> {
     }
 
     private Document release(Document document) {
-        Config config = configOptions.getConfig();
+        Config config = configOptions.getConfigFromDirectory(Config.resolveStartDir(input.getFile()));
         Heylogs.ofServiceLoader().release(document, Version.of(ref, null, '-', date, false), config);
         return document;
     }

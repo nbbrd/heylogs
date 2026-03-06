@@ -51,6 +51,8 @@ public final class CheckRule extends HeylogsRule {
 
     private boolean skip;
 
+    private boolean noConfig;
+
     @Inject
     private org.apache.maven.project.MavenProject project;
 
@@ -102,7 +104,8 @@ public final class CheckRule extends HeylogsRule {
 
     private Config toConfig() throws EnforcerRuleException {
         try {
-            return Config
+            // Build enforcer rule parameters config
+            Config ruleConfig = Config
                     .builder()
                     .taggingOf(tagging)
                     .versioningOf(versioning)
@@ -110,6 +113,19 @@ public final class CheckRule extends HeylogsRule {
                     .rulesOf(rules)
                     .domainsOf(domains)
                     .build();
+
+            if (noConfig) {
+                // Ignore config file, only use enforcer rule parameters
+                return ruleConfig;
+            }
+
+            // Load config from file hierarchy starting from project basedir or first input file
+            Path projectBasedir = project != null ? project.getBasedir().toPath() : null;
+            Path firstInputFile = (inputFiles != null && !inputFiles.isEmpty()) ? inputFiles.get(0).toPath() : null;
+            Config fileConfig = Config.loadFromDirectory(Config.resolveStartDir(projectBasedir, firstInputFile));
+
+            // Merge with enforcer rule parameters taking precedence
+            return fileConfig.mergeWith(ruleConfig);
         } catch (IllegalArgumentException ex) {
             throw new EnforcerRuleException("Invalid config parameter", ex);
         }
