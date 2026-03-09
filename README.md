@@ -74,6 +74,7 @@ See the [Features documentation](docs/features.md) for details.
 ## Cookbook
 
 - **[Badges](docs/cookbook-badges.md)** - Generate badges for unreleased changes
+- **[Gitflow](docs/cookbook-gitflow.md)** - Automate the changelog release
 
 ## Developing
 
