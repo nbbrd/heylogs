@@ -120,6 +120,17 @@ public class ExtendedRulesTest {
         assertThat(hasImbalancedBraces("[(])")).isTrue();
         assertThat(hasImbalancedBraces("{(})")).isTrue();
         assertThat(hasImbalancedBraces("(()")).isTrue();
+
+        // Test backticks - braces inside backticks should be ignored
+        assertThat(hasImbalancedBraces("`(`")).isFalse();
+        assertThat(hasImbalancedBraces("`{`")).isFalse();
+        assertThat(hasImbalancedBraces("`[`")).isFalse();
+        assertThat(hasImbalancedBraces("`(]`")).isFalse();
+        assertThat(hasImbalancedBraces("text `{unmatched` text")).isFalse();
+        assertThat(hasImbalancedBraces("text `[code]` (balanced)")).isFalse();
+        assertThat(hasImbalancedBraces("text `[code]` (unbalanced")).isTrue();
+        assertThat(hasImbalancedBraces("(text `[ignore]` balanced)")).isFalse();
+        assertThat(hasImbalancedBraces("(text `[ignore]` unbalanced")).isTrue();
     }
 
     @Test

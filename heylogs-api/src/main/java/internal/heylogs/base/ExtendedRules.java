@@ -374,7 +374,18 @@ public enum ExtendedRules implements Rule {
     static boolean hasImbalancedBraces(String markdown) {
         final String braces = "{}[]()";
         Deque<Character> stack = new ArrayDeque<>();
+        boolean insideBackticks = false;
+
         for (char c : markdown.toCharArray()) {
+            if (c == '`') {
+                insideBackticks = !insideBackticks;
+                continue;
+            }
+
+            if (insideBackticks) {
+                continue; // skip braces inside backticks
+            }
+
             int idx = braces.indexOf(c);
             if (idx == -1) continue;
             if (idx % 2 == 0) { // opening brace

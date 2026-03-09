@@ -20,6 +20,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Fix IllegalArgumentException on URI without scheme [#482](https://github.com/nbbrd/heylogs/issues/482)
 - Fix HTTPS rule on missing protocol [#486](https://github.com/nbbrd/heylogs/issues/486)
+- Fix imbalanced braces rule when braces are in inline code blocks [#471](https://github.com/nbbrd/heylogs/issues/471)
 
 ## [0.14.1] - 2025-09-16
 
