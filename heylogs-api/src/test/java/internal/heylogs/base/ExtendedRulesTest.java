@@ -108,6 +108,23 @@ public class ExtendedRulesTest {
     }
 
     @Test
+    public void testValidateDuplicateItems() {
+        assertThat(validateDuplicateItems(using("/DuplicateItems.md")))
+                .extracting(RuleIssue::getMessage)
+                .asString()
+                .contains("Duplicate item found in version 1.1.0 across ADDED and CHANGED")
+                .contains("- Danish translation from [@frederikspang](https://github.com/frederikspang).")
+                .contains("appears 2 times");
+
+        assertThat(validateDuplicateItems(using("/DuplicateItemsAcrossVersions.md")))
+                .extracting(RuleIssue::getMessage)
+                .asString()
+                .contains("Duplicate item found across versions 1.1.0 (ADDED) and 1.0.0 (FIXED)")
+                .contains("- Danish translation from [@frederikspang](https://github.com/frederikspang).")
+                .contains("appears 2 times");
+    }
+
+    @Test
     public void testHasImbalancedBraces() {
         assertThat(hasImbalancedBraces("")).isFalse();
         assertThat(hasImbalancedBraces("()")).isFalse();

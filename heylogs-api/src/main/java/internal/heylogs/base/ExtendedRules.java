@@ -170,7 +170,8 @@ public enum ExtendedRules implements Rule {
         public @NonNull RuleSeverity getRuleSeverity() {
             return RuleSeverity.OFF;
         }
-    }, TAG_VERSIONING {
+    },
+    TAG_VERSIONING {
         @Override
         public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
             return node instanceof LinkNodeBase ? validateTagVersioning((LinkNodeBase) node, context) : NO_RULE_ISSUE;
@@ -179,6 +180,17 @@ public enum ExtendedRules implements Rule {
         @Override
         public @NonNull String getRuleName() {
             return "Tag versioning";
+        }
+    },
+    DUPLICATE_ITEMS {
+        @Override
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
+            return node instanceof Document ? validateDuplicateItems((Document) node) : NO_RULE_ISSUE;
+        }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "Duplicate items";
         }
     };
 
@@ -542,6 +554,77 @@ public enum ExtendedRules implements Rule {
             }
         }
         return NO_RULE_ISSUE;
+    }
+
+    @VisibleForTesting
+    static RuleIssue validateDuplicateItems(Document doc) {
+        return ChangelogHeading.root(doc)
+                .map(ExtendedRules::validateDuplicateItems)
+                .orElse(NO_RULE_ISSUE);
+    }
+
+    private static RuleIssue validateDuplicateItems(ChangelogHeading changelog) {
+        // Collect all items across all versions and type of changes
+        Map<String, List<ItemLocation>> itemsByText = new HashMap<>();
+
+        changelog.getVersions().forEach(version ->
+            version.getTypeOfChanges().forEach(typeOfChange ->
+                typeOfChange.getBulletListItems().forEach(item -> {
+                    String text = item.getChars().trim().toString();
+                    itemsByText.computeIfAbsent(text, k -> new ArrayList<>())
+                        .add(new ItemLocation(item, version, typeOfChange));
+                })
+            )
+        );
+
+        // Find first duplicate across all items
+        return itemsByText.entrySet().stream()
+                .filter(entry -> entry.getValue().size() > 1)
+                .map(entry -> {
+                    List<ItemLocation> locations = entry.getValue();
+                    ItemLocation first = locations.get(0);
+                    ItemLocation second = locations.get(1);
+
+                    String message;
+                    if (first.version.getSection().getRef().equals(second.version.getSection().getRef())) {
+                        // Same version, different type of change
+                        message = String.format(ROOT, "Duplicate item found in version %s across %s and %s: '%s' appears %d times",
+                            first.version.getSection().getRef(),
+                            first.typeOfChange.getSection(),
+                            second.typeOfChange.getSection(),
+                            entry.getKey(),
+                            locations.size());
+                    } else {
+                        // Different versions
+                        message = String.format(ROOT, "Duplicate item found across versions %s (%s) and %s (%s): '%s' appears %d times",
+                            first.version.getSection().getRef(),
+                            first.typeOfChange.getSection(),
+                            second.version.getSection().getRef(),
+                            second.typeOfChange.getSection(),
+                            entry.getKey(),
+                            locations.size());
+                    }
+
+                    return RuleIssue
+                            .builder()
+                            .message(message)
+                            .location(second.item) // Point to the second occurrence
+                            .build();
+                })
+                .findFirst()
+                .orElse(NO_RULE_ISSUE);
+    }
+
+    private static class ItemLocation {
+        final BulletListItem item;
+        final VersionHeading version;
+        final TypeOfChangeHeading typeOfChange;
+
+        ItemLocation(BulletListItem item, VersionHeading version, TypeOfChangeHeading typeOfChange) {
+            this.item = item;
+            this.version = version;
+            this.typeOfChange = typeOfChange;
+        }
     }
 
     @SuppressWarnings("unused")
