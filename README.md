@@ -17,11 +17,12 @@ Features:
 - [Checks the format](docs/feature-check.md) against an extensive [set of rules](docs/feature-list.md).
 - [Summarizes content](docs/feature-scan.md) to provide a quick overview of a repository.
 - [Filters and extracts](docs/feature-extract.md) versions for publication or searching.
-- [Modifies content](docs/feature-release.md) to release unreleased changes.
+- Modifies content by [releasing unreleased changes](docs/feature-release.md) or [adding changes](docs/feature-push.md).
 - Manages [GitHub, GitLab and Forgejo](docs/feature-forge.md) peculiarities.
 - Validates [semantic, calendar and regex](docs/feature-versioning.md) versioning schemes.
 - Handles the [prefix](docs/feature-tagging.md) tagging strategy.
 - Seamlessly integrates into [CI/CD pipelines](#github-action).
+- Supports [hierarchical configuration](docs/feature-config-file.md) through `heylogs.properties` files.
 
 [ [Usage](#usage) | [Features](#features) | [Cookbook](#cookbook) | [Developing](#developing) | [Contributing](#contributing)  | [Licensing](#licensing) | [Related work](#related-work)]
 
@@ -31,7 +32,8 @@ Heylogs is available in multiple formats to fit your workflow:
 
 - **[Library](docs/usage-library.md)** - Java API for programmatic access
 - **[Command-line tool](docs/usage-cli.md)** - Command-line tool for any platform
-- **[Maven Plugin](docs/usage-maven-plugin.md)** - Maven build integration
+- **[Maven plugin](docs/usage-maven-plugin.md)** - Maven build integration
+- **[Maven Enforcer rules](docs/usage-enforcer-rules.md)** - Enforce changelog quality in builds
 
 Most probably, one wants to check the `CHANGELOG.md` file in a CI/CD environment, thus the command is as follows:
 
@@ -58,6 +60,7 @@ Heylogs provides several **commands** to interact with changelog files:
 - **[scan](docs/feature-scan.md)** - Summarize changelog content and metadata
 - **[extract](docs/feature-extract.md)** - Filter and extract specific versions
 - **[release](docs/feature-release.md)** - Convert unreleased changes into a new release
+- **[push](docs/feature-push.md)** - Insert a change entry to the Unreleased section
 - **[list](docs/feature-list.md)** - Display all available resources and rules
 
 Heylogs also provides some **customizations** to adapt to various workflows:
@@ -94,3 +97,11 @@ Any contribution is welcome and should be done through pull requests and/or issu
 
 The code of this project is licensed under
 the [European Union Public Licence (EUPL)](https://joinup.ec.europa.eu/page/eupl-text-11-12).
+
+## Related work
+
+This project is not the only one that deals with keep-a-changelog format.  
+Here is a non-exhaustive list of related work:
+
+- [clparse](https://github.com/marcaddeo/clparse)
+- [GIT Changelog Merge Driver](https://github.com/maven-flow/changelog-merge-driver) - does a semantic merge of two changelogs.

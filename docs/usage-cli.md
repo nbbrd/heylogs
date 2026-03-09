@@ -92,6 +92,12 @@ To use the CLI without installing it:
 [DOCKER]: https://img.shields.io/badge/-DOCKER-E2BC4A
 [GITHUB]: https://img.shields.io/badge/-GITHUB-e4e669
 
+### Java system properties
+
+The CLI is running on the Java runtime.
+It is possible to configure the runtime by setting Java system properties with the following syntax:
+`heylogs <command> -D<property>=<value> [options]`
+
 ---
 
 [← Back to Usage](usage.md)

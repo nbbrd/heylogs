@@ -3,7 +3,8 @@
 The list command lists all the resources of the application.
 
 ```bash
-Resource  forge       forgejo  forgejo                   Forgejo                        
+Resource  
+  forge       forgejo  forgejo                   Forgejo                        
   forge       github   github                    GitHub                         
   forge       gitlab   gitlab                    GitLab                         
   format      api      stylish                   Human-readable output          

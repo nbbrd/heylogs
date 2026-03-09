@@ -6,6 +6,7 @@ Heylogs provides several **commands** to interact with changelog files:
 - **[scan](feature-scan.md)** - Summarize changelog content and metadata
 - **[extract](feature-extract.md)** - Filter and extract specific versions
 - **[release](feature-release.md)** - Convert unreleased changes into a new release
+- **[push](feature-push.md)** - Insert a change entry to the Unreleased section
 - **[list](feature-list.md)** - Display all available resources and rules
 
 Heylogs also provides some **customizations** to adapt to various workflows:
@@ -17,6 +18,9 @@ Heylogs also provides some **customizations** to adapt to various workflows:
 > [!NOTE]
 > Most examples in the documentation use the CLI for the sake of simplicity.
 > Command options are available through the `--help` option.
+
+Heylogs supports [hierarchical configuration](feature-config-file.md) through `heylogs.properties` files, similar to [Lombok's configuration system](https://projectlombok.org/features/configuration).
+Configuration files are discovered by walking up the directory tree, with child configurations overriding parent values.
 
 ## Usage examples
 
@@ -37,13 +41,14 @@ Each command can be invoked through different interfaces:
 
 ## Command support matrix
 
-| Command   | Library | CLI | Maven Plugin |
-|-----------|:-------:|:---:|:------------:|
-| check     |    ✔    |  ✔  |      ✔       |
-| scan      |    ✔    |  ✔  |      ✔       |
-| extract   |    ✔    |  ✔  |      ✔       |
-| release   |    ✔    |  ✔  |      ✔       |
-| list      |    ✔    |  ✔  |      ✔       |
+| Command   | Library | CLI | Maven Plugin | Enforcer Rule |
+|-----------|:-------:|:---:|:------------:|:-------------:|
+| check     |    ✔    |  ✔  |      ✔       |       ✔       |
+| scan      |    ✔    |  ✔  |      ✔       |       ✖       |
+| extract   |    ✔    |  ✔  |      ✔       |       ✖       |
+| release   |    ✔    |  ✔  |      ✔       |       ✖       |
+| push      |    ✔    |  ✔  |      ✔       |       ✖       |
+| list      |    ✔    |  ✔  |      ✔       |       ✖       |
 
 ---
 
