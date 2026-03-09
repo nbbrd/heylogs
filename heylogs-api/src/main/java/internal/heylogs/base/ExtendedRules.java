@@ -19,6 +19,7 @@ import nbbrd.io.text.Parser;
 import nbbrd.service.ServiceProvider;
 import org.jspecify.annotations.Nullable;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -27,7 +28,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static internal.heylogs.spi.RuleSupport.linkToURL;
 import static internal.heylogs.spi.RuleSupport.nameToId;
 import static java.util.Locale.ROOT;
 import static java.util.function.Function.identity;
@@ -204,14 +204,15 @@ public enum ExtendedRules implements Rule {
 
     @VisibleForTesting
     static RuleIssue validateHttps(LinkNodeBase link) {
-        return linkToURL(link)
-                .filter(url -> !url.getProtocol().equals("https"))
-                .map(ignore -> RuleIssue
-                        .builder()
-                        .message("Expecting HTTPS protocol")
-                        .location(link)
-                        .build())
-                .orElse(NO_RULE_ISSUE);
+        try {
+            if (new URL(link.getUrl().toString()).getProtocol().equals("https")) return NO_RULE_ISSUE;
+        } catch (MalformedURLException ignore) {
+        }
+        return RuleIssue
+                .builder()
+                .message("Expecting HTTPS protocol")
+                .location(link)
+                .build();
     }
 
     @VisibleForTesting

@@ -1,6 +1,5 @@
 package internal.heylogs.spi;
 
-import com.vladsch.flexmark.ast.LinkNodeBase;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
 import lombok.NonNull;
@@ -10,13 +9,10 @@ import nbbrd.heylogs.spi.Rule;
 import nbbrd.heylogs.spi.RuleContext;
 import nbbrd.heylogs.spi.RuleIssue;
 import nbbrd.heylogs.spi.RuleSeverity;
-import nbbrd.io.text.Parser;
 
-import java.net.URL;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 public final class RuleSupport {
@@ -27,10 +23,6 @@ public final class RuleSupport {
 
     public static @NonNull String nameToId(Enum<?> o) {
         return o.name().toLowerCase(Locale.ROOT).replace('_', '-');
-    }
-
-    public static @NonNull Optional<URL> linkToURL(@NonNull LinkNodeBase link) {
-        return Parser.onURL().parseValue(link.getUrl());
     }
 
     public static @NonNull Stream<Problem> problemStreamOf(@NonNull Document root, @NonNull List<Rule> rules, @NonNull RuleContext context) {
