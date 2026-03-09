@@ -285,6 +285,7 @@ public enum ExtendedRules implements Rule {
     private static RuleIssue validateNoEmptyGroup(ChangelogHeading changelog) {
         return changelog
                 .getVersions()
+                .filter(version -> version.getSection().isReleased())
                 .flatMap(ExtendedRules::validateNoEmptyGroupOnVersionNode)
                 .findFirst()
                 .orElse(NO_RULE_ISSUE);

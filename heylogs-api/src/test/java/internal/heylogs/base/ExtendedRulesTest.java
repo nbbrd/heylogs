@@ -86,7 +86,7 @@ public class ExtendedRulesTest {
     @Test
     public void testValidateNoEmptyGroup() {
         assertThat(validateNoEmptyGroup(using("/NoEmptyGroup.md")))
-                .isEqualTo(RuleIssue.builder().message("Heading [1.1.0] - 2019-02-15 has no entries for CHANGED").line(7).column(1).build());
+                .isEqualTo(RuleIssue.builder().message("Heading [1.1.0] - 2019-02-15 has no entries for CHANGED").line(17).column(1).build());
     }
 
     @Test

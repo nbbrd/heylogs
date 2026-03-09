@@ -14,6 +14,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Add support of yanked releases [#229](https://github.com/nbbrd/heylogs/issues/229)
 - Add push command to insert a change to the Unreleased section [#230](https://github.com/nbbrd/heylogs/issues/230)
 - Add hierarchical configuration file support via heylogs.properties [#501](https://github.com/nbbrd/heylogs/issues/501)
+- Skip unreleased version in no-empty-group rule [#469](https://github.com/nbbrd/heylogs/issues/469)
 
 ### Fixed
 
