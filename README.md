@@ -296,7 +296,19 @@ Resources
   rule        api      consistent-separator      Consistent separator      ERROR
   rule        api      date-displayed            Date displayed            ERROR
   rule        api      dot-space-link-style      Dot-space-link style      OFF  
-  ...
+  rule        api      for-humans                For humans                ERROR
+  rule        api      forge-ref                 Forge reference           ERROR
+  rule        api      https                     HTTPS                     ERROR
+  rule        api      imbalanced-braces         Imbalanced braces         ERROR
+  rule        api      latest-version-first      Latest version first      ERROR
+  rule        api      linkable                  Linkable                  ERROR
+  rule        api      no-empty-group            No empty group            ERROR
+  rule        api      no-empty-release          No empty release          ERROR
+  rule        api      release-date              Release date              WARN 
+  rule        api      tag-versioning            Tag versioning            ERROR
+  rule        api      type-of-changes-grouped   Type of changes grouped   ERROR
+  rule        api      unique-headings           Unique headings           ERROR
+  rule        api      unique-release            Unique release            ERROR
   rule        api      versioning-format         Versioning format         ERROR
   tagging     api      prefix                    Prefix tagging                 
   versioning  api      regex                     Regex Versioning               
