@@ -9,7 +9,7 @@
 Key points:
 
 - Follow the [Keep a Changelog](https://keepachangelog.com/) format.
-- Available as a [library](docs/usage-library.md), a [command-line tool](docs/usage-cli.md) and a [Maven plugin](docs/usage-maven-plugin.md)
+- Available as a [library](docs/usage-library.md), a [command-line tool](docs/usage-cli.md), a [Maven plugin](docs/usage-maven-plugin.md) and [Maven Enforcer rules](docs/usage-enforcer-rules.md).
 - Java 8 minimum requirement
 
 Features:
