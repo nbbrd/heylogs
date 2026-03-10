@@ -58,4 +58,4 @@ $ heylogs extract --limit 1 --output result.md
 
 ---
 
-[← Back to Features](features.md)
+[← Back to README](../README.md)

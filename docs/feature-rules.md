@@ -42,4 +42,4 @@ heylogs check --rule dot-space-link-style:WARN --rule no-empty-group:OFF
 
 ---
 
-[← Back to Features](features.md)
+[← Back to README](../README.md)

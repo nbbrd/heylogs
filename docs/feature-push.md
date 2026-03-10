@@ -57,4 +57,4 @@ heylogs push -t deprecated -m "Deprecate legacy API endpoints"
 
 ---
 
-[← Back to Features](features.md)
+[← Back to README](../README.md)

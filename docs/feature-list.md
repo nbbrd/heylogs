@@ -41,4 +41,4 @@ $ heylogs list --output resources.txt --format json
 
 ---
 
-[← Back to Features](features.md)
+[← Back to README](../README.md)

@@ -35,4 +35,4 @@ List<Problem> problems = heylogs.check(flexmarkDocument, config);
 
 ---
 
-[← Back to Usage](usage.md)
+[← Back to README](../README.md)

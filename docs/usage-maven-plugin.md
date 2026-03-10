@@ -36,4 +36,4 @@ mvn heylogs:check
 
 ---
 
-[← Back to Usage](usage.md)
+[← Back to README](../README.md)

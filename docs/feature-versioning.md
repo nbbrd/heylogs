@@ -19,4 +19,4 @@ but you need to specify it explicitly to enable validation.
 
 ---
 
-[← Back to Features](features.md)
+[← Back to README](../README.md)

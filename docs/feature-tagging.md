@@ -15,4 +15,4 @@ Heylogs supports the following tagging strategies:
 
 ---
 
-[← Back to Features](features.md)
+[← Back to README](../README.md)

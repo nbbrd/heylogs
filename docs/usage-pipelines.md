@@ -46,5 +46,4 @@ mvn com.github.nbbrd.heylogs:heylogs-maven-plugin:_VERSION_:release -D heylogs.r
 
 ---
 
-[← Back to Usage](usage.md)
-
+[← Back to README](../README.md)

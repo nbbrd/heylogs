@@ -62,4 +62,4 @@ The release command supports hierarchical configuration via `heylogs.properties`
 
 ---
 
-[← Back to Features](features.md)
+[← Back to README](../README.md)

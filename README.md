@@ -36,8 +36,6 @@ Heylogs is available in multiple formats to fit your workflow:
 - **[Maven Enforcer rules](docs/usage-enforcer-rules.md)** - Enforce changelog quality in builds
 - **[CI/CD pipelines](docs/usage-pipelines.md)** - Integrate into CI/CD environments
 
-See the [Usage documentation](docs/usage.md) for details.
-
 ## Features
 
 Heylogs provides several **commands** to interact with changelog files:
@@ -59,8 +57,6 @@ Heylogs also provides some **customizations** to adapt to various workflows:
 Heylogs also has some **quality-of-life** features to make it easier to use and integrate into different workflows:
 
 - **[config file](docs/feature-config-file.md)** - Hierarchical configuration through `heylogs.properties` files, similar to Lombok's configuration system
-
-See the [Features documentation](docs/features.md) for details.
 
 ## Cookbook
 

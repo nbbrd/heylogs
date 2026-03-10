@@ -92,4 +92,4 @@ The check command supports hierarchical configuration via `heylogs.properties` f
 
 ---
 
-[← Back to Features](features.md)
+[← Back to README](../README.md)
