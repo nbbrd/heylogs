@@ -18,4 +18,3 @@ Heylogs supports the following forge references:
 ---
 
 [← Back to Features](features.md)
-

@@ -1,7 +1,7 @@
 # Library
 
 Heylogs is available as a **Java library**.  
-The Java API is straightforward and has a single point of entry:
+Its API is straightforward and has a single point of entry:
 
 ```java
 Heylogs heylogs = Heylogs.ofServiceLoader();
@@ -36,4 +36,3 @@ List<Problem> problems = heylogs.check(flexmarkDocument, config);
 ---
 
 [← Back to Usage](usage.md)
-

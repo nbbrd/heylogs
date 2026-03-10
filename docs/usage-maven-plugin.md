@@ -1,4 +1,4 @@
-# Maven Plugin
+# Maven plugin
 
 **Heylogs Maven plugin** allows the tool to be part of a Maven build workflow but can also be used as a standalone tool.
 
@@ -37,4 +37,3 @@ mvn heylogs:check
 ---
 
 [← Back to Usage](usage.md)
-

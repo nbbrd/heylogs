@@ -1,4 +1,4 @@
-# Versioning Schemes
+# Versioning schemes
 
 As versions are usually not random strings, Heylogs supports several versioning schemes to validate them:
 
@@ -11,7 +11,7 @@ As versions are usually not random strings, Heylogs supports several versioning 
 Heylogs can detect the versioning scheme automatically when scanning a changelog, 
 but you need to specify it explicitly to enable validation.
 
-## Examples
+## Usage examples
 
 - `$ heylogs check -v semver`  
 - `$ heylogs check -v calver:YYYY.MM.DD`  
@@ -20,4 +20,3 @@ but you need to specify it explicitly to enable validation.
 ---
 
 [← Back to Features](features.md)
-

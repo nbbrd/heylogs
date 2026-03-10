@@ -2,7 +2,7 @@
 
 The heylogs Maven Enforcer rule `checkChangelog` integrates changelog validation directly into Maven's enforcer plugin, allowing you to enforce changelog quality standards as part of your build process. The build fails if the changelog doesn't meet the configured requirements.
 
-## Quick Start
+## Quick start
 
 Add the enforcer plugin with the heylogs custom rule to your pom.xml:
 
@@ -40,9 +40,9 @@ Add the enforcer plugin with the heylogs custom rule to your pom.xml:
 </build>
 ```
 
-## Configuration Parameters
+## Configuration parameters
 
-### Input/Output Parameters
+### Input/Output parameters
 
 #### inputFiles
 List of changelog files to validate.
@@ -77,7 +77,7 @@ File to write validation results to.
 <outputFile>${project.build.directory}/changelog-report.txt</outputFile>
 ```
 
-### Validation Parameters
+### Validation parameters
 
 #### versioning
 Versioning scheme to validate version numbers.
@@ -148,7 +148,7 @@ Output format for validation results.
 <format>json</format>
 ```
 
-### Control Parameters
+### Control parameters
 
 #### skip
 Skip the enforcer rule execution.
@@ -177,5 +177,4 @@ Ignore heylogs.properties configuration files.
 
 ---
 
-[← Back to README](../README.md)
-
+[← Back to Usage](usage.md)

@@ -1,16 +1,18 @@
-# Command-Line Tool
+# Command-line tool
 
 **Heylogs CLI** runs on any desktop operating system and requires Java 8 or later.  
 It follows the Unix philosophy of ["Do one thing and do it well"](https://en.wikipedia.org/wiki/Unix_philosophy#Do_One_Thing_and_Do_It_Well) by performing a single function and being composable.
 
-## Composition Example
+## Composition example
 
 1. download a changelog (`curl`)
 2. summarize its content as json (`heylogs`)
 3. colorize the output (`bat`)
 
 ```bash
-curl -s https://raw.githubusercontent.com/olivierlacan/keep-a-changelog/main/CHANGELOG.md | heylogs scan - -f json | bat -l json
+curl -s https://raw.githubusercontent.com/olivierlacan/keep-a-changelog/main/CHANGELOG.md \    # 1️⃣
+  | heylogs scan - -f json \                                                                   # 2️⃣
+  | bat -l json                                                                                # 3️⃣
 ```
 
 ## Installation
@@ -18,43 +20,36 @@ curl -s https://raw.githubusercontent.com/olivierlacan/keep-a-changelog/main/CHA
 The easiest way of installing the CLI is to use a package manager.  
 Each operating system has its own manager. See the list below for specific instructions.
 
-### Scoop
-
-![WINDOWS]
+### Scoop (Windows)
 
 ```shell
 scoop bucket add nbbrd https://github.com/nbbrd/scoop-nbbrd.git
 scoop install heylogs
 ```
 
-### Homebrew
-
-![MACOS] ![LINUX]
+### Homebrew (macOS and Linux)
 
 ```shell
 brew install nbbrd/tap/heylogs
 ```
 
-### JBang
+### JBang (almost anywhere)
 
 The CLI can be run by JBang almost anywhere using one of these options:
 - Specific version (Maven coordinates): `com.github.nbbrd.heylogs:heylogs-cli:_VERSION_:bin`
 - Latest version (JBang catalog): `heylogs@nbbrd`
 
-![WINDOWS] ![MACOS] ![LINUX]
-
+On Windows, macOS, Linux:
 ```shell
 jbang com.github.nbbrd.heylogs:heylogs-cli:_VERSION_:bin <command> [<args>]
 ```
 
-![DOCKER]
-
+On Docker:
 ```shell
 docker run -v `pwd`:/ws --workdir=/ws jbangdev/jbang-action com.github.nbbrd.heylogs:heylogs-cli:_VERSION_:bin <command> [<args>]
 ```
 
-![GITHUB]
-
+On GitHub Actions:
 ```yml
 - uses: jbangdev/jbang-action@v0.110.1
   with:
@@ -65,9 +60,7 @@ docker run -v `pwd`:/ws --workdir=/ws jbangdev/jbang-action com.github.nbbrd.hey
 _Note that the trust parameter is required if the catalog is used instead of the Maven coordinates:  
 `trust: https://github.com/nbbrd/jbang-catalog`_
 
-### Maven command-line
-
-![WINDOWS] ![MACOS] ![LINUX] ![GITHUB]
+### Maven command-line (almost anywhere)
 
 ```shell
 mvn dependency:copy -Dartifact=com.github.nbbrd.heylogs:heylogs-cli:_VERSION_:jar:bin -DoutputDirectory=. -Dmdep.stripVersion -q
@@ -75,8 +68,6 @@ java -jar heylogs-cli-bin.jar <command> [<args>]
 ```
 
 ### Zero installation
-
-![WINDOWS] ![MACOS] ![LINUX] ![GITHUB]
 
 The CLI is a single executable jar, so it doesn't need to be installed to be used.  
 To use the CLI without installing it:
@@ -101,4 +92,3 @@ It is possible to configure the runtime by setting Java system properties with t
 ---
 
 [← Back to Usage](usage.md)
-

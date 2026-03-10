@@ -2,7 +2,7 @@
 
 Heylogs supports hierarchical configuration through `heylogs.properties` files, similar to [Lombok's configuration system](https://projectlombok.org/features/configuration). Configuration files are discovered by walking up the directory tree, with child configurations overriding parent values.
 
-## Quick Start
+## Quick start
 
 Create a `heylogs.properties` file in your project root:
 
@@ -15,9 +15,9 @@ forge=github
 
 Heylogs automatically discovers and applies this configuration when run from any subdirectory.
 
-## File Location and Discovery
+## File location and discovery
 
-### Search Process
+### Search process
 
 Heylogs searches for `heylogs.properties` files by:
 1. Starting from the **changelog file's directory** (or current directory)
@@ -25,7 +25,7 @@ Heylogs searches for `heylogs.properties` files by:
 3. Loading all discovered files in **parent-to-child order**
 4. Merging configurations with **child values taking precedence**
 
-### Example Directory Structure
+### Example directory structure
 
 ```
 /project/                          # heylogs.properties (versioning=semver)
@@ -43,9 +43,9 @@ When checking `module-a/CHANGELOG.md`:
 - Loads `/project/module-a/heylogs.properties` (forge=github)
 - Merges: `versioning=semver, forge=github`
 
-## Configuration Properties
+## Configuration properties
 
-### Available Properties
+### Available properties
 
 | Property     | Description                  | Example                                      |
 |--------------|------------------------------|----------------------------------------------|
@@ -55,7 +55,7 @@ When checking `module-a/CHANGELOG.md`:
 | `rules`      | Rule severity overrides      | `no-empty-group:WARN,https:OFF`              |
 | `domains`    | Custom forge domains         | `git.company.com:gitlab,internal.org:github` |
 
-### Property Details
+### Property details
 
 #### versioning
 Specifies how version numbers are validated.
@@ -113,9 +113,9 @@ domains=git.company.com:gitlab,code.internal.org:github
 domains=gitlab.mycompany.com:gitlab,github.enterprise.com:github
 ```
 
-## Hierarchical Configuration
+## Hierarchical configuration
 
-### Merging Rules
+### Merging rules
 
 When multiple `heylogs.properties` files exist in the directory hierarchy:
 
@@ -127,7 +127,7 @@ When multiple `heylogs.properties` files exist in the directory hierarchy:
 - Child list **completely replaces** parent list
 - Empty child list removes parent list
 
-### Example: Multi-Level Override
+### Example: multi-level override
 
 ```
 /company/
@@ -167,7 +167,7 @@ tagging=prefix:v              # From frontend
 rules=https:ERROR             # From root
 ```
 
-## Stop Bubbling
+## Stop bubbling
 
 Prevent searching parent directories using `config.stopBubbling`:
 
@@ -184,16 +184,16 @@ forge=github
 - Isolated subprojects
 - Test directories with different rules
 
-## Ignoring config files
+## No-config option
 
-The `--no-config` option disables all `heylogs.properties` file discovery, using only command-line options or defaults.
+Heylogs commands can ignore configuration files by using the `--no-config` option, allowing full control via command-line arguments.
 
-**CLI Usage:**
+**CLI usage:**
 ```bash
 heylogs check --no-config --versioning semver --forge github
 ```
 
-**Maven Plugin:**
+**Maven plugin:**
 ```xml
 <configuration>
     <noConfig>true</noConfig>
@@ -201,12 +201,12 @@ heylogs check --no-config --versioning semver --forge github
 </configuration>
 ```
 
-**Maven Command-Line:**
+**Maven command-Line:**
 ```bash
 mvn heylogs:check -Dheylogs.noConfig=true
 ```
 
-**Use Cases:**
+**Use cases:**
 - **CI/CD pipelines** - Explicit configuration without hidden file dependencies
 - **Testing** - Isolate test runs from project configuration
 - **Debugging** - Determine if issues stem from config files
@@ -215,4 +215,3 @@ mvn heylogs:check -Dheylogs.noConfig=true
 ---
 
 [← Back to Features](features.md)
-

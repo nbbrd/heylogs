@@ -14,13 +14,15 @@ Heylogs also provides some **customizations** to adapt to various workflows:
 - **[forge](feature-forge.md)** - Support for GitHub, GitLab, and Forgejo specific features
 - **[versioning](feature-versioning.md)** - Validate version numbers using semver, calver, or custom regex patterns
 - **[tagging](feature-tagging.md)** - Configure version tag prefixes (e.g., v1.0.0)
+- **[rules](feature-rules.md)** - Extensive set of rules to enforce changelog quality and consistency
+
+Heylogs also has some **quality-of-life** features to make it easier to use and integrate into different workflows:
+
+- **[config-file](feature-config-file.md)** - Hierarchical configuration through `heylogs.properties` files, similar to Lombok's configuration system
 
 > [!NOTE]
 > Most examples in the documentation use the CLI for the sake of simplicity.
 > Command options are available through the `--help` option.
-
-Heylogs supports [hierarchical configuration](feature-config-file.md) through `heylogs.properties` files, similar to [Lombok's configuration system](https://projectlombok.org/features/configuration).
-Configuration files are discovered by walking up the directory tree, with child configurations overriding parent values.
 
 ## Usage examples
 
@@ -30,7 +32,7 @@ Each command can be invoked through different interfaces:
   ```java
   Heylogs.ofServiceLoader().check(document, Config.builder().versioningOf("semver").build())
   ```
-- **Command-line interface:**:   
+- **Command-line interface:**   
   ```shell 
   heylogs check --versioning semver
   ```
@@ -39,18 +41,6 @@ Each command can be invoked through different interfaces:
   mvn com.github.nbbrd.heylogs:heylogs-maven-plugin::check -D heylogs.versioning=semver
   ```
 
-## Command support matrix
-
-| Command   | Library | CLI | Maven Plugin | Enforcer Rule |
-|-----------|:-------:|:---:|:------------:|:-------------:|
-| check     |    ✔    |  ✔  |      ✔       |       ✔       |
-| scan      |    ✔    |  ✔  |      ✔       |       ✖       |
-| extract   |    ✔    |  ✔  |      ✔       |       ✖       |
-| release   |    ✔    |  ✔  |      ✔       |       ✖       |
-| push      |    ✔    |  ✔  |      ✔       |       ✖       |
-| list      |    ✔    |  ✔  |      ✔       |       ✖       |
-
 ---
 
 [← Back to README](../README.md)
-

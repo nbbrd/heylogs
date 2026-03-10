@@ -21,7 +21,7 @@ Features:
 - Manages [GitHub, GitLab and Forgejo](docs/feature-forge.md) peculiarities.
 - Validates [semantic, calendar and regex](docs/feature-versioning.md) versioning schemes.
 - Handles the [prefix](docs/feature-tagging.md) tagging strategy.
-- Seamlessly integrates into [CI/CD pipelines](#github-action).
+- Seamlessly integrates into [CI/CD pipelines](docs/usage-pipelines.md).
 - Supports [hierarchical configuration](docs/feature-config-file.md) through `heylogs.properties` files.
 
 [ [Usage](#usage) | [Features](#features) | [Cookbook](#cookbook) | [Developing](#developing) | [Contributing](#contributing)  | [Licensing](#licensing) | [Related work](#related-work)]
@@ -34,21 +34,7 @@ Heylogs is available in multiple formats to fit your workflow:
 - **[Command-line tool](docs/usage-cli.md)** - Command-line tool for any platform
 - **[Maven plugin](docs/usage-maven-plugin.md)** - Maven build integration
 - **[Maven Enforcer rules](docs/usage-enforcer-rules.md)** - Enforce changelog quality in builds
-
-Most probably, one wants to check the `CHANGELOG.md` file in a CI/CD environment, thus the command is as follows:
-
-```yml
-- uses: jbangdev/jbang-action@v0.130.0
-  with:
-    script: com.github.nbbrd.heylogs:heylogs-cli:_VERSION_:bin
-    scriptargs: "check -o result.json"
-```
-
-An alternative is to use the Maven command-line:
-
-```yml
-- run: mvn com.github.nbbrd.heylogs:heylogs-maven-plugin:_VERSION_:check -D heylogs.outputFile=result.json
-```
+- **[CI/CD pipelines](docs/usage-pipelines.md)** - Integrate into CI/CD environments
 
 See the [Usage documentation](docs/usage.md) for details.
 
@@ -68,13 +54,19 @@ Heylogs also provides some **customizations** to adapt to various workflows:
 - **[forge](docs/feature-forge.md)** - Support for GitHub, GitLab, and Forgejo specific features
 - **[versioning](docs/feature-versioning.md)** - Validate version numbers using semver, calver, or custom regex patterns
 - **[tagging](docs/feature-tagging.md)** - Configure version tag prefixes (e.g., v1.0.0)
+- **[rules](docs/feature-rules.md)** - Extensive set of rules to enforce changelog quality and consistency
+
+Heylogs also has some **quality-of-life** features to make it easier to use and integrate into different workflows:
+
+- **[config file](docs/feature-config-file.md)** - Hierarchical configuration through `heylogs.properties` files, similar to Lombok's configuration system
 
 See the [Features documentation](docs/features.md) for details.
 
 ## Cookbook
 
-- **[Badges](docs/cookbook-badges.md)** - Generate badges for unreleased changes
-- **[Gitflow](docs/cookbook-gitflow.md)** - Automate the changelog release
+- **[badges](docs/cookbook-badges.md)** - Generate badges for unreleased changes
+- **[gitflow](docs/cookbook-gitflow.md)** - Automate the changelog release
+- **[tips](docs/cookbook-tips.md)** - Tips and best practices for using Heylogs effectively
 
 ## Developing
 

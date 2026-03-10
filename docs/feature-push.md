@@ -2,34 +2,24 @@
 
 The push command adds a new change entry to the Unreleased section of a changelog file. It automatically creates the necessary type-of-change section (Added, Changed, Fixed, etc.) if it doesn't exist.
 
-## Usage
+## Usage examples
 
 ### CLI
 
-**Basic Syntax:**
 ```bash
-heylogs push [changelog-file] -t <type> -m "<message>"
-```
-
-**Examples:**
-
-```bash
+$ heylogs push [changelog-file] -t <type> -m "<message>"
 # Add a new feature to Unreleased
 heylogs push -t added -m "Add support for custom themes"
-
 # Fix a bug
 heylogs push CHANGELOG.md -t fixed -m "Fix memory leak in parser"
-
 # Add a security fix with issue reference
 heylogs push -t security -m "Fix XSS vulnerability [#456](https://github.com/user/repo/issues/456)"
-
 # Deprecate a feature
 heylogs push -t deprecated -m "Deprecate legacy API endpoints"
 ```
 
-### Maven Plugin
+### Maven plugin
 
-**Configuration:**
 ```xml
 <plugin>
     <groupId>com.github.nbbrd.heylogs</groupId>
@@ -42,37 +32,29 @@ heylogs push -t deprecated -m "Deprecate legacy API endpoints"
             </goals>
             <configuration>
                 <type>added</type>
-                <message>New feature implementation</message>
+                <message>Add support for custom themes</message>
+                <inputFile>CHANGELOG.md</inputFile>
             </configuration>
         </execution>
     </executions>
 </plugin>
 ```
 
-**Command-Line:**
-```bash
-mvn heylogs:push -Dheylogs.type=fixed -Dheylogs.message="Fix critical bug"
-```
+## Parameters
 
-### Java API
+### Changelog input parameters
 
-```java
-import nbbrd.heylogs.Heylogs;
-import nbbrd.heylogs.TypeOfChange;
-import com.vladsch.flexmark.util.ast.Document;
+| Parameter    | Description                       | CLI                      | Maven Plugin                          |
+|--------------|-----------------------------------|--------------------------|---------------------------------------|
+| `inputFile`  | Changelog file to push to (default: CHANGELOG.md) | `[changelog-file]` (positional, default: CHANGELOG.md) | `<inputFile>CHANGELOG.md</inputFile>` |
 
-// Load the changelog document
-Document document = parseMarkdown(changelogFile);
+### Change parameters
 
-// Push a change
-Heylogs heylogs = Heylogs.ofServiceLoader();
-heylogs.push(document, TypeOfChange.ADDED, "Add new export feature");
-
-// Save the modified document
-writeMarkdown(document, changelogFile);
-```
+| Parameter    | Description                       | CLI                      | Maven Plugin                          |
+|--------------|-----------------------------------|--------------------------|---------------------------------------|
+| `type`       | Type of change (added, changed, fixed, etc.) | `-t <type>` / `--type <type>` | `<type>added</type>`                  |
+| `message`    | The change message                | `-m <message>` / `--message <message>` | `<message>Some change</message>`      |
 
 ---
 
 [← Back to Features](features.md)
-
