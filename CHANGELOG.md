@@ -7,6 +7,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-03-10
+
+This release adds hierarchical configuration file support, yanked releases, push command, Maven Enforcer rules and a duplicate-items rule.
+It also fixes a few rules.
+
 ### Added
 
 - Add option to set system properties from command-line [#500](https://github.com/nbbrd/heylogs/issues/500)
@@ -314,7 +319,8 @@ This release improves extension points and also aligns features of Maven plugin 
 
 - Initial release
 
-[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.14.1...HEAD
+[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.15.0...HEAD
+[0.15.0]: https://github.com/nbbrd/heylogs/compare/v0.14.1...v0.15.0
 [0.14.1]: https://github.com/nbbrd/heylogs/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/nbbrd/heylogs/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/nbbrd/heylogs/compare/v0.12.1...v0.13.0
