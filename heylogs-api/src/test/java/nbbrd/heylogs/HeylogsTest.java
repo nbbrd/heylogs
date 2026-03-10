@@ -129,19 +129,19 @@ public class HeylogsTest {
 
         LocalDate date = LocalDate.of(2010, 1, 1);
 
-        assertThatIllegalArgumentException().isThrownBy(() -> releaseToString(x, using("/Main.md"), Version.of("42", null, HYPHEN, date), "boom"))
+        assertThatIllegalArgumentException().isThrownBy(() -> releaseToString(x, using("/Main.md"), Version.of("42", null, HYPHEN, date, false), "boom"))
                 .withMessageContaining("Cannot find versioning with id 'boom'");
 
-        assertThatIllegalArgumentException().isThrownBy(() -> releaseToString(x, using("/Main.md"), Version.of("boom", null, HYPHEN, date), "regex:\\d+"))
+        assertThatIllegalArgumentException().isThrownBy(() -> releaseToString(x, using("/Main.md"), Version.of("boom", null, HYPHEN, date, false), "regex:\\d+"))
                 .withMessageContaining("Invalid version 'boom' for versioning 'regex:\\d+'");
 
-        assertThatCode(() -> releaseToString(x, using("/Main.md"), Version.of("boom", null, HYPHEN, date), null))
+        assertThatCode(() -> releaseToString(x, using("/Main.md"), Version.of("boom", null, HYPHEN, date, false), null))
                 .doesNotThrowAnyException();
 
-        assertThatCode(() -> releaseToString(x, using("/Main.md"), Version.of("42", null, HYPHEN, date), "regex:\\d+"))
+        assertThatCode(() -> releaseToString(x, using("/Main.md"), Version.of("42", null, HYPHEN, date, false), "regex:\\d+"))
                 .doesNotThrowAnyException();
 
-        Version v123 = Version.of("1.2.3", null, HYPHEN, date);
+        Version v123 = Version.of("1.2.3", null, HYPHEN, date, false);
 
         assertThatIllegalArgumentException().isThrownBy(() -> releaseToString(x, using("/Empty.md"), v123, null))
                 .withMessageContaining("Invalid changelog");
@@ -223,6 +223,19 @@ public class HeylogsTest {
                         .releaseCount(0)
                         .timeRange(TimeRange.ALL)
                         .unreleasedChanges(0)
+                        .build()
+                );
+
+        assertThat(x.scan(using("/YankedRelease.md")))
+                .isEqualTo(Summary
+                        .builder()
+                        .valid(true)
+                        .releaseCount(3)
+                        .yankedReleaseCount(1)
+                        .timeRange(TimeRange.of(LocalDate.of(2017, 6, 1), LocalDate.of(2019, 2, 15)))
+                        .unreleasedChanges(1)
+                        .forgeName("GitHub")
+                        .forgeURL(urlOf("https://github.com/example/project"))
                         .build()
                 );
     }
@@ -325,6 +338,44 @@ public class HeylogsTest {
                 .withMessageContaining("Cannot find forge with id 'boom'");
         assertThatCode(() -> x.checkConfig(Config.builder().domainOf("example:github").build()))
                 .doesNotThrowAnyException();
+    }
+
+    @Test
+    public void testPush() {
+        Heylogs x = Heylogs.ofServiceLoader();
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> x.push(using("/Empty.md"), TypeOfChange.ADDED, "some message"))
+                .withMessageContaining("Cannot locate changelog header");
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> x.push(using("/Main.md"), TypeOfChange.ADDED, ""))
+                .withMessageContaining("Message must not be empty");
+
+        // Push to existing type-of-change group
+        assertThat(pushToString(x, using("/UnreleasedChanges.md"), TypeOfChange.ADDED, "New feature"))
+                .contains("### Added")
+                .contains("- New feature");
+
+        // Push to non-existing type-of-change group
+        assertThat(pushToString(x, using("/UnreleasedChanges.md"), TypeOfChange.SECURITY, "Fix vulnerability"))
+                .contains("### Security")
+                .contains("- Fix vulnerability");
+
+        // Push message with markdown links
+        String msg = "Add check on GitHub Pull Request links [#173](https://github.com/nbbrd/heylogs/issues/173)";
+        assertThat(pushToString(x, using("/UnreleasedChanges.md"), TypeOfChange.ADDED, msg))
+                .contains("- " + msg);
+
+        // Push to empty unreleased section
+        assertThat(pushToString(x, using("/FirstRelease.md"), TypeOfChange.ADDED, "First change"))
+                .contains("### Added")
+                .contains("- First change");
+    }
+
+    private static String pushToString(Heylogs heylogs, Document doc, TypeOfChange typeOfChange, String message) {
+        heylogs.push(doc, typeOfChange, message);
+        return unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc);
     }
 
     private static String extractToString(Heylogs heylogs, Document doc, Filter extractor) {

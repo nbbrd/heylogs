@@ -9,6 +9,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.jansi.graalvm.AnsiConsole;
 
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
@@ -28,6 +29,7 @@ import java.util.concurrent.Callable;
                 ScanCommand.class,
                 ExtractCommand.class,
                 ReleaseCommand.class,
+                PushCommand.class,
                 ListCommand.class,
                 ScrapeCommand.class
         },
@@ -60,6 +62,15 @@ public final class MainCommand implements Callable<Void> {
             cmd.setExecutionExceptionHandler(new PrintAndLogExceptionHandler(MainCommand.class, specialProperties.isDebugRequired()));
             return cmd.execute(args);
         }
+    }
+
+    @CommandLine.Option(
+            names = "-D",
+            mapFallbackValue = "", // allow -Dkey
+            hidden = true,
+            scope = CommandLine.ScopeType.INHERIT)
+    void setProperty(Map<String, String> props) {
+        props.forEach(System::setProperty);
     }
 
     @CommandLine.Spec

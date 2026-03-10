@@ -1,12 +1,10 @@
 package nbbrd.heylogs;
 
-import com.vladsch.flexmark.ast.Heading;
-import com.vladsch.flexmark.ast.LinkNodeBase;
-import com.vladsch.flexmark.ast.RefNode;
-import com.vladsch.flexmark.ast.Reference;
+import com.vladsch.flexmark.ast.*;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
 import internal.heylogs.ChangelogHeading;
+import internal.heylogs.FlexmarkIO;
 import internal.heylogs.TypeOfChangeHeading;
 import internal.heylogs.VersionHeading;
 import internal.heylogs.base.GuidingPrinciples;
@@ -181,6 +179,59 @@ public class Heylogs {
         unreleased.getReference().unlink();
     }
 
+    public void push(@NonNull Document document, @NonNull TypeOfChange typeOfChange, @NonNull String message) throws IllegalArgumentException {
+        if (message.isEmpty()) {
+            throw new IllegalArgumentException("Message must not be empty");
+        }
+
+        ChangelogHeading changelog = ChangelogHeading.root(document)
+                .orElseThrow(() -> new IllegalArgumentException("Cannot locate changelog header"));
+
+        VersionHeading unreleased = changelog.getVersions()
+                .filter(versionNode -> versionNode.getSection().isUnreleased())
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Cannot locate unreleased header"));
+
+        // Find or create the type-of-change heading under unreleased
+        Heading typeOfChangeHeading = unreleased.getTypeOfChanges()
+                .filter(toc -> toc.getSection() == typeOfChange)
+                .map(TypeOfChangeHeading::getHeading)
+                .findFirst()
+                .orElse(null);
+
+        if (typeOfChangeHeading == null) {
+            typeOfChangeHeading = typeOfChange.toHeading();
+            // Insert the new heading after the unreleased heading (before any existing type-of-change or next version)
+            Node insertAfter = unreleased.getHeading();
+            // Walk past any non-heading siblings to find the right insertion point
+            Node next = insertAfter.getNext();
+            while (next != null && !VersionHeading.isParsable(next) && !TypeOfChangeHeading.isParsable(next)) {
+                insertAfter = next;
+                next = next.getNext();
+            }
+            insertAfter.insertAfter(typeOfChangeHeading);
+        }
+
+        // Find or create the bullet list after the type-of-change heading
+        Node bulletListNode = typeOfChangeHeading.getNext();
+        BulletList bulletList;
+        if (bulletListNode instanceof BulletList) {
+            bulletList = (BulletList) bulletListNode;
+        } else {
+            bulletList = new BulletList();
+            bulletList.setOpeningMarker('-');
+            typeOfChangeHeading.insertAfter(bulletList);
+        }
+
+        // Create the new bullet list item by parsing the message as markdown
+        Document parsed = FlexmarkIO.newParser().parse("- " + message + "\n");
+        BulletListItem newItem = Nodes.of(BulletListItem.class).descendants(parsed)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Failed to parse message as bullet list item"));
+
+        bulletList.appendChild(newItem);
+    }
+
     public @NonNull Summary scan(@NonNull Document document) {
         if (isNotValidAgainstGuidingPrinciples(document)) {
             return Summary.INVALID;
@@ -205,6 +256,8 @@ public class Heylogs {
                 .map(VersionHeading::getSection)
                 .collect(toList());
 
+        long yankedReleaseCount = releases.stream().filter(Version::isYanked).count();
+
         long unreleasedChanges = versionsByStatus.get(false)
                 .stream()
                 .findFirst()
@@ -218,6 +271,7 @@ public class Heylogs {
                 .builder()
                 .valid(true)
                 .releaseCount(releases.size())
+                .yankedReleaseCount((int) yankedReleaseCount)
                 .timeRange(releases.stream().map(Version::getDate).collect(toTimeRange()).orElse(TimeRange.ALL))
                 .compatibilities(versioningStreamOf(versionings, releases).map(Versioning::getVersioningName).collect(toList()))
                 .unreleasedChanges((int) unreleasedChanges)

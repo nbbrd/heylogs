@@ -44,7 +44,10 @@ public final class CheckCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         Heylogs heylogs = Heylogs.ofServiceLoader();
-        Config config = configOptions.getConfig();
+
+        // Load config from file hierarchy, using first input file's parent directory
+        Path firstInputFile = input.getFiles().isEmpty() ? null : input.getFiles().get(0);
+        Config config = configOptions.getConfigFromDirectory(Config.resolveStartDir(firstInputFile));
 
         MarkdownInputSupport inputSupport = newMarkdownInputSupport();
 

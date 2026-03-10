@@ -63,7 +63,9 @@ public class ExtendedRulesTest {
                 .filteredOn(Objects::nonNull)
                 .contains(RuleIssue.builder().message("Expecting HTTPS protocol").line(1).column(1).build(), atIndex(0))
                 .contains(RuleIssue.builder().message("Expecting HTTPS protocol").line(2).column(7).build(), atIndex(1))
-                .hasSize(2); // FIXME: should be 3
+                .contains(RuleIssue.builder().message("Expecting HTTPS protocol").line(3).column(7).build(), atIndex(2))
+                .contains(RuleIssue.builder().message("Expecting HTTPS protocol").line(5).column(1).build(), atIndex(3))
+                .hasSize(4);
     }
 
     @Test
@@ -84,7 +86,7 @@ public class ExtendedRulesTest {
     @Test
     public void testValidateNoEmptyGroup() {
         assertThat(validateNoEmptyGroup(using("/NoEmptyGroup.md")))
-                .isEqualTo(RuleIssue.builder().message("Heading [1.1.0] - 2019-02-15 has no entries for CHANGED").line(7).column(1).build());
+                .isEqualTo(RuleIssue.builder().message("Heading [1.1.0] - 2019-02-15 has no entries for CHANGED").line(17).column(1).build());
     }
 
     @Test
@@ -106,6 +108,23 @@ public class ExtendedRulesTest {
     }
 
     @Test
+    public void testValidateDuplicateItems() {
+        assertThat(validateDuplicateItems(using("/DuplicateItems.md")))
+                .extracting(RuleIssue::getMessage)
+                .asString()
+                .contains("Duplicate item found in version 1.1.0 across ADDED and CHANGED")
+                .contains("- Danish translation from [@frederikspang](https://github.com/frederikspang).")
+                .contains("appears 2 times");
+
+        assertThat(validateDuplicateItems(using("/DuplicateItemsAcrossVersions.md")))
+                .extracting(RuleIssue::getMessage)
+                .asString()
+                .contains("Duplicate item found across versions 1.1.0 (ADDED) and 1.0.0 (FIXED)")
+                .contains("- Danish translation from [@frederikspang](https://github.com/frederikspang).")
+                .contains("appears 2 times");
+    }
+
+    @Test
     public void testHasImbalancedBraces() {
         assertThat(hasImbalancedBraces("")).isFalse();
         assertThat(hasImbalancedBraces("()")).isFalse();
@@ -118,6 +137,17 @@ public class ExtendedRulesTest {
         assertThat(hasImbalancedBraces("[(])")).isTrue();
         assertThat(hasImbalancedBraces("{(})")).isTrue();
         assertThat(hasImbalancedBraces("(()")).isTrue();
+
+        // Test backticks - braces inside backticks should be ignored
+        assertThat(hasImbalancedBraces("`(`")).isFalse();
+        assertThat(hasImbalancedBraces("`{`")).isFalse();
+        assertThat(hasImbalancedBraces("`[`")).isFalse();
+        assertThat(hasImbalancedBraces("`(]`")).isFalse();
+        assertThat(hasImbalancedBraces("text `{unmatched` text")).isFalse();
+        assertThat(hasImbalancedBraces("text `[code]` (balanced)")).isFalse();
+        assertThat(hasImbalancedBraces("text `[code]` (unbalanced")).isTrue();
+        assertThat(hasImbalancedBraces("(text `[ignore]` balanced)")).isFalse();
+        assertThat(hasImbalancedBraces("(text `[ignore]` unbalanced")).isTrue();
     }
 
     @Test
@@ -239,6 +269,9 @@ public class ExtendedRulesTest {
 
         assertThat(validateDotSpaceLinkStyle(asBulletListItem("- hello [abc](http://localhost)"), validURL))
                 .isEqualTo(RuleIssue.builder().message("Expecting '. ' before link to issue or request, found 'o '").line(1).column(9).build());
+
+        assertThat(validateDotSpaceLinkStyle(asBulletListItem("- hello [abc](localhost)"), validURL))
+                .isEqualTo(NO_RULE_ISSUE);
     }
 
     @Test

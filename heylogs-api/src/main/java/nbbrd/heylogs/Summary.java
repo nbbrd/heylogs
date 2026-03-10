@@ -16,6 +16,9 @@ public class Summary {
     int releaseCount = 0;
 
     @lombok.Builder.Default
+    int yankedReleaseCount = 0;
+
+    @lombok.Builder.Default
     TimeRange timeRange = TimeRange.ALL;
 
     @lombok.Singular

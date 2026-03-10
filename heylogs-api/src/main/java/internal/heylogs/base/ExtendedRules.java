@@ -19,6 +19,7 @@ import nbbrd.io.text.Parser;
 import nbbrd.service.ServiceProvider;
 import org.jspecify.annotations.Nullable;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -27,7 +28,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static internal.heylogs.spi.RuleSupport.linkToURL;
 import static internal.heylogs.spi.RuleSupport.nameToId;
 import static java.util.Locale.ROOT;
 import static java.util.function.Function.identity;
@@ -170,7 +170,8 @@ public enum ExtendedRules implements Rule {
         public @NonNull RuleSeverity getRuleSeverity() {
             return RuleSeverity.OFF;
         }
-    }, TAG_VERSIONING {
+    },
+    TAG_VERSIONING {
         @Override
         public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
             return node instanceof LinkNodeBase ? validateTagVersioning((LinkNodeBase) node, context) : NO_RULE_ISSUE;
@@ -179,6 +180,17 @@ public enum ExtendedRules implements Rule {
         @Override
         public @NonNull String getRuleName() {
             return "Tag versioning";
+        }
+    },
+    DUPLICATE_ITEMS {
+        @Override
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
+            return node instanceof Document ? validateDuplicateItems((Document) node) : NO_RULE_ISSUE;
+        }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "Duplicate items";
         }
     };
 
@@ -204,14 +216,15 @@ public enum ExtendedRules implements Rule {
 
     @VisibleForTesting
     static RuleIssue validateHttps(LinkNodeBase link) {
-        return linkToURL(link)
-                .filter(url -> !url.getProtocol().equals("https"))
-                .map(ignore -> RuleIssue
-                        .builder()
-                        .message("Expecting HTTPS protocol")
-                        .location(link)
-                        .build())
-                .orElse(NO_RULE_ISSUE);
+        try {
+            if (new URL(link.getUrl().toString()).getProtocol().equals("https")) return NO_RULE_ISSUE;
+        } catch (MalformedURLException ignore) {
+        }
+        return RuleIssue
+                .builder()
+                .message("Expecting HTTPS protocol")
+                .location(link)
+                .build();
     }
 
     @VisibleForTesting
@@ -284,6 +297,7 @@ public enum ExtendedRules implements Rule {
     private static RuleIssue validateNoEmptyGroup(ChangelogHeading changelog) {
         return changelog
                 .getVersions()
+                .filter(version -> version.getSection().isReleased())
                 .flatMap(ExtendedRules::validateNoEmptyGroupOnVersionNode)
                 .findFirst()
                 .orElse(NO_RULE_ISSUE);
@@ -372,7 +386,18 @@ public enum ExtendedRules implements Rule {
     static boolean hasImbalancedBraces(String markdown) {
         final String braces = "{}[]()";
         Deque<Character> stack = new ArrayDeque<>();
+        boolean insideBackticks = false;
+
         for (char c : markdown.toCharArray()) {
+            if (c == '`') {
+                insideBackticks = !insideBackticks;
+                continue;
+            }
+
+            if (insideBackticks) {
+                continue; // skip braces inside backticks
+            }
+
             int idx = braces.indexOf(c);
             if (idx == -1) continue;
             if (idx % 2 == 0) { // opening brace
@@ -491,11 +516,12 @@ public enum ExtendedRules implements Rule {
     }
 
     private static boolean isIssueOrMergeLink(RuleContext context, Link x) {
-        return context.getForges()
+        URL url = illegalArgumentToNull(URLExtractor::urlOf).apply(x.getUrl());
+        return url != null && context.getForges()
                 .stream()
                 .flatMap(forge -> Stream.<Function<? super URL, ForgeLink>>of(forge.getLinkParser(ForgeRefType.ISSUE), forge.getLinkParser(ForgeRefType.REQUEST)))
                 .filter(Objects::nonNull)
-                .anyMatch(linkParser -> illegalArgumentToNull(linkParser).apply(URLExtractor.urlOf(x.getUrl())) != null);
+                .anyMatch(linkParser -> illegalArgumentToNull(linkParser).apply(url) != null);
     }
 
     @VisibleForTesting
@@ -528,6 +554,77 @@ public enum ExtendedRules implements Rule {
             }
         }
         return NO_RULE_ISSUE;
+    }
+
+    @VisibleForTesting
+    static RuleIssue validateDuplicateItems(Document doc) {
+        return ChangelogHeading.root(doc)
+                .map(ExtendedRules::validateDuplicateItems)
+                .orElse(NO_RULE_ISSUE);
+    }
+
+    private static RuleIssue validateDuplicateItems(ChangelogHeading changelog) {
+        // Collect all items across all versions and type of changes
+        Map<String, List<ItemLocation>> itemsByText = new HashMap<>();
+
+        changelog.getVersions().forEach(version ->
+            version.getTypeOfChanges().forEach(typeOfChange ->
+                typeOfChange.getBulletListItems().forEach(item -> {
+                    String text = item.getChars().trim().toString();
+                    itemsByText.computeIfAbsent(text, k -> new ArrayList<>())
+                        .add(new ItemLocation(item, version, typeOfChange));
+                })
+            )
+        );
+
+        // Find first duplicate across all items
+        return itemsByText.entrySet().stream()
+                .filter(entry -> entry.getValue().size() > 1)
+                .map(entry -> {
+                    List<ItemLocation> locations = entry.getValue();
+                    ItemLocation first = locations.get(0);
+                    ItemLocation second = locations.get(1);
+
+                    String message;
+                    if (first.version.getSection().getRef().equals(second.version.getSection().getRef())) {
+                        // Same version, different type of change
+                        message = String.format(ROOT, "Duplicate item found in version %s across %s and %s: '%s' appears %d times",
+                            first.version.getSection().getRef(),
+                            first.typeOfChange.getSection(),
+                            second.typeOfChange.getSection(),
+                            entry.getKey(),
+                            locations.size());
+                    } else {
+                        // Different versions
+                        message = String.format(ROOT, "Duplicate item found across versions %s (%s) and %s (%s): '%s' appears %d times",
+                            first.version.getSection().getRef(),
+                            first.typeOfChange.getSection(),
+                            second.version.getSection().getRef(),
+                            second.typeOfChange.getSection(),
+                            entry.getKey(),
+                            locations.size());
+                    }
+
+                    return RuleIssue
+                            .builder()
+                            .message(message)
+                            .location(second.item) // Point to the second occurrence
+                            .build();
+                })
+                .findFirst()
+                .orElse(NO_RULE_ISSUE);
+    }
+
+    private static class ItemLocation {
+        final BulletListItem item;
+        final VersionHeading version;
+        final TypeOfChangeHeading typeOfChange;
+
+        ItemLocation(BulletListItem item, VersionHeading version, TypeOfChangeHeading typeOfChange) {
+            this.item = item;
+            this.version = version;
+            this.typeOfChange = typeOfChange;
+        }
     }
 
     @SuppressWarnings("unused")

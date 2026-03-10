@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.github.nbbrd.heylogs</groupId>
+        <artifactId>heylogs-parent</artifactId>
+        <version>0.15.0</version>
+    </parent>
+
+    <artifactId>heylogs-enforcer-rules</artifactId>
+    <packaging>jar</packaging>
+
+    <name>heylogs-enforcer-rules</name>
+    <description>Keep-a-changelog tool - Maven Enforcer Rules</description>
+    <url>https://github.com/nbbrd/heylogs</url>
+
+    <dependencies>
+        <!-- compile only -->
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.nbbrd.java-design-util</groupId>
+            <artifactId>java-design-processor</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.enforcer</groupId>
+            <artifactId>enforcer-api</artifactId>
+            <version>3.6.2</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-core</artifactId>
+            <version>${requiredMavenVersion}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <version>1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- compile and runtime -->
+        <dependency>
+            <artifactId>heylogs-api</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.nbbrd.java-console-properties</groupId>
+            <artifactId>java-console-properties</artifactId>
+        </dependency>
+
+        <!-- runtime only -->
+        <dependency>
+            <artifactId>heylogs-ext-calver</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <artifactId>heylogs-ext-forgejo</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <artifactId>heylogs-ext-github</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <artifactId>heylogs-ext-gitlab</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <artifactId>heylogs-ext-json</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <artifactId>heylogs-ext-semver</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- test only -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <!-- generate index of project components -->
+                <groupId>org.eclipse.sisu</groupId>
+                <artifactId>sisu-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>main-index</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+

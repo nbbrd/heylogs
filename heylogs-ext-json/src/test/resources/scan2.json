@@ -4,6 +4,7 @@
     "summary": {
       "valid": true,
       "releaseCount": 3,
+      "yankedReleaseCount": 0,
       "timeRange": {
         "from": "2010-01-01",
         "to": "2011-01-01"
