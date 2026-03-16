@@ -373,6 +373,57 @@ public class HeylogsTest {
                 .contains("- First change");
     }
 
+    @Test
+    public void testInit() {
+        Heylogs x = Heylogs.ofServiceLoader()
+                .toBuilder()
+                .clearVersionings().versioning(BaseVersionings.REGEX_VERSIONING)
+                .build();
+
+        // no versioning: description line has no versioning reference
+        String defaultResult = unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(x.init(Config.DEFAULT, null));
+        assertThat(defaultResult)
+                .contains("# Changelog")
+                .contains("## [Unreleased]")
+                .contains("[Keep a Changelog]")
+                .doesNotContain("adheres to");
+
+        // with versioning: name and URL come from the service
+        String versioningResult = unchecked(FlexmarkIO.newTextFormatter()::formatToString)
+                .apply(x.init(Config.builder().versioningOf("regex:.*").build(), null));
+        assertThat(versioningResult)
+                .contains("adheres to")
+                .contains("[Regex Versioning](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html)")
+                .doesNotContain("Semantic Versioning");
+
+        // custom template — all config variables
+        Heylogs xFull = x.toBuilder().forge(new MockedForge()).build();
+        String customTemplate = "{{#versioning}}versioning:{{id}}:{{name}}{{/versioning}}" +
+                "{{#tagging}} tagging:{{id}}:{{arg}}{{/tagging}}" +
+                "{{#forge}} forge:{{id}}{{/forge}}" +
+                "{{#rules}} rule:{{id}}:{{severity}}{{/rules}}" +
+                "{{#domains}} domain:{{domain}}:{{forgeId}}{{/domains}}";
+        Config fullConfig = Config.builder()
+                .versioningOf("regex:.*")
+                .taggingOf("prefix:v")
+                .forgeOf("github")
+                .ruleOf("no-empty-group:WARN")
+                .domainOf("example.com:github")
+                .build();
+        String customResult = unchecked(FlexmarkIO.newTextFormatter()::formatToString)
+                .apply(xFull.init(fullConfig, customTemplate));
+        assertThat(customResult)
+                .contains("versioning:regex:Regex Versioning")
+                .contains("tagging:prefix:v")
+                .contains("forge:github")
+                .contains("rule:no-empty-group:WARN")
+                .contains("domain:example.com:github");
+
+        assertThat(x.check(x.init(Config.DEFAULT, null), Config.DEFAULT))
+                .extracting(Problem::getId)
+                .doesNotContain("changelog-heading", "version-format");
+    }
+
     private static String pushToString(Heylogs heylogs, Document doc, TypeOfChange typeOfChange, String message) {
         heylogs.push(doc, typeOfChange, message);
         return unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc);

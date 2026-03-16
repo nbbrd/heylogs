@@ -74,6 +74,11 @@
 
             <!-- other libraries -->
             <dependency>
+                <groupId>com.github.spullara.mustache.java</groupId>
+                <artifactId>compiler</artifactId>
+                <version>0.9.14</version>
+            </dependency>
+            <dependency>
                 <groupId>com.github.nbbrd.java-console-properties</groupId>
                 <artifactId>java-console-properties</artifactId>
                 <version>1.4.1</version>

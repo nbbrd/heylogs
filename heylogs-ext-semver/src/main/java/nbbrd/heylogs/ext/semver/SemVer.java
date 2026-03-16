@@ -17,6 +17,7 @@ public final class SemVer implements Versioning {
             .builder()
             .id("semver")
             .name("Semantic Versioning")
+            .urlOf("https://semver.org/")
             .moduleId("semver")
             .validator(arg -> arg == null ? null : "Semver does not take any arguments")
             .predicate(withoutArg(text -> Semver.isValid(text.toString())))

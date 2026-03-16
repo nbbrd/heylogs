@@ -70,6 +70,10 @@
             <artifactId>java-io-base</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.github.spullara.mustache.java</groupId>
+            <artifactId>compiler</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.github.nbbrd.java-io-util</groupId>
             <artifactId>java-io-http</artifactId>
         </dependency>

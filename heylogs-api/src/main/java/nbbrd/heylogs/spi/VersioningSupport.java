@@ -4,6 +4,8 @@ import lombok.NonNull;
 import nbbrd.design.StaticFactoryMethod;
 import org.jspecify.annotations.Nullable;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -14,6 +16,8 @@ public final class VersioningSupport implements Versioning {
     private final @NonNull String id;
 
     private final @NonNull String name;
+
+    private final @NonNull URL url;
 
     private final @NonNull String moduleId;
 
@@ -29,6 +33,11 @@ public final class VersioningSupport implements Versioning {
     @Override
     public @NonNull String getVersioningName() {
         return name;
+    }
+
+    @Override
+    public @NonNull URL getVersioningUrl() {
+        return url;
     }
 
     @Override
@@ -59,5 +68,16 @@ public final class VersioningSupport implements Versioning {
             X engine = factory.apply(arg);
             return text -> predicate.test(engine, text);
         };
+    }
+
+    public static final class Builder {
+
+        public @NonNull Builder urlOf(@NonNull CharSequence url) {
+            try {
+                return url(new URL(url.toString()));
+            } catch (MalformedURLException e) {
+                throw new IllegalArgumentException(e);
+            }
+        }
     }
 }

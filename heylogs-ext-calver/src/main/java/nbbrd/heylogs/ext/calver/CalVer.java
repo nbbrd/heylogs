@@ -18,6 +18,7 @@ public final class CalVer implements Versioning {
             .builder()
             .id("calver")
             .name("Calendar Versioning")
+            .urlOf("https://calver.org/")
             .moduleId("calver")
             .validator(Validator.of(CalVerFormat::parse))
             .predicate(compilingArg(CalVerFormat::parse, CalVerFormat::isValidVersion))

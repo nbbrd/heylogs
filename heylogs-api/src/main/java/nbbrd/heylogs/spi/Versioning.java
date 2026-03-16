@@ -6,6 +6,7 @@ import nbbrd.service.ServiceDefinition;
 import nbbrd.service.ServiceId;
 import org.jspecify.annotations.Nullable;
 
+import java.net.URL;
 import java.util.function.Predicate;
 
 @ServiceDefinition(
@@ -20,6 +21,9 @@ public interface Versioning {
 
     @NonNull
     String getVersioningName();
+
+    @NonNull
+    URL getVersioningUrl();
 
     @NonNull
     String getVersioningModuleId();

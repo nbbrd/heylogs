@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Add init command to create a CHANGELOG.md if it does not exist [#438](https://github.com/nbbrd/heylogs/issues/438)
+
 ## [0.15.0] - 2026-03-10
 
 This release adds hierarchical configuration file support, yanked releases, push command, Maven Enforcer rules and a duplicate-items rule.

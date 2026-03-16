@@ -1,5 +1,7 @@
 package nbbrd.heylogs;
 
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.Mustache;
 import com.vladsch.flexmark.ast.*;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
@@ -17,9 +19,12 @@ import nbbrd.heylogs.spi.*;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -177,6 +182,67 @@ public class Heylogs {
         unreleased.getReference().insertAfter(release.getReference());
         unreleased.getReference().insertBefore(updated.getReference());
         unreleased.getReference().unlink();
+    }
+
+    public @NonNull Document init(@NonNull Config config, @Nullable String template) {
+        checkConfig(config);
+
+        Map<String, Object> context = new HashMap<>();
+
+        if (config.getVersioning() != null) {
+            Versioning versioning = findVersioning(config.getVersioning()::isCompatibleWith)
+                    .orElseThrow(() -> new IllegalArgumentException("Cannot find versioning with id '" + config.getVersioning().getId() + "'"));
+            Map<String, Object> versioningContext = new HashMap<>();
+            versioningContext.put("id", config.getVersioning().getId());
+            versioningContext.put("arg", config.getVersioning().getArg());
+            versioningContext.put("name", versioning.getVersioningName());
+            versioningContext.put("url", versioning.getVersioningUrl().toString());
+            context.put("versioning", versioningContext);
+        }
+
+        if (config.getTagging() != null) {
+            Map<String, Object> taggingContext = new HashMap<>();
+            taggingContext.put("id", config.getTagging().getId());
+            taggingContext.put("arg", config.getTagging().getArg());
+            context.put("tagging", taggingContext);
+        }
+
+        if (config.getForge() != null) {
+            Map<String, Object> forgeContext = new HashMap<>();
+            forgeContext.put("id", config.getForge().getId());
+            context.put("forge", forgeContext);
+        }
+
+        List<Map<String, Object>> rulesContext = new ArrayList<>();
+        for (RuleConfig rule : config.getRules()) {
+            Map<String, Object> ruleMap = new HashMap<>();
+            ruleMap.put("id", rule.getId());
+            ruleMap.put("severity", rule.getSeverity() != null ? rule.getSeverity().toString() : null);
+            rulesContext.add(ruleMap);
+        }
+        context.put("rules", rulesContext);
+
+        List<Map<String, Object>> domainsContext = new ArrayList<>();
+        for (DomainConfig domain : config.getDomains()) {
+            Map<String, Object> domainMap = new HashMap<>();
+            domainMap.put("domain", domain.getDomain());
+            domainMap.put("forgeId", domain.getForgeId());
+            domainsContext.add(domainMap);
+        }
+        context.put("domains", domainsContext);
+
+        DefaultMustacheFactory factory = new DefaultMustacheFactory();
+        Mustache mustache = template != null
+                ? factory.compile(new StringReader(template), "custom")
+                : factory.compile("internal/heylogs/init.mustache");
+
+        try {
+            StringWriter writer = new StringWriter();
+            mustache.execute(writer, context).flush();
+            return FlexmarkIO.newParser().parse(writer.toString());
+        } catch (IOException ex) {
+            throw new IllegalStateException("Failed to render init template", ex);
+        }
     }
 
     public void push(@NonNull Document document, @NonNull TypeOfChange typeOfChange, @NonNull String message) throws IllegalArgumentException {
