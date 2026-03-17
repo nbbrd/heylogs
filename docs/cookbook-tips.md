@@ -2,6 +2,13 @@
 
 This page provides practical tips and best practices for using Heylogs effectively in your projects.
 
+## Table of contents
+
+- [General tips](#general-tips)
+- [Use stdin and stdout with `-`](#use-stdin-and-stdout-with--)
+- [Use Maven plugin without a `pom.xml` as a fallback](#use-maven-plugin-without-a-pomxml-as-a-fallback)
+- [Recover full changelog from release failure](#recover-full-changelog-from-release-failure)
+
 ## General tips
 
 - **Automate changelog checks:** Integrate Heylogs into your CI/CD pipeline to catch issues early.
@@ -31,6 +38,25 @@ heylogs scan CHANGELOG.md -o -
 ```
 
 Commands that modify the changelog in place (`release`, `push`) do not support `-` because they read and write the same file.
+
+## Use Maven plugin without a `pom.xml` as a fallback
+
+If the Heylogs CLI is not available but Maven is installed, you can invoke the Maven plugin directly using its full coordinates — no `pom.xml` required.
+Maven resolves and downloads the plugin on the fly from the central repository.
+
+```shell
+# Check a changelog
+mvn com.github.nbbrd.heylogs:heylogs-maven-plugin:0.14.0:check -Dheylogs.inputFile=CHANGELOG.md
+
+# Scan a changelog
+mvn com.github.nbbrd.heylogs:heylogs-maven-plugin:0.14.0:scan -Dheylogs.inputFile=CHANGELOG.md
+
+# Release the Unreleased section
+mvn com.github.nbbrd.heylogs:heylogs-maven-plugin:0.14.0:release -Dheylogs.inputFile=CHANGELOG.md -Dheylogs.ref=1.2.3
+```
+
+Replace `0.14.0` with the latest stable version.
+This approach is especially useful in CI/CD environments or on machines where only Maven is available.
 
 ## Recover full changelog from release failure
 
