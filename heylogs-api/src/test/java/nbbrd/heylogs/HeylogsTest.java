@@ -548,5 +548,10 @@ public class HeylogsTest {
         public boolean isKnownHost(@NonNull URL url) {
             return false;
         }
+
+        @Override
+        public @Nullable MessageFetcher getMessageFetcher() {
+            return null;
+        }
     }
 }

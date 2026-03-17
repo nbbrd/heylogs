@@ -89,6 +89,16 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <dependency>
+                <groupId>io.github.hakky54</groupId>
+                <artifactId>ayza</artifactId>
+                <version>10.0.3</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>2.13.2</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -249,6 +259,7 @@
         <module>heylogs-enforcer-rules</module>
         <module>heylogs-maven-plugin</module>
         <module>heylogs-bom</module>
+        <module>heylogs-ext-http</module>
     </modules>
 
     <profiles>

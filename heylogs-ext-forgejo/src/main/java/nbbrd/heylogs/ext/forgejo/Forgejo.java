@@ -23,5 +23,6 @@ public final class Forgejo implements Forge {
             .parser(REQUEST, ForgejoRequestLink::parse, ForgejoRequestRef::parse)
             .parser(MENTION, ForgejoMentionLink::parse, ForgejoMentionRef::parse)
             .linkParser(COMPARE, ForgejoCompareLink::parse)
+            .messageFetcher(new ForgejoMessageFetcher())
             .build();
 }

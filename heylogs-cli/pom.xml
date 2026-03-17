@@ -97,6 +97,12 @@
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <artifactId>heylogs-ext-http</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
 
         <!-- test only -->
         <dependency>

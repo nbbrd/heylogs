@@ -36,4 +36,7 @@ public interface Forge {
     Function<? super CharSequence, ForgeRef> getRefParser(@NonNull ForgeRefType type);
 
     boolean isKnownHost(@NonNull URL url);
+
+    @Nullable
+    MessageFetcher getMessageFetcher();
 }

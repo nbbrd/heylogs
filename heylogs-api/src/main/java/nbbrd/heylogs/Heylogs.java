@@ -23,11 +23,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -57,6 +53,7 @@ public class Heylogs {
                 .versionings(VersioningLoader.load())
                 .forges(ForgeLoader.load())
                 .taggings(TaggingLoader.load())
+                .httpFactory(HttpFactoryLoader.load())
                 .build();
     }
 
@@ -79,6 +76,10 @@ public class Heylogs {
     @NonNull
     @lombok.Singular
     List<Tagging> taggings;
+
+    @NonNull
+    @lombok.Builder.Default
+    HttpFactory httpFactory = HttpFactory.noOp();
 
     public @NonNull List<Problem> check(@NonNull Document document, @NonNull Config config) {
         checkConfig(config);

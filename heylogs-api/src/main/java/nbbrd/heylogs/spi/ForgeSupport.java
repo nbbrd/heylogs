@@ -27,6 +27,9 @@ public final class ForgeSupport implements Forge {
     @lombok.Singular
     private final Map<ForgeRefType, Function<? super CharSequence, ForgeRef>> refParsers;
 
+    @lombok.Builder.Default
+    private final @Nullable MessageFetcher messageFetcher = null;
+
     @Override
     public @NonNull String getForgeId() {
         return id;
@@ -78,6 +81,11 @@ public final class ForgeSupport implements Forge {
     @Override
     public boolean isKnownHost(@NonNull URL url) {
         return knownHostPredicate.test(url);
+    }
+
+    @Override
+    public @Nullable MessageFetcher getMessageFetcher() {
+        return messageFetcher;
     }
 
     public static final class Builder {

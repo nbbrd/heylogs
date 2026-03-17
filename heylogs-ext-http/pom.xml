@@ -10,11 +10,11 @@
         <version>0.15.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>heylogs-ext-json</artifactId>
+    <artifactId>heylogs-ext-http</artifactId>
     <packaging>jar</packaging>
 
-    <name>heylogs-ext-json</name>
-    <description>Keep-a-changelog tool - JSON extension</description>
+    <name>heylogs-ext-http</name>
+    <description>Keep-a-changelog tool - HTTP extension</description>
     <url>https://github.com/nbbrd/heylogs</url>
 
     <dependencies>
@@ -47,8 +47,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
+            <groupId>io.github.hakky54</groupId>
+            <artifactId>ayza</artifactId>
+            <version>10.0.3</version>
         </dependency>
 
         <!-- test only -->
