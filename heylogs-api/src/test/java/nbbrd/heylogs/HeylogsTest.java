@@ -374,6 +374,36 @@ public class HeylogsTest {
     }
 
     @Test
+    public void testYank() {
+        Heylogs x = Heylogs.ofServiceLoader();
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> x.yank(using("/Empty.md"), "1.0.0"))
+                .withMessageContaining("Cannot locate changelog header");
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> x.yank(using("/Main.md"), ""))
+                .withMessageContaining("Ref must not be empty");
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> x.yank(using("/Main.md"), "9.9.9"))
+                .withMessageContaining("Cannot locate version '9.9.9'");
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> x.yank(using("/Main.md"), "unreleased"))
+                .withMessageContaining("Cannot yank unreleased version");
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> x.yank(using("/YankedRelease.md"), "1.0.0"))
+                .withMessageContaining("Version '1.0.0' is already yanked");
+
+        // Yank an existing released version
+        assertThat(yankToString(x, using("/YankedRelease.md"), "1.1.0"))
+                .contains("## [1.1.0] - 2019-02-15 [YANKED]")
+                .doesNotContain("## [1.1.0] - 2019-02-15\n");
+    }
+
+    @Test
     public void testInit() {
         Heylogs x = Heylogs.ofServiceLoader()
                 .toBuilder()
@@ -426,6 +456,11 @@ public class HeylogsTest {
 
     private static String pushToString(Heylogs heylogs, Document doc, TypeOfChange typeOfChange, String message) {
         heylogs.push(doc, typeOfChange, message);
+        return unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc);
+    }
+
+    private static String yankToString(Heylogs heylogs, Document doc, String ref) {
+        heylogs.yank(doc, ref);
         return unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc);
     }
 

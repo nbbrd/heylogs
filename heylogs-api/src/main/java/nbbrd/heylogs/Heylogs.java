@@ -245,6 +245,36 @@ public class Heylogs {
         }
     }
 
+    public void yank(@NonNull Document document, @NonNull String ref) throws IllegalArgumentException {
+        if (ref.isEmpty()) {
+            throw new IllegalArgumentException("Ref must not be empty");
+        }
+
+        ChangelogHeading changelog = ChangelogHeading.root(document)
+                .orElseThrow(() -> new IllegalArgumentException("Cannot locate changelog header"));
+
+        VersionHeading target = changelog.getVersions()
+                .filter(versionNode -> ref.equalsIgnoreCase(versionNode.getSection().getRef()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Cannot locate version '" + ref + "'"));
+
+        Version version = target.getSection();
+
+        if (version.isUnreleased()) {
+            throw new IllegalArgumentException("Cannot yank unreleased version");
+        }
+
+        if (version.isYanked()) {
+            throw new IllegalArgumentException("Version '" + ref + "' is already yanked");
+        }
+
+        // Create a new heading with yanked=true and replace the old heading
+        Version yankedVersion = Version.of(version.getRef(), version.getLink(), version.getSeparator(), version.getDate(), true);
+        Heading newHeading = yankedVersion.toHeading();
+        target.getHeading().insertBefore(newHeading);
+        target.getHeading().unlink();
+    }
+
     public void push(@NonNull Document document, @NonNull TypeOfChange typeOfChange, @NonNull String message) throws IllegalArgumentException {
         if (message.isEmpty()) {
             throw new IllegalArgumentException("Message must not be empty");
