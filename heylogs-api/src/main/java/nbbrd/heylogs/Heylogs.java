@@ -439,6 +439,72 @@ public class Heylogs {
                 .build();
     }
 
+    public void note(@NonNull Document document, @NonNull String summary) {
+        ChangelogHeading changelog = ChangelogHeading.root(document)
+                .orElseThrow(() -> new IllegalArgumentException("Cannot locate changelog header"));
+
+        VersionHeading unreleased = changelog.getVersions()
+                .filter(versionNode -> versionNode.getSection().isUnreleased())
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Cannot locate unreleased header"));
+
+        // Find the first type-of-change or version heading after the Unreleased heading
+        Node start = unreleased.getHeading();
+        Node node = start.getNext();
+        Node stopNode = null;
+        while (node != null) {
+            if (TypeOfChangeHeading.isParsable(node) || VersionHeading.isParsable(node)) {
+                stopNode = node;
+                break;
+            }
+            node = node.getNext();
+        }
+
+        // Collect reference link definitions to preserve
+        java.util.List<Node> referenceDefs = new java.util.ArrayList<>();
+        node = start.getNext();
+        while (node != null && node != stopNode) {
+            Node next = node.getNext();
+            if (node instanceof com.vladsch.flexmark.ast.Reference) {
+                referenceDefs.add(node);
+            } else {
+                node.unlink();
+            }
+            node = next;
+        }
+
+        // Insert the summary as Markdown (if not empty)
+        if (!summary.trim().isEmpty()) {
+            Document parsed = FlexmarkIO.newParser().parse(summary + "\n");
+            Node insertAfter = start;
+            Node lastSummaryNode = null;
+            for (Node child = parsed.getFirstChild(); child != null;) {
+                Node nextChild = child.getNext();
+                if (insertAfter.getParent() == null) {
+                    document.appendChild(child);
+                } else {
+                    insertAfter.insertAfter(child);
+                }
+                insertAfter = child;
+                lastSummaryNode = child;
+                child = nextChild;
+            }
+            // If the next node is a reference definition, insert a blank paragraph to ensure proper markdown rendering
+            if (lastSummaryNode != null && lastSummaryNode.getNext() instanceof com.vladsch.flexmark.ast.Reference) {
+                com.vladsch.flexmark.ast.Paragraph blank = new com.vladsch.flexmark.ast.Paragraph();
+                lastSummaryNode.insertAfter(blank);
+            }
+        }
+        // Re-append reference definitions after summary (if any)
+        Node last = document.getLastChild();
+        for (Node ref : referenceDefs) {
+            if (ref.getParent() == null) {
+                document.appendChild(ref);
+                last = ref;
+            }
+        }
+    }
+
     public @NonNull List<ScrapedLink> scrape(@NonNull Document doc, @NonNull Config config) {
         RuleContext context = initContext(config);
         return Nodes.of(LinkNodeBase.class)

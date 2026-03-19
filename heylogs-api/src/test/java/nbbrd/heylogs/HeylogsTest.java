@@ -482,6 +482,51 @@ public class HeylogsTest {
                 .doesNotContain("changelog-heading", "version-format");
     }
 
+    @Test
+    public void testNote() {
+        Heylogs heylogs = Heylogs.ofServiceLoader();
+
+        // 1. Insert summary when none exists (FirstRelease.md)
+        Document doc1 = using("/FirstRelease.md");
+        heylogs.note(doc1, "This is a summary.");
+        String result1 = unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc1);
+        assertThat(result1)
+                .contains("## [Unreleased]", "This is a summary.")
+                .contains("[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/HEAD...HEAD");
+
+        // 2. Replace existing summary (UnreleasedChanges.md)
+        Document doc2 = using("/UnreleasedChanges.md");
+        heylogs.note(doc2, "Replaced summary");
+        String result2 = unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc2);
+        assertThat(result2)
+                .contains("## [Unreleased]", "Replaced summary")
+                .doesNotContain("It's a trap !")
+                .contains("### Added", "### Fixed", "## [1.1.0] - 2019-02-15");
+
+        // 3. Do not insert summary if empty
+        Document doc3 = using("/FirstRelease.md");
+        heylogs.note(doc3, "   ");
+        String result3 = unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc3);
+        assertThat(result3)
+                .contains("## [Unreleased]")
+                .doesNotContain("This is a summary.");
+
+        // 4. Multi-line/markdown summary
+        Document doc4 = using("/FirstRelease.md");
+        String multiSummary = "This is a summary.\n\n- Point 1\n- Point 2";
+        heylogs.note(doc4, multiSummary);
+        String result4 = unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc4);
+        assertThat(result4)
+                .contains("This is a summary.", "- Point 1", "- Point 2");
+
+        // 5. Unreleased as last node (should still insert summary)
+        Document doc5 = using("/FirstRelease.md");
+        heylogs.note(doc5, "End summary");
+        String result5 = unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc5);
+        assertThat(result5)
+                .contains("End summary");
+    }
+
     private static String pushToString(Heylogs heylogs, Document doc, TypeOfChange typeOfChange, String message) {
         heylogs.push(doc, typeOfChange, message);
         return unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc);

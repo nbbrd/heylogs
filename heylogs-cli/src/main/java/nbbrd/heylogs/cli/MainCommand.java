@@ -33,6 +33,7 @@ import java.util.concurrent.Callable;
                 YankCommand.class,
                 PushCommand.class,
                 FetchCommand.class,
+                NoteCommand.class,
                 ListCommand.class,
                 ScrapeCommand.class
         },
