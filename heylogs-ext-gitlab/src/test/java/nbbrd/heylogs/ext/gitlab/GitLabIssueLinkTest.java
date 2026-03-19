@@ -40,4 +40,31 @@ class GitLabIssueLinkTest {
         }
     }
 
+    @Test
+    void testResolve() {
+        // Basic number reference
+        assertThat(GitLabIssueLink.resolve(urlOf("https://gitlab.com/nbbrd/heylogs-ext-gitlab"), "#1"))
+                .returns(urlOf("https://gitlab.com"), GitLabIssueLink::getBase)
+                .returns(java.util.Arrays.asList("nbbrd"), GitLabIssueLink::getNamespace)
+                .returns("heylogs-ext-gitlab", GitLabIssueLink::getProject)
+                .returns(1, GitLabIssueLink::getNumber)
+                .hasToString("https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/issues/1");
+
+        // Namespace/project reference
+        assertThat(GitLabIssueLink.resolve(urlOf("https://gitlab.com/otherns/otherproj"), "nbbrd/heylogs-ext-gitlab#1"))
+                .returns(urlOf("https://gitlab.com"), GitLabIssueLink::getBase)
+                .returns(java.util.Arrays.asList("otherns"), GitLabIssueLink::getNamespace)
+                .returns("otherproj", GitLabIssueLink::getProject)
+                .returns(1, GitLabIssueLink::getNumber)
+                .hasToString("https://gitlab.com/otherns/otherproj/-/issues/1");
+
+        // Project URL with trailing slash
+        assertThat(GitLabIssueLink.resolve(urlOf("https://gitlab.com/nbbrd/heylogs-ext-gitlab/"), "#1"))
+                .returns(urlOf("https://gitlab.com"), GitLabIssueLink::getBase)
+                .returns(java.util.Arrays.asList("nbbrd"), GitLabIssueLink::getNamespace)
+                .returns("heylogs-ext-gitlab", GitLabIssueLink::getProject)
+                .returns(1, GitLabIssueLink::getNumber)
+                .hasToString("https://gitlab.com/nbbrd/heylogs-ext-gitlab/-/issues/1");
+    }
+
 }

@@ -38,7 +38,7 @@ public class MessageFetcherDemo {
         Function<? super URL, ForgeLink> linkParser = forge.getLinkParser(ForgeRefType.ISSUE);
         if (linkParser == null) return "Forge does not support fetching messages";
 
-        MessageFetcher messageFetcher = forge.getMessageFetcher();
+        MessageFetcher messageFetcher = forge.getMessageFetcher(ForgeRefType.ISSUE);
         if (messageFetcher == null) return "Forge does not support fetching messages";
 
         try {

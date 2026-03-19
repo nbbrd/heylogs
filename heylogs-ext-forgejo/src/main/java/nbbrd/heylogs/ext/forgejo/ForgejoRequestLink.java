@@ -9,6 +9,7 @@ import nbbrd.heylogs.spi.ForgeRef;
 import nbbrd.io.http.URLQueryBuilder;
 import org.jspecify.annotations.Nullable;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.regex.Pattern;
 
@@ -34,6 +35,19 @@ class ForgejoRequestLink implements ForgeLink {
         checkPathItem(pathArray, 3, NUMBER_PATTERN);
 
         return new ForgejoRequestLink(baseOf(url), pathArray[0], pathArray[1], parseInt(pathArray[3]));
+    }
+
+    @StaticFactoryMethod
+    public static @NonNull ForgejoRequestLink resolve(@NonNull URL projectUrl, @NonNull CharSequence ref) {
+        try {
+            return parse(
+                    URLQueryBuilder.of(projectUrl)
+                            .path(PULL_REQUEST_KEYWORD)
+                            .path(String.valueOf(ForgejoRequestRef.parse(ref).getRequestNumber()))
+                            .build());
+        } catch (MalformedURLException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     @NonNull

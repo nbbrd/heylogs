@@ -16,7 +16,7 @@ class GitHubMessageFetcherTest {
 
     @Test
     void testFetchIssueMessage() throws IOException {
-        GitHubMessageFetcher fetcher = new GitHubMessageFetcher();
+        GitHubMessageFetcher fetcher = GitHubMessageFetcher.ISSUE;
 
         ForgeLink link = GitHubIssueLink.parse(urlOf("https://github.com/nbbrd/heylogs/issues/173"));
 
@@ -31,7 +31,7 @@ class GitHubMessageFetcherTest {
 
     @Test
     void testFetchRequestMessage() throws IOException {
-        GitHubMessageFetcher fetcher = new GitHubMessageFetcher();
+        GitHubMessageFetcher fetcher = GitHubMessageFetcher.REQUEST;
 
         ForgeLink link = GitHubRequestLink.parse(urlOf("https://github.com/nbbrd/heylogs/pull/172"));
 
@@ -46,7 +46,7 @@ class GitHubMessageFetcherTest {
 
     @Test
     void testFetchMessageWithEscapedTitle() throws IOException {
-        GitHubMessageFetcher fetcher = new GitHubMessageFetcher();
+        GitHubMessageFetcher fetcher = GitHubMessageFetcher.ISSUE;
 
         ForgeLink link = GitHubIssueLink.parse(urlOf("https://github.com/nbbrd/heylogs/issues/173"));
 
@@ -59,7 +59,7 @@ class GitHubMessageFetcherTest {
 
     @Test
     void testFetchMessagePropagatesHttpError() {
-        GitHubMessageFetcher fetcher = new GitHubMessageFetcher();
+        GitHubMessageFetcher fetcher = GitHubMessageFetcher.ISSUE;
 
         ForgeLink link = GitHubIssueLink.parse(urlOf("https://github.com/nbbrd/heylogs/issues/173"));
 
@@ -96,7 +96,7 @@ class GitHubMessageFetcherTest {
     void testBuildApiUrlForIssue() {
         ForgeLink link = GitHubIssueLink.parse(urlOf("https://github.com/nbbrd/heylogs/issues/173"));
 
-        assertThat(GitHubMessageFetcher.buildApiUrl(link, urlOf("https://api.github.com")))
+        assertThat(GitHubMessageFetcher.ISSUE.buildApiUrl(link, urlOf("https://api.github.com")))
                 .hasToString("https://api.github.com/repos/nbbrd/heylogs/issues/173");
     }
 
@@ -104,14 +104,14 @@ class GitHubMessageFetcherTest {
     void testBuildApiUrlForRequest() {
         ForgeLink link = GitHubRequestLink.parse(urlOf("https://github.com/nbbrd/heylogs/pull/172"));
 
-        assertThat(GitHubMessageFetcher.buildApiUrl(link, urlOf("https://api.github.com")))
+        assertThat(GitHubMessageFetcher.REQUEST.buildApiUrl(link, urlOf("https://api.github.com")))
                 .hasToString("https://api.github.com/repos/nbbrd/heylogs/pulls/172");
     }
 
     @Test
     void testBuildApiUrlUnsupportedLink() {
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> GitHubMessageFetcher.buildApiUrl(
+                .isThrownBy(() -> GitHubMessageFetcher.ISSUE.buildApiUrl(
                         new UnsupportedForgeLink(), urlOf("https://api.github.com")))
                 .withMessageContaining("Unsupported link type");
     }

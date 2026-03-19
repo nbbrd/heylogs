@@ -24,6 +24,7 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -274,6 +275,67 @@ public class Heylogs {
         Heading newHeading = yankedVersion.toHeading();
         target.getHeading().insertBefore(newHeading);
         target.getHeading().unlink();
+    }
+
+    public void fetch(@NonNull Document document, @NonNull TypeOfChange typeOfChange, @NonNull String id) throws IOException {
+        URL url = illegalArgumentToNull(URLExtractor::urlOf).apply(id);
+        String message = url != null
+                ? fetchMessageByUrl(url)
+                : fetchMessageByRef(document, id);
+        push(document, typeOfChange, message);
+    }
+
+    private @NonNull String fetchMessageByUrl(@NonNull URL url) throws IOException {
+        Forge forge = forges.stream()
+                .filter(item -> item.isKnownHost(url))
+                .findFirst()
+                .orElseThrow(() -> new IOException("No forge found for URL: " + url));
+
+        for (ForgeRefType type : ForgeRefType.values()) {
+            MessageFetcher fetcher = forge.getMessageFetcher(type);
+            if (fetcher != null) {
+                Function<? super URL, ForgeLink> linkParser = forge.getLinkParser(type);
+                if (linkParser != null) {
+                    ForgeLink link = illegalArgumentToNull(linkParser).apply(url);
+                    if (link != null) {
+                        return fetcher.fetchMessage(httpFactory.getClient(), link) + toMarkdown(link);
+                    }
+                }
+            }
+        }
+
+        throw new IOException("Cannot resolve url '" + url + "' on forge '" + forge.getForgeName() + "'");
+    }
+
+    private @NonNull String fetchMessageByRef(@NonNull Document document, @NonNull String ref) throws IOException {
+        ChangelogHeading changelog = ChangelogHeading.root(document)
+                .orElseThrow(() -> new IOException("Cannot locate changelog header"));
+
+        List<VersionHeading> versions = changelog.getVersions().collect(toList());
+        if (versions.isEmpty()) {
+            throw new IOException("Cannot locate any version heading to determine forge");
+        }
+
+        URL compareURL = versions.get(0).getURL();
+        Forge forge = findForge(onCompareLink(compareURL))
+                .orElseThrow(() -> new IOException("Cannot determine forge from changelog"));
+
+        URL projectUrl = forge.getCompareLink(compareURL).getProjectURL();
+
+        for (ForgeRefType type : ForgeRefType.values()) {
+            MessageFetcher fetcher = forge.getMessageFetcher(type);
+            if (fetcher != null) {
+                BiFunction<URL, CharSequence, ForgeLink> linkResolver = forge.getLinkResolver(type);
+                if (linkResolver != null) {
+                    ForgeLink link = illegalArgumentToNull(linkResolver).apply(projectUrl, ref);
+                    if (link != null) {
+                        return fetcher.fetchMessage(httpFactory.getClient(), link) + toMarkdown(link);
+                    }
+                }
+            }
+        }
+
+        throw new IOException("Cannot resolve ref '" + ref + "' for project URL '" + projectUrl + "' on forge '" + forge.getForgeName() + "'");
     }
 
     public void push(@NonNull Document document, @NonNull TypeOfChange typeOfChange, @NonNull String message) throws IllegalArgumentException {
@@ -553,5 +615,9 @@ public class Heylogs {
                 .versionings(versionings)
                 .taggings(taggings)
                 .build();
+    }
+
+    private static @NonNull String toMarkdown(ForgeLink link) {
+        return " [" + link.toRef(null) + "](" + link.toURL() + ")";
     }
 }

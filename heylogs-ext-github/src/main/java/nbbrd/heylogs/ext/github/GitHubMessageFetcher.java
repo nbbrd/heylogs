@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import lombok.NonNull;
+import nbbrd.design.VisibleForTesting;
 import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.MessageFetcher;
 import nbbrd.io.http.*;
@@ -16,9 +17,45 @@ import static internal.heylogs.spi.URLExtractor.urlOf;
 
 // https://docs.github.com/en/rest/issues/issues#get-an-issue
 // https://docs.github.com/en/rest/pulls/pulls#get-a-pull-request
-final class GitHubMessageFetcher implements MessageFetcher {
+enum GitHubMessageFetcher implements MessageFetcher {
+
+    ISSUE {
+        @Override
+        @NonNull
+        URL buildApiUrl(@NonNull ForgeLink link, @NonNull URL apiBase) {
+            if (link instanceof GitHubIssueLink) {
+                GitHubIssueLink issueLink = (GitHubIssueLink) link;
+                return urlOf(URLQueryBuilder.of(apiBase)
+                        .path("repos")
+                        .path(issueLink.getOwner())
+                        .path(issueLink.getRepo())
+                        .path("issues")
+                        .path(String.valueOf(issueLink.getIssueNumber()))
+                        .toString());
+            }
+            throw new IllegalArgumentException("Unsupported link type: " + link.getClass().getName());
+        }
+    },
+    REQUEST {
+        @Override
+        @NonNull
+        URL buildApiUrl(@NonNull ForgeLink link, @NonNull URL apiBase) {
+            if (link instanceof GitHubRequestLink) {
+                GitHubRequestLink requestLink = (GitHubRequestLink) link;
+                return urlOf(URLQueryBuilder.of(apiBase)
+                        .path("repos")
+                        .path(requestLink.getOwner())
+                        .path(requestLink.getRepo())
+                        .path("pulls")
+                        .path(String.valueOf(requestLink.getRequestNumber()))
+                        .toString());
+            }
+            throw new IllegalArgumentException("Unsupported link type: " + link.getClass().getName());
+        }
+    };
 
     private static final URL GITHUB_API_BASE = urlOf("https://api.github.com");
+    public static final MediaType JSON_TYPE = MediaType.parse("application/vnd.github+json");
 
     @Override
     public @NonNull String fetchMessage(@NonNull HttpClient client, @NonNull ForgeLink link) throws IOException {
@@ -26,7 +63,7 @@ final class GitHubMessageFetcher implements MessageFetcher {
                 .builder()
                 .query(buildApiUrl(link, GITHUB_API_BASE))
                 .method(HttpMethod.GET)
-                .mediaType(MediaType.parse("application/vnd.github+json"))
+                .mediaType(JSON_TYPE)
                 .build();
         try (HttpResponse response = client.send(request)) {
             return extractTitle(response.getBodyAsString());
@@ -35,29 +72,10 @@ final class GitHubMessageFetcher implements MessageFetcher {
         }
     }
 
-    static @NonNull URL buildApiUrl(@NonNull ForgeLink link, @NonNull URL apiBase) {
-        if (link instanceof GitHubIssueLink) {
-            GitHubIssueLink issueLink = (GitHubIssueLink) link;
-            return urlOf(URLQueryBuilder.of(apiBase)
-                    .path("repos")
-                    .path(issueLink.getOwner())
-                    .path(issueLink.getRepo())
-                    .path("issues")
-                    .path(String.valueOf(issueLink.getIssueNumber()))
-                    .toString());
-        } else if (link instanceof GitHubRequestLink) {
-            GitHubRequestLink requestLink = (GitHubRequestLink) link;
-            return urlOf(URLQueryBuilder.of(apiBase)
-                    .path("repos")
-                    .path(requestLink.getOwner())
-                    .path(requestLink.getRepo())
-                    .path("pulls")
-                    .path(String.valueOf(requestLink.getRequestNumber()))
-                    .toString());
-        }
-        throw new IllegalArgumentException("Unsupported link type: " + link.getClass().getName());
-    }
+    @VisibleForTesting
+    abstract @NonNull URL buildApiUrl(@NonNull ForgeLink link, @NonNull URL apiBase);
 
+    @VisibleForTesting
     static @NonNull String extractTitle(@NonNull String json) throws IOException {
         try {
             JsonObject obj = JsonParser.parseString(json).getAsJsonObject();

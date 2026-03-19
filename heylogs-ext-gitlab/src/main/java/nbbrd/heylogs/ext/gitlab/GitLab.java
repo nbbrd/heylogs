@@ -23,6 +23,9 @@ public final class GitLab implements Forge {
             .parser(REQUEST, GitLabRequestLink::parse, GitLabRequestRef::parse)
             .parser(MENTION, GitLabMentionLink::parse, GitLabMentionRef::parse)
             .linkParser(COMPARE, GitLabCompareLink::parse)
-            .messageFetcher(new GitLabMessageFetcher())
+            .linkResolver(ISSUE, GitLabIssueLink::resolve)
+            .linkResolver(REQUEST, GitLabRequestLink::resolve)
+            .messageFetcher(ISSUE, GitLabMessageFetcher.ISSUE)
+            .messageFetcher(REQUEST, GitLabMessageFetcher.REQUEST)
             .build();
 }

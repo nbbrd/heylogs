@@ -9,13 +9,14 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import static internal.heylogs.spi.URLExtractor.urlOf;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIOException;
 
 class ForgejoMessageFetcherTest {
 
     @Test
     void testFetchIssueMessage() throws IOException {
-        ForgejoMessageFetcher fetcher = new ForgejoMessageFetcher();
+        ForgejoMessageFetcher fetcher = ForgejoMessageFetcher.ISSUE;
 
         ForgeLink link = ForgejoIssueLink.parse(urlOf("https://codeberg.org/nbbrd/heylogs/issues/173"));
 
@@ -30,7 +31,7 @@ class ForgejoMessageFetcherTest {
 
     @Test
     void testFetchRequestMessage() throws IOException {
-        ForgejoMessageFetcher fetcher = new ForgejoMessageFetcher();
+        ForgejoMessageFetcher fetcher = ForgejoMessageFetcher.REQUEST;
 
         ForgeLink link = ForgejoRequestLink.parse(urlOf("https://codeberg.org/nbbrd/heylogs/pulls/172"));
 
@@ -45,7 +46,7 @@ class ForgejoMessageFetcherTest {
 
     @Test
     void testFetchMessageWithEscapedTitle() throws IOException {
-        ForgejoMessageFetcher fetcher = new ForgejoMessageFetcher();
+        ForgejoMessageFetcher fetcher = ForgejoMessageFetcher.ISSUE;
 
         ForgeLink link = ForgejoIssueLink.parse(urlOf("https://codeberg.org/nbbrd/heylogs/issues/173"));
 
@@ -58,7 +59,7 @@ class ForgejoMessageFetcherTest {
 
     @Test
     void testFetchMessagePropagatesHttpError() {
-        ForgejoMessageFetcher fetcher = new ForgejoMessageFetcher();
+        ForgejoMessageFetcher fetcher = ForgejoMessageFetcher.ISSUE;
 
         ForgeLink link = ForgejoIssueLink.parse(urlOf("https://codeberg.org/nbbrd/heylogs/issues/173"));
 
@@ -81,14 +82,14 @@ class ForgejoMessageFetcherTest {
     @Test
     void testBuildApiUrlForIssue() {
         ForgeLink link = ForgejoIssueLink.parse(urlOf("https://codeberg.org/nbbrd/heylogs/issues/42"));
-        assertThat(ForgejoMessageFetcher.buildApiUrl(link))
+        assertThat(ForgejoMessageFetcher.ISSUE.buildApiUrl(link))
                 .hasToString("https://codeberg.org/api/v1/repos/nbbrd/heylogs/issues/42");
     }
 
     @Test
     void testBuildApiUrlForRequest() {
         ForgeLink link = ForgejoRequestLink.parse(urlOf("https://codeberg.org/nbbrd/heylogs/pulls/10"));
-        assertThat(ForgejoMessageFetcher.buildApiUrl(link))
+        assertThat(ForgejoMessageFetcher.REQUEST.buildApiUrl(link))
                 .hasToString("https://codeberg.org/api/v1/repos/nbbrd/heylogs/pulls/10");
     }
 }

@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import static internal.heylogs.spi.URLExtractor.urlOf;
@@ -404,6 +405,33 @@ public class HeylogsTest {
     }
 
     @Test
+    public void testFetch() {
+        // No forge found for unknown host URL
+        Heylogs noForge = Heylogs.builder().build();
+        assertThatIOException()
+                .isThrownBy(() -> noForge.fetch(using("/UnreleasedChanges.md"), TypeOfChange.ADDED, "https://unknown.example.com/issues/1"))
+                .withMessageContaining("No forge found for URL");
+
+        // Forge found but no message fetcher (URL input)
+        Heylogs noFetcher = Heylogs.builder()
+                .forge(ForgeSupport.builder()
+                        .id("test")
+                        .name("Test Forge")
+                        .moduleId("test")
+                        .knownHostPredicate(url -> true)
+                        .build())
+                .build();
+        assertThatIOException()
+                .isThrownBy(() -> noFetcher.fetch(using("/UnreleasedChanges.md"), TypeOfChange.ADDED, "https://example.com/issues/1"))
+                .withMessageContaining("Cannot resolve url");
+
+        // No forge in changelog for ref resolution
+        assertThatIOException()
+                .isThrownBy(() -> noForge.fetch(using("/UnreleasedChanges.md"), TypeOfChange.ADDED, "#1"))
+                .withMessageContaining("Cannot determine forge from changelog");
+    }
+
+    @Test
     public void testInit() {
         Heylogs x = Heylogs.ofServiceLoader()
                 .toBuilder()
@@ -545,13 +573,18 @@ public class HeylogsTest {
         }
 
         @Override
-        public boolean isKnownHost(@NonNull URL url) {
-            return false;
+        public @Nullable BiFunction<URL, CharSequence, ForgeLink> getLinkResolver(@NonNull ForgeRefType type) {
+            return null;
         }
 
         @Override
-        public @Nullable MessageFetcher getMessageFetcher() {
+        public @Nullable MessageFetcher getMessageFetcher(@NonNull ForgeRefType type) {
             return null;
+        }
+
+        @Override
+        public boolean isKnownHost(@NonNull URL url) {
+            return false;
         }
     }
 }

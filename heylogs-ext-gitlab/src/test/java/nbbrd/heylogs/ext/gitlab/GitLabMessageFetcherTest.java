@@ -16,7 +16,7 @@ class GitLabMessageFetcherTest {
 
     @Test
     void testFetchIssueMessage() throws IOException {
-        GitLabMessageFetcher x = new GitLabMessageFetcher();
+        GitLabMessageFetcher x = GitLabMessageFetcher.ISSUE;
 
         ForgeLink link = GitLabIssueLink.parse(urlOf("https://gitlab.com/nbbrd/heylogs/-/issues/173"));
 
@@ -31,7 +31,7 @@ class GitLabMessageFetcherTest {
 
     @Test
     void testFetchRequestMessage() throws IOException {
-        GitLabMessageFetcher fetcher = new GitLabMessageFetcher();
+        GitLabMessageFetcher fetcher = GitLabMessageFetcher.REQUEST;
 
         ForgeLink link = GitLabRequestLink.parse(urlOf("https://gitlab.com/nbbrd/heylogs/-/merge_requests/172"));
 
@@ -46,7 +46,7 @@ class GitLabMessageFetcherTest {
 
     @Test
     void testFetchMessageWithEscapedTitle() throws IOException {
-        GitLabMessageFetcher fetcher = new GitLabMessageFetcher();
+        GitLabMessageFetcher fetcher = GitLabMessageFetcher.ISSUE;
 
         ForgeLink link = GitLabIssueLink.parse(urlOf("https://gitlab.com/nbbrd/heylogs/-/issues/173"));
 
@@ -59,7 +59,7 @@ class GitLabMessageFetcherTest {
 
     @Test
     void testFetchMessagePropagatesHttpError() {
-        GitLabMessageFetcher fetcher = new GitLabMessageFetcher();
+        GitLabMessageFetcher fetcher = GitLabMessageFetcher.ISSUE;
 
         ForgeLink link = GitLabIssueLink.parse(urlOf("https://gitlab.com/nbbrd/heylogs/-/issues/173"));
 
@@ -96,7 +96,7 @@ class GitLabMessageFetcherTest {
     void testBuildApiUrlForIssue() {
         ForgeLink link = GitLabIssueLink.parse(urlOf("https://gitlab.com/nbbrd/heylogs/-/issues/173"));
 
-        assertThat(GitLabMessageFetcher.buildApiUrl(link))
+        assertThat(GitLabMessageFetcher.ISSUE.buildApiUrl(link))
                 .hasToString("https://gitlab.com/api/v4/projects/nbbrd%2Fheylogs/issues/173");
     }
 
@@ -104,7 +104,7 @@ class GitLabMessageFetcherTest {
     void testBuildApiUrlForRequest() {
         ForgeLink link = GitLabRequestLink.parse(urlOf("https://gitlab.com/nbbrd/heylogs/-/merge_requests/172"));
 
-        assertThat(GitLabMessageFetcher.buildApiUrl(link))
+        assertThat(GitLabMessageFetcher.REQUEST.buildApiUrl(link))
                 .hasToString("https://gitlab.com/api/v4/projects/nbbrd%2Fheylogs/merge_requests/172");
     }
 
@@ -112,14 +112,14 @@ class GitLabMessageFetcherTest {
     void testBuildApiUrlForNestedNamespace() {
         ForgeLink link = GitLabIssueLink.parse(urlOf("https://gitlab.com/group/subgroup/myproject/-/issues/42"));
 
-        assertThat(GitLabMessageFetcher.buildApiUrl(link))
+        assertThat(GitLabMessageFetcher.ISSUE.buildApiUrl(link))
                 .hasToString("https://gitlab.com/api/v4/projects/group%2Fsubgroup%2Fmyproject/issues/42");
     }
 
     @Test
     void testBuildApiUrlUnsupportedLink() {
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> GitLabMessageFetcher.buildApiUrl(new UnsupportedForgeLink()))
+                .isThrownBy(() -> GitLabMessageFetcher.ISSUE.buildApiUrl(new UnsupportedForgeLink()))
                 .withMessageContaining("Unsupported link type");
     }
 
@@ -135,4 +135,3 @@ class GitLabMessageFetcherTest {
         }
     }
 }
-

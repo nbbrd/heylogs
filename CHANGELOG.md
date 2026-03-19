@@ -11,6 +11,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Add init command to create a CHANGELOG.md if it does not exist [#438](https://github.com/nbbrd/heylogs/issues/438)
 - Add yank command to state that a release as been pulled [#510](https://github.com/nbbrd/heylogs/issues/510)
+- Add fetch command to retrieve message from remote forge issue [#511](https://github.com/nbbrd/heylogs/issues/511)
 
 ## [0.15.0] - 2026-03-10
 

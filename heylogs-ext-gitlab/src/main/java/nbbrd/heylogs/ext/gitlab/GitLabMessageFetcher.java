@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import lombok.NonNull;
+import nbbrd.design.VisibleForTesting;
 import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.MessageFetcher;
 import nbbrd.io.http.*;
@@ -17,18 +18,43 @@ import static internal.heylogs.spi.URLExtractor.urlOf;
 
 // https://docs.gitlab.com/ee/api/issues.html#single-issue
 // https://docs.gitlab.com/ee/api/merge_requests.html#get-single-mr
-final class GitLabMessageFetcher implements MessageFetcher {
+enum GitLabMessageFetcher implements MessageFetcher {
+
+    ISSUE {
+        @Override
+        @NonNull
+        URL buildApiUrl(@NonNull ForgeLink link) {
+            if (link instanceof GitLabIssueLink) {
+                GitLabIssueLink issueLink = (GitLabIssueLink) link;
+                String encodedProject = encodeProjectPath(issueLink.getNamespace(), issueLink.getProject());
+                return urlOf(issueLink.getBase() + GITLAB_API_PATH + "/projects/" + encodedProject + "/issues/" + issueLink.getNumber());
+            }
+            throw new IllegalArgumentException("Unsupported link type: " + link.getClass().getName());
+        }
+    },
+    REQUEST {
+        @Override
+        @NonNull
+        URL buildApiUrl(@NonNull ForgeLink link) {
+            if (link instanceof GitLabRequestLink) {
+                GitLabRequestLink requestLink = (GitLabRequestLink) link;
+                String encodedProject = encodeProjectPath(requestLink.getNamespace(), requestLink.getProject());
+                return urlOf(requestLink.getBase() + GITLAB_API_PATH + "/projects/" + encodedProject + "/merge_requests/" + requestLink.getNumber());
+            }
+            throw new IllegalArgumentException("Unsupported link type: " + link.getClass().getName());
+        }
+    };
 
     private static final String GITLAB_API_PATH = "/api/v4";
+    private static final MediaType JSON_TYPE = MediaType.parse("application/json");
 
     @Override
     public @NonNull String fetchMessage(@NonNull HttpClient client, @NonNull ForgeLink link) throws IOException {
-        URL apiUrl = buildApiUrl(link);
         HttpRequest request = HttpRequest
                 .builder()
-                .query(apiUrl)
+                .query(buildApiUrl(link))
                 .method(HttpMethod.GET)
-                .mediaType(MediaType.parse("application/json"))
+                .mediaType(JSON_TYPE)
                 .build();
         try (HttpResponse response = client.send(request)) {
             return extractTitle(response.getBodyAsString());
@@ -37,19 +63,10 @@ final class GitLabMessageFetcher implements MessageFetcher {
         }
     }
 
-    static @NonNull URL buildApiUrl(@NonNull ForgeLink link) {
-        if (link instanceof GitLabIssueLink) {
-            GitLabIssueLink issueLink = (GitLabIssueLink) link;
-            String encodedProject = encodeProjectPath(issueLink.getNamespace(), issueLink.getProject());
-            return urlOf(issueLink.getBase() + GITLAB_API_PATH + "/projects/" + encodedProject + "/issues/" + issueLink.getNumber());
-        } else if (link instanceof GitLabRequestLink) {
-            GitLabRequestLink requestLink = (GitLabRequestLink) link;
-            String encodedProject = encodeProjectPath(requestLink.getNamespace(), requestLink.getProject());
-            return urlOf(requestLink.getBase() + GITLAB_API_PATH + "/projects/" + encodedProject + "/merge_requests/" + requestLink.getNumber());
-        }
-        throw new IllegalArgumentException("Unsupported link type: " + link.getClass().getName());
-    }
+    @VisibleForTesting
+    abstract @NonNull URL buildApiUrl(@NonNull ForgeLink link);
 
+    @VisibleForTesting
     static @NonNull String extractTitle(@NonNull String json) throws IOException {
         try {
             JsonObject obj = JsonParser.parseString(json).getAsJsonObject();

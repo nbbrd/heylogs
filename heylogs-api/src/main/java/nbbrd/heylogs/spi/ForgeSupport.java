@@ -7,6 +7,7 @@ import org.jspecify.annotations.Nullable;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -27,8 +28,11 @@ public final class ForgeSupport implements Forge {
     @lombok.Singular
     private final Map<ForgeRefType, Function<? super CharSequence, ForgeRef>> refParsers;
 
-    @lombok.Builder.Default
-    private final @Nullable MessageFetcher messageFetcher = null;
+    @lombok.Singular
+    private final Map<ForgeRefType, BiFunction<URL, CharSequence, ForgeLink>> linkResolvers;
+
+    @lombok.Singular
+    private final Map<ForgeRefType, MessageFetcher> messageFetchers;
 
     @Override
     public @NonNull String getForgeId() {
@@ -56,7 +60,7 @@ public final class ForgeSupport implements Forge {
     }
 
     @Override
-    public @NonNull CompareLink getCompareLink(@NonNull URL url) {
+    public @NonNull CompareLink getCompareLink(@NonNull URL url) throws IllegalArgumentException {
         Function<? super URL, ForgeLink> parser = getLinkParser(ForgeRefType.COMPARE);
         if (parser == null) {
             throw new IllegalArgumentException("No compare link parser for forge: " + id);
@@ -79,13 +83,18 @@ public final class ForgeSupport implements Forge {
     }
 
     @Override
-    public boolean isKnownHost(@NonNull URL url) {
-        return knownHostPredicate.test(url);
+    public @Nullable BiFunction<URL, CharSequence, ForgeLink> getLinkResolver(@NonNull ForgeRefType type) {
+        return linkResolvers.get(type);
     }
 
     @Override
-    public @Nullable MessageFetcher getMessageFetcher() {
-        return messageFetcher;
+    public @Nullable MessageFetcher getMessageFetcher(@NonNull ForgeRefType type) {
+        return messageFetchers.get(type);
+    }
+
+    @Override
+    public boolean isKnownHost(@NonNull URL url) {
+        return knownHostPredicate.test(url);
     }
 
     public static final class Builder {

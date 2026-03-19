@@ -7,6 +7,7 @@ import nbbrd.service.ServiceId;
 import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 @ServiceDefinition(
@@ -27,7 +28,7 @@ public interface Forge {
     boolean isCompareLink(@NonNull URL url);
 
     @NonNull
-    CompareLink getCompareLink(@NonNull URL url);
+    CompareLink getCompareLink(@NonNull URL url) throws IllegalArgumentException;
 
     @Nullable
     Function<? super URL, ForgeLink> getLinkParser(@NonNull ForgeRefType type);
@@ -35,8 +36,11 @@ public interface Forge {
     @Nullable
     Function<? super CharSequence, ForgeRef> getRefParser(@NonNull ForgeRefType type);
 
-    boolean isKnownHost(@NonNull URL url);
+    @Nullable
+    BiFunction<URL, CharSequence, ForgeLink> getLinkResolver(@NonNull ForgeRefType type);
 
     @Nullable
-    MessageFetcher getMessageFetcher();
+    MessageFetcher getMessageFetcher(@NonNull ForgeRefType type);
+
+    boolean isKnownHost(@NonNull URL url);
 }

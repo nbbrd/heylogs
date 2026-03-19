@@ -23,6 +23,9 @@ public final class GitHub implements Forge {
             .parser(REQUEST, GitHubRequestLink::parse, GitHubRequestRef::parse)
             .parser(MENTION, GitHubMentionLink::parse, GitHubMentionRef::parse)
             .linkParser(COMPARE, GitHubCompareLink::parse)
-            .messageFetcher(new GitHubMessageFetcher())
+            .linkResolver(ISSUE, GitHubIssueLink::resolve)
+            .linkResolver(REQUEST, GitHubRequestLink::resolve)
+            .messageFetcher(ISSUE, GitHubMessageFetcher.ISSUE)
+            .messageFetcher(REQUEST, GitHubMessageFetcher.REQUEST)
             .build();
 }

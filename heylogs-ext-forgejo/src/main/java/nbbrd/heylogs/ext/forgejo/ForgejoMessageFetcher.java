@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import lombok.NonNull;
+import nbbrd.design.VisibleForTesting;
 import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.MessageFetcher;
 import nbbrd.io.http.*;
@@ -16,9 +17,39 @@ import static internal.heylogs.spi.URLExtractor.urlOf;
 
 // https://forgejo.org/docs/latest/developer/api-usage/
 // https://codeberg.org/api/swagger
-final class ForgejoMessageFetcher implements MessageFetcher {
+enum ForgejoMessageFetcher implements MessageFetcher {
+
+    ISSUE {
+        @Override
+        @NonNull
+        URL buildApiUrl(@NonNull ForgeLink link) {
+            if (link instanceof ForgejoIssueLink) {
+                ForgejoIssueLink issueLink = (ForgejoIssueLink) link;
+                return urlOf(issueLink.getBase() + FORGEJO_API_PATH
+                        + "/repos/" + issueLink.getOwner()
+                        + "/" + issueLink.getRepo()
+                        + "/issues/" + issueLink.getIssueNumber());
+            }
+            throw new IllegalArgumentException("Unsupported link type: " + link.getClass().getName());
+        }
+    },
+    REQUEST {
+        @Override
+        @NonNull
+        URL buildApiUrl(@NonNull ForgeLink link) {
+            if (link instanceof ForgejoRequestLink) {
+                ForgejoRequestLink requestLink = (ForgejoRequestLink) link;
+                return urlOf(requestLink.getBase() + FORGEJO_API_PATH
+                        + "/repos/" + requestLink.getOwner()
+                        + "/" + requestLink.getRepo()
+                        + "/pulls/" + requestLink.getIssueNumber());
+            }
+            throw new IllegalArgumentException("Unsupported link type: " + link.getClass().getName());
+        }
+    };
 
     private static final String FORGEJO_API_PATH = "/api/v1";
+    public static final MediaType JSON = MediaType.parse("application/json");
 
     @Override
     public @NonNull String fetchMessage(@NonNull HttpClient client, @NonNull ForgeLink link) throws IOException {
@@ -27,7 +58,7 @@ final class ForgejoMessageFetcher implements MessageFetcher {
                 .builder()
                 .query(apiUrl)
                 .method(HttpMethod.GET)
-                .mediaType(MediaType.parse("application/json"))
+                .mediaType(JSON)
                 .build();
         try (HttpResponse response = client.send(request)) {
             return extractTitle(response.getBodyAsString());
@@ -36,23 +67,10 @@ final class ForgejoMessageFetcher implements MessageFetcher {
         }
     }
 
-    static @NonNull URL buildApiUrl(@NonNull ForgeLink link) {
-        if (link instanceof ForgejoIssueLink) {
-            ForgejoIssueLink issueLink = (ForgejoIssueLink) link;
-            return urlOf(issueLink.getBase() + FORGEJO_API_PATH
-                    + "/repos/" + issueLink.getOwner()
-                    + "/" + issueLink.getRepo()
-                    + "/issues/" + issueLink.getIssueNumber());
-        } else if (link instanceof ForgejoRequestLink) {
-            ForgejoRequestLink requestLink = (ForgejoRequestLink) link;
-            return urlOf(requestLink.getBase() + FORGEJO_API_PATH
-                    + "/repos/" + requestLink.getOwner()
-                    + "/" + requestLink.getRepo()
-                    + "/pulls/" + requestLink.getIssueNumber());
-        }
-        throw new IllegalArgumentException("Unsupported link type: " + link.getClass().getName());
-    }
+    @VisibleForTesting
+    abstract @NonNull URL buildApiUrl(@NonNull ForgeLink link);
 
+    @VisibleForTesting
     static @NonNull String extractTitle(@NonNull String json) throws IOException {
         try {
             JsonObject obj = JsonParser.parseString(json).getAsJsonObject();
@@ -65,4 +83,3 @@ final class ForgejoMessageFetcher implements MessageFetcher {
         }
     }
 }
-
