@@ -7,7 +7,6 @@ import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.spi.CompareLink;
 import nbbrd.heylogs.spi.ForgeRef;
-import nbbrd.io.http.URLQueryBuilder;
 import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
@@ -20,7 +19,7 @@ import static nbbrd.heylogs.ext.gitlab.GitLabSupport.parseLink;
 @RepresentableAs(URL.class)
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class GitLabCompareLink implements CompareLink {
+class GitLabCompareLink implements CompareLink, GitLabProjectLink {
 
     @StaticFactoryMethod
     public static @NonNull GitLabCompareLink parse(@NonNull URL url) {
@@ -57,11 +56,6 @@ class GitLabCompareLink implements CompareLink {
     @Override
     public @NonNull GitLabCompareLink derive(@NonNull String tag) {
         return new GitLabCompareLink(base, namespace, project, diff.derive(tag));
-    }
-
-    @Override
-    public @NonNull URL getProjectURL() {
-        return urlOf(URLQueryBuilder.of(base).path(namespace).path(project).toString());
     }
 
     @Override

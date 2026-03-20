@@ -22,6 +22,11 @@ public class MockedCompareLink implements CompareLink {
     URL url;
 
     @Override
+    public @NonNull URL getBase() {
+        return toURL();
+    }
+
+    @Override
     public @NonNull URL toURL() {
         return url;
     }

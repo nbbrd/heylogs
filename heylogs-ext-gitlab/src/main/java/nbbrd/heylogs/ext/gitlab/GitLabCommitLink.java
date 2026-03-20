@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
-import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.ForgeRef;
 import org.jspecify.annotations.Nullable;
 
@@ -20,7 +19,7 @@ import static nbbrd.heylogs.ext.gitlab.GitLabSupport.parseLink;
 @RepresentableAs(URL.class)
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class GitLabCommitLink implements ForgeLink {
+class GitLabCommitLink implements GitLabProjectLink {
 
     @StaticFactoryMethod
     public static @NonNull GitLabCommitLink parse(@NonNull URL url) {

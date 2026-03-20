@@ -8,6 +8,7 @@ import nbbrd.io.net.MediaType;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.net.URL;
 
 import static internal.heylogs.spi.URLExtractor.urlOf;
 import static org.assertj.core.api.Assertions.*;
@@ -117,6 +118,12 @@ class GitHubMessageFetcherTest {
     }
 
     private static final class UnsupportedForgeLink implements ForgeLink {
+
+        @Override
+        public @NonNull URL getBase() {
+            return toURL();
+        }
+
         @Override
         public @NonNull java.net.URL toURL() {
             return urlOf("https://github.com");

@@ -27,5 +27,6 @@ public final class Forgejo implements Forge {
             .linkResolver(REQUEST, ForgejoRequestLink::resolve)
             .messageFetcher(ISSUE, ForgejoMessageFetcher.ISSUE)
             .messageFetcher(REQUEST, ForgejoMessageFetcher.REQUEST)
+            .linkParser(PROJECT, ForgejoRepositoryLink::parse)
             .build();
 }

@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
-import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.ForgeRef;
 import nbbrd.io.http.URLQueryBuilder;
 import org.jspecify.annotations.Nullable;
@@ -20,7 +19,7 @@ import static java.lang.Integer.parseInt;
 @RepresentableAs(URL.class)
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class GitHubIssueLink implements ForgeLink {
+class GitHubIssueLink implements GitHubProjectLink {
 
     private static final String ISSUES_KEYWORD = "issues";
 
@@ -77,7 +76,5 @@ class GitHubIssueLink implements ForgeLink {
         return GitHubIssueRef.of(this, baseRef instanceof GitHubIssueRef ? (GitHubIssueRef) baseRef : null);
     }
 
-    private static final Pattern OWNER_PATTERN = Pattern.compile("[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38}", Pattern.CASE_INSENSITIVE);
-    private static final Pattern REPO_PATTERN = Pattern.compile("[a-z\\d._-]{1,100}", Pattern.CASE_INSENSITIVE);
     private static final Pattern NUMBER_PATTERN = Pattern.compile("\\d+");
 }

@@ -7,6 +7,7 @@ import nbbrd.io.http.ext.PersistentResponse;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.net.URL;
 
 import static internal.heylogs.spi.URLExtractor.urlOf;
 import static nbbrd.io.net.MediaType.ANY_TYPE;
@@ -124,6 +125,12 @@ class GitLabMessageFetcherTest {
     }
 
     private static final class UnsupportedForgeLink implements ForgeLink {
+
+        @Override
+        public @NonNull URL getBase() {
+            return toURL();
+        }
+
         @Override
         public @NonNull java.net.URL toURL() {
             return urlOf("https://gitlab.com");

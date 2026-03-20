@@ -5,13 +5,11 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
-import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.ForgeRef;
 import nbbrd.io.http.URLQueryBuilder;
 import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
-import java.util.regex.Pattern;
 
 import static internal.heylogs.git.Hash.HASH_PATTERN;
 import static internal.heylogs.spi.URLExtractor.*;
@@ -20,7 +18,7 @@ import static internal.heylogs.spi.URLExtractor.*;
 @RepresentableAs(URL.class)
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class ForgejoCommitLink implements ForgeLink {
+class ForgejoCommitLink implements ForgejoProjectLink {
 
     @StaticFactoryMethod
     public static @NonNull ForgejoCommitLink parse(@NonNull URL url) {
@@ -62,7 +60,5 @@ class ForgejoCommitLink implements ForgeLink {
         return ForgejoCommitRef.of(this, baseRef instanceof ForgejoCommitRef ? (ForgejoCommitRef) baseRef : null);
     }
 
-    private static final Pattern OWNER_PATTERN = Pattern.compile("[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38}", Pattern.CASE_INSENSITIVE);
-    private static final Pattern REPO_PATTERN = Pattern.compile("[a-z\\d._-]{1,100}", Pattern.CASE_INSENSITIVE);
     private static final String COMMIT_KEYWORD = "commit";
 }

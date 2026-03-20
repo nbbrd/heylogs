@@ -2,9 +2,9 @@ package nbbrd.heylogs.ext.forgejo;
 
 import lombok.AccessLevel;
 import lombok.NonNull;
+import nbbrd.design.NonNegative;
 import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
-import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.ForgeRef;
 import nbbrd.io.http.URLQueryBuilder;
 import org.jspecify.annotations.Nullable;
@@ -20,9 +20,7 @@ import static java.lang.Integer.parseInt;
 @RepresentableAs(URL.class)
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class ForgejoRequestLink implements ForgeLink {
-
-    private static final String PULL_REQUEST_KEYWORD = "pulls";
+class ForgejoRequestLink implements ForgejoProjectLink {
 
     @StaticFactoryMethod
     public static @NonNull ForgejoRequestLink parse(@NonNull URL url) {
@@ -59,6 +57,7 @@ class ForgejoRequestLink implements ForgeLink {
     @NonNull
     String repo;
 
+    @NonNegative
     int issueNumber;
 
     @Override
@@ -76,7 +75,6 @@ class ForgejoRequestLink implements ForgeLink {
         return ForgejoRequestRef.of(this, baseRef instanceof ForgejoRequestRef ? (ForgejoRequestRef) baseRef : null);
     }
 
-    private static final Pattern OWNER_PATTERN = Pattern.compile("[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38}", Pattern.CASE_INSENSITIVE);
-    private static final Pattern REPO_PATTERN = Pattern.compile("[a-z\\d._-]{1,100}", Pattern.CASE_INSENSITIVE);
     private static final Pattern NUMBER_PATTERN = Pattern.compile("\\d+");
+    private static final String PULL_REQUEST_KEYWORD = "pulls";
 }
