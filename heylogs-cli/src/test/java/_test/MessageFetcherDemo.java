@@ -3,14 +3,13 @@ package _test;
 import nbbrd.design.Demo;
 import nbbrd.heylogs.Heylogs;
 import nbbrd.heylogs.spi.Forge;
-import nbbrd.heylogs.spi.ForgeLink;
-import nbbrd.heylogs.spi.ForgeRefType;
+import nbbrd.heylogs.spi.ForgeLinkParser;
+import nbbrd.heylogs.spi.ForgeLinkType;
 import nbbrd.heylogs.spi.MessageFetcher;
 import nbbrd.io.http.HttpClient;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.function.Function;
 
 import static internal.heylogs.spi.URLExtractor.urlOf;
 
@@ -35,14 +34,14 @@ public class MessageFetcherDemo {
                 .orElse(null);
         if (forge == null) return "No forge found for URL: " + issue;
 
-        Function<? super URL, ForgeLink> linkParser = forge.getLinkParser(ForgeRefType.ISSUE);
+        ForgeLinkParser linkParser = forge.getLinkParser(ForgeLinkType.ISSUE);
         if (linkParser == null) return "Forge does not support fetching messages";
 
-        MessageFetcher messageFetcher = forge.getMessageFetcher(ForgeRefType.ISSUE);
+        MessageFetcher messageFetcher = forge.getMessageFetcher(ForgeLinkType.ISSUE);
         if (messageFetcher == null) return "Forge does not support fetching messages";
 
         try {
-            return messageFetcher.fetchMessage(client, linkParser.apply(issue));
+            return messageFetcher.fetchMessage(client, linkParser.parseForgeLink(issue));
         } catch (IOException ex) {
             return "Failed to fetch message: " + ex.getMessage();
         }

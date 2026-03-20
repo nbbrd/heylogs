@@ -12,10 +12,8 @@ import org.junit.jupiter.api.Test;
 import tests.heylogs.spi.MockedCompareLink;
 
 import java.io.IOException;
-import java.net.URL;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import static internal.heylogs.spi.URLExtractor.urlOf;
@@ -124,7 +122,7 @@ public class HeylogsTest {
     public void testRelease() {
         Heylogs x = Heylogs.ofServiceLoader()
                 .toBuilder()
-                .clearForges().forge(new MockedForge())
+                .clearForges().forge(MOCKED_FORGE.toBuilder().knownHostPredicate(ignore -> true).build())
                 .clearVersionings().versioning(BaseVersionings.REGEX_VERSIONING)
                 .build();
 
@@ -179,7 +177,7 @@ public class HeylogsTest {
     public void testScan() {
         Heylogs x = Heylogs.ofServiceLoader()
                 .toBuilder()
-                .forge(new MockedForge())
+                .forge(MOCKED_FORGE.toBuilder().knownHostPredicate(ignore -> true).build())
                 .build();
 
         assertThat(x.scan(using("/Empty.md")))
@@ -305,7 +303,7 @@ public class HeylogsTest {
     public void testCheckConfig() {
         Heylogs x = Heylogs.ofServiceLoader()
                 .toBuilder()
-                .forge(new MockedForge())
+                .forge(MOCKED_FORGE)
                 .build();
 
         assertThat(x.getForges()).isNotEmpty();
@@ -455,7 +453,7 @@ public class HeylogsTest {
                 .doesNotContain("Semantic Versioning");
 
         // custom template — all config variables
-        Heylogs xFull = x.toBuilder().forge(new MockedForge()).build();
+        Heylogs xFull = x.toBuilder().forge(MOCKED_FORGE).build();
         String customTemplate = "{{#versioning}}versioning:{{id}}:{{name}}{{/versioning}}" +
                 "{{#tagging}} tagging:{{id}}:{{arg}}{{/tagging}}" +
                 "{{#forge}} forge:{{id}}{{/forge}}" +
@@ -547,6 +545,15 @@ public class HeylogsTest {
         return unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc);
     }
 
+    private static final ForgeSupport MOCKED_FORGE = ForgeSupport
+            .builder()
+            .id("github")
+            .name("GitHub")
+            .moduleId("github")
+            .linkParser(ForgeLinkType.COMPARE, MockedCompareLink::new)
+            .knownHostPredicate(url -> false)
+            .build();
+
     private static final class MockedRule implements Rule {
 
         @Override
@@ -577,59 +584,6 @@ public class HeylogsTest {
         @Override
         public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
             return null;
-        }
-    }
-
-    private static final class MockedForge implements Forge {
-
-        @Override
-        public @NonNull String getForgeId() {
-            return "github";
-        }
-
-        @Override
-        public @NonNull String getForgeName() {
-            return "GitHub";
-        }
-
-        @Override
-        public @NonNull String getForgeModuleId() {
-            return "github";
-        }
-
-        @Override
-        public boolean isCompareLink(@NonNull URL url) {
-            return true;
-        }
-
-        @Override
-        public @NonNull CompareLink getCompareLink(@NonNull URL url) {
-            return new MockedCompareLink(url);
-        }
-
-        @Override
-        public @Nullable Function<? super URL, ForgeLink> getLinkParser(@NonNull ForgeRefType type) {
-            return null;
-        }
-
-        @Override
-        public @Nullable Function<? super CharSequence, ForgeRef> getRefParser(@NonNull ForgeRefType type) {
-            return null;
-        }
-
-        @Override
-        public @Nullable BiFunction<URL, CharSequence, ForgeLink> getLinkResolver(@NonNull ForgeRefType type) {
-            return null;
-        }
-
-        @Override
-        public @Nullable MessageFetcher getMessageFetcher(@NonNull ForgeRefType type) {
-            return null;
-        }
-
-        @Override
-        public boolean isKnownHost(@NonNull URL url) {
-            return false;
         }
     }
 }

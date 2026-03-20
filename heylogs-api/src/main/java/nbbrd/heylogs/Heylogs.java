@@ -24,8 +24,6 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -38,7 +36,7 @@ import static java.util.stream.Collectors.partitioningBy;
 import static java.util.stream.Collectors.toList;
 import static nbbrd.heylogs.TimeRange.toTimeRange;
 import static nbbrd.heylogs.Util.illegalArgumentToNull;
-import static nbbrd.heylogs.spi.ForgeSupport.onCompareLink;
+import static nbbrd.heylogs.spi.ForgeSupport.*;
 import static nbbrd.heylogs.spi.Versioning.NO_VERSIONING_FILTER;
 
 @lombok.Value
@@ -167,14 +165,23 @@ public class Heylogs {
                 .orElseThrow(() -> new IllegalArgumentException("Cannot locate unreleased header"));
 
         Forge forge = config.getForge() != null
-                ? findForge(config.getForge()::isCompatibleWith).orElseThrow(() -> new IllegalArgumentException("Cannot find forge with id '" + config.getForge().getId() + "'"))
-                : findForge(onCompareLink(unreleased.getURL())).orElseThrow(() -> new IllegalArgumentException("Cannot determine forge"));
+                ? findForge(onForgeConfig(config.getForge())).orElseThrow(() -> new IllegalArgumentException("Cannot find forge with id '" + config.getForge().getId() + "'"))
+                : findForge(onHost(unreleased.getURL(), config.getDomains())).orElseThrow(() -> new IllegalArgumentException("Cannot determine forge"));
+
+        CompareLinkParser compareLinkParser = forge.getCompareLinkParser();
+        if (compareLinkParser == null) {
+            throw new IllegalArgumentException("Cannot determine compare link parser");
+        }
+        CompareLink compareLink = compareLinkParser.parseForgeLinkOrNull(unreleased.getURL());
+        if (compareLink == null) {
+            throw new IllegalArgumentException("Cannot determine compare link");
+        }
 
         String releaseTag = getTag(config.getTagging(), newVersion.getRef());
-        URL releaseURL = forge.getCompareLink(unreleased.getURL()).derive(releaseTag).toURL();
+        URL releaseURL = compareLink.derive(releaseTag).toURL();
         VersionHeading release = VersionHeading.of(newVersion, releaseURL);
 
-        URL updatedURL = forge.getCompareLink(releaseURL).derive("HEAD").toURL();
+        URL updatedURL = compareLinkParser.parseForgeLink(releaseURL).derive("HEAD").toURL();
         VersionHeading updated = VersionHeading.of(unreleased.getSection(), updatedURL);
 
         changelog.getRepository().putRawKey(release.getReference().getReference(), release.getReference());
@@ -295,12 +302,12 @@ public class Heylogs {
                 .findFirst()
                 .orElseThrow(() -> new IOException("No forge found for URL: " + url));
 
-        for (ForgeRefType type : ForgeRefType.values()) {
+        for (ForgeLinkType type : ForgeLinkType.values()) {
             MessageFetcher fetcher = forge.getMessageFetcher(type);
             if (fetcher != null) {
-                Function<? super URL, ForgeLink> linkParser = forge.getLinkParser(type);
+                ForgeLinkParser linkParser = forge.getLinkParser(type);
                 if (linkParser != null) {
-                    ForgeLink link = illegalArgumentToNull(linkParser).apply(url);
+                    ForgeLink link = linkParser.parseForgeLinkOrNull(url);
                     if (link != null) {
                         return fetcher.fetchMessage(httpFactory.getClient(), link) + toMarkdown(link);
                     }
@@ -321,17 +328,22 @@ public class Heylogs {
         }
 
         URL compareURL = versions.get(0).getURL();
-        Forge forge = findForge(onCompareLink(compareURL))
+        Forge forge = findForge(onHost(compareURL, FIXME_DOMAINS))
                 .orElseThrow(() -> new IOException("Cannot determine forge from changelog"));
 
-        URL projectUrl = forge.getCompareLink(compareURL).getProjectURL();
+        CompareLinkParser compareLinkParser = forge.getCompareLinkParser();
+        if (compareLinkParser == null) {
+            throw new IOException("Cannot determine compare link parser");
+        }
 
-        for (ForgeRefType type : ForgeRefType.values()) {
+        URL projectUrl = compareLinkParser.parseForgeLink(compareURL).getProjectURL();
+
+        for (ForgeLinkType type : ForgeLinkType.values()) {
             MessageFetcher fetcher = forge.getMessageFetcher(type);
             if (fetcher != null) {
-                BiFunction<URL, CharSequence, ForgeLink> linkResolver = forge.getLinkResolver(type);
+                ForgeLinkResolver linkResolver = forge.getLinkResolver(type);
                 if (linkResolver != null) {
-                    ForgeLink link = illegalArgumentToNull(linkResolver).apply(projectUrl, ref);
+                    ForgeLink link = linkResolver.resolveForgeLinkOrNull(projectUrl, ref);
                     if (link != null) {
                         return fetcher.fetchMessage(httpFactory.getClient(), link) + toMarkdown(link);
                     }
@@ -428,7 +440,7 @@ public class Heylogs {
                 .orElse(0L);
 
         VersionHeading first = versions.get(0);
-        Forge forgeOrNull = findForge(onCompareLink(first.getURL())).orElse(null);
+        Forge forgeOrNull = findForge(onHost(first.getURL(), FIXME_DOMAINS)).orElse(null);
 
         return Summary
                 .builder()
@@ -439,7 +451,7 @@ public class Heylogs {
                 .compatibilities(versioningStreamOf(versionings, releases).map(Versioning::getVersioningName).collect(toList()))
                 .unreleasedChanges((int) unreleasedChanges)
                 .forgeName(forgeOrNull != null ? forgeOrNull.getForgeName() : null)
-                .forgeURL(getForgeURL(forgeOrNull, first.getURL()))
+                .forgeURL(getProjectUrl(forgeOrNull, first.getURL()))
                 .build();
     }
 
@@ -519,9 +531,9 @@ public class Heylogs {
                     if (url != null) {
                         List<String> result = new ArrayList<>();
                         for (Forge forge : context.findAllForges(url)) {
-                            for (ForgeRefType type : ForgeRefType.values()) {
-                                Function<? super URL, ForgeLink> linkParser = forge.getLinkParser(type);
-                                ForgeLink expectedLink = linkParser != null ? illegalArgumentToNull(linkParser).apply(url) : null;
+                            for (ForgeLinkType type : ForgeLinkType.values()) {
+                                ForgeLinkParser linkParser = forge.getLinkParser(type);
+                                ForgeLink expectedLink = linkParser != null ? linkParser.parseForgeLinkOrNull(url) : null;
                                 if (expectedLink != null) {
                                     result.add(forge.getForgeId() + ":" + type);
                                 }
@@ -556,8 +568,17 @@ public class Heylogs {
         return findFormat(onFormatFileFilter(file)).map(Format::getFormatId);
     }
 
-    private URL getForgeURL(Forge forgeOrNull, URL url) {
-        return forgeOrNull != null ? forgeOrNull.getCompareLink(url).getProjectURL() : URLExtractor.baseOf(url);
+    private URL getProjectUrl(Forge forgeOrNull, URL url) {
+        if (forgeOrNull != null) {
+            CompareLinkParser compareLinkParser = forgeOrNull.getCompareLinkParser();
+            if (compareLinkParser != null) {
+                CompareLink compareLink = compareLinkParser.parseForgeLinkOrNull(url);
+                if (compareLink != null) {
+                    return compareLink.getProjectURL();
+                }
+            }
+        }
+        return URLExtractor.baseOf(url);
     }
 
     private Optional<Rule> findRule(@NonNull Predicate<Rule> predicate) {
@@ -672,7 +693,7 @@ public class Heylogs {
 
     private void checkDomainConfigs(List<DomainConfig> configs) throws IllegalArgumentException {
         for (DomainConfig config : configs) {
-            findForge(config::isCompatibleWith)
+            findForge(onDomainConfig(config))
                     .orElseThrow(() -> new IllegalArgumentException("Cannot find forge with id '" + config.getForgeId() + "'"));
         }
     }
@@ -692,4 +713,6 @@ public class Heylogs {
     }
 
     private static final URL DEFAULT_PROJECT_URL = URLExtractor.urlOf("https://example.com/");
+
+    private static final List<DomainConfig> FIXME_DOMAINS = Collections.emptyList();
 }

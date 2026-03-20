@@ -22,9 +22,15 @@ public final class ForgeAssert {
                 .isNotNull();
 
         assertThatNullPointerException()
-                .isThrownBy(() -> x.isCompareLink(null));
+                .isThrownBy(() -> x.getLinkParser(null));
 
         assertThatNullPointerException()
-                .isThrownBy(() -> x.getCompareLink(null));
+                .isThrownBy(() -> x.getRefParser(null));
+
+        assertThatNullPointerException()
+                .isThrownBy(() -> x.getLinkResolver(null));
+
+        assertThatNullPointerException()
+                .isThrownBy(() -> x.getMessageFetcher(null));
     }
 }

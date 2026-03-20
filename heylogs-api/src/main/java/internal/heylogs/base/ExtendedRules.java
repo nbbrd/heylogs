@@ -24,7 +24,6 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -441,12 +440,12 @@ public enum ExtendedRules implements Rule {
         URL url = Parser.onURL().parse(link.getUrl());
         if (url != null) {
             for (Forge forge : context.findAllForges(url)) {
-                for (ForgeRefType type : ForgeRefType.values()) {
-                    Function<? super URL, ForgeLink> linkParser = forge.getLinkParser(type);
-                    ForgeLink expectedLink = linkParser != null ? illegalArgumentToNull(linkParser).apply(url) : null;
+                for (ForgeLinkType type : ForgeLinkType.values()) {
+                    ForgeLinkParser linkParser = forge.getLinkParser(type);
+                    ForgeLink expectedLink = linkParser != null ? linkParser.parseForgeLinkOrNull(url) : null;
                     if (expectedLink != null) {
-                        Function<? super CharSequence, ForgeRef> refParser = forge.getRefParser(type);
-                        ForgeRef foundRef = refParser != null ? illegalArgumentToNull(refParser).apply(link.getText()) : null;
+                        ForgeRefParser refParser = forge.getRefParser(type);
+                        ForgeRef foundRef = refParser != null ? refParser.parseForgeRefOrNull(link.getText()) : null;
                         if (foundRef == null || !foundRef.isCompatibleWith(expectedLink)) {
                             ForgeRef expectedRef = expectedLink.toRef(foundRef);
                             if (expectedRef != null) {
@@ -519,9 +518,9 @@ public enum ExtendedRules implements Rule {
         URL url = illegalArgumentToNull(URLExtractor::urlOf).apply(x.getUrl());
         return url != null && context.getForges()
                 .stream()
-                .flatMap(forge -> Stream.<Function<? super URL, ForgeLink>>of(forge.getLinkParser(ForgeRefType.ISSUE), forge.getLinkParser(ForgeRefType.REQUEST)))
+                .flatMap(forge -> Stream.of(forge.getLinkParser(ForgeLinkType.ISSUE), forge.getLinkParser(ForgeLinkType.REQUEST)))
                 .filter(Objects::nonNull)
-                .anyMatch(linkParser -> illegalArgumentToNull(linkParser).apply(url) != null);
+                .anyMatch(linkParser -> linkParser.parseForgeLinkOrNull(url) != null);
     }
 
     @VisibleForTesting
@@ -532,23 +531,26 @@ public enum ExtendedRules implements Rule {
 
         if (url != null && tagParser != CONVERSION_NOT_SUPPORTED && versioningPredicate != NO_VERSIONING_FILTER) {
             for (Forge forge : context.findAllForges(url)) {
-                if (forge.isCompareLink(url)) {
-                    CompareLink compareLink = forge.getCompareLink(url);
-                    String baseVersion = tagParser.applyOrNull(compareLink.getCompareBaseRef());
-                    if (baseVersion != null && !versioningPredicate.test(baseVersion)) {
-                        return RuleIssue
-                                .builder()
-                                .message(String.format(ROOT, "Invalid base reference '%s' when using versioning '%s'", baseVersion, context.getConfig().getVersioning()))
-                                .location(link)
-                                .build();
-                    }
-                    String headVersion = tagParser.applyOrNull(compareLink.getCompareHeadRef());
-                    if (headVersion != null && !versioningPredicate.test(headVersion)) {
-                        return RuleIssue
-                                .builder()
-                                .message(String.format(ROOT, "Invalid head reference '%s' when using versioning '%s'", headVersion, context.getConfig().getVersioning()))
-                                .location(link)
-                                .build();
+                CompareLinkParser compareLinkParser = forge.getCompareLinkParser();
+                if (compareLinkParser != null) {
+                    CompareLink compareLink = compareLinkParser.parseForgeLinkOrNull(url);
+                    if (compareLink != null) {
+                        String baseVersion = tagParser.applyOrNull(compareLink.getCompareBaseRef());
+                        if (baseVersion != null && !versioningPredicate.test(baseVersion)) {
+                            return RuleIssue
+                                    .builder()
+                                    .message(String.format(ROOT, "Invalid base reference '%s' when using versioning '%s'", baseVersion, context.getConfig().getVersioning()))
+                                    .location(link)
+                                    .build();
+                        }
+                        String headVersion = tagParser.applyOrNull(compareLink.getCompareHeadRef());
+                        if (headVersion != null && !versioningPredicate.test(headVersion)) {
+                            return RuleIssue
+                                    .builder()
+                                    .message(String.format(ROOT, "Invalid head reference '%s' when using versioning '%s'", headVersion, context.getConfig().getVersioning()))
+                                    .location(link)
+                                    .build();
+                        }
                     }
                 }
             }
@@ -568,13 +570,13 @@ public enum ExtendedRules implements Rule {
         Map<String, List<ItemLocation>> itemsByText = new HashMap<>();
 
         changelog.getVersions().forEach(version ->
-            version.getTypeOfChanges().forEach(typeOfChange ->
-                typeOfChange.getBulletListItems().forEach(item -> {
-                    String text = item.getChars().trim().toString();
-                    itemsByText.computeIfAbsent(text, k -> new ArrayList<>())
-                        .add(new ItemLocation(item, version, typeOfChange));
-                })
-            )
+                version.getTypeOfChanges().forEach(typeOfChange ->
+                        typeOfChange.getBulletListItems().forEach(item -> {
+                            String text = item.getChars().trim().toString();
+                            itemsByText.computeIfAbsent(text, k -> new ArrayList<>())
+                                    .add(new ItemLocation(item, version, typeOfChange));
+                        })
+                )
         );
 
         // Find first duplicate across all items
@@ -589,20 +591,20 @@ public enum ExtendedRules implements Rule {
                     if (first.version.getSection().getRef().equals(second.version.getSection().getRef())) {
                         // Same version, different type of change
                         message = String.format(ROOT, "Duplicate item found in version %s across %s and %s: '%s' appears %d times",
-                            first.version.getSection().getRef(),
-                            first.typeOfChange.getSection(),
-                            second.typeOfChange.getSection(),
-                            entry.getKey(),
-                            locations.size());
+                                first.version.getSection().getRef(),
+                                first.typeOfChange.getSection(),
+                                second.typeOfChange.getSection(),
+                                entry.getKey(),
+                                locations.size());
                     } else {
                         // Different versions
                         message = String.format(ROOT, "Duplicate item found across versions %s (%s) and %s (%s): '%s' appears %d times",
-                            first.version.getSection().getRef(),
-                            first.typeOfChange.getSection(),
-                            second.version.getSection().getRef(),
-                            second.typeOfChange.getSection(),
-                            entry.getKey(),
-                            locations.size());
+                                first.version.getSection().getRef(),
+                                first.typeOfChange.getSection(),
+                                second.version.getSection().getRef(),
+                                second.typeOfChange.getSection(),
+                                entry.getKey(),
+                                locations.size());
                     }
 
                     return RuleIssue

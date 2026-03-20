@@ -7,8 +7,6 @@ import nbbrd.service.ServiceId;
 import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 @ServiceDefinition(
         quantifier = Quantifier.MULTIPLE
@@ -25,22 +23,20 @@ public interface Forge {
     @NonNull
     String getForgeModuleId();
 
-    boolean isCompareLink(@NonNull URL url);
-
-    @NonNull
-    CompareLink getCompareLink(@NonNull URL url) throws IllegalArgumentException;
+    @Nullable
+    CompareLinkParser getCompareLinkParser();
 
     @Nullable
-    Function<? super URL, ForgeLink> getLinkParser(@NonNull ForgeRefType type);
+    ForgeLinkParser getLinkParser(@NonNull ForgeLinkType type);
 
     @Nullable
-    Function<? super CharSequence, ForgeRef> getRefParser(@NonNull ForgeRefType type);
+    ForgeRefParser getRefParser(@NonNull ForgeLinkType type);
 
     @Nullable
-    BiFunction<URL, CharSequence, ForgeLink> getLinkResolver(@NonNull ForgeRefType type);
+    ForgeLinkResolver getLinkResolver(@NonNull ForgeLinkType type);
 
     @Nullable
-    MessageFetcher getMessageFetcher(@NonNull ForgeRefType type);
+    MessageFetcher getMessageFetcher(@NonNull ForgeLinkType type);
 
     boolean isKnownHost(@NonNull URL url);
 }
