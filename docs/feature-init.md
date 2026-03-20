@@ -17,7 +17,7 @@ $ heylogs init path/to/CHANGELOG.md
 $ heylogs init --versioning semver
 
 # Create a changelog from a custom Mustache template
-$ heylogs init --template my-template.mustache
+$ heylogs init --template-file my-template.mustache
 ```
 
 ### Maven plugin
@@ -33,6 +33,9 @@ $ heylogs init --template my-template.mustache
             </goals>
         </execution>
     </executions>
+    <configuration>
+        <templateFile>my-template.mustache</templateFile>
+    </configuration>
 </plugin>
 ```
 
@@ -40,21 +43,22 @@ $ heylogs init --template my-template.mustache
 
 ### Output parameters
 
-| Parameter    | Description                                            | CLI                     | Maven Plugin                              |
-|--------------|--------------------------------------------------------|-------------------------|-------------------------------------------|
-| `outputFile` | Changelog file to create (default: CHANGELOG.md)       | `<file>` (positional)   | `<outputFile>CHANGELOG.md</outputFile>`   |
-| `template`   | Custom [Mustache](https://mustache.github.io/) template file | `--template <file>` | `<template>my-template.mustache</template>` |
+| Parameter      | Description                                            | CLI                          | Maven Plugin                                   |
+|---------------|--------------------------------------------------------|------------------------------|------------------------------------------------|
+| `outputFile`  | Changelog file to create (default: CHANGELOG.md)       | `<file>` (positional)        | `<outputFile>CHANGELOG.md</outputFile>`        |
+| `templateFile`| Custom [Mustache](https://mustache.github.io/) template file | `--template-file <file>` | `<templateFile>my-template.mustache</templateFile>` |
+| `projectUrl`  | Project URL for Unreleased link                        | `-p, --project-url <url>`    | `<projectUrl>https://example.com</projectUrl>`  |
 
 ### Configuration options
 
 | Parameter    | Description                       | CLI                      | Maven Plugin                                    |
 |--------------|-----------------------------------|--------------------------|-------------------------------------------------|
 | `noConfig`   | Ignore config files               | `--no-config`            | `<noConfig>true</noConfig>`                     |
-| `versioning` | Versioning scheme (used in description line) | `--versioning <scheme>` | `<versioning>semver</versioning>`      |
-| `tagging`    | Tagging strategy                  | `--tagging <strategy>`   | `<tagging>prefix:v</tagging>`                   |
-| `forge`      | Forge platform                    | `--forge <platform>`     | `<forge>github</forge>`                         |
-| `rules`      | Rule overrides (comma-separated)  | `--rule <id:severity>`   | `<rules>no-empty-group:WARN,...</rules>`         |
-| `domains`    | Domain mappings (comma-separated) | `--domain <domain:forge>`| `<domains>gitlab.company.com:gitlab</domains>`  |
+| `versioning` | Versioning scheme (used in description line) | `-v, --versioning <scheme>` | `<versioning>semver</versioning>`      |
+| `tagging`    | Tagging strategy                  | `-t, --tagging <strategy>`   | `<tagging>prefix:v</tagging>`                   |
+| `forge`      | Forge platform                    | `-g, --forge <platform>`     | `<forge>github</forge>`                         |
+| `rules`      | Rule overrides (comma-separated)  | `-u, --rule <id:severity>`   | `<rules>no-empty-group:WARN,...</rules>`         |
+| `domains`    | Domain mappings (comma-separated) | `-m, --domain <domain:forge>`| `<domains>gitlab.company.com:gitlab</domains>`  |
 
 ## Template
 
@@ -79,7 +83,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Custom template
 
-The `--template` option accepts a [Mustache](https://mustache.github.io/) template file. The following variables are available:
+The `--template-file` option (or `<templateFile>` in Maven) accepts a [Mustache](https://mustache.github.io/) template file. The following variables are available:
 
 #### `versioning` (object, present only when `--versioning` is set)
 
@@ -110,12 +114,20 @@ The `--template` option accepts a [Mustache](https://mustache.github.io/) templa
 | `{{rules.id}}`      | Rule ID (e.g. `linkable`)                            |
 | `{{rules.severity}}`| Severity override (e.g. `WARN`, `ERROR`, `OFF`)      |
 
+
+#### `projectUrl` (string, present only when set)
+
+| Variable           | Description                                 |
+|--------------------|---------------------------------------------|
+| `{{projectUrl}}`   | Project URL for the Unreleased link         |
+
 #### `domains` (list, always present, empty when no domains are configured)
 
 | Variable              | Description                                        |
 |-----------------------|----------------------------------------------------|
 | `{{domains.domain}}`  | Domain name (e.g. `gitlab.company.com`)            |
 | `{{domains.forgeId}}` | Forge ID mapped to this domain (e.g. `gitlab`)     |
+
 
 Example custom template:
 
@@ -127,10 +139,9 @@ Example custom template:
 > Hosted on {{id}}.
 {{/forge}}
 
-## [Unreleased]
+## [Unreleased]{{#projectUrl}} ([Unreleased]({{projectUrl}})){{/projectUrl}}
 ```
 
 ---
 
 [← Back to README](../README.md)
-

@@ -68,7 +68,7 @@ public class InitCommandTest {
 
         Path file = temp.resolve("CHANGELOG.md");
 
-        assertThat(cmd.execute(file.toString(), "--template", templateFile.toString()))
+        assertThat(cmd.execute(file.toString(), "--template-file", templateFile.toString()))
                 .isEqualTo(CommandLine.ExitCode.OK);
         assertThat(watcher.getOut()).isEmpty();
         assertThat(watcher.getErr()).isEmpty();
@@ -79,5 +79,22 @@ public class InitCommandTest {
                 .contains("# My Custom Changelog")
                 .contains("## [Unreleased]");
     }
-}
 
+    @Test
+    public void testInitWithProjectUrl(@TempDir Path temp) throws IOException {
+        CommandLine cmd = new CommandLine(new InitCommand());
+        CommandWatcher watcher = CommandWatcher.on(cmd);
+
+        Path file = temp.resolve("CHANGELOG.md");
+
+        assertThat(cmd.execute(file.toString(), "--project-url", "https://example.com"))
+                .isEqualTo(CommandLine.ExitCode.OK);
+        assertThat(watcher.getOut()).isEmpty();
+        assertThat(watcher.getErr()).isEmpty();
+
+        assertThat(file)
+                .exists()
+                .content(UTF_8)
+                .contains("https://example.com");
+    }
+}

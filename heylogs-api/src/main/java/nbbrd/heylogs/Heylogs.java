@@ -186,7 +186,7 @@ public class Heylogs {
         unreleased.getReference().unlink();
     }
 
-    public @NonNull Document init(@NonNull Config config, @Nullable String template) {
+    public @NonNull Document init(@NonNull Config config, @Nullable String template, @Nullable URL projectUrl) {
         checkConfig(config);
 
         Map<String, Object> context = new HashMap<>();
@@ -232,6 +232,10 @@ public class Heylogs {
             domainsContext.add(domainMap);
         }
         context.put("domains", domainsContext);
+
+        URL effectiveProjectUrl;
+        effectiveProjectUrl = projectUrl == null ? DEFAULT_PROJECT_URL : projectUrl;
+        context.put("projectUrl", effectiveProjectUrl.toString());
 
         DefaultMustacheFactory factory = new DefaultMustacheFactory();
         Mustache mustache = template != null
@@ -478,7 +482,7 @@ public class Heylogs {
             Document parsed = FlexmarkIO.newParser().parse(summary + "\n");
             Node insertAfter = start;
             Node lastSummaryNode = null;
-            for (Node child = parsed.getFirstChild(); child != null;) {
+            for (Node child = parsed.getFirstChild(); child != null; ) {
                 Node nextChild = child.getNext();
                 if (insertAfter.getParent() == null) {
                     document.appendChild(child);
@@ -686,4 +690,6 @@ public class Heylogs {
     private static @NonNull String toMarkdown(ForgeLink link) {
         return " [" + link.toRef(null) + "](" + link.toURL() + ")";
     }
+
+    private static final URL DEFAULT_PROJECT_URL = URLExtractor.urlOf("https://example.com/");
 }

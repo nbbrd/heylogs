@@ -12,6 +12,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
@@ -26,8 +27,11 @@ public final class InitMojo extends HeylogsMojo {
     @Parameter(property = "heylogs.outputFile", defaultValue = DEFAULT_CHANGELOG_FILE)
     private File outputFile;
 
-    @Parameter(property = "heylogs.template")
-    private File template;
+    @Parameter(property = "heylogs.templateFile")
+    private File templateFile;
+
+    @Parameter(property = "heylogs.projectUrl")
+    private URL projectUrl;
 
     @Parameter(property = "heylogs.tagging")
     private String tagging;
@@ -63,8 +67,8 @@ public final class InitMojo extends HeylogsMojo {
 
         getLog().info("Initializing changelog " + outputFile);
         try {
-            String templateContent = template != null ? new String(Files.readAllBytes(template.toPath()), StandardCharsets.UTF_8) : null;
-            Document document = Heylogs.ofServiceLoader().init(config, templateContent);
+            String template = templateFile != null ? new String(Files.readAllBytes(templateFile.toPath()), StandardCharsets.UTF_8) : null;
+            Document document = Heylogs.ofServiceLoader().init(config, template, projectUrl);
             writeChangelog(document, outputFile);
         } catch (IOException ex) {
             throw new MojoExecutionException("Failed to read template file", ex);

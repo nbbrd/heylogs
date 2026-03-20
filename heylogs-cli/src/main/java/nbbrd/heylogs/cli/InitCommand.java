@@ -9,6 +9,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 import java.io.IOException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,11 +30,18 @@ public final class InitCommand implements Callable<Void> {
     private Path file = Paths.get(DEFAULT_CHANGELOG_FILE);
 
     @CommandLine.Option(
-            names = {"--template"},
-            paramLabel = "<template>",
+            names = {"--template-file"},
+            paramLabel = "<file>",
             description = "Custom Mustache template file."
     )
-    private Path template;
+    private Path templateFile;
+
+    @CommandLine.Option(
+            names = {"-p", "--project-url"},
+            paramLabel = "<url>",
+            description = "Project URL to use for the Unreleased link."
+    )
+    private URL projectUrl;
 
     @CommandLine.Mixin
     private ConfigOptions configOptions;
@@ -51,8 +59,8 @@ public final class InitCommand implements Callable<Void> {
             throw new IOException("File already exists: " + file);
         }
         Config config = configOptions.getConfigFromDirectory(Config.resolveStartDir(file));
-        String templateContent = template != null ? new String(Files.readAllBytes(template), StandardCharsets.UTF_8) : null;
-        Document document = Heylogs.ofServiceLoader().init(config, templateContent);
+        String template = templateFile != null ? new String(Files.readAllBytes(templateFile), StandardCharsets.UTF_8) : null;
+        Document document = Heylogs.ofServiceLoader().init(config, template, projectUrl);
         newMarkdownOutputSupport().writeDocument(file, document);
         return null;
     }

@@ -439,7 +439,7 @@ public class HeylogsTest {
                 .build();
 
         // no versioning: description line has no versioning reference
-        String defaultResult = unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(x.init(Config.DEFAULT, null));
+        String defaultResult = unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(x.init(Config.DEFAULT, null, null));
         assertThat(defaultResult)
                 .contains("# Changelog")
                 .contains("## [Unreleased]")
@@ -448,7 +448,7 @@ public class HeylogsTest {
 
         // with versioning: name and URL come from the service
         String versioningResult = unchecked(FlexmarkIO.newTextFormatter()::formatToString)
-                .apply(x.init(Config.builder().versioningOf("regex:.*").build(), null));
+                .apply(x.init(Config.builder().versioningOf("regex:.*").build(), null, null));
         assertThat(versioningResult)
                 .contains("adheres to")
                 .contains("[Regex Versioning](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html)")
@@ -469,7 +469,7 @@ public class HeylogsTest {
                 .domainOf("example.com:github")
                 .build();
         String customResult = unchecked(FlexmarkIO.newTextFormatter()::formatToString)
-                .apply(xFull.init(fullConfig, customTemplate));
+                .apply(xFull.init(fullConfig, customTemplate, null));
         assertThat(customResult)
                 .contains("versioning:regex:Regex Versioning")
                 .contains("tagging:prefix:v")
@@ -477,7 +477,7 @@ public class HeylogsTest {
                 .contains("rule:no-empty-group:WARN")
                 .contains("domain:example.com:github");
 
-        assertThat(x.check(x.init(Config.DEFAULT, null), Config.DEFAULT))
+        assertThat(x.check(x.init(Config.DEFAULT, null, null), Config.DEFAULT))
                 .extracting(Problem::getId)
                 .doesNotContain("changelog-heading", "version-format");
     }
