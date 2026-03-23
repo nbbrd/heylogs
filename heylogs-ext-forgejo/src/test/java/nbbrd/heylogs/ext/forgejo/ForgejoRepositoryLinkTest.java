@@ -21,6 +21,11 @@ class ForgejoRepositoryLinkTest {
         assertThat(link.getOwner()).isEqualTo("nbbrd");
         assertThat(link.getRepo()).isEqualTo("heylogs");
         assertThat(link.toURL().toString()).isEqualTo("https://codeberg.org/nbbrd/heylogs");
+
+        ForgejoRepositoryLink linkWithTrailingSlash = parse(urlOf("https://codeberg.org/nbbrd/heylogs/"));
+        assertThat(linkWithTrailingSlash.getOwner()).isEqualTo("nbbrd");
+        assertThat(linkWithTrailingSlash.getRepo()).isEqualTo("heylogs");
+        assertThat(linkWithTrailingSlash.toURL().toString()).isEqualTo("https://codeberg.org/nbbrd/heylogs");
     }
 
     @Test

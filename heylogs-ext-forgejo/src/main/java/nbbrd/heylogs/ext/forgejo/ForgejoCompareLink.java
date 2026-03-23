@@ -7,6 +7,7 @@ import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.spi.CompareLink;
 import nbbrd.heylogs.spi.ForgeRef;
+import nbbrd.heylogs.spi.ProjectLink;
 import nbbrd.io.http.URLQueryBuilder;
 import org.jspecify.annotations.Nullable;
 
@@ -31,6 +32,16 @@ class ForgejoCompareLink implements CompareLink, ForgejoProjectLink {
         checkPathItem(pathArray, 3, THREE_DOT_DIFF_PATTERN);
 
         return new ForgejoCompareLink(baseOf(url), pathArray[0], pathArray[1], ThreeDotDiff.parse(pathArray[3]));
+    }
+
+    @StaticFactoryMethod
+    public static @NonNull ForgejoCompareLink of(@NonNull ProjectLink link) {
+        if (link instanceof ForgejoCompareLink) return (ForgejoCompareLink) link;
+        if (link instanceof ForgejoProjectLink) {
+            ForgejoProjectLink forgejo = (ForgejoProjectLink) link;
+            return new ForgejoCompareLink(forgejo.getBase(), forgejo.getOwner(), forgejo.getRepo(), ThreeDotDiff.DEFAULT);
+        }
+        throw new IllegalArgumentException("Cannot create compare link from non-Forgejo project link: " + link);
     }
 
     @NonNull

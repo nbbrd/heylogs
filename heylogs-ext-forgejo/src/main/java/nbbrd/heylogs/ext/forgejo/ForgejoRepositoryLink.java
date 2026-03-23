@@ -17,7 +17,7 @@ class ForgejoRepositoryLink implements ForgejoProjectLink {
 
     @StaticFactoryMethod
     public static @NonNull ForgejoRepositoryLink parse(@NonNull URL url) {
-        String[] pathArray = getPathArray(url);
+        String[] pathArray = getPathArray(url, true);
         checkPathLength(pathArray, 2);
         checkPathItem(pathArray, 0, OWNER_PATTERN);
         checkPathItem(pathArray, 1, REPO_PATTERN);

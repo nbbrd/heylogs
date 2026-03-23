@@ -10,7 +10,12 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
+import static nbbrd.heylogs.spi.ForgeLinkType.*;
 
 @lombok.Builder(toBuilder = true)
 public final class ForgeSupport implements Forge {
@@ -35,6 +40,8 @@ public final class ForgeSupport implements Forge {
     @lombok.Singular
     private final Map<ForgeLinkType, MessageFetcher> messageFetchers;
 
+    private final CompareLinkConverter compareLinkConverter;
+
     @Override
     public @NonNull String getForgeId() {
         return id;
@@ -48,6 +55,16 @@ public final class ForgeSupport implements Forge {
     @Override
     public @NonNull String getForgeModuleId() {
         return moduleId;
+    }
+
+    @Override
+    public @Nullable ProjectLinkParser getProjectLinkParser() {
+        List<ProjectLinkParser> parsers = Stream.of(COMMIT, COMPARE, ISSUE, REQUEST, REPOSITORY)
+                .map(this::getLinkParser)
+                .filter(Objects::nonNull)
+                .map(ProjectLinkParser::casting)
+                .collect(toList());
+        return !parsers.isEmpty() ? ProjectLinkParser.anyOf(parsers) : null;
     }
 
     @Override
@@ -74,6 +91,11 @@ public final class ForgeSupport implements Forge {
     @Override
     public @Nullable MessageFetcher getMessageFetcher(@NonNull ForgeLinkType type) {
         return messageFetchers.get(type);
+    }
+
+    @Override
+    public @Nullable CompareLinkConverter getCompareLinkConverter() {
+        return compareLinkConverter;
     }
 
     @Override

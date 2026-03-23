@@ -24,6 +24,9 @@ public interface Forge {
     String getForgeModuleId();
 
     @Nullable
+    ProjectLinkParser getProjectLinkParser();
+
+    @Nullable
     CompareLinkParser getCompareLinkParser();
 
     @Nullable
@@ -37,6 +40,9 @@ public interface Forge {
 
     @Nullable
     MessageFetcher getMessageFetcher(@NonNull ForgeLinkType type);
+
+    @Nullable
+    CompareLinkConverter getCompareLinkConverter();
 
     boolean isKnownHost(@NonNull URL url);
 }

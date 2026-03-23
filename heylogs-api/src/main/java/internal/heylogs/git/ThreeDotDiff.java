@@ -12,6 +12,10 @@ import java.util.regex.Pattern;
 @lombok.Value
 public class ThreeDotDiff {
 
+    private static final String HEAD = "HEAD";
+
+    public static final ThreeDotDiff DEFAULT = new ThreeDotDiff(HEAD, HEAD);
+
     public static @NonNull ThreeDotDiff parse(@NonNull CharSequence text) {
         Matcher matcher = THREE_DOT_DIFF_PATTERN.matcher(text);
         if (!matcher.matches())
@@ -31,8 +35,8 @@ public class ThreeDotDiff {
     }
 
     public @NonNull ThreeDotDiff derive(@NonNull String tag) {
-        return to.equals("HEAD")
-                ? from.equals("HEAD") ? new ThreeDotDiff(tag, tag) : new ThreeDotDiff(from, tag)
+        return to.equals(HEAD)
+                ? from.equals(HEAD) ? new ThreeDotDiff(tag, tag) : new ThreeDotDiff(from, tag)
                 : new ThreeDotDiff(to, tag);
     }
 

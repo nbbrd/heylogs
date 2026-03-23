@@ -168,21 +168,15 @@ public class Heylogs {
                 ? findForge(onForgeConfig(config.getForge())).orElseThrow(() -> new IllegalArgumentException("Cannot find forge with id '" + config.getForge().getId() + "'"))
                 : findForge(onHost(unreleased.getURL(), config.getDomains())).orElseThrow(() -> new IllegalArgumentException("Cannot determine forge"));
 
-        CompareLinkParser compareLinkParser = forge.getCompareLinkParser();
-        if (compareLinkParser == null) {
-            throw new IllegalArgumentException("Cannot determine compare link parser");
-        }
-        CompareLink compareLink = compareLinkParser.parseForgeLinkOrNull(unreleased.getURL());
-        if (compareLink == null) {
-            throw new IllegalArgumentException("Cannot determine compare link");
-        }
+        CompareLink originalLink = findCompareLink(forge, unreleased.getURL())
+                .orElseThrow(() -> new IllegalArgumentException("Cannot determine compare link"));
 
         String releaseTag = getTag(config.getTagging(), newVersion.getRef());
-        URL releaseURL = compareLink.derive(releaseTag).toURL();
-        VersionHeading release = VersionHeading.of(newVersion, releaseURL);
+        CompareLink releaseLink = originalLink.derive(releaseTag);
+        VersionHeading release = VersionHeading.of(newVersion, releaseLink.toURL());
 
-        URL updatedURL = compareLinkParser.parseForgeLink(releaseURL).derive("HEAD").toURL();
-        VersionHeading updated = VersionHeading.of(unreleased.getSection(), updatedURL);
+        CompareLink updatedLink = releaseLink.derive("HEAD");
+        VersionHeading updated = VersionHeading.of(unreleased.getSection(), updatedLink.toURL());
 
         changelog.getRepository().putRawKey(release.getReference().getReference(), release.getReference());
         changelog.getRepository().putRawKey(updated.getReference().getReference(), updated.getReference());
@@ -327,23 +321,19 @@ public class Heylogs {
             throw new IOException("Cannot locate any version heading to determine forge");
         }
 
-        URL compareURL = versions.get(0).getURL();
-        Forge forge = findForge(onHost(compareURL, FIXME_DOMAINS))
+        URL url = versions.get(0).getURL();
+        Forge forge = findForge(onHost(url, FIXME_DOMAINS))
                 .orElseThrow(() -> new IOException("Cannot determine forge from changelog"));
 
-        CompareLinkParser compareLinkParser = forge.getCompareLinkParser();
-        if (compareLinkParser == null) {
-            throw new IOException("Cannot determine compare link parser");
-        }
-
-        URL projectUrl = compareLinkParser.parseForgeLink(compareURL).getProjectURL();
+        ProjectLink projectLink = findProjectLink(forge, url)
+                .orElseThrow(() -> new IOException("Cannot determine project URL from changelog"));
 
         for (ForgeLinkType type : ForgeLinkType.values()) {
             MessageFetcher fetcher = forge.getMessageFetcher(type);
             if (fetcher != null) {
                 ForgeLinkResolver linkResolver = forge.getLinkResolver(type);
                 if (linkResolver != null) {
-                    ForgeLink link = linkResolver.resolveForgeLinkOrNull(projectUrl, ref);
+                    ForgeLink link = linkResolver.resolveForgeLinkOrNull(projectLink.getProjectURL(), ref);
                     if (link != null) {
                         return fetcher.fetchMessage(httpFactory.getClient(), link) + toMarkdown(link);
                     }
@@ -351,7 +341,7 @@ public class Heylogs {
             }
         }
 
-        throw new IOException("Cannot resolve ref '" + ref + "' for project URL '" + projectUrl + "' on forge '" + forge.getForgeName() + "'");
+        throw new IOException("Cannot resolve ref '" + ref + "' for project URL '" + projectLink + "' on forge '" + forge.getForgeName() + "'");
     }
 
     public void push(@NonNull Document document, @NonNull TypeOfChange typeOfChange, @NonNull String message) throws IllegalArgumentException {
@@ -451,7 +441,7 @@ public class Heylogs {
                 .compatibilities(versioningStreamOf(versionings, releases).map(Versioning::getVersioningName).collect(toList()))
                 .unreleasedChanges((int) unreleasedChanges)
                 .forgeName(forgeOrNull != null ? forgeOrNull.getForgeName() : null)
-                .forgeURL(getProjectUrl(forgeOrNull, first.getURL()))
+                .forgeURL(findProjectLink(forgeOrNull, first.getURL()).map(ProjectLink::getProjectURL).orElse(null))
                 .build();
     }
 
@@ -566,19 +556,6 @@ public class Heylogs {
 
     public @NonNull Optional<String> getFormatIdByFile(@NonNull Path file) {
         return findFormat(onFormatFileFilter(file)).map(Format::getFormatId);
-    }
-
-    private URL getProjectUrl(Forge forgeOrNull, URL url) {
-        if (forgeOrNull != null) {
-            CompareLinkParser compareLinkParser = forgeOrNull.getCompareLinkParser();
-            if (compareLinkParser != null) {
-                CompareLink compareLink = compareLinkParser.parseForgeLinkOrNull(url);
-                if (compareLink != null) {
-                    return compareLink.getProjectURL();
-                }
-            }
-        }
-        return URLExtractor.baseOf(url);
     }
 
     private Optional<Rule> findRule(@NonNull Predicate<Rule> predicate) {
@@ -715,4 +692,25 @@ public class Heylogs {
     private static final URL DEFAULT_PROJECT_URL = URLExtractor.urlOf("https://example.com/");
 
     private static final List<DomainConfig> FIXME_DOMAINS = Collections.emptyList();
+
+    private static Optional<ProjectLink> findProjectLink(Forge forgeOrNull, URL url) {
+        if (forgeOrNull != null) {
+            ProjectLinkParser parser = forgeOrNull.getProjectLinkParser();
+            if (parser != null) {
+                return Optional.ofNullable(parser.parseForgeLinkOrNull(url));
+            }
+        }
+        return Optional.empty();
+    }
+
+    private static Optional<CompareLink> findCompareLink(Forge forge, URL url) {
+        ProjectLink projectLink = findProjectLink(forge, url).orElse(null);
+        if (projectLink == null) return Optional.empty();
+        if (projectLink instanceof CompareLink) return Optional.of((CompareLink) projectLink);
+        CompareLinkConverter converter = forge.getCompareLinkConverter();
+        return converter != null
+                ? Optional.of(converter.convert(projectLink))
+                : Optional.empty();
+    }
+
 }

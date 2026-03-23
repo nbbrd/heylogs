@@ -10,6 +10,7 @@ import nbbrd.heylogs.spi.*;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import tests.heylogs.spi.MockedCompareLink;
+import tests.heylogs.spi.MockedRepositoryLink;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -27,6 +28,29 @@ import static org.assertj.core.api.InstanceOfAssertFactories.list;
 import static tests.heylogs.api.Sample.using;
 
 public class HeylogsTest {
+
+    @Test
+    public void testBaseProviders() {
+        Heylogs x = Heylogs.ofServiceLoader();
+
+        assertThat(x.getForges())
+                .isEmpty();
+
+        assertThat(x.getFormats())
+                .extracting(Format::getFormatId)
+                .contains("stylish");
+
+        assertThat(x.getRules())
+                .hasSize(19);
+
+        assertThat(x.getTaggings())
+                .extracting(Tagging::getTaggingId)
+                .contains("prefix");
+
+        assertThat(x.getVersionings())
+                .extracting(Versioning::getVersioningId)
+                .contains("regex");
+    }
 
     @Test
     public void testFactories() {
@@ -122,8 +146,7 @@ public class HeylogsTest {
     public void testRelease() {
         Heylogs x = Heylogs.ofServiceLoader()
                 .toBuilder()
-                .clearForges().forge(MOCKED_FORGE.toBuilder().knownHostPredicate(ignore -> true).build())
-                .clearVersionings().versioning(BaseVersionings.REGEX_VERSIONING)
+                .forge(MOCKED_FORGE)
                 .build();
 
         LocalDate date = LocalDate.of(2010, 1, 1);
@@ -171,13 +194,22 @@ public class HeylogsTest {
                         "[1.2.3]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.2.3...v1.2.3")
                 .doesNotContain("[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/HEAD...HEAD")
                 .endsWith("[1.2.3]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.2.3...v1.2.3\n");
+
+        assertThat(releaseToString(x, using("/NotCompareLink.md"), v123, null))
+                .contains(
+                        "## [Unreleased]",
+                        "## [1.2.3] - 2010-01-01",
+                        "[Unreleased]: https://github.com/example/project/compare/v1.2.3...HEAD",
+                        "[1.2.3]: https://github.com/example/project/compare/v1.2.3...v1.2.3")
+                .doesNotContain("[unreleased]: https://github.com/example/project")
+                .endsWith("[1.0.0]: https://github.com/example/project/releases/tag/v1.0.0\n");
     }
 
     @Test
     public void testScan() {
         Heylogs x = Heylogs.ofServiceLoader()
                 .toBuilder()
-                .forge(MOCKED_FORGE.toBuilder().knownHostPredicate(ignore -> true).build())
+                .forge(MOCKED_FORGE)
                 .build();
 
         assertThat(x.scan(using("/Empty.md")))
@@ -231,6 +263,19 @@ public class HeylogsTest {
                         .valid(true)
                         .releaseCount(3)
                         .yankedReleaseCount(1)
+                        .timeRange(TimeRange.of(LocalDate.of(2017, 6, 1), LocalDate.of(2019, 2, 15)))
+                        .unreleasedChanges(1)
+                        .forgeName("GitHub")
+                        .forgeURL(urlOf("https://github.com/example/project"))
+                        .build()
+                );
+
+        assertThat(x.scan(using("/NotCompareLink.md")))
+                .isEqualTo(Summary
+                        .builder()
+                        .valid(true)
+                        .releaseCount(3)
+                        .yankedReleaseCount(0)
                         .timeRange(TimeRange.of(LocalDate.of(2017, 6, 1), LocalDate.of(2019, 2, 15)))
                         .unreleasedChanges(1)
                         .forgeName("GitHub")
@@ -550,8 +595,10 @@ public class HeylogsTest {
             .id("github")
             .name("GitHub")
             .moduleId("github")
-            .linkParser(ForgeLinkType.COMPARE, MockedCompareLink::new)
-            .knownHostPredicate(url -> false)
+            .linkParser(ForgeLinkType.COMPARE, MockedCompareLink::parse)
+            .linkParser(ForgeLinkType.REPOSITORY, MockedRepositoryLink::parse)
+            .compareLinkConverter(link -> MockedCompareLink.parse(urlOf(link.getProjectURL() + "/compare/HEAD...HEAD")))
+            .knownHostPredicate(ForgeSupport.onHostContaining("github"))
             .build();
 
     private static final class MockedRule implements Rule {

@@ -7,7 +7,7 @@ import org.jspecify.annotations.Nullable;
 import java.net.URL;
 
 @FunctionalInterface
-public interface CompareLinkParser extends ForgeLinkParser {
+public interface CompareLinkParser extends ProjectLinkParser {
 
     @Override
     @NonNull

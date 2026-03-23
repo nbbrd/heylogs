@@ -32,7 +32,7 @@ class GitLabRepositoryLink implements GitLabProjectLink {
 
     @StaticFactoryMethod
     public static @NonNull GitLabRepositoryLink parse(@NonNull URL url) {
-        String[] pathArray = getPathArray(url);
+        String[] pathArray = getPathArray(url, true);
         if (pathArray.length < 2)
             throw new IllegalArgumentException("GitLab project link must have at least 2 path segments");
         List<String> namespace = unmodifiableList(java.util.Arrays.asList(pathArray).subList(0, pathArray.length - 1));

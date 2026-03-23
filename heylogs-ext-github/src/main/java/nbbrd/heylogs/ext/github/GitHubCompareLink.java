@@ -7,6 +7,7 @@ import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.spi.CompareLink;
 import nbbrd.heylogs.spi.ForgeRef;
+import nbbrd.heylogs.spi.ProjectLink;
 import nbbrd.io.http.URLQueryBuilder;
 import org.jspecify.annotations.Nullable;
 
@@ -32,6 +33,16 @@ class GitHubCompareLink implements CompareLink, GitHubProjectLink {
         checkPathItem(pathArray, 3, THREE_DOT_DIFF_PATTERN);
 
         return new GitHubCompareLink(baseOf(url), pathArray[0], pathArray[1], ThreeDotDiff.parse(pathArray[3]));
+    }
+
+    @StaticFactoryMethod
+    public static @NonNull GitHubCompareLink of(@NonNull ProjectLink link) {
+        if (link instanceof GitHubCompareLink) return (GitHubCompareLink) link;
+        if (link instanceof GitHubProjectLink) {
+            GitHubProjectLink github = (GitHubProjectLink) link;
+            return new GitHubCompareLink(github.getBase(), github.getOwner(), github.getRepo(), ThreeDotDiff.DEFAULT);
+        }
+        throw new IllegalArgumentException("Cannot create compare link from non-GitHub project link: " + link);
     }
 
     @NonNull

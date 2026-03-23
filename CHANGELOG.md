@@ -15,6 +15,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Add note command to set the text after the unreleased header [#517](https://github.com/nbbrd/heylogs/issues/517)
 - Add support of repository links in forges [#521](https://github.com/nbbrd/heylogs/issues/521)
 
+### Changed
+
+- Improve project URL inference [#522](https://github.com/nbbrd/heylogs/issues/522)
+
 ## [0.15.0] - 2026-03-10
 
 This release adds hierarchical configuration file support, yanked releases, push command, Maven Enforcer rules and a duplicate-items rule.

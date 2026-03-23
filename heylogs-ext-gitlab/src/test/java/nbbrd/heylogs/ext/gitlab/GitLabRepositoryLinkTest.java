@@ -24,6 +24,11 @@ class GitLabRepositoryLinkTest {
         assertThat(link.getNamespace()).isEqualTo(Arrays.asList("group", "subgroup"));
         assertThat(link.getProject()).isEqualTo("heylogs");
         assertThat(link.toURL().toString()).isEqualTo("https://gitlab.com/group/subgroup/heylogs");
+
+        GitLabRepositoryLink linkWithTrailingSlash = parse(urlOf("https://gitlab.com/group/subgroup/heylogs/"));
+        assertThat(linkWithTrailingSlash.getNamespace()).isEqualTo(Arrays.asList("group", "subgroup"));
+        assertThat(linkWithTrailingSlash.getProject()).isEqualTo("heylogs");
+        assertThat(linkWithTrailingSlash.toURL().toString()).isEqualTo("https://gitlab.com/group/subgroup/heylogs");
     }
 
     @Test
