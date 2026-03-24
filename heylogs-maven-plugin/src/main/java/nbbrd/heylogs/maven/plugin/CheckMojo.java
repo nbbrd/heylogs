@@ -22,7 +22,7 @@ import java.util.List;
 
 import static internal.heylogs.HeylogsParameters.DEFAULT_CHANGELOG_FILE;
 import static internal.heylogs.HeylogsParameters.DEFAULT_RECURSIVE;
-import static internal.heylogs.spi.FormatSupport.resolveFormatId;
+import static nbbrd.heylogs.spi.FormatSupport.resolveFormatId;
 import static java.util.stream.Collectors.toList;
 import static nbbrd.console.picocli.ByteOutputSupport.DEFAULT_STDOUT_FILE;
 import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;

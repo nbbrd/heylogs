@@ -27,7 +27,7 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static internal.heylogs.spi.RuleSupport.nameToId;
+import static nbbrd.heylogs.spi.RuleSupport.nameToId;
 import static java.util.Locale.ROOT;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.*;

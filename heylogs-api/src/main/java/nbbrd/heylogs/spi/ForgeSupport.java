@@ -1,6 +1,7 @@
 package nbbrd.heylogs.spi;
 
 import lombok.NonNull;
+import nbbrd.design.MightBeGenerated;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.DomainConfig;
 import nbbrd.heylogs.ForgeConfig;
@@ -105,12 +106,25 @@ public final class ForgeSupport implements Forge {
 
     public static final class Builder {
 
+        public @NonNull Builder id(@NonNull String id) {
+            this.id = checkForgeId(id);
+            return this;
+        }
+
         public Builder parser(@NonNull ForgeLinkType type,
                               @NonNull ForgeLinkParser linkParser,
                               @NonNull ForgeRefParser refParser
         ) {
             return linkParser(type, linkParser).refParser(type, refParser);
         }
+    }
+
+    @MightBeGenerated
+    public static String checkForgeId(@NonNull String id) {
+        if (!ForgeLoader.ID_PATTERN.matcher(id).matches()) {
+            throw new IllegalArgumentException("Invalid forge id '" + id + "', should follow pattern " + ForgeLoader.ID_PATTERN.pattern());
+        }
+        return id;
     }
 
     @StaticFactoryMethod(Predicate.class)

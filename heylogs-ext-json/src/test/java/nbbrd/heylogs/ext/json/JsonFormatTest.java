@@ -1,6 +1,7 @@
 package nbbrd.heylogs.ext.json;
 
 import nbbrd.heylogs.spi.Format;
+import nbbrd.heylogs.spi.FormatType;
 import org.junit.jupiter.api.Test;
 
 import static java.util.Arrays.asList;
@@ -15,6 +16,14 @@ class JsonFormatTest {
     @Test
     public void testCompliance() {
         assertFormatCompliance(new JsonFormat());
+    }
+
+    @Test
+    public void testGetSupportedFormatTypes() {
+        Format x = new JsonFormat();
+
+        assertThat(x.getSupportedFormatTypes())
+                .containsExactlyInAnyOrder(FormatType.values());
     }
 
     @Test

@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import static internal.heylogs.cli.MarkdownInputSupport.newMarkdownInputSupport;
-import static internal.heylogs.spi.FormatSupport.resolveFormatId;
+import static nbbrd.heylogs.spi.FormatSupport.resolveFormatId;
 import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
 
 @Command(name = "check", description = "Check format.")

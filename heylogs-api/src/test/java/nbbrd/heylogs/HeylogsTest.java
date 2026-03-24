@@ -1,13 +1,10 @@
 package nbbrd.heylogs;
 
 import com.vladsch.flexmark.util.ast.Document;
-import com.vladsch.flexmark.util.ast.Node;
 import internal.heylogs.FlexmarkIO;
 import internal.heylogs.base.BaseVersionings;
 import internal.heylogs.base.StylishFormat;
-import lombok.NonNull;
 import nbbrd.heylogs.spi.*;
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import tests.heylogs.spi.MockedCompareLink;
 import tests.heylogs.spi.MockedRepositoryLink;
@@ -21,6 +18,8 @@ import static internal.heylogs.spi.URLExtractor.urlOf;
 import static java.util.Collections.singletonList;
 import static nbbrd.heylogs.Heylogs.FIRST_FORMAT_AVAILABLE;
 import static nbbrd.heylogs.Version.HYPHEN;
+import static nbbrd.heylogs.spi.ForgeLinkType.COMPARE;
+import static nbbrd.heylogs.spi.ForgeLinkType.REPOSITORY;
 import static nbbrd.heylogs.spi.RuleSeverity.ERROR;
 import static nbbrd.io.function.IOFunction.unchecked;
 import static org.assertj.core.api.Assertions.*;
@@ -64,7 +63,7 @@ public class HeylogsTest {
                 .map(Rule::getRuleId)
                 .doesNotContain("semver");
 
-        assertThat(Heylogs.ofServiceLoader().toBuilder().rule(new MockedRule()).build())
+        assertThat(Heylogs.ofServiceLoader().toBuilder().rule(MOCKED_RULE).build())
                 .extracting(Heylogs::getRules, list(Rule.class))
                 .hasSizeGreaterThan(1)
                 .map(Rule::getRuleId)
@@ -595,42 +594,19 @@ public class HeylogsTest {
             .id("github")
             .name("GitHub")
             .moduleId("github")
-            .linkParser(ForgeLinkType.COMPARE, MockedCompareLink::parse)
-            .linkParser(ForgeLinkType.REPOSITORY, MockedRepositoryLink::parse)
+            .linkParser(COMPARE, MockedCompareLink::parse)
+            .linkParser(REPOSITORY, MockedRepositoryLink::parse)
             .compareLinkConverter(link -> MockedCompareLink.parse(urlOf(link.getProjectURL() + "/compare/HEAD...HEAD")))
             .knownHostPredicate(ForgeSupport.onHostContaining("github"))
             .build();
 
-    private static final class MockedRule implements Rule {
-
-        @Override
-        public @NonNull String getRuleId() {
-            return "mocked";
-        }
-
-        @Override
-        public @NonNull String getRuleName() {
-            return "";
-        }
-
-        @Override
-        public @NonNull String getRuleModuleId() {
-            return "mocked";
-        }
-
-        @Override
-        public boolean isRuleAvailable() {
-            return false;
-        }
-
-        @Override
-        public @NonNull RuleSeverity getRuleSeverity() {
-            return RuleSeverity.OFF;
-        }
-
-        @Override
-        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
-            return null;
-        }
-    }
+    private static final RuleSupport MOCKED_RULE = RuleSupport
+            .builder()
+            .id("mocked")
+            .name("Mocked rule")
+            .moduleId("mocked")
+            .availability(false)
+            .severity(RuleSeverity.OFF)
+            .issueProvider((context, issue) -> null)
+            .build();
 }

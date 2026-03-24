@@ -246,7 +246,7 @@ public class ExtendedRulesTest {
                 .builder()
                 .forge(ForgeSupport
                         .builder()
-                        .id("").name("").moduleId("")
+                        .id("mocked").name("").moduleId("")
                         .knownHostPredicate(url -> true)
                         .linkParser(ISSUE, MockedForgeLink::parse)
                         .build())
@@ -280,7 +280,7 @@ public class ExtendedRulesTest {
                 .builder()
                 .forge(ForgeSupport
                         .builder()
-                        .id("").name("").moduleId("")
+                        .id("mocked").name("").moduleId("")
                         .knownHostPredicate(url -> url.getHost().contains("github") || url.getHost().contains("host"))
                         .linkParser(ISSUE, MockedForgeLink::parse)
                         .linkParser(ForgeLinkType.COMPARE, MockedCompareLink::parse)

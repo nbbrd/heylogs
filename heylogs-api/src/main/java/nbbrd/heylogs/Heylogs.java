@@ -27,9 +27,8 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static internal.heylogs.spi.FormatSupport.onFormatFileFilter;
-import static internal.heylogs.spi.FormatSupport.onFormatId;
-import static internal.heylogs.spi.RuleSupport.problemStreamOf;
+import static nbbrd.heylogs.spi.FormatSupport.onFormatFileFilter;
+import static nbbrd.heylogs.spi.FormatSupport.onFormatId;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.partitioningBy;
@@ -713,4 +712,25 @@ public class Heylogs {
                 : Optional.empty();
     }
 
+    private static Stream<Problem> problemStreamOf(Document root, List<Rule> rules, RuleContext context) {
+        return Nodes.walk(root)
+                .flatMap(node -> rules.stream().map(rule -> getProblemOrNull(node, rule, context)).filter(Objects::nonNull));
+    }
+
+    private static Problem getProblemOrNull(Node node, Rule rule, RuleContext context) {
+        RuleSeverity severity = context.findRuleSeverityOrNull(rule.getRuleId());
+        if (severity == null) severity = rule.getRuleSeverity();
+        if (!RuleSeverity.OFF.equals(severity)) {
+            RuleIssue ruleIssueOrNull = rule.getRuleIssueOrNull(node, context);
+            if (ruleIssueOrNull != null) {
+                return Problem
+                        .builder()
+                        .id(rule.getRuleId())
+                        .severity(severity)
+                        .issue(ruleIssueOrNull)
+                        .build();
+            }
+        }
+        return null;
+    }
 }
