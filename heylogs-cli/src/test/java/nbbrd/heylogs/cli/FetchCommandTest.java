@@ -75,7 +75,7 @@ public class FetchCommandTest {
                 "",
                 "[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.9.3...HEAD"));
 
-        assertThat(cmd.execute(src.toString(), "-t", "added", "-i", "https://unknown.example.com/issues/1"))
+        assertThat(cmd.execute(src.toString(), "-y", "added", "-i", "https://unknown.example.com/issues/1"))
                 .isEqualTo(CommandLine.ExitCode.SOFTWARE);
         assertThat(watcher.getOut()).isEmpty();
     }

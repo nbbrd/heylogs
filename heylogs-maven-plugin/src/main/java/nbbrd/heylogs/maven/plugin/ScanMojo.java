@@ -17,17 +17,17 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static nbbrd.heylogs.spi.FormatSupport.resolveFormatId;
 import static internal.heylogs.HeylogsParameters.DEFAULT_CHANGELOG_FILE;
 import static internal.heylogs.HeylogsParameters.DEFAULT_RECURSIVE;
 import static java.util.stream.Collectors.toList;
 import static nbbrd.console.picocli.ByteOutputSupport.DEFAULT_STDOUT_FILE;
 import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
+import static nbbrd.heylogs.spi.FormatSupport.resolveFormatId;
 
 @lombok.Getter
 @lombok.Setter
 @Mojo(name = "scan", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true, requiresProject = false)
-public final class ScanMojo extends HeylogsMojo {
+public final class ScanMojo extends ConfigMojo {
 
     @Parameter(property = "heylogs.inputFiles", defaultValue = DEFAULT_CHANGELOG_FILE)
     private List<File> inputFiles;
@@ -60,7 +60,7 @@ public final class ScanMojo extends HeylogsMojo {
                 list.add(Scan
                         .builder()
                         .source(file.toString())
-                        .summary(heylogs.scan(readChangelog(file.toFile())))
+                        .summary(heylogs.scan(readChangelog(file.toFile()), toConfig(file)))
                         .build());
             }
         } catch (IOException ex) {

@@ -18,6 +18,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - Improve project URL inference [#522](https://github.com/nbbrd/heylogs/issues/522)
+- Improve forge inference [#523](https://github.com/nbbrd/heylogs/issues/523)
 
 ## [0.15.0] - 2026-03-10
 

@@ -17,7 +17,7 @@ import static internal.heylogs.HeylogsParameters.DEFAULT_CHANGELOG_FILE;
 @lombok.Getter
 @lombok.Setter
 @Mojo(name = "fetch", defaultPhase = LifecyclePhase.GENERATE_RESOURCES, threadSafe = true, requiresProject = false)
-public final class FetchMojo extends HeylogsMojo {
+public final class FetchMojo extends ConfigMojo {
 
     @Parameter(property = "heylogs.inputFile", defaultValue = DEFAULT_CHANGELOG_FILE)
     private File inputFile;
@@ -46,7 +46,7 @@ public final class FetchMojo extends HeylogsMojo {
 
         getLog().info("Fetching " + typeOfChange.getLabel() + " change from " + id);
         try {
-            Heylogs.ofServiceLoader().fetch(document, typeOfChange, id);
+            Heylogs.ofServiceLoader().fetch(document, typeOfChange, id, toConfig(inputFile.toPath()));
         } catch (IOException ex) {
             throw new MojoExecutionException("Failed to fetch message: " + ex.getMessage(), ex);
         }

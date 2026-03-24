@@ -15,14 +15,13 @@ import org.jspecify.annotations.Nullable;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.List;
 
 import static internal.heylogs.HeylogsParameters.DEFAULT_CHANGELOG_FILE;
 
 @lombok.Getter
 @lombok.Setter
 @Mojo(name = "release", defaultPhase = LifecyclePhase.GENERATE_RESOURCES, threadSafe = true, requiresProject = false)
-public final class ReleaseMojo extends HeylogsMojo {
+public final class ReleaseMojo extends ConfigMojo {
 
     @Parameter(property = "heylogs.inputFile", defaultValue = DEFAULT_CHANGELOG_FILE)
     private File inputFile;
@@ -32,24 +31,6 @@ public final class ReleaseMojo extends HeylogsMojo {
 
     @Parameter(property = "heylogs.date")
     private String date;
-
-    @Parameter(property = "heylogs.tagging")
-    private String tagging;
-
-    @Parameter(property = "heylogs.versioning")
-    private String versioning;
-
-    @Parameter(property = "heylogs.forge")
-    private String forge;
-
-    @Parameter(property = "heylogs.rules")
-    private List<String> rules;
-
-    @Parameter(property = "heylogs.domains")
-    private List<String> domains;
-
-    @Parameter(property = "heylogs.noConfig", defaultValue = "false")
-    private boolean noConfig;
 
     @Override
     public void execute() throws MojoExecutionException {
@@ -66,7 +47,7 @@ public final class ReleaseMojo extends HeylogsMojo {
         Document document = readChangelog(inputFile);
 
         Version version = toVersion();
-        Config config = toConfig();
+        Config config = toConfig(inputFile.toPath());
 
         getLog().info("Releasing " + version + " with config '" + config + "'");
         Heylogs.ofServiceLoader().release(document, version, config);
@@ -77,34 +58,6 @@ public final class ReleaseMojo extends HeylogsMojo {
     @MojoParameterParsing
     private @NonNull Version toVersion() throws MojoExecutionException {
         return Version.of(ref, null, '-', parseLocalDate(date), false);
-    }
-
-    @MojoParameterParsing
-    private @NonNull Config toConfig() throws MojoExecutionException {
-        try {
-            // Build mojo parameters config
-            Config mojoConfig = Config
-                    .builder()
-                    .taggingOf(tagging)
-                    .versioningOf(versioning)
-                    .forgeOf(forge)
-                    .rulesOf(rules)
-                    .domainsOf(domains)
-                    .build();
-
-            if (noConfig) {
-                // Ignore config file, only use mojo parameters
-                return mojoConfig;
-            }
-
-            // Load config from file hierarchy starting from input file's parent directory
-            Config fileConfig = Config.loadFromDirectory(Config.resolveStartDir(inputFile.toPath()));
-
-            // Merge with mojo parameters taking precedence
-            return fileConfig.mergeWith(mojoConfig);
-        } catch (IllegalArgumentException ex) {
-            throw new MojoExecutionException("Invalid config parameter", ex);
-        }
     }
 
     private static @NonNull LocalDate parseLocalDate(@Nullable String date) throws MojoExecutionException {

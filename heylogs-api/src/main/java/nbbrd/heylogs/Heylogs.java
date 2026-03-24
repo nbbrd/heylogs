@@ -27,8 +27,6 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static nbbrd.heylogs.spi.FormatSupport.onFormatFileFilter;
-import static nbbrd.heylogs.spi.FormatSupport.onFormatId;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.partitioningBy;
@@ -36,6 +34,8 @@ import static java.util.stream.Collectors.toList;
 import static nbbrd.heylogs.TimeRange.toTimeRange;
 import static nbbrd.heylogs.Util.illegalArgumentToNull;
 import static nbbrd.heylogs.spi.ForgeSupport.*;
+import static nbbrd.heylogs.spi.FormatSupport.onFormatFileFilter;
+import static nbbrd.heylogs.spi.FormatSupport.onFormatId;
 import static nbbrd.heylogs.spi.Versioning.NO_VERSIONING_FILTER;
 
 @lombok.Value
@@ -281,11 +281,11 @@ public class Heylogs {
         target.getHeading().unlink();
     }
 
-    public void fetch(@NonNull Document document, @NonNull TypeOfChange typeOfChange, @NonNull String id) throws IOException {
+    public void fetch(@NonNull Document document, @NonNull TypeOfChange typeOfChange, @NonNull String id, @NonNull Config config) throws IOException {
         URL url = illegalArgumentToNull(URLExtractor::urlOf).apply(id);
         String message = url != null
                 ? fetchMessageByUrl(url)
-                : fetchMessageByRef(document, id);
+                : fetchMessageByRef(document, id, config);
         push(document, typeOfChange, message);
     }
 
@@ -293,7 +293,7 @@ public class Heylogs {
         Forge forge = forges.stream()
                 .filter(item -> item.isKnownHost(url))
                 .findFirst()
-                .orElseThrow(() -> new IOException("No forge found for URL: " + url));
+                .orElseThrow(() -> new IllegalArgumentException("No forge found for URL: " + url));
 
         for (ForgeLinkType type : ForgeLinkType.values()) {
             MessageFetcher fetcher = forge.getMessageFetcher(type);
@@ -308,24 +308,25 @@ public class Heylogs {
             }
         }
 
-        throw new IOException("Cannot resolve url '" + url + "' on forge '" + forge.getForgeName() + "'");
+        throw new IllegalArgumentException("Cannot resolve url '" + url + "' on forge '" + forge.getForgeName() + "'");
     }
 
-    private @NonNull String fetchMessageByRef(@NonNull Document document, @NonNull String ref) throws IOException {
+    private @NonNull String fetchMessageByRef(@NonNull Document document, @NonNull String ref, @NonNull Config config) throws IOException {
         ChangelogHeading changelog = ChangelogHeading.root(document)
-                .orElseThrow(() -> new IOException("Cannot locate changelog header"));
+                .orElseThrow(() -> new IllegalArgumentException("Cannot locate changelog header"));
 
         List<VersionHeading> versions = changelog.getVersions().collect(toList());
         if (versions.isEmpty()) {
-            throw new IOException("Cannot locate any version heading to determine forge");
+            throw new IllegalArgumentException("Cannot locate any version heading to determine forge");
         }
 
         URL url = versions.get(0).getURL();
-        Forge forge = findForge(onHost(url, FIXME_DOMAINS))
-                .orElseThrow(() -> new IOException("Cannot determine forge from changelog"));
+        Forge forge = config.getForge() != null
+                ? findForge(onForgeConfig(config.getForge())).orElseThrow(() -> new IllegalArgumentException("Cannot find forge with id '" + config.getForge().getId() + "'"))
+                : findForge(onHost(url, config.getDomains())).orElseThrow(() -> new IllegalArgumentException("Cannot determine forge"));
 
         ProjectLink projectLink = findProjectLink(forge, url)
-                .orElseThrow(() -> new IOException("Cannot determine project URL from changelog"));
+                .orElseThrow(() -> new IllegalArgumentException("Cannot determine project URL from changelog"));
 
         for (ForgeLinkType type : ForgeLinkType.values()) {
             MessageFetcher fetcher = forge.getMessageFetcher(type);
@@ -340,7 +341,7 @@ public class Heylogs {
             }
         }
 
-        throw new IOException("Cannot resolve ref '" + ref + "' for project URL '" + projectLink + "' on forge '" + forge.getForgeName() + "'");
+        throw new IllegalArgumentException("Cannot resolve ref '" + ref + "' for project URL '" + projectLink + "' on forge '" + forge.getForgeName() + "'");
     }
 
     public void push(@NonNull Document document, @NonNull TypeOfChange typeOfChange, @NonNull String message) throws IllegalArgumentException {
@@ -396,7 +397,7 @@ public class Heylogs {
         bulletList.appendChild(newItem);
     }
 
-    public @NonNull Summary scan(@NonNull Document document) {
+    public @NonNull Summary scan(@NonNull Document document, @NonNull Config config) {
         if (isNotValidAgainstGuidingPrinciples(document)) {
             return Summary.INVALID;
         }
@@ -429,7 +430,9 @@ public class Heylogs {
                 .orElse(0L);
 
         VersionHeading first = versions.get(0);
-        Forge forgeOrNull = findForge(onHost(first.getURL(), FIXME_DOMAINS)).orElse(null);
+        Forge forgeOrNull = config.getForge() != null
+                ? findForge(onForgeConfig(config.getForge())).orElse(null)
+                : findForge(onHost(first.getURL(), config.getDomains())).orElse(null);
 
         return Summary
                 .builder()
@@ -689,8 +692,6 @@ public class Heylogs {
     }
 
     private static final URL DEFAULT_PROJECT_URL = URLExtractor.urlOf("https://example.com/");
-
-    private static final List<DomainConfig> FIXME_DOMAINS = Collections.emptyList();
 
     private static Optional<ProjectLink> findProjectLink(Forge forgeOrNull, URL url) {
         if (forgeOrNull != null) {

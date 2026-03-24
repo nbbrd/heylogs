@@ -1,8 +1,6 @@
 package nbbrd.heylogs.maven.plugin;
 
 import com.vladsch.flexmark.util.ast.Document;
-import internal.heylogs.maven.plugin.MojoParameterParsing;
-import lombok.NonNull;
 import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Heylogs;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -15,14 +13,13 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.List;
 
 import static internal.heylogs.HeylogsParameters.DEFAULT_CHANGELOG_FILE;
 
 @lombok.Getter
 @lombok.Setter
 @Mojo(name = "init", defaultPhase = LifecyclePhase.GENERATE_RESOURCES, threadSafe = true, requiresProject = false)
-public final class InitMojo extends HeylogsMojo {
+public final class InitMojo extends ConfigMojo {
 
     @Parameter(property = "heylogs.outputFile", defaultValue = DEFAULT_CHANGELOG_FILE)
     private File outputFile;
@@ -32,24 +29,6 @@ public final class InitMojo extends HeylogsMojo {
 
     @Parameter(property = "heylogs.projectUrl")
     private URL projectUrl;
-
-    @Parameter(property = "heylogs.tagging")
-    private String tagging;
-
-    @Parameter(property = "heylogs.versioning")
-    private String versioning;
-
-    @Parameter(property = "heylogs.forge")
-    private String forge;
-
-    @Parameter(property = "heylogs.rules")
-    private List<String> rules;
-
-    @Parameter(property = "heylogs.domains")
-    private List<String> domains;
-
-    @Parameter(property = "heylogs.noConfig", defaultValue = "false")
-    private boolean noConfig;
 
     @Override
     public void execute() throws MojoExecutionException {
@@ -63,7 +42,7 @@ public final class InitMojo extends HeylogsMojo {
             return;
         }
 
-        Config config = toConfig();
+        Config config = toConfig(outputFile.toPath());
 
         getLog().info("Initializing changelog " + outputFile);
         try {
@@ -72,29 +51,6 @@ public final class InitMojo extends HeylogsMojo {
             writeChangelog(document, outputFile);
         } catch (IOException ex) {
             throw new MojoExecutionException("Failed to read template file", ex);
-        }
-    }
-
-    @MojoParameterParsing
-    private @NonNull Config toConfig() throws MojoExecutionException {
-        try {
-            Config mojoConfig = Config
-                    .builder()
-                    .taggingOf(tagging)
-                    .versioningOf(versioning)
-                    .forgeOf(forge)
-                    .rulesOf(rules)
-                    .domainsOf(domains)
-                    .build();
-
-            if (noConfig) {
-                return mojoConfig;
-            }
-
-            Config fileConfig = Config.loadFromDirectory(Config.resolveStartDir(outputFile.toPath()));
-            return fileConfig.mergeWith(mojoConfig);
-        } catch (IllegalArgumentException ex) {
-            throw new MojoExecutionException("Invalid config parameter", ex);
         }
     }
 }

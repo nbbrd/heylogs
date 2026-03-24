@@ -211,7 +211,7 @@ public class HeylogsTest {
                 .forge(MOCKED_FORGE)
                 .build();
 
-        assertThat(x.scan(using("/Empty.md")))
+        assertThat(x.scan(using("/Empty.md"), Config.DEFAULT))
                 .isEqualTo(Summary
                         .builder()
                         .valid(false)
@@ -221,7 +221,7 @@ public class HeylogsTest {
                         .build()
                 );
 
-        assertThat(x.scan(using("/Main.md")))
+        assertThat(x.scan(using("/Main.md"), Config.DEFAULT))
                 .isEqualTo(Summary
                                 .builder()
                                 .valid(true)
@@ -234,7 +234,7 @@ public class HeylogsTest {
                                 .build()
                 );
 
-        assertThat(x.scan(using("/InvalidSemver.md")))
+        assertThat(x.scan(using("/InvalidSemver.md"), Config.DEFAULT))
                 .isEqualTo(Summary
                         .builder()
                         .valid(true)
@@ -246,7 +246,7 @@ public class HeylogsTest {
                         .build()
                 );
 
-        assertThat(x.scan(using("/InvalidVersion.md")))
+        assertThat(x.scan(using("/InvalidVersion.md"), Config.DEFAULT))
                 .isEqualTo(Summary
                         .builder()
                         .valid(false)
@@ -256,7 +256,7 @@ public class HeylogsTest {
                         .build()
                 );
 
-        assertThat(x.scan(using("/YankedRelease.md")))
+        assertThat(x.scan(using("/YankedRelease.md"), Config.DEFAULT))
                 .isEqualTo(Summary
                         .builder()
                         .valid(true)
@@ -269,7 +269,7 @@ public class HeylogsTest {
                         .build()
                 );
 
-        assertThat(x.scan(using("/NotCompareLink.md")))
+        assertThat(x.scan(using("/NotCompareLink.md"), Config.DEFAULT))
                 .isEqualTo(Summary
                         .builder()
                         .valid(true)
@@ -279,6 +279,45 @@ public class HeylogsTest {
                         .unreleasedChanges(1)
                         .forgeName("GitHub")
                         .forgeURL(urlOf("https://github.com/example/project"))
+                        .build()
+                );
+
+        assertThat(x.scan(using("/UnknownHost.md"), Config.DEFAULT))
+                .isEqualTo(Summary
+                        .builder()
+                        .valid(true)
+                        .releaseCount(1)
+                        .yankedReleaseCount(0)
+                        .timeRange(TimeRange.of(LocalDate.of(2017, 6, 20), LocalDate.of(2017, 6, 20)))
+                        .unreleasedChanges(0)
+                        .forgeName(null)
+                        .forgeURL(null)
+                        .build()
+                );
+
+        assertThat(x.scan(using("/UnknownHost.md"), Config.DEFAULT.toBuilder().forgeOf("github").build()))
+                .isEqualTo(Summary
+                        .builder()
+                        .valid(true)
+                        .releaseCount(1)
+                        .yankedReleaseCount(0)
+                        .timeRange(TimeRange.of(LocalDate.of(2017, 6, 20), LocalDate.of(2017, 6, 20)))
+                        .unreleasedChanges(0)
+                        .forgeName("GitHub")
+                        .forgeURL(urlOf("https://unknown.com/olivierlacan/keep-a-changelog"))
+                        .build()
+                );
+
+        assertThat(x.scan(using("/UnknownHost.md"), Config.DEFAULT.toBuilder().domainOf("unknown.com:github").build()))
+                .isEqualTo(Summary
+                        .builder()
+                        .valid(true)
+                        .releaseCount(1)
+                        .yankedReleaseCount(0)
+                        .timeRange(TimeRange.of(LocalDate.of(2017, 6, 20), LocalDate.of(2017, 6, 20)))
+                        .unreleasedChanges(0)
+                        .forgeName("GitHub")
+                        .forgeURL(urlOf("https://unknown.com/olivierlacan/keep-a-changelog"))
                         .build()
                 );
     }
@@ -450,8 +489,8 @@ public class HeylogsTest {
     public void testFetch() {
         // No forge found for unknown host URL
         Heylogs noForge = Heylogs.builder().build();
-        assertThatIOException()
-                .isThrownBy(() -> noForge.fetch(using("/UnreleasedChanges.md"), TypeOfChange.ADDED, "https://unknown.example.com/issues/1"))
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> noForge.fetch(using("/UnreleasedChanges.md"), TypeOfChange.ADDED, "https://unknown.example.com/issues/1", Config.DEFAULT))
                 .withMessageContaining("No forge found for URL");
 
         // Forge found but no message fetcher (URL input)
@@ -463,14 +502,14 @@ public class HeylogsTest {
                         .knownHostPredicate(url -> true)
                         .build())
                 .build();
-        assertThatIOException()
-                .isThrownBy(() -> noFetcher.fetch(using("/UnreleasedChanges.md"), TypeOfChange.ADDED, "https://example.com/issues/1"))
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> noFetcher.fetch(using("/UnreleasedChanges.md"), TypeOfChange.ADDED, "https://example.com/issues/1", Config.DEFAULT))
                 .withMessageContaining("Cannot resolve url");
 
         // No forge in changelog for ref resolution
-        assertThatIOException()
-                .isThrownBy(() -> noForge.fetch(using("/UnreleasedChanges.md"), TypeOfChange.ADDED, "#1"))
-                .withMessageContaining("Cannot determine forge from changelog");
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> noForge.fetch(using("/UnreleasedChanges.md"), TypeOfChange.ADDED, "#1", Config.DEFAULT))
+                .withMessageContaining("Cannot determine forge");
     }
 
     @Test

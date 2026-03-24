@@ -1,10 +1,8 @@
 package nbbrd.heylogs.cli;
 
 import com.vladsch.flexmark.util.ast.Document;
-import internal.heylogs.cli.ChangelogInputParameters;
-import internal.heylogs.cli.SpecialProperties;
-import internal.heylogs.cli.TypeOfChangeCandidates;
-import internal.heylogs.cli.TypeOfChangeConverter;
+import internal.heylogs.cli.*;
+import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Heylogs;
 import nbbrd.heylogs.TypeOfChange;
 import picocli.CommandLine;
@@ -23,7 +21,7 @@ public final class FetchCommand implements Callable<Void> {
     private ChangelogInputParameters input;
 
     @CommandLine.Option(
-            names = {"-t", "--type"},
+            names = {"-y", "--type"},
             paramLabel = "<type>",
             description = "Type of change. Valid values: ${COMPLETION-CANDIDATES}.",
             required = true,
@@ -40,6 +38,9 @@ public final class FetchCommand implements Callable<Void> {
     )
     private String issue;
 
+    @CommandLine.Mixin
+    private ConfigOptions configOptions;
+
     @CommandLine.Option(
             names = {SpecialProperties.DEBUG_OPTION},
             defaultValue = "false",
@@ -49,7 +50,8 @@ public final class FetchCommand implements Callable<Void> {
 
     @Override
     public Void call() throws Exception {
-        store(fetch(load()));
+        Config config = configOptions.getConfigFromDirectory(Config.resolveStartDir(input.getFile()));
+        store(fetch(load(), config));
         return null;
     }
 
@@ -57,8 +59,8 @@ public final class FetchCommand implements Callable<Void> {
         return newMarkdownInputSupport().readDocument(input.getFile());
     }
 
-    private Document fetch(Document document) throws IOException {
-        Heylogs.ofServiceLoader().fetch(document, typeOfChange, issue);
+    private Document fetch(Document document, Config config) throws IOException {
+        Heylogs.ofServiceLoader().fetch(document, typeOfChange, issue, config);
         return document;
     }
 

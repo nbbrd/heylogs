@@ -1,11 +1,8 @@
 package nbbrd.heylogs.maven.plugin;
 
-import internal.heylogs.maven.plugin.MojoParameterParsing;
-import lombok.NonNull;
 import nbbrd.console.picocli.MultiFileInputOptions;
 import nbbrd.console.picocli.text.TextOutputSupport;
 import nbbrd.heylogs.Check;
-import nbbrd.heylogs.Config;
 import nbbrd.heylogs.FormatConfig;
 import nbbrd.heylogs.Heylogs;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -22,15 +19,15 @@ import java.util.List;
 
 import static internal.heylogs.HeylogsParameters.DEFAULT_CHANGELOG_FILE;
 import static internal.heylogs.HeylogsParameters.DEFAULT_RECURSIVE;
-import static nbbrd.heylogs.spi.FormatSupport.resolveFormatId;
 import static java.util.stream.Collectors.toList;
 import static nbbrd.console.picocli.ByteOutputSupport.DEFAULT_STDOUT_FILE;
 import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
+import static nbbrd.heylogs.spi.FormatSupport.resolveFormatId;
 
 @lombok.Getter
 @lombok.Setter
 @Mojo(name = "check", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true, requiresProject = false)
-public final class CheckMojo extends HeylogsMojo {
+public final class CheckMojo extends ConfigMojo {
 
     @Parameter(property = "heylogs.inputFiles", defaultValue = DEFAULT_CHANGELOG_FILE)
     private List<File> inputFiles;
@@ -41,26 +38,8 @@ public final class CheckMojo extends HeylogsMojo {
     @Parameter(property = "heylogs.outputFile", defaultValue = DEFAULT_STDOUT_FILE)
     private File outputFile;
 
-    @Parameter(property = "heylogs.tagging")
-    private String tagging;
-
-    @Parameter(property = "heylogs.versioning")
-    private String versioning;
-
-    @Parameter(property = "heylogs.forge")
-    private String forge;
-
-    @Parameter(property = "heylogs.rules")
-    private List<String> rules;
-
-    @Parameter(property = "heylogs.domains")
-    private List<String> domains;
-
     @Parameter(property = "heylogs.format")
     private String format;
-
-    @Parameter(property = "heylogs.noConfig", defaultValue = "false")
-    private boolean noConfig;
 
     @Override
     public void execute() throws MojoExecutionException {
@@ -69,7 +48,6 @@ public final class CheckMojo extends HeylogsMojo {
             return;
         }
 
-        Config config = toConfig();
         Heylogs heylogs = Heylogs.ofServiceLoader();
 
         List<Check> list = new ArrayList<>();
@@ -82,7 +60,7 @@ public final class CheckMojo extends HeylogsMojo {
                 list.add(Check
                         .builder()
                         .source(file.toString())
-                        .problems(heylogs.check(readChangelog(file.toFile()), config))
+                        .problems(heylogs.check(readChangelog(file.toFile()), toConfig(file)))
                         .build());
             }
         } catch (IOException ex) {
@@ -101,34 +79,5 @@ public final class CheckMojo extends HeylogsMojo {
 
         if (hasErrors)
             throw new MojoExecutionException("Invalid changelog");
-    }
-
-    @MojoParameterParsing
-    private @NonNull Config toConfig() throws MojoExecutionException {
-        try {
-            // Build mojo parameters config
-            Config mojoConfig = Config
-                    .builder()
-                    .taggingOf(tagging)
-                    .versioningOf(versioning)
-                    .forgeOf(forge)
-                    .rulesOf(rules)
-                    .domainsOf(domains)
-                    .build();
-
-            if (noConfig) {
-                // Ignore config file, only use mojo parameters
-                return mojoConfig;
-            }
-
-            // Load config from file hierarchy starting from first input file's parent or current directory
-            Path firstInputFile = (inputFiles != null && !inputFiles.isEmpty()) ? inputFiles.get(0).toPath() : null;
-            Config fileConfig = Config.loadFromDirectory(Config.resolveStartDir(firstInputFile));
-
-            // Merge with mojo parameters taking precedence
-            return fileConfig.mergeWith(mojoConfig);
-        } catch (IllegalArgumentException ex) {
-            throw new MojoExecutionException("Invalid config parameter", ex);
-        }
     }
 }
