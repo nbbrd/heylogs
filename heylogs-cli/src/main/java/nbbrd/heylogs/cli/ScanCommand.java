@@ -34,12 +34,8 @@ public final class ScanCommand implements Callable<Void> {
     @CommandLine.Mixin
     private ConfigOptions configOptions;
 
-    @CommandLine.Option(
-            names = {SpecialProperties.DEBUG_OPTION},
-            defaultValue = "false",
-            hidden = true
-    )
-    private boolean debug;
+    @CommandLine.Mixin
+    private DebugOptions debugOptions;
 
     @Override
     public Void call() throws Exception {

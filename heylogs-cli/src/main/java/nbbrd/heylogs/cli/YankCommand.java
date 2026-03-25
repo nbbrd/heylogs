@@ -2,6 +2,7 @@ package nbbrd.heylogs.cli;
 
 import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.cli.ChangelogInputParameters;
+import internal.heylogs.cli.DebugOptions;
 import internal.heylogs.cli.SpecialProperties;
 import nbbrd.heylogs.Heylogs;
 import picocli.CommandLine;
@@ -27,12 +28,8 @@ public final class YankCommand implements Callable<Void> {
     )
     private String ref;
 
-    @CommandLine.Option(
-            names = {SpecialProperties.DEBUG_OPTION},
-            defaultValue = "false",
-            hidden = true
-    )
-    private boolean debug;
+    @CommandLine.Mixin
+    private DebugOptions debugOptions;
 
     @Override
     public Void call() throws Exception {

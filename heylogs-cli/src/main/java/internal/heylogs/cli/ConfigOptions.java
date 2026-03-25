@@ -1,10 +1,13 @@
 package internal.heylogs.cli;
 
+import lombok.NonNull;
 import nbbrd.heylogs.*;
+import nbbrd.heylogs.spi.*;
 import org.jspecify.annotations.Nullable;
 import picocli.CommandLine;
 
 import java.nio.file.Path;
+import java.util.Iterator;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
@@ -87,5 +90,89 @@ public class ConfigOptions {
             return getConfig();
         }
         return Config.loadFromDirectory(directory).mergeWith(getConfig());
+    }
+
+    public static final class VersioningCandidates implements Iterable<String> {
+
+        @Override
+        public @NonNull Iterator<String> iterator() {
+            return VersioningLoader.load()
+                    .stream()
+                    .map(Versioning::getVersioningId)
+                    .iterator();
+        }
+    }
+
+    public static final class VersioningConverter implements CommandLine.ITypeConverter<VersioningConfig> {
+
+        @Override
+        public VersioningConfig convert(String value) {
+            return VersioningConfig.parse(value);
+        }
+    }
+
+    public static final class TaggingCandidates implements Iterable<String> {
+
+        @Override
+        public @NonNull Iterator<String> iterator() {
+            return TaggingLoader.load()
+                    .stream()
+                    .map(Tagging::getTaggingId)
+                    .iterator();
+        }
+    }
+
+    public static final class TaggingConverter implements CommandLine.ITypeConverter<TaggingConfig> {
+
+        @Override
+        public TaggingConfig convert(String value) {
+            return TaggingConfig.parse(value);
+        }
+    }
+
+    public static final class ForgeCandidates implements Iterable<String> {
+
+        @Override
+        public @NonNull Iterator<String> iterator() {
+            return ForgeLoader.load()
+                    .stream()
+                    .map(Forge::getForgeId)
+                    .iterator();
+        }
+    }
+
+    public static final class ForgeConverter implements CommandLine.ITypeConverter<ForgeConfig> {
+
+        @Override
+        public ForgeConfig convert(String value) {
+            return ForgeConfig.parse(value);
+        }
+    }
+
+    public static final class RuleCandidates implements Iterable<String> {
+
+        @Override
+        public @NonNull Iterator<String> iterator() {
+            return RuleLoader.load()
+                    .stream()
+                    .map(Rule::getRuleId)
+                    .iterator();
+        }
+    }
+
+    public static final class RuleConverter implements CommandLine.ITypeConverter<RuleConfig> {
+
+        @Override
+        public RuleConfig convert(String value) {
+            return RuleConfig.parse(value);
+        }
+    }
+
+    public static final class DomainConverter implements CommandLine.ITypeConverter<DomainConfig> {
+
+        @Override
+        public DomainConfig convert(String value) {
+            return DomainConfig.parse(value);
+        }
     }
 }

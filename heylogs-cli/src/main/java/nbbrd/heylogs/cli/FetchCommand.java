@@ -4,7 +4,6 @@ import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.cli.*;
 import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Heylogs;
-import nbbrd.heylogs.TypeOfChange;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -20,15 +19,8 @@ public final class FetchCommand implements Callable<Void> {
     @CommandLine.Mixin
     private ChangelogInputParameters input;
 
-    @CommandLine.Option(
-            names = {"-y", "--type"},
-            paramLabel = "<type>",
-            description = "Type of change. Valid values: ${COMPLETION-CANDIDATES}.",
-            required = true,
-            completionCandidates = TypeOfChangeCandidates.class,
-            converter = TypeOfChangeConverter.class
-    )
-    private TypeOfChange typeOfChange;
+    @CommandLine.Mixin
+    private TypeOfChangeOptions typeOfChangeOptions;
 
     @CommandLine.Option(
             names = {"-i", "--id"},
@@ -41,12 +33,8 @@ public final class FetchCommand implements Callable<Void> {
     @CommandLine.Mixin
     private ConfigOptions configOptions;
 
-    @CommandLine.Option(
-            names = {SpecialProperties.DEBUG_OPTION},
-            defaultValue = "false",
-            hidden = true
-    )
-    private boolean debug;
+    @CommandLine.Mixin
+    private DebugOptions debugOptions;
 
     @Override
     public Void call() throws Exception {
@@ -60,7 +48,7 @@ public final class FetchCommand implements Callable<Void> {
     }
 
     private Document fetch(Document document, Config config) throws IOException {
-        Heylogs.ofServiceLoader().fetch(document, typeOfChange, issue, config);
+        Heylogs.ofServiceLoader().fetch(document, typeOfChangeOptions.getTypeOfChange(), issue, config);
         return document;
     }
 

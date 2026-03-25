@@ -291,7 +291,7 @@ public class HeylogsTest {
                         .timeRange(TimeRange.of(LocalDate.of(2017, 6, 20), LocalDate.of(2017, 6, 20)))
                         .unreleasedChanges(0)
                         .forgeName(null)
-                        .forgeURL(null)
+                        .forgeURL(urlOf("https://unknown.com"))
                         .build()
                 );
 

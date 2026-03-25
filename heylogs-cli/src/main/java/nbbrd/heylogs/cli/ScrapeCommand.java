@@ -1,10 +1,7 @@
 package nbbrd.heylogs.cli;
 
 import internal.heylogs.base.StylishWriter;
-import internal.heylogs.cli.ConfigOptions;
-import internal.heylogs.cli.MarkdownInputSupport;
-import internal.heylogs.cli.MultiChangelogInputOptions;
-import internal.heylogs.cli.SpecialProperties;
+import internal.heylogs.cli.*;
 import lombok.NonNull;
 import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Heylogs;
@@ -29,12 +26,8 @@ public final class ScrapeCommand implements Callable<Integer> {
     @CommandLine.Mixin
     private ConfigOptions configOptions;
 
-    @CommandLine.Option(
-            names = {SpecialProperties.DEBUG_OPTION},
-            defaultValue = "false",
-            hidden = true
-    )
-    private boolean debug;
+    @CommandLine.Mixin
+    private DebugOptions debugOptions;
 
     @Override
     public Integer call() throws Exception {

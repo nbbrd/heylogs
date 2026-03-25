@@ -444,7 +444,11 @@ public class Heylogs {
                 .compatibilities(versioningStreamOf(versionings, releases).map(Versioning::getVersioningName).collect(toList()))
                 .unreleasedChanges((int) unreleasedChanges)
                 .forgeName(forgeOrNull != null ? forgeOrNull.getForgeName() : null)
-                .forgeURL(findProjectLink(forgeOrNull, first.getURL()).map(ProjectLink::getProjectURL).orElse(null))
+                .forgeURL(
+                        findProjectLink(forgeOrNull, first.getURL())
+                                .map(ProjectLink::getProjectURL)
+                                .orElse(URLExtractor.baseOf(first.getURL()))
+                )
                 .build();
     }
 

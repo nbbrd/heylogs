@@ -34,12 +34,8 @@ public final class CheckCommand implements Callable<Integer> {
     @CommandLine.Mixin
     private FormatOptions formatOptions;
 
-    @CommandLine.Option(
-            names = {SpecialProperties.DEBUG_OPTION},
-            defaultValue = "false",
-            hidden = true
-    )
-    private boolean debug;
+    @CommandLine.Mixin
+    private DebugOptions debugOptions;
 
     @Override
     public Integer call() throws Exception {

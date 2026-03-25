@@ -2,6 +2,7 @@ package nbbrd.heylogs.cli;
 
 import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.cli.ChangelogInputParameters;
+import internal.heylogs.cli.DebugOptions;
 import internal.heylogs.cli.SpecialProperties;
 import nbbrd.console.picocli.FileOutputOptions;
 import nbbrd.heylogs.Filter;
@@ -69,12 +70,8 @@ public final class ExtractCommand implements Callable<Void> {
     )
     private boolean ignoreContent = false;
 
-    @CommandLine.Option(
-            names = {SpecialProperties.DEBUG_OPTION},
-            defaultValue = "false",
-            hidden = true
-    )
-    private boolean debug;
+    @CommandLine.Mixin
+    private DebugOptions debugOptions;
 
     @Override
     public Void call() throws Exception {
