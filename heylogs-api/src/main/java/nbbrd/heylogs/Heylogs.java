@@ -5,6 +5,7 @@ import com.github.mustachejava.Mustache;
 import com.vladsch.flexmark.ast.*;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
+import com.vladsch.flexmark.util.ast.ReferenceNode;
 import internal.heylogs.ChangelogHeading;
 import internal.heylogs.FlexmarkIO;
 import internal.heylogs.TypeOfChangeHeading;
@@ -366,11 +367,11 @@ public class Heylogs {
 
         if (typeOfChangeHeading == null) {
             typeOfChangeHeading = typeOfChange.toHeading();
-            // Insert the new heading after the unreleased heading (before any existing type-of-change or next version)
+            // Insert the new heading after the unreleased heading (before any existing type-of-change or next version or reference links)
             Node insertAfter = unreleased.getHeading();
             // Walk past any non-heading siblings to find the right insertion point
             Node next = insertAfter.getNext();
-            while (next != null && !VersionHeading.isParsable(next) && !TypeOfChangeHeading.isParsable(next)) {
+            while (next != null && !VersionHeading.isParsable(next) && !TypeOfChangeHeading.isParsable(next) && !(next instanceof ReferenceNode)) {
                 insertAfter = next;
                 next = next.getNext();
             }

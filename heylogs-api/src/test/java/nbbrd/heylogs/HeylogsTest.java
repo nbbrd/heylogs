@@ -452,7 +452,8 @@ public class HeylogsTest {
         // Push to empty unreleased section
         assertThat(pushToString(x, using("/FirstRelease.md"), TypeOfChange.ADDED, "First change"))
                 .contains("### Added")
-                .contains("- First change");
+                .contains("- First change")
+                .endsWith("https://github.com/olivierlacan/keep-a-changelog/compare/HEAD...HEAD\n");
     }
 
     @Test
