@@ -14,15 +14,11 @@ Key points:
 
 Features:
 
-- [Checks the format](docs/feature-check.md) against an extensive [set of rules](docs/feature-list.md).
-- [Summarizes content](docs/feature-scan.md) to provide a quick overview of a repository.
-- [Filters and extracts](docs/feature-extract.md) versions for publication or searching.
-- Modifies content by [releasing unreleased changes](docs/feature-release.md) or [adding changes](docs/feature-push.md).
-- Manages [GitHub, GitLab and Forgejo](docs/feature-forge.md) peculiarities.
-- Validates [semantic, calendar and regex](docs/feature-versioning.md) versioning schemes.
-- Handles the [prefix](docs/feature-tagging.md) tagging strategy.
-- Seamlessly integrates into [CI/CD pipelines](docs/usage-pipelines.md).
-- Supports [hierarchical configuration](docs/feature-config-file.md) through `heylogs.properties` files.
+* [Create](docs/feature-init.md) changelog files, and [list](docs/feature-list.md) available resources and rules.
+* [Validate](docs/feature-check.md) changelog format, [summarize](docs/feature-scan.md) content, and [extract](docs/feature-extract.md) or filter versions for publication or searching.
+* [Add](docs/feature-push.md), [fetch](docs/feature-fetch.md), or set [summaries](docs/feature-note.md) for changes; [release](docs/feature-release.md) new versions or [yank](docs/feature-yank.md) problematic releases.
+* Integrate with [GitHub](docs/feature-forge.md), [GitLab](docs/feature-forge.md), and [Forgejo](docs/feature-forge.md); support [semantic](docs/feature-versioning.md), [calendar](docs/feature-versioning.md), and [regex](docs/feature-versioning.md) versioning; and handle [tag](docs/feature-tagging.md) prefix strategies.
+* Automate workflows in [CI/CD](docs/usage-pipelines.md) pipelines and support hierarchical [configuration](docs/feature-config-file.md) via `heylogs.properties` files.
 
 [ [Usage](#usage) | [Features](#features) | [Cookbook](#cookbook) | [Developing](#developing) | [Contributing](#contributing)  | [Licensing](#licensing) | [Related work](#related-work)]
 
