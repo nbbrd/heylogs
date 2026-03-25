@@ -58,28 +58,28 @@ CHANGELOG.md
 
 ### Changelog input parameters
 
-| Parameter    | Description                       | CLI                      | Maven Plugin                          | Enforcer Rule                        |
-|--------------|-----------------------------------|--------------------------|---------------------------------------|--------------------------------------|
-| `inputFile(s)`| Changelog file(s) to check (default: CHANGELOG.md, supports multiple files) | `<source>` (positional, default: CHANGELOG.md) | `<inputFiles>CHANGELOG.md</inputFiles>` | `<inputFiles>CHANGELOG.md</inputFiles>` |
-| `recursive`  | Recursively search for changelog files | `--recursive`           | `<recursive>true</recursive>`         | `<recursive>true</recursive>`         |
+| Parameter      | Description                                                                 | CLI                                            | Maven Plugin                            | Enforcer Rule                           |
+|----------------|-----------------------------------------------------------------------------|------------------------------------------------|-----------------------------------------|-----------------------------------------|
+| `inputFile(s)` | Changelog file(s) to check (default: CHANGELOG.md, supports multiple files) | `<source>` (positional, default: CHANGELOG.md) | `<inputFiles>CHANGELOG.md</inputFiles>` | `<inputFiles>CHANGELOG.md</inputFiles>` |
+| `recursive`    | Recursively search for changelog files                                      | `--recursive`                                  | `<recursive>true</recursive>`           | `<recursive>true</recursive>`           |
 
 ### Output parameters
 
-| Parameter    | Description                       | CLI                      | Maven Plugin                          | Enforcer Rule                        |
-|--------------|-----------------------------------|--------------------------|---------------------------------------|--------------------------------------|
-| `outputFile` | Output file for result            | `--output <file>`        | `<outputFile>result.md</outputFile>`  | `<outputFile>result.md</outputFile>`  |
-| `format`     | Output format (stylish, json)     | `--format <id>`          | `<format>json</format>`               | `<format>json</format>`               |
+| Parameter    | Description                   | CLI               | Maven Plugin                         | Enforcer Rule                        |
+|--------------|-------------------------------|-------------------|--------------------------------------|--------------------------------------|
+| `outputFile` | Output file for result        | `--output <file>` | `<outputFile>result.md</outputFile>` | `<outputFile>result.md</outputFile>` |
+| `format`     | Output format (stylish, json) | `--format <id>`   | `<format>json</format>`              | `<format>json</format>`              |
 
 ### Configuration options
 
-| Parameter    | Description                       | CLI                      | Maven Plugin                          | Enforcer Rule                        |
-|--------------|-----------------------------------|--------------------------|---------------------------------------|--------------------------------------|
-| `noConfig`   | Ignore config files               | `--no-config`            | `<noConfig>true</noConfig>`           | `<noConfig>true</noConfig>`           |
-| `versioning` | Versioning scheme                 | `--versioning <scheme>`  | `<versioning>semver</versioning>`     | `<versioning>semver</versioning>`     |
-| `tagging`    | Tagging strategy                  | `--tagging <strategy>`   | `<tagging>prefix:v</tagging>`         | `<tagging>prefix:v</tagging>`         |
-| `forge`      | Forge platform                    | `--forge <platform>`     | `<forge>github</forge>`               | `<forge>github</forge>`               |
-| `rules`      | Rule overrides (comma-separated)  | `--rule <id:severity>`   | `<rules>no-empty-group:WARN,...</rules>`| `<rules>no-empty-group:WARN,...</rules>`|
-| `domains`    | Domain mappings (comma-separated) | `--domain <domain:forge>`| `<domains>gitlab.company.com:gitlab</domains>`| `<domains>gitlab.company.com:gitlab</domains>`|
+| Parameter    | Description                       | CLI                       | Maven Plugin                                   | Enforcer Rule                                  |
+|--------------|-----------------------------------|---------------------------|------------------------------------------------|------------------------------------------------|
+| `noConfig`   | Ignore config files               | `--no-config`             | `<noConfig>true</noConfig>`                    | `<noConfig>true</noConfig>`                    |
+| `versioning` | Versioning scheme                 | `--versioning <scheme>`   | `<versioning>semver</versioning>`              | `<versioning>semver</versioning>`              |
+| `tagging`    | Tagging strategy                  | `--tagging <strategy>`    | `<tagging>prefix:v</tagging>`                  | `<tagging>prefix:v</tagging>`                  |
+| `forge`      | Forge platform                    | `--forge <platform>`      | `<forge>github</forge>`                        | `<forge>github</forge>`                        |
+| `rules`      | Rule overrides (comma-separated)  | `--rule <id:severity>`    | `<rules>no-empty-group:WARN,...</rules>`       | `<rules>no-empty-group:WARN,...</rules>`       |
+| `domains`    | Domain mappings (comma-separated) | `--domain <domain:forge>` | `<domains>gitlab.company.com:gitlab</domains>` | `<domains>gitlab.company.com:gitlab</domains>` |
 
 > [!TIP]
 > Rule configuration can be modified using the `--rule` option.

@@ -47,14 +47,14 @@ $ heylogs release --ref 1.0.0
 
 ### Configuration options
 
-| Parameter    | Description                       | CLI                      | Maven Plugin                          |
-|--------------|-----------------------------------|--------------------------|---------------------------------------|
-| `noConfig`   | Ignore config files               | `--no-config`            | `<noConfig>true</noConfig>`           |
-| `versioning` | Versioning scheme                 | `--versioning <scheme>`  | `<versioning>semver</versioning>`     |
-| `tagging`    | Tagging strategy                  | `--tagging <strategy>`   | `<tagging>prefix:v</tagging>`         |
-| `forge`      | Forge platform                    | `--forge <platform>`     | `<forge>github</forge>`               |
-| `rules`      | Rule overrides (comma-separated)  | `--rule <id:severity>`   | `<rules>no-empty-group:WARN,...</rules>`|
-| `domains`    | Domain mappings (comma-separated) | `--domain <domain:forge>`| `<domains>gitlab.company.com:gitlab</domains>`|
+| Parameter    | Description                       | CLI                       | Maven Plugin                                   |
+|--------------|-----------------------------------|---------------------------|------------------------------------------------|
+| `noConfig`   | Ignore config files               | `--no-config`             | `<noConfig>true</noConfig>`                    |
+| `versioning` | Versioning scheme                 | `--versioning <scheme>`   | `<versioning>semver</versioning>`              |
+| `tagging`    | Tagging strategy                  | `--tagging <strategy>`    | `<tagging>prefix:v</tagging>`                  |
+| `forge`      | Forge platform                    | `--forge <platform>`      | `<forge>github</forge>`                        |
+| `rules`      | Rule overrides (comma-separated)  | `--rule <id:severity>`    | `<rules>no-empty-group:WARN,...</rules>`       |
+| `domains`    | Domain mappings (comma-separated) | `--domain <domain:forge>` | `<domains>gitlab.company.com:gitlab</domains>` |
 
 ## Configuration
 

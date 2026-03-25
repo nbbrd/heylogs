@@ -40,12 +40,16 @@ Heylogs is available in multiple formats to fit your workflow:
 
 Heylogs provides several **commands** to interact with changelog files:
 
+- **[init](docs/feature-init.md)** - Create a new changelog file with a template
 - **[check](docs/feature-check.md)** - Validate changelog format against an extensive set of rules
 - **[scan](docs/feature-scan.md)** - Summarize changelog content and metadata
-- **[extract](docs/feature-extract.md)** - Filter and extract specific versions
-- **[release](docs/feature-release.md)** - Convert unreleased changes into a new release
-- **[push](docs/feature-push.md)** - Insert a change entry to the Unreleased section
 - **[list](docs/feature-list.md)** - Display all available resources and rules
+- **[extract](docs/feature-extract.md)** - Filter and extract specific versions
+- **[push](docs/feature-push.md)** - Insert a change entry to the Unreleased section
+- **[fetch](docs/feature-fetch.md)** - Fetch a change from a forge issue or pull request into Unreleased
+- **[note](docs/feature-note.md)** - Set or update the summary text after the Unreleased header
+- **[release](docs/feature-release.md)** - Convert unreleased changes into a new release
+- **[yank](docs/feature-yank.md)** - Mark an existing release as yanked
 
 Heylogs also provides some **customizations** to adapt to various workflows:
 
@@ -57,6 +61,8 @@ Heylogs also provides some **customizations** to adapt to various workflows:
 Heylogs also has some **quality-of-life** features to make it easier to use and integrate into different workflows:
 
 - **[config file](docs/feature-config-file.md)** - Hierarchical configuration through `heylogs.properties` files, similar to Lombok's configuration system
+
+See the [feature matrix](docs/feature-matrix.md) for a summary of feature support by usage mode.
 
 ## Cookbook
 

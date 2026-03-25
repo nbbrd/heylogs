@@ -53,9 +53,9 @@ $ heylogs yank CHANGELOG.md -r 1.0.0
 
 ### Yank parameters
 
-| Parameter | Description                    | CLI                  | Maven Plugin      |
-|-----------|--------------------------------|----------------------|-------------------|
-| `ref`     | Version reference to yank      | `-r <ref>` / `--ref <ref>` | `<ref>1.0.0</ref>` |
+| Parameter | Description               | CLI                        | Maven Plugin       |
+|-----------|---------------------------|----------------------------|--------------------|
+| `ref`     | Version reference to yank | `-r <ref>` / `--ref <ref>` | `<ref>1.0.0</ref>` |
 
 ## Notes
 

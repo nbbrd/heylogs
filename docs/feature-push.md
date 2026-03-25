@@ -7,15 +7,15 @@ The push command adds a new change entry to the Unreleased section of a changelo
 ### CLI
 
 ```bash
-$ heylogs push [changelog-file] -t <type> -m "<message>"
+$ heylogs push [changelog-file] -y <type> -m "<message>"
 # Add a new feature to Unreleased
-heylogs push -t added -m "Add support for custom themes"
+heylogs push -y added -m "Add support for custom themes"
 # Fix a bug
-heylogs push CHANGELOG.md -t fixed -m "Fix memory leak in parser"
+heylogs push CHANGELOG.md -y fixed -m "Fix memory leak in parser"
 # Add a security fix with issue reference
-heylogs push -t security -m "Fix XSS vulnerability [#456](https://github.com/user/repo/issues/456)"
+heylogs push -y security -m "Fix XSS vulnerability [#456](https://github.com/user/repo/issues/456)"
 # Deprecate a feature
-heylogs push -t deprecated -m "Deprecate legacy API endpoints"
+heylogs push -y deprecated -m "Deprecate legacy API endpoints"
 ```
 
 ### Maven plugin
@@ -50,10 +50,10 @@ heylogs push -t deprecated -m "Deprecate legacy API endpoints"
 
 ### Change parameters
 
-| Parameter    | Description                       | CLI                      | Maven Plugin                          |
-|--------------|-----------------------------------|--------------------------|---------------------------------------|
-| `type`       | Type of change (added, changed, fixed, etc.) | `-t <type>` / `--type <type>` | `<type>added</type>`                  |
-| `message`    | The change message                | `-m <message>` / `--message <message>` | `<message>Some change</message>`      |
+| Parameter | Description                                  | CLI                                    | Maven Plugin                     |
+|-----------|----------------------------------------------|----------------------------------------|----------------------------------|
+| `type`    | Type of change (added, changed, fixed, etc.) | `-y <type>` / `--type <type>`          | `<type>added</type>`             |
+| `message` | The change message                           | `-m <message>` / `--message <message>` | `<message>Some change</message>` |
 
 ---
 
