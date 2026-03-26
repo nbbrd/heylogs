@@ -8,8 +8,8 @@ This example shows a typical changelog and release workflow using Heylogs CLI wi
 
 ```bash
 # 1. Create a heylogs.properties file to set versioning and tagging options
-echo "versioning=semver" >> heylogs.properties
-echo "tagging=prefix:v" >> heylogs.properties
+echo versioning=semver>>heylogs.properties
+echo tagging=prefix:v>>heylogs.properties
 
 # 2. Initialize a new changelog file with project URL
 heylogs init --project-url https://github.com/nbbrd/heylogs
