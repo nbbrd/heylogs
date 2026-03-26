@@ -22,9 +22,10 @@ public final class URLExtractor {
 
     public static @NonNull String[] getPathArray(@NonNull URL url, boolean allowTrailingSlash) {
         String path = url.getPath();
-        if (path == null || path.isEmpty()) return new String[0];
-        boolean hasTrailingSlash = allowTrailingSlash && path.endsWith("/");
-        String[] result = path.substring(1, hasTrailingSlash ? path.length() - 1 : path.length()).split("/", -1);
+        if (path == null || path.isEmpty() || (allowTrailingSlash && path.length() == 1)) return new String[0];
+        String[] result = path
+                .substring(1, path.length() - (allowTrailingSlash && path.endsWith("/") ? 1 : 0))
+                .split("/", -1);
         for (int i = 0; i < result.length; i++) {
             result[i] = decode(result[i]);
         }

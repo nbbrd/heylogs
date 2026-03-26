@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix URL parsing when path is empty
+
 ## [0.16.0] - 2026-03-26
 
 This release focuses on making changelog management more flexible and automated.
