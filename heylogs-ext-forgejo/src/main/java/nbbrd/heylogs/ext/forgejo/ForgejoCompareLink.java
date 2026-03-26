@@ -7,11 +7,11 @@ import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.spi.CompareLink;
 import nbbrd.heylogs.spi.ForgeRef;
+import nbbrd.heylogs.spi.ProjectLink;
 import nbbrd.io.http.URLQueryBuilder;
 import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
-import java.util.regex.Pattern;
 
 import static internal.heylogs.git.ThreeDotDiff.THREE_DOT_DIFF_PATTERN;
 import static internal.heylogs.spi.URLExtractor.*;
@@ -19,7 +19,7 @@ import static internal.heylogs.spi.URLExtractor.*;
 @RepresentableAs(URL.class)
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class ForgejoCompareLink implements CompareLink {
+class ForgejoCompareLink implements CompareLink, ForgejoProjectLink {
 
     @StaticFactoryMethod
     public static @NonNull ForgejoCompareLink parse(@NonNull URL url) {
@@ -32,6 +32,16 @@ class ForgejoCompareLink implements CompareLink {
         checkPathItem(pathArray, 3, THREE_DOT_DIFF_PATTERN);
 
         return new ForgejoCompareLink(baseOf(url), pathArray[0], pathArray[1], ThreeDotDiff.parse(pathArray[3]));
+    }
+
+    @StaticFactoryMethod
+    public static @NonNull ForgejoCompareLink of(@NonNull ProjectLink link) {
+        if (link instanceof ForgejoCompareLink) return (ForgejoCompareLink) link;
+        if (link instanceof ForgejoProjectLink) {
+            ForgejoProjectLink forgejo = (ForgejoProjectLink) link;
+            return new ForgejoCompareLink(forgejo.getBase(), forgejo.getOwner(), forgejo.getRepo(), ThreeDotDiff.DEFAULT);
+        }
+        throw new IllegalArgumentException("Cannot create compare link from non-Forgejo project link: " + link);
     }
 
     @NonNull
@@ -67,11 +77,6 @@ class ForgejoCompareLink implements CompareLink {
     }
 
     @Override
-    public @NonNull URL getProjectURL() {
-        return urlOf(URLQueryBuilder.of(base).path(owner).path(repo).toString());
-    }
-
-    @Override
     public @NonNull String getCompareBaseRef() {
         return diff.getFrom();
     }
@@ -81,7 +86,5 @@ class ForgejoCompareLink implements CompareLink {
         return diff.getTo();
     }
 
-    private static final Pattern OWNER_PATTERN = Pattern.compile("[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38}", Pattern.CASE_INSENSITIVE);
-    private static final Pattern REPO_PATTERN = Pattern.compile("[a-z\\d._-]{1,100}", Pattern.CASE_INSENSITIVE);
     private static final String COMPARE_KEYWORD = "compare";
 }

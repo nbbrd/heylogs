@@ -5,11 +5,11 @@ Heylogs is able to validate and, in some cases, modify the reference links of th
 
 Heylogs supports the following forge references:
 
-|             | Commit | Compare | Issue | Request | Mention |
-|:-----------:|:------:|:-------:|:-----:|:-------:|:-------:|
-| **GitHub**  |   ✔    |    ✔    |   ✔   |    ✔    |    ✔    |
-| **GitLab**  |   ✔    |    ✔    |   ✔   |    ✔    |    ✔    |
-| **Forgejo** |   ✔    |    ✔    |   ✔   |    ✔    |    ✔    |
+|             | Commit | Compare | Issue | Request | Mention | Repository |
+|:-----------:|:------:|:-------:|:-----:|:-------:|:-------:|:----------:|
+| **GitHub**  |   ✔    |    ✔    |   ✔   |    ✔    |    ✔    |     ✔      |
+| **GitLab**  |   ✔    |    ✔    |   ✔   |    ✔    |    ✔    |     ✔      |
+| **Forgejo** |   ✔    |    ✔    |   ✔   |    ✔    |    ✔    |     ✔      |
 
 > [!TIP]
 > Forge links are detected by using a list of default known hosts (e.g. `github.com`, `gitlab.com`, `forgejo.org`) but 

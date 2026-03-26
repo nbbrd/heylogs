@@ -81,4 +81,31 @@ class ForgejoRequestLinkTest {
                 .hasToString("https://localhost:8080/Freeyourgadget/Gadgetbridge/pulls/217");
     }
 
+    @Test
+    void testResolve() {
+        // Basic number reference
+        assertThat(ForgejoRequestLink.resolve(urlOf("https://codeberg.org/Freeyourgadget/Gadgetbridge"), "#217"))
+                .returns(urlOf("https://codeberg.org"), ForgejoRequestLink::getBase)
+                .returns("Freeyourgadget", ForgejoRequestLink::getOwner)
+                .returns("Gadgetbridge", ForgejoRequestLink::getRepo)
+                .returns(217, ForgejoRequestLink::getIssueNumber)
+                .hasToString("https://codeberg.org/Freeyourgadget/Gadgetbridge/pulls/217");
+
+        // Owner/repo reference
+        assertThat(ForgejoRequestLink.resolve(urlOf("https://codeberg.org/otherowner/otherrepo"), "Freeyourgadget/Gadgetbridge#217"))
+                .returns(urlOf("https://codeberg.org"), ForgejoRequestLink::getBase)
+                .returns("otherowner", ForgejoRequestLink::getOwner)
+                .returns("otherrepo", ForgejoRequestLink::getRepo)
+                .returns(217, ForgejoRequestLink::getIssueNumber)
+                .hasToString("https://codeberg.org/otherowner/otherrepo/pulls/217");
+
+        // Project URL with trailing slash
+        assertThat(ForgejoRequestLink.resolve(urlOf("https://codeberg.org/Freeyourgadget/Gadgetbridge/"), "#217"))
+                .returns(urlOf("https://codeberg.org"), ForgejoRequestLink::getBase)
+                .returns("Freeyourgadget", ForgejoRequestLink::getOwner)
+                .returns("Gadgetbridge", ForgejoRequestLink::getRepo)
+                .returns(217, ForgejoRequestLink::getIssueNumber)
+                .hasToString("https://codeberg.org/Freeyourgadget/Gadgetbridge/pulls/217");
+    }
+
 }

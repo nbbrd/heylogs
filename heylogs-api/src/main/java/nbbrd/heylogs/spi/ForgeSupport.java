@@ -1,14 +1,22 @@
 package nbbrd.heylogs.spi;
 
 import lombok.NonNull;
+import nbbrd.design.MightBeGenerated;
 import nbbrd.design.StaticFactoryMethod;
+import nbbrd.heylogs.DomainConfig;
+import nbbrd.heylogs.ForgeConfig;
 import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
+import static nbbrd.heylogs.spi.ForgeLinkType.*;
 
 @lombok.Builder(toBuilder = true)
 public final class ForgeSupport implements Forge {
@@ -22,10 +30,18 @@ public final class ForgeSupport implements Forge {
     private final @NonNull Predicate<URL> knownHostPredicate;
 
     @lombok.Singular
-    private final Map<ForgeRefType, Function<? super URL, ForgeLink>> linkParsers;
+    private final Map<ForgeLinkType, ForgeLinkParser> linkParsers;
 
     @lombok.Singular
-    private final Map<ForgeRefType, Function<? super CharSequence, ForgeRef>> refParsers;
+    private final Map<ForgeLinkType, ForgeRefParser> refParsers;
+
+    @lombok.Singular
+    private final Map<ForgeLinkType, ForgeLinkResolver> linkResolvers;
+
+    @lombok.Singular
+    private final Map<ForgeLinkType, MessageFetcher> messageFetchers;
+
+    private final CompareLinkConverter compareLinkConverter;
 
     @Override
     public @NonNull String getForgeId() {
@@ -43,36 +59,44 @@ public final class ForgeSupport implements Forge {
     }
 
     @Override
-    public boolean isCompareLink(@NonNull URL url) {
-        try {
-            Function<? super URL, ForgeLink> parser = getLinkParser(ForgeRefType.COMPARE);
-            return knownHostPredicate.test(url) && parser != null && parser.apply(url) instanceof CompareLink;
-        } catch (IllegalArgumentException ex) {
-            return false;
-        }
+    public @Nullable ProjectLinkParser getProjectLinkParser() {
+        List<ProjectLinkParser> parsers = Stream.of(COMMIT, COMPARE, ISSUE, REQUEST, REPOSITORY)
+                .map(this::getLinkParser)
+                .filter(Objects::nonNull)
+                .map(ProjectLinkParser::casting)
+                .collect(toList());
+        return !parsers.isEmpty() ? ProjectLinkParser.anyOf(parsers) : null;
     }
 
     @Override
-    public @NonNull CompareLink getCompareLink(@NonNull URL url) {
-        Function<? super URL, ForgeLink> parser = getLinkParser(ForgeRefType.COMPARE);
-        if (parser == null) {
-            throw new IllegalArgumentException("No compare link parser for forge: " + id);
-        }
-        ForgeLink result = parser.apply(url);
-        if (!(result instanceof CompareLink)) {
-            throw new IllegalArgumentException("Not a compare link: " + url);
-        }
-        return (CompareLink) result;
+    public @Nullable CompareLinkParser getCompareLinkParser() {
+        ForgeLinkParser result = getLinkParser(ForgeLinkType.COMPARE);
+        return result != null ? CompareLinkParser.casting(result) : null;
     }
 
     @Override
-    public @Nullable Function<? super URL, ForgeLink> getLinkParser(@NonNull ForgeRefType type) {
+    public @Nullable ForgeLinkParser getLinkParser(@NonNull ForgeLinkType type) {
         return linkParsers.get(type);
     }
 
     @Override
-    public @Nullable Function<? super CharSequence, ForgeRef> getRefParser(@NonNull ForgeRefType type) {
+    public @Nullable ForgeRefParser getRefParser(@NonNull ForgeLinkType type) {
         return refParsers.get(type);
+    }
+
+    @Override
+    public @Nullable ForgeLinkResolver getLinkResolver(@NonNull ForgeLinkType type) {
+        return linkResolvers.get(type);
+    }
+
+    @Override
+    public @Nullable MessageFetcher getMessageFetcher(@NonNull ForgeLinkType type) {
+        return messageFetchers.get(type);
+    }
+
+    @Override
+    public @Nullable CompareLinkConverter getCompareLinkConverter() {
+        return compareLinkConverter;
     }
 
     @Override
@@ -82,17 +106,41 @@ public final class ForgeSupport implements Forge {
 
     public static final class Builder {
 
-        public Builder parser(@NonNull ForgeRefType type,
-                              @NonNull Function<? super URL, ForgeLink> linkParser,
-                              @NonNull Function<? super CharSequence, ForgeRef> refParser
+        public @NonNull Builder id(@NonNull String id) {
+            this.id = checkForgeId(id);
+            return this;
+        }
+
+        public Builder parser(@NonNull ForgeLinkType type,
+                              @NonNull ForgeLinkParser linkParser,
+                              @NonNull ForgeRefParser refParser
         ) {
             return linkParser(type, linkParser).refParser(type, refParser);
         }
     }
 
+    @MightBeGenerated
+    public static String checkForgeId(@NonNull String id) {
+        if (!ForgeLoader.ID_PATTERN.matcher(id).matches()) {
+            throw new IllegalArgumentException("Invalid forge id '" + id + "', should follow pattern " + ForgeLoader.ID_PATTERN.pattern());
+        }
+        return id;
+    }
+
     @StaticFactoryMethod(Predicate.class)
-    public static @NonNull Predicate<Forge> onCompareLink(@NonNull URL link) {
-        return forge -> forge.isCompareLink(link);
+    public static @NonNull Predicate<Forge> onHost(@NonNull URL link, @NonNull List<DomainConfig> domains) {
+        return forge -> forge.isKnownHost(link)
+                || domains.stream().anyMatch(domain -> domain.isCompatibleWith(forge));
+    }
+
+    @StaticFactoryMethod(Predicate.class)
+    public static @NonNull Predicate<Forge> onForgeConfig(@NonNull ForgeConfig config) {
+        return other -> config.getId().equals(other.getForgeId());
+    }
+
+    @StaticFactoryMethod(Predicate.class)
+    public static @NonNull Predicate<Forge> onDomainConfig(@NonNull DomainConfig config) {
+        return config::isCompatibleWith;
     }
 
     @StaticFactoryMethod(Predicate.class)

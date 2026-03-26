@@ -1,22 +1,16 @@
 package internal.heylogs.spi;
 
 import internal.heylogs.base.StylishFormat;
-import lombok.NonNull;
-import nbbrd.heylogs.*;
-import nbbrd.heylogs.spi.Format;
-import nbbrd.heylogs.spi.FormatType;
+import nbbrd.heylogs.FormatConfig;
+import nbbrd.heylogs.Heylogs;
+import nbbrd.heylogs.spi.FormatSupport;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.IOException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 import java.util.function.Predicate;
 
-import static internal.heylogs.spi.FormatSupport.resolveFormatId;
+import static nbbrd.heylogs.spi.FormatSupport.resolveFormatId;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class FormatSupportTest {
@@ -26,7 +20,13 @@ class FormatSupportTest {
         Heylogs heylogs = Heylogs
                 .builder()
                 .format(new StylishFormat())
-                .format(StuffFormat.INSTANCE)
+                .format(FormatSupport
+                        .builder()
+                        .id("stuff")
+                        .name("stuff")
+                        .moduleId("stuff")
+                        .filterByExtension(".stuff")
+                        .build())
                 .build();
 
         Path unknown = tmp.resolve("test.unknown");
@@ -49,47 +49,5 @@ class FormatSupportTest {
         assertThat(resolveFormatId(FormatConfig.parse("other"), heylogs, stdio, unknown)).isEqualTo("other");
         assertThat(resolveFormatId(FormatConfig.parse("other"), heylogs, file, stuff)).isEqualTo("other");
         assertThat(resolveFormatId(FormatConfig.parse("other"), heylogs, stdio, stuff)).isEqualTo("other");
-    }
-
-    private enum StuffFormat implements Format {
-
-        INSTANCE;
-
-        @Override
-        public @NonNull String getFormatId() {
-            return "stuff";
-        }
-
-        @Override
-        public @NonNull String getFormatName() {
-            return "stuff";
-        }
-
-        @Override
-        public @NonNull String getFormatModuleId() {
-            return "stuff";
-        }
-
-        @Override
-        public @NonNull Set<FormatType> getSupportedFormatTypes() {
-            return Collections.emptySet();
-        }
-
-        @Override
-        public void formatProblems(@NonNull Appendable appendable, @NonNull List<Check> list) throws IOException {
-        }
-
-        @Override
-        public void formatStatus(@NonNull Appendable appendable, @NonNull List<Scan> list) throws IOException {
-        }
-
-        @Override
-        public void formatResources(@NonNull Appendable appendable, @NonNull List<Resource> list) throws IOException {
-        }
-
-        @Override
-        public @NonNull DirectoryStream.Filter<? super Path> getFormatFileFilter() {
-            return FormatSupport.getFormatFileFilterByExtension(".stuff");
-        }
     }
 }

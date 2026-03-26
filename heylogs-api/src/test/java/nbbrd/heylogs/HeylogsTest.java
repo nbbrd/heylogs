@@ -1,18 +1,15 @@
 package nbbrd.heylogs;
 
 import com.vladsch.flexmark.util.ast.Document;
-import com.vladsch.flexmark.util.ast.Node;
 import internal.heylogs.FlexmarkIO;
 import internal.heylogs.base.BaseVersionings;
 import internal.heylogs.base.StylishFormat;
-import lombok.NonNull;
 import nbbrd.heylogs.spi.*;
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import tests.heylogs.spi.MockedCompareLink;
+import tests.heylogs.spi.MockedRepositoryLink;
 
 import java.io.IOException;
-import java.net.URL;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Function;
@@ -21,6 +18,8 @@ import static internal.heylogs.spi.URLExtractor.urlOf;
 import static java.util.Collections.singletonList;
 import static nbbrd.heylogs.Heylogs.FIRST_FORMAT_AVAILABLE;
 import static nbbrd.heylogs.Version.HYPHEN;
+import static nbbrd.heylogs.spi.ForgeLinkType.COMPARE;
+import static nbbrd.heylogs.spi.ForgeLinkType.REPOSITORY;
 import static nbbrd.heylogs.spi.RuleSeverity.ERROR;
 import static nbbrd.io.function.IOFunction.unchecked;
 import static org.assertj.core.api.Assertions.*;
@@ -28,6 +27,29 @@ import static org.assertj.core.api.InstanceOfAssertFactories.list;
 import static tests.heylogs.api.Sample.using;
 
 public class HeylogsTest {
+
+    @Test
+    public void testBaseProviders() {
+        Heylogs x = Heylogs.ofServiceLoader();
+
+        assertThat(x.getForges())
+                .isEmpty();
+
+        assertThat(x.getFormats())
+                .extracting(Format::getFormatId)
+                .contains("stylish");
+
+        assertThat(x.getRules())
+                .hasSize(19);
+
+        assertThat(x.getTaggings())
+                .extracting(Tagging::getTaggingId)
+                .contains("prefix");
+
+        assertThat(x.getVersionings())
+                .extracting(Versioning::getVersioningId)
+                .contains("regex");
+    }
 
     @Test
     public void testFactories() {
@@ -41,7 +63,7 @@ public class HeylogsTest {
                 .map(Rule::getRuleId)
                 .doesNotContain("semver");
 
-        assertThat(Heylogs.ofServiceLoader().toBuilder().rule(new MockedRule()).build())
+        assertThat(Heylogs.ofServiceLoader().toBuilder().rule(MOCKED_RULE).build())
                 .extracting(Heylogs::getRules, list(Rule.class))
                 .hasSizeGreaterThan(1)
                 .map(Rule::getRuleId)
@@ -123,8 +145,7 @@ public class HeylogsTest {
     public void testRelease() {
         Heylogs x = Heylogs.ofServiceLoader()
                 .toBuilder()
-                .clearForges().forge(new MockedForge())
-                .clearVersionings().versioning(BaseVersionings.REGEX_VERSIONING)
+                .forge(MOCKED_FORGE)
                 .build();
 
         LocalDate date = LocalDate.of(2010, 1, 1);
@@ -172,16 +193,25 @@ public class HeylogsTest {
                         "[1.2.3]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.2.3...v1.2.3")
                 .doesNotContain("[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/HEAD...HEAD")
                 .endsWith("[1.2.3]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.2.3...v1.2.3\n");
+
+        assertThat(releaseToString(x, using("/NotCompareLink.md"), v123, null))
+                .contains(
+                        "## [Unreleased]",
+                        "## [1.2.3] - 2010-01-01",
+                        "[Unreleased]: https://github.com/example/project/compare/v1.2.3...HEAD",
+                        "[1.2.3]: https://github.com/example/project/compare/v1.2.3...v1.2.3")
+                .doesNotContain("[unreleased]: https://github.com/example/project")
+                .endsWith("[1.0.0]: https://github.com/example/project/releases/tag/v1.0.0\n");
     }
 
     @Test
     public void testScan() {
         Heylogs x = Heylogs.ofServiceLoader()
                 .toBuilder()
-                .forge(new MockedForge())
+                .forge(MOCKED_FORGE)
                 .build();
 
-        assertThat(x.scan(using("/Empty.md")))
+        assertThat(x.scan(using("/Empty.md"), Config.DEFAULT))
                 .isEqualTo(Summary
                         .builder()
                         .valid(false)
@@ -191,7 +221,7 @@ public class HeylogsTest {
                         .build()
                 );
 
-        assertThat(x.scan(using("/Main.md")))
+        assertThat(x.scan(using("/Main.md"), Config.DEFAULT))
                 .isEqualTo(Summary
                                 .builder()
                                 .valid(true)
@@ -204,7 +234,7 @@ public class HeylogsTest {
                                 .build()
                 );
 
-        assertThat(x.scan(using("/InvalidSemver.md")))
+        assertThat(x.scan(using("/InvalidSemver.md"), Config.DEFAULT))
                 .isEqualTo(Summary
                         .builder()
                         .valid(true)
@@ -216,7 +246,7 @@ public class HeylogsTest {
                         .build()
                 );
 
-        assertThat(x.scan(using("/InvalidVersion.md")))
+        assertThat(x.scan(using("/InvalidVersion.md"), Config.DEFAULT))
                 .isEqualTo(Summary
                         .builder()
                         .valid(false)
@@ -226,7 +256,7 @@ public class HeylogsTest {
                         .build()
                 );
 
-        assertThat(x.scan(using("/YankedRelease.md")))
+        assertThat(x.scan(using("/YankedRelease.md"), Config.DEFAULT))
                 .isEqualTo(Summary
                         .builder()
                         .valid(true)
@@ -236,6 +266,58 @@ public class HeylogsTest {
                         .unreleasedChanges(1)
                         .forgeName("GitHub")
                         .forgeURL(urlOf("https://github.com/example/project"))
+                        .build()
+                );
+
+        assertThat(x.scan(using("/NotCompareLink.md"), Config.DEFAULT))
+                .isEqualTo(Summary
+                        .builder()
+                        .valid(true)
+                        .releaseCount(3)
+                        .yankedReleaseCount(0)
+                        .timeRange(TimeRange.of(LocalDate.of(2017, 6, 1), LocalDate.of(2019, 2, 15)))
+                        .unreleasedChanges(1)
+                        .forgeName("GitHub")
+                        .forgeURL(urlOf("https://github.com/example/project"))
+                        .build()
+                );
+
+        assertThat(x.scan(using("/UnknownHost.md"), Config.DEFAULT))
+                .isEqualTo(Summary
+                        .builder()
+                        .valid(true)
+                        .releaseCount(1)
+                        .yankedReleaseCount(0)
+                        .timeRange(TimeRange.of(LocalDate.of(2017, 6, 20), LocalDate.of(2017, 6, 20)))
+                        .unreleasedChanges(0)
+                        .forgeName(null)
+                        .forgeURL(urlOf("https://unknown.com"))
+                        .build()
+                );
+
+        assertThat(x.scan(using("/UnknownHost.md"), Config.DEFAULT.toBuilder().forgeOf("github").build()))
+                .isEqualTo(Summary
+                        .builder()
+                        .valid(true)
+                        .releaseCount(1)
+                        .yankedReleaseCount(0)
+                        .timeRange(TimeRange.of(LocalDate.of(2017, 6, 20), LocalDate.of(2017, 6, 20)))
+                        .unreleasedChanges(0)
+                        .forgeName("GitHub")
+                        .forgeURL(urlOf("https://unknown.com/olivierlacan/keep-a-changelog"))
+                        .build()
+                );
+
+        assertThat(x.scan(using("/UnknownHost.md"), Config.DEFAULT.toBuilder().domainOf("unknown.com:github").build()))
+                .isEqualTo(Summary
+                        .builder()
+                        .valid(true)
+                        .releaseCount(1)
+                        .yankedReleaseCount(0)
+                        .timeRange(TimeRange.of(LocalDate.of(2017, 6, 20), LocalDate.of(2017, 6, 20)))
+                        .unreleasedChanges(0)
+                        .forgeName("GitHub")
+                        .forgeURL(urlOf("https://unknown.com/olivierlacan/keep-a-changelog"))
                         .build()
                 );
     }
@@ -304,7 +386,7 @@ public class HeylogsTest {
     public void testCheckConfig() {
         Heylogs x = Heylogs.ofServiceLoader()
                 .toBuilder()
-                .forge(new MockedForge())
+                .forge(MOCKED_FORGE)
                 .build();
 
         assertThat(x.getForges()).isNotEmpty();
@@ -370,11 +452,170 @@ public class HeylogsTest {
         // Push to empty unreleased section
         assertThat(pushToString(x, using("/FirstRelease.md"), TypeOfChange.ADDED, "First change"))
                 .contains("### Added")
-                .contains("- First change");
+                .contains("- First change")
+                .endsWith("https://github.com/olivierlacan/keep-a-changelog/compare/HEAD...HEAD\n");
+    }
+
+    @Test
+    public void testYank() {
+        Heylogs x = Heylogs.ofServiceLoader();
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> x.yank(using("/Empty.md"), "1.0.0"))
+                .withMessageContaining("Cannot locate changelog header");
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> x.yank(using("/Main.md"), ""))
+                .withMessageContaining("Ref must not be empty");
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> x.yank(using("/Main.md"), "9.9.9"))
+                .withMessageContaining("Cannot locate version '9.9.9'");
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> x.yank(using("/Main.md"), "unreleased"))
+                .withMessageContaining("Cannot yank unreleased version");
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> x.yank(using("/YankedRelease.md"), "1.0.0"))
+                .withMessageContaining("Version '1.0.0' is already yanked");
+
+        // Yank an existing released version
+        assertThat(yankToString(x, using("/YankedRelease.md"), "1.1.0"))
+                .contains("## [1.1.0] - 2019-02-15 [YANKED]")
+                .doesNotContain("## [1.1.0] - 2019-02-15\n");
+    }
+
+    @Test
+    public void testFetch() {
+        // No forge found for unknown host URL
+        Heylogs noForge = Heylogs.builder().build();
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> noForge.fetch(using("/UnreleasedChanges.md"), TypeOfChange.ADDED, "https://unknown.example.com/issues/1", Config.DEFAULT))
+                .withMessageContaining("No forge found for URL");
+
+        // Forge found but no message fetcher (URL input)
+        Heylogs noFetcher = Heylogs.builder()
+                .forge(ForgeSupport.builder()
+                        .id("test")
+                        .name("Test Forge")
+                        .moduleId("test")
+                        .knownHostPredicate(url -> true)
+                        .build())
+                .build();
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> noFetcher.fetch(using("/UnreleasedChanges.md"), TypeOfChange.ADDED, "https://example.com/issues/1", Config.DEFAULT))
+                .withMessageContaining("Cannot resolve url");
+
+        // No forge in changelog for ref resolution
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> noForge.fetch(using("/UnreleasedChanges.md"), TypeOfChange.ADDED, "#1", Config.DEFAULT))
+                .withMessageContaining("Cannot determine forge");
+    }
+
+    @Test
+    public void testInit() {
+        Heylogs x = Heylogs.ofServiceLoader()
+                .toBuilder()
+                .clearVersionings().versioning(BaseVersionings.REGEX_VERSIONING)
+                .build();
+
+        // no versioning: description line has no versioning reference
+        String defaultResult = unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(x.init(Config.DEFAULT, null, null));
+        assertThat(defaultResult)
+                .contains("# Changelog")
+                .contains("## [Unreleased]")
+                .contains("[Keep a Changelog]")
+                .doesNotContain("adheres to");
+
+        // with versioning: name and URL come from the service
+        String versioningResult = unchecked(FlexmarkIO.newTextFormatter()::formatToString)
+                .apply(x.init(Config.builder().versioningOf("regex:.*").build(), null, null));
+        assertThat(versioningResult)
+                .contains("adheres to")
+                .contains("[Regex Versioning](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html)")
+                .doesNotContain("Semantic Versioning");
+
+        // custom template — all config variables
+        Heylogs xFull = x.toBuilder().forge(MOCKED_FORGE).build();
+        String customTemplate = "{{#versioning}}versioning:{{id}}:{{name}}{{/versioning}}" +
+                "{{#tagging}} tagging:{{id}}:{{arg}}{{/tagging}}" +
+                "{{#forge}} forge:{{id}}{{/forge}}" +
+                "{{#rules}} rule:{{id}}:{{severity}}{{/rules}}" +
+                "{{#domains}} domain:{{domain}}:{{forgeId}}{{/domains}}";
+        Config fullConfig = Config.builder()
+                .versioningOf("regex:.*")
+                .taggingOf("prefix:v")
+                .forgeOf("github")
+                .ruleOf("no-empty-group:WARN")
+                .domainOf("example.com:github")
+                .build();
+        String customResult = unchecked(FlexmarkIO.newTextFormatter()::formatToString)
+                .apply(xFull.init(fullConfig, customTemplate, null));
+        assertThat(customResult)
+                .contains("versioning:regex:Regex Versioning")
+                .contains("tagging:prefix:v")
+                .contains("forge:github")
+                .contains("rule:no-empty-group:WARN")
+                .contains("domain:example.com:github");
+
+        assertThat(x.check(x.init(Config.DEFAULT, null, null), Config.DEFAULT))
+                .extracting(Problem::getId)
+                .doesNotContain("changelog-heading", "version-format");
+    }
+
+    @Test
+    public void testNote() {
+        Heylogs heylogs = Heylogs.ofServiceLoader();
+
+        // 1. Insert summary when none exists (FirstRelease.md)
+        Document doc1 = using("/FirstRelease.md");
+        heylogs.note(doc1, "This is a summary.");
+        String result1 = unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc1);
+        assertThat(result1)
+                .contains("## [Unreleased]", "This is a summary.")
+                .contains("[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/HEAD...HEAD");
+
+        // 2. Replace existing summary (UnreleasedChanges.md)
+        Document doc2 = using("/UnreleasedChanges.md");
+        heylogs.note(doc2, "Replaced summary");
+        String result2 = unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc2);
+        assertThat(result2)
+                .contains("## [Unreleased]", "Replaced summary")
+                .doesNotContain("It's a trap !")
+                .contains("### Added", "### Fixed", "## [1.1.0] - 2019-02-15");
+
+        // 3. Do not insert summary if empty
+        Document doc3 = using("/FirstRelease.md");
+        heylogs.note(doc3, "   ");
+        String result3 = unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc3);
+        assertThat(result3)
+                .contains("## [Unreleased]")
+                .doesNotContain("This is a summary.");
+
+        // 4. Multi-line/markdown summary
+        Document doc4 = using("/FirstRelease.md");
+        String multiSummary = "This is a summary.\n\n- Point 1\n- Point 2";
+        heylogs.note(doc4, multiSummary);
+        String result4 = unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc4);
+        assertThat(result4)
+                .contains("This is a summary.", "- Point 1", "- Point 2");
+
+        // 5. Unreleased as last node (should still insert summary)
+        Document doc5 = using("/FirstRelease.md");
+        heylogs.note(doc5, "End summary");
+        String result5 = unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc5);
+        assertThat(result5)
+                .contains("End summary");
     }
 
     private static String pushToString(Heylogs heylogs, Document doc, TypeOfChange typeOfChange, String message) {
         heylogs.push(doc, typeOfChange, message);
+        return unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc);
+    }
+
+    private static String yankToString(Heylogs heylogs, Document doc, String ref) {
+        heylogs.yank(doc, ref);
         return unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc);
     }
 
@@ -388,79 +629,24 @@ public class HeylogsTest {
         return unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc);
     }
 
-    private static final class MockedRule implements Rule {
+    private static final ForgeSupport MOCKED_FORGE = ForgeSupport
+            .builder()
+            .id("github")
+            .name("GitHub")
+            .moduleId("github")
+            .linkParser(COMPARE, MockedCompareLink::parse)
+            .linkParser(REPOSITORY, MockedRepositoryLink::parse)
+            .compareLinkConverter(link -> MockedCompareLink.parse(urlOf(link.getProjectURL() + "/compare/HEAD...HEAD")))
+            .knownHostPredicate(ForgeSupport.onHostContaining("github"))
+            .build();
 
-        @Override
-        public @NonNull String getRuleId() {
-            return "mocked";
-        }
-
-        @Override
-        public @NonNull String getRuleName() {
-            return "";
-        }
-
-        @Override
-        public @NonNull String getRuleModuleId() {
-            return "mocked";
-        }
-
-        @Override
-        public boolean isRuleAvailable() {
-            return false;
-        }
-
-        @Override
-        public @NonNull RuleSeverity getRuleSeverity() {
-            return RuleSeverity.OFF;
-        }
-
-        @Override
-        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
-            return null;
-        }
-    }
-
-    private static final class MockedForge implements Forge {
-
-        @Override
-        public @NonNull String getForgeId() {
-            return "github";
-        }
-
-        @Override
-        public @NonNull String getForgeName() {
-            return "GitHub";
-        }
-
-        @Override
-        public @NonNull String getForgeModuleId() {
-            return "github";
-        }
-
-        @Override
-        public boolean isCompareLink(@NonNull URL url) {
-            return true;
-        }
-
-        @Override
-        public @NonNull CompareLink getCompareLink(@NonNull URL url) {
-            return new MockedCompareLink(url);
-        }
-
-        @Override
-        public @Nullable Function<? super URL, ForgeLink> getLinkParser(@NonNull ForgeRefType type) {
-            return null;
-        }
-
-        @Override
-        public @Nullable Function<? super CharSequence, ForgeRef> getRefParser(@NonNull ForgeRefType type) {
-            return null;
-        }
-
-        @Override
-        public boolean isKnownHost(@NonNull URL url) {
-            return false;
-        }
-    }
+    private static final RuleSupport MOCKED_RULE = RuleSupport
+            .builder()
+            .id("mocked")
+            .name("Mocked rule")
+            .moduleId("mocked")
+            .availability(false)
+            .severity(RuleSeverity.OFF)
+            .issueProvider((context, issue) -> null)
+            .build();
 }

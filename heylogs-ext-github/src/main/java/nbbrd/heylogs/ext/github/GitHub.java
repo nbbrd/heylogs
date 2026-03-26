@@ -5,7 +5,7 @@ import nbbrd.heylogs.spi.Forge;
 import nbbrd.heylogs.spi.ForgeSupport;
 import nbbrd.service.ServiceProvider;
 
-import static nbbrd.heylogs.spi.ForgeRefType.*;
+import static nbbrd.heylogs.spi.ForgeLinkType.*;
 
 @DirectImpl
 @ServiceProvider
@@ -23,5 +23,11 @@ public final class GitHub implements Forge {
             .parser(REQUEST, GitHubRequestLink::parse, GitHubRequestRef::parse)
             .parser(MENTION, GitHubMentionLink::parse, GitHubMentionRef::parse)
             .linkParser(COMPARE, GitHubCompareLink::parse)
+            .linkResolver(ISSUE, GitHubIssueLink::resolve)
+            .linkResolver(REQUEST, GitHubRequestLink::resolve)
+            .messageFetcher(ISSUE, GitHubMessageFetcher.ISSUE)
+            .messageFetcher(REQUEST, GitHubMessageFetcher.REQUEST)
+            .linkParser(REPOSITORY, GitHubRepositoryLink::parse)
+            .compareLinkConverter(GitHubCompareLink::of)
             .build();
 }

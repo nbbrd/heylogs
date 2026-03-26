@@ -14,15 +14,11 @@ Key points:
 
 Features:
 
-- [Checks the format](docs/feature-check.md) against an extensive [set of rules](docs/feature-list.md).
-- [Summarizes content](docs/feature-scan.md) to provide a quick overview of a repository.
-- [Filters and extracts](docs/feature-extract.md) versions for publication or searching.
-- Modifies content by [releasing unreleased changes](docs/feature-release.md) or [adding changes](docs/feature-push.md).
-- Manages [GitHub, GitLab and Forgejo](docs/feature-forge.md) peculiarities.
-- Validates [semantic, calendar and regex](docs/feature-versioning.md) versioning schemes.
-- Handles the [prefix](docs/feature-tagging.md) tagging strategy.
-- Seamlessly integrates into [CI/CD pipelines](docs/usage-pipelines.md).
-- Supports [hierarchical configuration](docs/feature-config-file.md) through `heylogs.properties` files.
+* [Create](docs/feature-init.md) changelog files, and [list](docs/feature-list.md) available resources and rules.
+* [Validate](docs/feature-check.md) changelog format, [summarize](docs/feature-scan.md) content, and [extract](docs/feature-extract.md) or filter versions for publication or searching.
+* [Add](docs/feature-push.md), [fetch](docs/feature-fetch.md), or set [summaries](docs/feature-note.md) for changes; [release](docs/feature-release.md) new versions or [yank](docs/feature-yank.md) problematic releases.
+* Integrate with [GitHub](docs/feature-forge.md), [GitLab](docs/feature-forge.md), and [Forgejo](docs/feature-forge.md); support [semantic](docs/feature-versioning.md), [calendar](docs/feature-versioning.md), and [regex](docs/feature-versioning.md) versioning; and handle [tag](docs/feature-tagging.md) prefix strategies.
+* Automate workflows in [CI/CD](docs/usage-pipelines.md) pipelines and support hierarchical [configuration](docs/feature-config-file.md) via `heylogs.properties` files.
 
 [ [Usage](#usage) | [Features](#features) | [Cookbook](#cookbook) | [Developing](#developing) | [Contributing](#contributing)  | [Licensing](#licensing) | [Related work](#related-work)]
 
@@ -40,12 +36,16 @@ Heylogs is available in multiple formats to fit your workflow:
 
 Heylogs provides several **commands** to interact with changelog files:
 
+- **[init](docs/feature-init.md)** - Create a new changelog file with a template
 - **[check](docs/feature-check.md)** - Validate changelog format against an extensive set of rules
 - **[scan](docs/feature-scan.md)** - Summarize changelog content and metadata
-- **[extract](docs/feature-extract.md)** - Filter and extract specific versions
-- **[release](docs/feature-release.md)** - Convert unreleased changes into a new release
-- **[push](docs/feature-push.md)** - Insert a change entry to the Unreleased section
 - **[list](docs/feature-list.md)** - Display all available resources and rules
+- **[extract](docs/feature-extract.md)** - Filter and extract specific versions
+- **[push](docs/feature-push.md)** - Insert a change entry to the Unreleased section
+- **[fetch](docs/feature-fetch.md)** - Fetch a change from a forge issue or pull request into Unreleased
+- **[note](docs/feature-note.md)** - Set or update the summary text after the Unreleased header
+- **[release](docs/feature-release.md)** - Convert unreleased changes into a new release
+- **[yank](docs/feature-yank.md)** - Mark an existing release as yanked
 
 Heylogs also provides some **customizations** to adapt to various workflows:
 
@@ -57,6 +57,8 @@ Heylogs also provides some **customizations** to adapt to various workflows:
 Heylogs also has some **quality-of-life** features to make it easier to use and integrate into different workflows:
 
 - **[config file](docs/feature-config-file.md)** - Hierarchical configuration through `heylogs.properties` files, similar to Lombok's configuration system
+
+See the [feature matrix](docs/feature-matrix.md) for a summary of feature support by usage mode.
 
 ## Cookbook
 

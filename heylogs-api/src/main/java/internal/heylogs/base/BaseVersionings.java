@@ -28,6 +28,7 @@ public final class BaseVersionings implements VersioningBatch {
             .builder()
             .id("regex")
             .name("Regex Versioning")
+            .urlOf("https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html")
             .moduleId("api")
             .validator(Validator.of(Pattern::compile))
             .predicate(compilingArg(Pattern::compile, (pattern, text) -> pattern.matcher(text).matches()))

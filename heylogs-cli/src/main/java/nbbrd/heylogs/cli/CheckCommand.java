@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import static internal.heylogs.cli.MarkdownInputSupport.newMarkdownInputSupport;
-import static internal.heylogs.spi.FormatSupport.resolveFormatId;
+import static nbbrd.heylogs.spi.FormatSupport.resolveFormatId;
 import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
 
 @Command(name = "check", description = "Check format.")
@@ -34,12 +34,8 @@ public final class CheckCommand implements Callable<Integer> {
     @CommandLine.Mixin
     private FormatOptions formatOptions;
 
-    @CommandLine.Option(
-            names = {SpecialProperties.DEBUG_OPTION},
-            defaultValue = "false",
-            hidden = true
-    )
-    private boolean debug;
+    @CommandLine.Mixin
+    private DebugOptions debugOptions;
 
     @Override
     public Integer call() throws Exception {

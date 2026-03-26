@@ -7,7 +7,7 @@ import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.spi.CompareLink;
 import nbbrd.heylogs.spi.ForgeRef;
-import nbbrd.io.http.URLQueryBuilder;
+import nbbrd.heylogs.spi.ProjectLink;
 import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
@@ -20,11 +20,21 @@ import static nbbrd.heylogs.ext.gitlab.GitLabSupport.parseLink;
 @RepresentableAs(URL.class)
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class GitLabCompareLink implements CompareLink {
+class GitLabCompareLink implements CompareLink, GitLabProjectLink {
 
     @StaticFactoryMethod
     public static @NonNull GitLabCompareLink parse(@NonNull URL url) {
         return parseLink(GitLabCompareLink::new, COMPARE_KEYWORD, THREE_DOT_DIFF_PATTERN, ThreeDotDiff::parse, url);
+    }
+
+    @StaticFactoryMethod
+    public static @NonNull GitLabCompareLink of(@NonNull ProjectLink link) {
+        if (link instanceof GitLabCompareLink) return (GitLabCompareLink) link;
+        if (link instanceof GitLabProjectLink) {
+            GitLabProjectLink gitLab = (GitLabProjectLink) link;
+            return new GitLabCompareLink(gitLab.getBase(), gitLab.getNamespace(), gitLab.getProject(), ThreeDotDiff.DEFAULT);
+        }
+        throw new IllegalArgumentException("Cannot create compare link from non-GitLab project link: " + link);
     }
 
     @NonNull
@@ -57,11 +67,6 @@ class GitLabCompareLink implements CompareLink {
     @Override
     public @NonNull GitLabCompareLink derive(@NonNull String tag) {
         return new GitLabCompareLink(base, namespace, project, diff.derive(tag));
-    }
-
-    @Override
-    public @NonNull URL getProjectURL() {
-        return urlOf(URLQueryBuilder.of(base).path(namespace).path(project).toString());
     }
 
     @Override

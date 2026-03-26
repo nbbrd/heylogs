@@ -3,6 +3,7 @@ package nbbrd.heylogs.cli;
 import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.cli.ChangelogInputParameters;
 import internal.heylogs.cli.ConfigOptions;
+import internal.heylogs.cli.DebugOptions;
 import internal.heylogs.cli.SpecialProperties;
 import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Heylogs;
@@ -43,12 +44,8 @@ public final class ReleaseCommand implements Callable<Void> {
     @CommandLine.Mixin
     private ConfigOptions configOptions;
 
-    @CommandLine.Option(
-            names = {SpecialProperties.DEBUG_OPTION},
-            defaultValue = "false",
-            hidden = true
-    )
-    private boolean debug;
+    @CommandLine.Mixin
+    private DebugOptions debugOptions;
 
     @Override
     public Void call() throws Exception {

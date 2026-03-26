@@ -42,7 +42,7 @@ public class PushCommandTest {
                 "",
                 "[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.9.3...HEAD"));
 
-        assertThat(cmd.execute(src.toString(), "-t", "added", "-m", "New feature"))
+        assertThat(cmd.execute(src.toString(), "-y", "added", "-m", "New feature"))
                 .isEqualTo(CommandLine.ExitCode.OK);
         assertThat(watcher.getOut()).isEmpty();
         assertThat(watcher.getErr()).isEmpty();
@@ -67,7 +67,7 @@ public class PushCommandTest {
                 "",
                 "[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.9.3...HEAD"));
 
-        assertThat(cmd.execute(src.toString(), "-t", "fixed", "-m", "Fix critical bug"))
+        assertThat(cmd.execute(src.toString(), "-y", "fixed", "-m", "Fix critical bug"))
                 .isEqualTo(CommandLine.ExitCode.OK);
         assertThat(watcher.getOut()).isEmpty();
         assertThat(watcher.getErr()).isEmpty();
@@ -91,7 +91,7 @@ public class PushCommandTest {
                 "",
                 "[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.9.3...HEAD"));
 
-        assertThat(cmd.execute(src.toString(), "-t", "added", "-m", "Add check on GitHub Pull Request links [#173](https://github.com/nbbrd/heylogs/issues/173)"))
+        assertThat(cmd.execute(src.toString(), "-y", "added", "-m", "Add check on GitHub Pull Request links [#173](https://github.com/nbbrd/heylogs/issues/173)"))
                 .isEqualTo(CommandLine.ExitCode.OK);
         assertThat(watcher.getOut()).isEmpty();
         assertThat(watcher.getErr()).isEmpty();
@@ -115,7 +115,7 @@ public class PushCommandTest {
                 "",
                 "[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.9.3...HEAD"));
 
-        assertThat(cmd.execute(src.toString(), "-t", "added"))
+        assertThat(cmd.execute(src.toString(), "-y", "added"))
                 .isEqualTo(CommandLine.ExitCode.USAGE);
         assertThat(watcher.getOut()).isEmpty();
         assertThat(watcher.getErr()).isNotEmpty();
@@ -134,7 +134,7 @@ public class PushCommandTest {
                 "",
                 "[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.9.3...HEAD"));
 
-        assertThat(cmd.execute(src.toString(), "-t", "invalid", "-m", "Some change"))
+        assertThat(cmd.execute(src.toString(), "-y", "invalid", "-m", "Some change"))
                 .isEqualTo(CommandLine.ExitCode.USAGE);
         assertThat(watcher.getOut()).isEmpty();
         assertThat(watcher.getErr()).isNotEmpty();

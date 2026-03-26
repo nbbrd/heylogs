@@ -30,6 +30,11 @@ public class MockedForgeLink implements ForgeLink {
     }
 
     @Override
+    public @NonNull URL getBase() {
+        return toURL();
+    }
+
+    @Override
     public @NonNull URL toURL() {
         return url;
     }

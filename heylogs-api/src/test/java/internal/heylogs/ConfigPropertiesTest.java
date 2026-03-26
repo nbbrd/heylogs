@@ -2,6 +2,7 @@ package internal.heylogs;
 
 import nbbrd.heylogs.Config;
 import nbbrd.heylogs.spi.RuleSeverity;
+import nbbrd.io.Properties2;
 import nbbrd.io.text.TextFormatter;
 import nbbrd.io.text.TextParser;
 import org.junit.jupiter.api.Test;

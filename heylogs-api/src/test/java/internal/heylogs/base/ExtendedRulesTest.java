@@ -9,7 +9,7 @@ import internal.heylogs.FlexmarkIO;
 import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Nodes;
 import nbbrd.heylogs.VersioningConfig;
-import nbbrd.heylogs.spi.ForgeRefType;
+import nbbrd.heylogs.spi.ForgeLinkType;
 import nbbrd.heylogs.spi.ForgeSupport;
 import nbbrd.heylogs.spi.RuleContext;
 import nbbrd.heylogs.spi.RuleIssue;
@@ -25,7 +25,7 @@ import java.util.stream.StreamSupport;
 
 import static internal.heylogs.base.BaseVersionings.REGEX_VERSIONING;
 import static internal.heylogs.base.ExtendedRules.*;
-import static nbbrd.heylogs.spi.ForgeRefType.ISSUE;
+import static nbbrd.heylogs.spi.ForgeLinkType.ISSUE;
 import static nbbrd.io.function.IOFunction.unchecked;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Index.atIndex;
@@ -246,7 +246,7 @@ public class ExtendedRulesTest {
                 .builder()
                 .forge(ForgeSupport
                         .builder()
-                        .id("").name("").moduleId("")
+                        .id("mocked").name("").moduleId("")
                         .knownHostPredicate(url -> true)
                         .linkParser(ISSUE, MockedForgeLink::parse)
                         .build())
@@ -280,10 +280,10 @@ public class ExtendedRulesTest {
                 .builder()
                 .forge(ForgeSupport
                         .builder()
-                        .id("").name("").moduleId("")
+                        .id("mocked").name("").moduleId("")
                         .knownHostPredicate(url -> url.getHost().contains("github") || url.getHost().contains("host"))
                         .linkParser(ISSUE, MockedForgeLink::parse)
-                        .linkParser(ForgeRefType.COMPARE, MockedCompareLink::parse)
+                        .linkParser(ForgeLinkType.COMPARE, MockedCompareLink::parse)
                         .build())
                 .versioning(REGEX_VERSIONING)
                 .tagging(new PrefixTagging())

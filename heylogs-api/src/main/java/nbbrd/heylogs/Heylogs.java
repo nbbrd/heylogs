@@ -1,8 +1,11 @@
 package nbbrd.heylogs;
 
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.Mustache;
 import com.vladsch.flexmark.ast.*;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
+import com.vladsch.flexmark.util.ast.ReferenceNode;
 import internal.heylogs.ChangelogHeading;
 import internal.heylogs.FlexmarkIO;
 import internal.heylogs.TypeOfChangeHeading;
@@ -17,26 +20,23 @@ import nbbrd.heylogs.spi.*;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static internal.heylogs.spi.FormatSupport.onFormatFileFilter;
-import static internal.heylogs.spi.FormatSupport.onFormatId;
-import static internal.heylogs.spi.RuleSupport.problemStreamOf;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.partitioningBy;
 import static java.util.stream.Collectors.toList;
 import static nbbrd.heylogs.TimeRange.toTimeRange;
 import static nbbrd.heylogs.Util.illegalArgumentToNull;
-import static nbbrd.heylogs.spi.ForgeSupport.onCompareLink;
+import static nbbrd.heylogs.spi.ForgeSupport.*;
+import static nbbrd.heylogs.spi.FormatSupport.onFormatFileFilter;
+import static nbbrd.heylogs.spi.FormatSupport.onFormatId;
 import static nbbrd.heylogs.spi.Versioning.NO_VERSIONING_FILTER;
 
 @lombok.Value
@@ -52,6 +52,7 @@ public class Heylogs {
                 .versionings(VersioningLoader.load())
                 .forges(ForgeLoader.load())
                 .taggings(TaggingLoader.load())
+                .httpFactory(HttpFactoryLoader.load())
                 .build();
     }
 
@@ -74,6 +75,10 @@ public class Heylogs {
     @NonNull
     @lombok.Singular
     List<Tagging> taggings;
+
+    @NonNull
+    @lombok.Builder.Default
+    HttpFactory httpFactory = HttpFactory.noOp();
 
     public @NonNull List<Problem> check(@NonNull Document document, @NonNull Config config) {
         checkConfig(config);
@@ -160,15 +165,18 @@ public class Heylogs {
                 .orElseThrow(() -> new IllegalArgumentException("Cannot locate unreleased header"));
 
         Forge forge = config.getForge() != null
-                ? findForge(config.getForge()::isCompatibleWith).orElseThrow(() -> new IllegalArgumentException("Cannot find forge with id '" + config.getForge().getId() + "'"))
-                : findForge(onCompareLink(unreleased.getURL())).orElseThrow(() -> new IllegalArgumentException("Cannot determine forge"));
+                ? findForge(onForgeConfig(config.getForge())).orElseThrow(() -> new IllegalArgumentException("Cannot find forge with id '" + config.getForge().getId() + "'"))
+                : findForge(onHost(unreleased.getURL(), config.getDomains())).orElseThrow(() -> new IllegalArgumentException("Cannot determine forge"));
+
+        CompareLink originalLink = findCompareLink(forge, unreleased.getURL())
+                .orElseThrow(() -> new IllegalArgumentException("Cannot determine compare link"));
 
         String releaseTag = getTag(config.getTagging(), newVersion.getRef());
-        URL releaseURL = forge.getCompareLink(unreleased.getURL()).derive(releaseTag).toURL();
-        VersionHeading release = VersionHeading.of(newVersion, releaseURL);
+        CompareLink releaseLink = originalLink.derive(releaseTag);
+        VersionHeading release = VersionHeading.of(newVersion, releaseLink.toURL());
 
-        URL updatedURL = forge.getCompareLink(releaseURL).derive("HEAD").toURL();
-        VersionHeading updated = VersionHeading.of(unreleased.getSection(), updatedURL);
+        CompareLink updatedLink = releaseLink.derive("HEAD");
+        VersionHeading updated = VersionHeading.of(unreleased.getSection(), updatedLink.toURL());
 
         changelog.getRepository().putRawKey(release.getReference().getReference(), release.getReference());
         changelog.getRepository().putRawKey(updated.getReference().getReference(), updated.getReference());
@@ -177,6 +185,164 @@ public class Heylogs {
         unreleased.getReference().insertAfter(release.getReference());
         unreleased.getReference().insertBefore(updated.getReference());
         unreleased.getReference().unlink();
+    }
+
+    public @NonNull Document init(@NonNull Config config, @Nullable String template, @Nullable URL projectUrl) {
+        checkConfig(config);
+
+        Map<String, Object> context = new HashMap<>();
+
+        if (config.getVersioning() != null) {
+            Versioning versioning = findVersioning(config.getVersioning()::isCompatibleWith)
+                    .orElseThrow(() -> new IllegalArgumentException("Cannot find versioning with id '" + config.getVersioning().getId() + "'"));
+            Map<String, Object> versioningContext = new HashMap<>();
+            versioningContext.put("id", config.getVersioning().getId());
+            versioningContext.put("arg", config.getVersioning().getArg());
+            versioningContext.put("name", versioning.getVersioningName());
+            versioningContext.put("url", versioning.getVersioningUrl().toString());
+            context.put("versioning", versioningContext);
+        }
+
+        if (config.getTagging() != null) {
+            Map<String, Object> taggingContext = new HashMap<>();
+            taggingContext.put("id", config.getTagging().getId());
+            taggingContext.put("arg", config.getTagging().getArg());
+            context.put("tagging", taggingContext);
+        }
+
+        if (config.getForge() != null) {
+            Map<String, Object> forgeContext = new HashMap<>();
+            forgeContext.put("id", config.getForge().getId());
+            context.put("forge", forgeContext);
+        }
+
+        List<Map<String, Object>> rulesContext = new ArrayList<>();
+        for (RuleConfig rule : config.getRules()) {
+            Map<String, Object> ruleMap = new HashMap<>();
+            ruleMap.put("id", rule.getId());
+            ruleMap.put("severity", rule.getSeverity() != null ? rule.getSeverity().toString() : null);
+            rulesContext.add(ruleMap);
+        }
+        context.put("rules", rulesContext);
+
+        List<Map<String, Object>> domainsContext = new ArrayList<>();
+        for (DomainConfig domain : config.getDomains()) {
+            Map<String, Object> domainMap = new HashMap<>();
+            domainMap.put("domain", domain.getDomain());
+            domainMap.put("forgeId", domain.getForgeId());
+            domainsContext.add(domainMap);
+        }
+        context.put("domains", domainsContext);
+
+        URL effectiveProjectUrl;
+        effectiveProjectUrl = projectUrl == null ? DEFAULT_PROJECT_URL : projectUrl;
+        context.put("projectUrl", effectiveProjectUrl.toString());
+
+        DefaultMustacheFactory factory = new DefaultMustacheFactory();
+        Mustache mustache = template != null
+                ? factory.compile(new StringReader(template), "custom")
+                : factory.compile("internal/heylogs/init.mustache");
+
+        try {
+            StringWriter writer = new StringWriter();
+            mustache.execute(writer, context).flush();
+            return FlexmarkIO.newParser().parse(writer.toString());
+        } catch (IOException ex) {
+            throw new IllegalStateException("Failed to render init template", ex);
+        }
+    }
+
+    public void yank(@NonNull Document document, @NonNull String ref) throws IllegalArgumentException {
+        if (ref.isEmpty()) {
+            throw new IllegalArgumentException("Ref must not be empty");
+        }
+
+        ChangelogHeading changelog = ChangelogHeading.root(document)
+                .orElseThrow(() -> new IllegalArgumentException("Cannot locate changelog header"));
+
+        VersionHeading target = changelog.getVersions()
+                .filter(versionNode -> ref.equalsIgnoreCase(versionNode.getSection().getRef()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Cannot locate version '" + ref + "'"));
+
+        Version version = target.getSection();
+
+        if (version.isUnreleased()) {
+            throw new IllegalArgumentException("Cannot yank unreleased version");
+        }
+
+        if (version.isYanked()) {
+            throw new IllegalArgumentException("Version '" + ref + "' is already yanked");
+        }
+
+        // Create a new heading with yanked=true and replace the old heading
+        Version yankedVersion = Version.of(version.getRef(), version.getLink(), version.getSeparator(), version.getDate(), true);
+        Heading newHeading = yankedVersion.toHeading();
+        target.getHeading().insertBefore(newHeading);
+        target.getHeading().unlink();
+    }
+
+    public void fetch(@NonNull Document document, @NonNull TypeOfChange typeOfChange, @NonNull String id, @NonNull Config config) throws IOException {
+        URL url = illegalArgumentToNull(URLExtractor::urlOf).apply(id);
+        String message = url != null
+                ? fetchMessageByUrl(url)
+                : fetchMessageByRef(document, id, config);
+        push(document, typeOfChange, message);
+    }
+
+    private @NonNull String fetchMessageByUrl(@NonNull URL url) throws IOException {
+        Forge forge = forges.stream()
+                .filter(item -> item.isKnownHost(url))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No forge found for URL: " + url));
+
+        for (ForgeLinkType type : ForgeLinkType.values()) {
+            MessageFetcher fetcher = forge.getMessageFetcher(type);
+            if (fetcher != null) {
+                ForgeLinkParser linkParser = forge.getLinkParser(type);
+                if (linkParser != null) {
+                    ForgeLink link = linkParser.parseForgeLinkOrNull(url);
+                    if (link != null) {
+                        return fetcher.fetchMessage(httpFactory.getClient(), link) + toMarkdown(link);
+                    }
+                }
+            }
+        }
+
+        throw new IllegalArgumentException("Cannot resolve url '" + url + "' on forge '" + forge.getForgeName() + "'");
+    }
+
+    private @NonNull String fetchMessageByRef(@NonNull Document document, @NonNull String ref, @NonNull Config config) throws IOException {
+        ChangelogHeading changelog = ChangelogHeading.root(document)
+                .orElseThrow(() -> new IllegalArgumentException("Cannot locate changelog header"));
+
+        List<VersionHeading> versions = changelog.getVersions().collect(toList());
+        if (versions.isEmpty()) {
+            throw new IllegalArgumentException("Cannot locate any version heading to determine forge");
+        }
+
+        URL url = versions.get(0).getURL();
+        Forge forge = config.getForge() != null
+                ? findForge(onForgeConfig(config.getForge())).orElseThrow(() -> new IllegalArgumentException("Cannot find forge with id '" + config.getForge().getId() + "'"))
+                : findForge(onHost(url, config.getDomains())).orElseThrow(() -> new IllegalArgumentException("Cannot determine forge"));
+
+        ProjectLink projectLink = findProjectLink(forge, url)
+                .orElseThrow(() -> new IllegalArgumentException("Cannot determine project URL from changelog"));
+
+        for (ForgeLinkType type : ForgeLinkType.values()) {
+            MessageFetcher fetcher = forge.getMessageFetcher(type);
+            if (fetcher != null) {
+                ForgeLinkResolver linkResolver = forge.getLinkResolver(type);
+                if (linkResolver != null) {
+                    ForgeLink link = linkResolver.resolveForgeLinkOrNull(projectLink.getProjectURL(), ref);
+                    if (link != null) {
+                        return fetcher.fetchMessage(httpFactory.getClient(), link) + toMarkdown(link);
+                    }
+                }
+            }
+        }
+
+        throw new IllegalArgumentException("Cannot resolve ref '" + ref + "' for project URL '" + projectLink + "' on forge '" + forge.getForgeName() + "'");
     }
 
     public void push(@NonNull Document document, @NonNull TypeOfChange typeOfChange, @NonNull String message) throws IllegalArgumentException {
@@ -201,11 +367,11 @@ public class Heylogs {
 
         if (typeOfChangeHeading == null) {
             typeOfChangeHeading = typeOfChange.toHeading();
-            // Insert the new heading after the unreleased heading (before any existing type-of-change or next version)
+            // Insert the new heading after the unreleased heading (before any existing type-of-change or next version or reference links)
             Node insertAfter = unreleased.getHeading();
             // Walk past any non-heading siblings to find the right insertion point
             Node next = insertAfter.getNext();
-            while (next != null && !VersionHeading.isParsable(next) && !TypeOfChangeHeading.isParsable(next)) {
+            while (next != null && !VersionHeading.isParsable(next) && !TypeOfChangeHeading.isParsable(next) && !(next instanceof ReferenceNode)) {
                 insertAfter = next;
                 next = next.getNext();
             }
@@ -232,7 +398,7 @@ public class Heylogs {
         bulletList.appendChild(newItem);
     }
 
-    public @NonNull Summary scan(@NonNull Document document) {
+    public @NonNull Summary scan(@NonNull Document document, @NonNull Config config) {
         if (isNotValidAgainstGuidingPrinciples(document)) {
             return Summary.INVALID;
         }
@@ -265,7 +431,9 @@ public class Heylogs {
                 .orElse(0L);
 
         VersionHeading first = versions.get(0);
-        Forge forgeOrNull = findForge(onCompareLink(first.getURL())).orElse(null);
+        Forge forgeOrNull = config.getForge() != null
+                ? findForge(onForgeConfig(config.getForge())).orElse(null)
+                : findForge(onHost(first.getURL(), config.getDomains())).orElse(null);
 
         return Summary
                 .builder()
@@ -276,8 +444,78 @@ public class Heylogs {
                 .compatibilities(versioningStreamOf(versionings, releases).map(Versioning::getVersioningName).collect(toList()))
                 .unreleasedChanges((int) unreleasedChanges)
                 .forgeName(forgeOrNull != null ? forgeOrNull.getForgeName() : null)
-                .forgeURL(getForgeURL(forgeOrNull, first.getURL()))
+                .forgeURL(
+                        findProjectLink(forgeOrNull, first.getURL())
+                                .map(ProjectLink::getProjectURL)
+                                .orElse(URLExtractor.baseOf(first.getURL()))
+                )
                 .build();
+    }
+
+    public void note(@NonNull Document document, @NonNull String summary) {
+        ChangelogHeading changelog = ChangelogHeading.root(document)
+                .orElseThrow(() -> new IllegalArgumentException("Cannot locate changelog header"));
+
+        VersionHeading unreleased = changelog.getVersions()
+                .filter(versionNode -> versionNode.getSection().isUnreleased())
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Cannot locate unreleased header"));
+
+        // Find the first type-of-change or version heading after the Unreleased heading
+        Node start = unreleased.getHeading();
+        Node node = start.getNext();
+        Node stopNode = null;
+        while (node != null) {
+            if (TypeOfChangeHeading.isParsable(node) || VersionHeading.isParsable(node)) {
+                stopNode = node;
+                break;
+            }
+            node = node.getNext();
+        }
+
+        // Collect reference link definitions to preserve
+        java.util.List<Node> referenceDefs = new java.util.ArrayList<>();
+        node = start.getNext();
+        while (node != null && node != stopNode) {
+            Node next = node.getNext();
+            if (node instanceof com.vladsch.flexmark.ast.Reference) {
+                referenceDefs.add(node);
+            } else {
+                node.unlink();
+            }
+            node = next;
+        }
+
+        // Insert the summary as Markdown (if not empty)
+        if (!summary.trim().isEmpty()) {
+            Document parsed = FlexmarkIO.newParser().parse(summary + "\n");
+            Node insertAfter = start;
+            Node lastSummaryNode = null;
+            for (Node child = parsed.getFirstChild(); child != null; ) {
+                Node nextChild = child.getNext();
+                if (insertAfter.getParent() == null) {
+                    document.appendChild(child);
+                } else {
+                    insertAfter.insertAfter(child);
+                }
+                insertAfter = child;
+                lastSummaryNode = child;
+                child = nextChild;
+            }
+            // If the next node is a reference definition, insert a blank paragraph to ensure proper markdown rendering
+            if (lastSummaryNode != null && lastSummaryNode.getNext() instanceof com.vladsch.flexmark.ast.Reference) {
+                com.vladsch.flexmark.ast.Paragraph blank = new com.vladsch.flexmark.ast.Paragraph();
+                lastSummaryNode.insertAfter(blank);
+            }
+        }
+        // Re-append reference definitions after summary (if any)
+        Node last = document.getLastChild();
+        for (Node ref : referenceDefs) {
+            if (ref.getParent() == null) {
+                document.appendChild(ref);
+                last = ref;
+            }
+        }
     }
 
     public @NonNull List<ScrapedLink> scrape(@NonNull Document doc, @NonNull Config config) {
@@ -290,9 +528,9 @@ public class Heylogs {
                     if (url != null) {
                         List<String> result = new ArrayList<>();
                         for (Forge forge : context.findAllForges(url)) {
-                            for (ForgeRefType type : ForgeRefType.values()) {
-                                Function<? super URL, ForgeLink> linkParser = forge.getLinkParser(type);
-                                ForgeLink expectedLink = linkParser != null ? illegalArgumentToNull(linkParser).apply(url) : null;
+                            for (ForgeLinkType type : ForgeLinkType.values()) {
+                                ForgeLinkParser linkParser = forge.getLinkParser(type);
+                                ForgeLink expectedLink = linkParser != null ? linkParser.parseForgeLinkOrNull(url) : null;
                                 if (expectedLink != null) {
                                     result.add(forge.getForgeId() + ":" + type);
                                 }
@@ -325,10 +563,6 @@ public class Heylogs {
 
     public @NonNull Optional<String> getFormatIdByFile(@NonNull Path file) {
         return findFormat(onFormatFileFilter(file)).map(Format::getFormatId);
-    }
-
-    private URL getForgeURL(Forge forgeOrNull, URL url) {
-        return forgeOrNull != null ? forgeOrNull.getCompareLink(url).getProjectURL() : URLExtractor.baseOf(url);
     }
 
     private Optional<Rule> findRule(@NonNull Predicate<Rule> predicate) {
@@ -443,7 +677,7 @@ public class Heylogs {
 
     private void checkDomainConfigs(List<DomainConfig> configs) throws IllegalArgumentException {
         for (DomainConfig config : configs) {
-            findForge(config::isCompatibleWith)
+            findForge(onDomainConfig(config))
                     .orElseThrow(() -> new IllegalArgumentException("Cannot find forge with id '" + config.getForgeId() + "'"));
         }
     }
@@ -456,5 +690,53 @@ public class Heylogs {
                 .versionings(versionings)
                 .taggings(taggings)
                 .build();
+    }
+
+    private static @NonNull String toMarkdown(ForgeLink link) {
+        return " [" + link.toRef(null) + "](" + link.toURL() + ")";
+    }
+
+    private static final URL DEFAULT_PROJECT_URL = URLExtractor.urlOf("https://example.com/");
+
+    private static Optional<ProjectLink> findProjectLink(Forge forgeOrNull, URL url) {
+        if (forgeOrNull != null) {
+            ProjectLinkParser parser = forgeOrNull.getProjectLinkParser();
+            if (parser != null) {
+                return Optional.ofNullable(parser.parseForgeLinkOrNull(url));
+            }
+        }
+        return Optional.empty();
+    }
+
+    private static Optional<CompareLink> findCompareLink(Forge forge, URL url) {
+        ProjectLink projectLink = findProjectLink(forge, url).orElse(null);
+        if (projectLink == null) return Optional.empty();
+        if (projectLink instanceof CompareLink) return Optional.of((CompareLink) projectLink);
+        CompareLinkConverter converter = forge.getCompareLinkConverter();
+        return converter != null
+                ? Optional.of(converter.convert(projectLink))
+                : Optional.empty();
+    }
+
+    private static Stream<Problem> problemStreamOf(Document root, List<Rule> rules, RuleContext context) {
+        return Nodes.walk(root)
+                .flatMap(node -> rules.stream().map(rule -> getProblemOrNull(node, rule, context)).filter(Objects::nonNull));
+    }
+
+    private static Problem getProblemOrNull(Node node, Rule rule, RuleContext context) {
+        RuleSeverity severity = context.findRuleSeverityOrNull(rule.getRuleId());
+        if (severity == null) severity = rule.getRuleSeverity();
+        if (!RuleSeverity.OFF.equals(severity)) {
+            RuleIssue ruleIssueOrNull = rule.getRuleIssueOrNull(node, context);
+            if (ruleIssueOrNull != null) {
+                return Problem
+                        .builder()
+                        .id(rule.getRuleId())
+                        .severity(severity)
+                        .issue(ruleIssueOrNull)
+                        .build();
+            }
+        }
+        return null;
     }
 }

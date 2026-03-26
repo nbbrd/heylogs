@@ -1,25 +1,19 @@
 package nbbrd.heylogs.ext.json;
 
 import com.google.gson.*;
-import internal.heylogs.spi.FormatSupport;
-import lombok.NonNull;
 import nbbrd.design.DirectImpl;
 import nbbrd.design.MightBeGenerated;
 import nbbrd.heylogs.*;
 import nbbrd.heylogs.spi.Format;
-import nbbrd.heylogs.spi.FormatType;
+import nbbrd.heylogs.spi.FormatSupport;
 import nbbrd.heylogs.spi.RuleIssue;
 import nbbrd.heylogs.spi.RuleSeverity;
 import nbbrd.service.ServiceProvider;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Path;
 import java.time.LocalDate;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
 
@@ -29,56 +23,24 @@ public final class JsonFormat implements Format {
 
     public static final String ID = "json";
 
-    @Override
-    public @NonNull String getFormatId() {
-        return ID;
-    }
+    @lombok.experimental.Delegate
+    private final FormatSupport delegate = FormatSupport
+            .builder()
+            .id(ID)
+            .name("JSON-serialized output")
+            .moduleId("json")
+            .problems(this::format)
+            .status(this::format)
+            .resources(this::format)
+            .filterByExtension(".json")
+            .build();
 
-    @Override
-    public @NonNull String getFormatName() {
-        return "JSON-serialized output";
-    }
-
-    @Override
-    public @NonNull String getFormatModuleId() {
-        return "json";
-    }
-
-    @Override
-    public @NonNull Set<FormatType> getSupportedFormatTypes() {
-        return EnumSet.allOf(FormatType.class);
-    }
-
-    @Override
-    public void formatProblems(@NonNull Appendable appendable, @NonNull List<Check> list) throws IOException {
+    private void format(Appendable appendable, List<?> list) throws IOException {
         try {
             GSON.toJson(list, appendable);
         } catch (JsonIOException ex) {
             throw new IOException(ex);
         }
-    }
-
-    @Override
-    public void formatStatus(@NonNull Appendable appendable, @NonNull List<Scan> list) throws IOException {
-        try {
-            GSON.toJson(list, appendable);
-        } catch (JsonIOException ex) {
-            throw new IOException(ex);
-        }
-    }
-
-    @Override
-    public void formatResources(@NonNull Appendable appendable, @NonNull List<Resource> list) throws IOException {
-        try {
-            GSON.toJson(list, appendable);
-        } catch (JsonIOException ex) {
-            throw new IOException(ex);
-        }
-    }
-
-    @Override
-    public @NonNull DirectoryStream.Filter<? super Path> getFormatFileFilter() {
-        return FormatSupport.getFormatFileFilterByExtension(".json");
     }
 
     private static final Gson GSON = new GsonBuilder()

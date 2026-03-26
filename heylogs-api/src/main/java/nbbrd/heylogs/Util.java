@@ -4,6 +4,7 @@ import lombok.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public final class Util {
@@ -16,6 +17,16 @@ public final class Util {
         return x -> {
             try {
                 return function.apply(x);
+            } catch (IllegalArgumentException ex) {
+                return null;
+            }
+        };
+    }
+
+    public static <X, Y, Z> @NonNull BiFunction<X, Y, @Nullable Z> illegalArgumentToNull(@NonNull BiFunction<X, Y, Z> function) {
+        return (x, y) -> {
+            try {
+                return function.apply(x, y);
             } catch (IllegalArgumentException ex) {
                 return null;
             }

@@ -5,7 +5,7 @@ import nbbrd.heylogs.spi.Forge;
 import nbbrd.heylogs.spi.ForgeSupport;
 import nbbrd.service.ServiceProvider;
 
-import static nbbrd.heylogs.spi.ForgeRefType.*;
+import static nbbrd.heylogs.spi.ForgeLinkType.*;
 
 @DirectImpl
 @ServiceProvider
@@ -23,5 +23,11 @@ public final class GitLab implements Forge {
             .parser(REQUEST, GitLabRequestLink::parse, GitLabRequestRef::parse)
             .parser(MENTION, GitLabMentionLink::parse, GitLabMentionRef::parse)
             .linkParser(COMPARE, GitLabCompareLink::parse)
+            .linkResolver(ISSUE, GitLabIssueLink::resolve)
+            .linkResolver(REQUEST, GitLabRequestLink::resolve)
+            .messageFetcher(ISSUE, GitLabMessageFetcher.ISSUE)
+            .messageFetcher(REQUEST, GitLabMessageFetcher.REQUEST)
+            .linkParser(REPOSITORY, GitLabRepositoryLink::parse)
+            .compareLinkConverter(GitLabCompareLink::of)
             .build();
 }

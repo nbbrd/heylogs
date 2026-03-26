@@ -4,10 +4,11 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
-import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.ForgeRef;
+import nbbrd.io.http.URLQueryBuilder;
 import org.jspecify.annotations.Nullable;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
@@ -17,11 +18,25 @@ import static nbbrd.heylogs.ext.gitlab.GitLabSupport.*;
 @RepresentableAs(URL.class)
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class GitLabIssueLink implements ForgeLink {
+class GitLabIssueLink implements GitLabProjectLink {
 
     @StaticFactoryMethod
     public static @NonNull GitLabIssueLink parse(@NonNull URL url) {
         return parseLink(GitLabIssueLink::new, ISSUES_KEYWORD, NUMBER_PATTERN, Integer::parseInt, url);
+    }
+
+    @StaticFactoryMethod
+    public static @NonNull GitLabIssueLink resolve(@NonNull URL projectUrl, @NonNull CharSequence ref) {
+        try {
+            return parse(
+                    URLQueryBuilder
+                            .of(projectUrl)
+                            .path(ISSUES_KEYWORD)
+                            .path(String.valueOf(GitLabIssueRef.parse(ref).getNumber()))
+                            .build());
+        } catch (MalformedURLException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     @NonNull

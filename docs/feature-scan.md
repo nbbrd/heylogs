@@ -39,17 +39,28 @@ $ heylogs scan --output summary.txt --format json
 
 ### Changelog input parameters
 
-| Parameter    | Description                       | CLI                      | Maven Plugin                          |
-|--------------|-----------------------------------|--------------------------|---------------------------------------|
-| `inputFile(s)`| Changelog file(s) to scan (default: CHANGELOG.md, supports multiple files) | `<source>` (positional, default: CHANGELOG.md) | `<inputFiles>CHANGELOG.md</inputFiles>` |
-| `recursive`  | Recursively search for changelog files | `--recursive`           | `<recursive>true</recursive>`         |
+| Parameter      | Description                                                                | CLI                                            | Maven Plugin                            |
+|----------------|----------------------------------------------------------------------------|------------------------------------------------|-----------------------------------------|
+| `inputFile(s)` | Changelog file(s) to scan (default: CHANGELOG.md, supports multiple files) | `<source>` (positional, default: CHANGELOG.md) | `<inputFiles>CHANGELOG.md</inputFiles>` |
+| `recursive`    | Recursively search for changelog files                                     | `--recursive`                                  | `<recursive>true</recursive>`           |
 
 ### Output parameters
 
-| Parameter    | Description                       | CLI                      | Maven Plugin                          |
-|--------------|-----------------------------------|--------------------------|---------------------------------------|
-| `outputFile` | Output file for result            | `--output <file>`        | `<outputFile>summary.txt</outputFile>`  |
-| `format`     | Output format (stylish, json)     | `--format <id>`          | `<format>json</format>`               |
+| Parameter    | Description                   | CLI               | Maven Plugin                           |
+|--------------|-------------------------------|-------------------|----------------------------------------|
+| `outputFile` | Output file for result        | `--output <file>` | `<outputFile>summary.txt</outputFile>` |
+| `format`     | Output format (stylish, json) | `--format <id>`   | `<format>json</format>`                |
+
+### Configuration options
+
+| Parameter    | Description                       | CLI                       | Maven Plugin                                   |
+|--------------|-----------------------------------|---------------------------|------------------------------------------------|
+| `noConfig`   | Ignore config files               | `--no-config`             | `<noConfig>true</noConfig>`                    |
+| `versioning` | Versioning scheme                 | `--versioning <scheme>`   | `<versioning>semver</versioning>`              |
+| `tagging`    | Tagging strategy                  | `--tagging <strategy>`    | `<tagging>prefix:v</tagging>`                  |
+| `forge`      | Forge platform                    | `--forge <platform>`      | `<forge>github</forge>`                        |
+| `rules`      | Rule overrides (comma-separated)  | `--rule <id:severity>`    | `<rules>no-empty-group:WARN,...</rules>`       |
+| `domains`    | Domain mappings (comma-separated) | `--domain <domain:forge>` | `<domains>gitlab.company.com:gitlab</domains>` |
 
 ---
 

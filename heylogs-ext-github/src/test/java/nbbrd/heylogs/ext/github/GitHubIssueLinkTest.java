@@ -80,4 +80,31 @@ class GitHubIssueLinkTest {
                 .returns(173, GitHubIssueLink::getIssueNumber)
                 .hasToString("https://localhost:8080/nbbrd/heylogs/issues/173");
     }
+
+    @Test
+    void testResolve() {
+        // Basic number reference
+        assertThat(GitHubIssueLink.resolve(urlOf("https://github.com/nbbrd/heylogs"), "#173"))
+                .returns(urlOf("https://github.com"), GitHubIssueLink::getBase)
+                .returns("nbbrd", GitHubIssueLink::getOwner)
+                .returns("heylogs", GitHubIssueLink::getRepo)
+                .returns(173, GitHubIssueLink::getIssueNumber)
+                .hasToString("https://github.com/nbbrd/heylogs/issues/173");
+
+        // Owner/repo reference
+        assertThat(GitHubIssueLink.resolve(urlOf("https://github.com/otherowner/otherrepo"), "nbbrd/heylogs#173"))
+                .returns(urlOf("https://github.com"), GitHubIssueLink::getBase)
+                .returns("otherowner", GitHubIssueLink::getOwner)
+                .returns("otherrepo", GitHubIssueLink::getRepo)
+                .returns(173, GitHubIssueLink::getIssueNumber)
+                .hasToString("https://github.com/otherowner/otherrepo/issues/173");
+
+        // Project URL with trailing slash
+        assertThat(GitHubIssueLink.resolve(urlOf("https://github.com/nbbrd/heylogs/"), "#173"))
+                .returns(urlOf("https://github.com"), GitHubIssueLink::getBase)
+                .returns("nbbrd", GitHubIssueLink::getOwner)
+                .returns("heylogs", GitHubIssueLink::getRepo)
+                .returns(173, GitHubIssueLink::getIssueNumber)
+                .hasToString("https://github.com/nbbrd/heylogs/issues/173");
+    }
 }

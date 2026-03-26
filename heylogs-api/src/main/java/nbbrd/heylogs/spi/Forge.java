@@ -7,7 +7,6 @@ import nbbrd.service.ServiceId;
 import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
-import java.util.function.Function;
 
 @ServiceDefinition(
         quantifier = Quantifier.MULTIPLE
@@ -24,16 +23,26 @@ public interface Forge {
     @NonNull
     String getForgeModuleId();
 
-    boolean isCompareLink(@NonNull URL url);
-
-    @NonNull
-    CompareLink getCompareLink(@NonNull URL url);
+    @Nullable
+    ProjectLinkParser getProjectLinkParser();
 
     @Nullable
-    Function<? super URL, ForgeLink> getLinkParser(@NonNull ForgeRefType type);
+    CompareLinkParser getCompareLinkParser();
 
     @Nullable
-    Function<? super CharSequence, ForgeRef> getRefParser(@NonNull ForgeRefType type);
+    ForgeLinkParser getLinkParser(@NonNull ForgeLinkType type);
+
+    @Nullable
+    ForgeRefParser getRefParser(@NonNull ForgeLinkType type);
+
+    @Nullable
+    ForgeLinkResolver getLinkResolver(@NonNull ForgeLinkType type);
+
+    @Nullable
+    MessageFetcher getMessageFetcher(@NonNull ForgeLinkType type);
+
+    @Nullable
+    CompareLinkConverter getCompareLinkConverter();
 
     boolean isKnownHost(@NonNull URL url);
 }

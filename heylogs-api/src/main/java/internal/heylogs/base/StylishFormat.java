@@ -1,20 +1,19 @@
 package internal.heylogs.base;
 
-import internal.heylogs.spi.FormatSupport;
 import lombok.NonNull;
 import nbbrd.design.DirectImpl;
 import nbbrd.design.MightBePromoted;
 import nbbrd.heylogs.*;
 import nbbrd.heylogs.spi.Format;
-import nbbrd.heylogs.spi.FormatType;
+import nbbrd.heylogs.spi.FormatSupport;
 import nbbrd.io.text.Formatter;
 import nbbrd.service.ServiceProvider;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static java.util.Locale.ROOT;
 
@@ -25,28 +24,19 @@ public final class StylishFormat implements Format {
 
     public static final String ID = "stylish";
 
-    @Override
-    public @NonNull String getFormatId() {
-        return ID;
-    }
+    @lombok.experimental.Delegate
+    private final FormatSupport delegate = FormatSupport
+            .builder()
+            .id(ID)
+            .name("Human-readable output")
+            .moduleId("api")
+            .problems(StylishFormat::formatCheckList)
+            .status(StylishFormat::formatScanList)
+            .resources(StylishFormat::formatResourceList)
+            .filterByExtension(".txt")
+            .build();
 
-    @Override
-    public @NonNull String getFormatName() {
-        return "Human-readable output";
-    }
-
-    @Override
-    public @NonNull String getFormatModuleId() {
-        return "api";
-    }
-
-    @Override
-    public @NonNull Set<FormatType> getSupportedFormatTypes() {
-        return EnumSet.allOf(FormatType.class);
-    }
-
-    @Override
-    public void formatProblems(@NonNull Appendable appendable, @NonNull List<Check> list) throws IOException {
+    private static void formatCheckList(@NonNull Appendable appendable, @NonNull List<Check> list) throws IOException {
         StylishWriter
                 .<Problem>builder()
                 .column(getPositionFormatter(list))
@@ -57,9 +47,24 @@ public final class StylishFormat implements Format {
                 .writeAll(appendable, list, Check::getSource, Check::getProblems, item -> getProblemsSummary(item.getProblems()));
     }
 
-    @Override
-    public @NonNull DirectoryStream.Filter<? super Path> getFormatFileFilter() {
-        return FormatSupport.getFormatFileFilterByExtension(".txt");
+    private static void formatScanList(@NonNull Appendable appendable, @NonNull List<Scan> list) throws IOException {
+        StylishWriter
+                .<String>builder()
+                .column(Formatter.onString())
+                .build()
+                .writeAll(appendable, list, Scan::getSource, item -> getStatusBody(item.getSummary()), ignore -> null);
+    }
+
+    private static void formatResourceList(@NonNull Appendable appendable, @NonNull List<Resource> list) throws IOException {
+        StylishWriter
+                .<Resource>builder()
+                .column(Formatter.of(Resource::getType))
+                .column(Formatter.of(Resource::getModule))
+                .column(Formatter.of(Resource::getId))
+                .column(Formatter.of(Resource::getName))
+                .column(Formatter.of(Resource::getOptions))
+                .build()
+                .write(appendable, "Resources", list, getResourcesSummary(list));
     }
 
     @MightBePromoted
@@ -90,7 +95,7 @@ public final class StylishFormat implements Format {
         return (int) (Math.log10(number) + 1);
     }
 
-    private String getProblemsSummary(List<Problem> list) {
+    private static String getProblemsSummary(List<Problem> list) {
         switch (list.size()) {
             case 0:
                 return "No problem";
@@ -101,16 +106,7 @@ public final class StylishFormat implements Format {
         }
     }
 
-    @Override
-    public void formatStatus(@NonNull Appendable appendable, @NonNull List<Scan> list) throws IOException {
-        StylishWriter
-                .<String>builder()
-                .column(Formatter.onString())
-                .build()
-                .writeAll(appendable, list, Scan::getSource, item -> getStatusBody(item.getSummary()), ignore -> null);
-    }
-
-    private List<String> getStatusBody(Summary summary) {
+    private static List<String> getStatusBody(Summary summary) {
         List<String> result = new ArrayList<>();
         if (summary.isValid()) {
             result.add("Valid changelog");
@@ -135,20 +131,7 @@ public final class StylishFormat implements Format {
         return result;
     }
 
-    @Override
-    public void formatResources(@NonNull Appendable appendable, @NonNull List<Resource> list) throws IOException {
-        StylishWriter
-                .<Resource>builder()
-                .column(Formatter.of(Resource::getType))
-                .column(Formatter.of(Resource::getModule))
-                .column(Formatter.of(Resource::getId))
-                .column(Formatter.of(Resource::getName))
-                .column(Formatter.of(Resource::getOptions))
-                .build()
-                .write(appendable, "Resources", list, getResourcesSummary(list));
-    }
-
-    private String getResourcesSummary(List<Resource> list) {
+    private static String getResourcesSummary(List<Resource> list) {
         switch (list.size()) {
             case 0:
                 return "No resource found";

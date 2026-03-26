@@ -4,13 +4,10 @@ import lombok.NonNull;
 
 import java.net.URL;
 
-public interface CompareLink extends ForgeLink {
+public interface CompareLink extends ProjectLink {
 
     @NonNull
     CompareLink derive(@NonNull String tag);
-
-    @NonNull
-    URL getProjectURL();
 
     @NonNull
     String getCompareBaseRef();

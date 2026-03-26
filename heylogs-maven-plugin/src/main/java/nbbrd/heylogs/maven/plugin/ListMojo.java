@@ -12,7 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 
-import static internal.heylogs.spi.FormatSupport.resolveFormatId;
+import static nbbrd.heylogs.spi.FormatSupport.resolveFormatId;
 import static nbbrd.console.picocli.ByteOutputSupport.DEFAULT_STDOUT_FILE;
 import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
 

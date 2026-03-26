@@ -24,7 +24,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static internal.heylogs.spi.RuleSupport.nameToId;
+import static nbbrd.heylogs.spi.RuleSupport.nameToId;
 import static nbbrd.heylogs.Util.illegalArgumentToNull;
 
 public enum GuidingPrinciples implements Rule {
