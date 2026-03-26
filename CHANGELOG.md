@@ -7,6 +7,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+This release focuses on making changelog management more flexible and automated. 
+New commands and smarter inference aim to simplify setup, improve integration with forges, and streamline release workflows.
+
 ### Added
 
 - Add init command to create a CHANGELOG.md if it does not exist [#438](https://github.com/nbbrd/heylogs/issues/438)
