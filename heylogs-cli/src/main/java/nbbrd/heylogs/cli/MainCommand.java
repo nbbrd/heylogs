@@ -28,13 +28,13 @@ import java.util.concurrent.Callable;
                 InitCommand.class,
                 CheckCommand.class,
                 ScanCommand.class,
+                ListCommand.class,
                 ExtractCommand.class,
-                ReleaseCommand.class,
-                YankCommand.class,
                 PushCommand.class,
                 FetchCommand.class,
                 NoteCommand.class,
-                ListCommand.class,
+                ReleaseCommand.class,
+                YankCommand.class,
                 ScrapeCommand.class
         },
         description = {
