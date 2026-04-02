@@ -35,6 +35,7 @@ import java.util.concurrent.Callable;
                 NoteCommand.class,
                 ReleaseCommand.class,
                 YankCommand.class,
+                FormatCommand.class,
                 ScrapeCommand.class
         },
         description = {

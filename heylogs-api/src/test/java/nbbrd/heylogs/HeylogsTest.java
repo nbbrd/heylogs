@@ -454,6 +454,13 @@ public class HeylogsTest {
                 .contains("### Added")
                 .contains("- First change")
                 .endsWith("https://github.com/olivierlacan/keep-a-changelog/compare/HEAD...HEAD\n");
+
+        // Push inserts new type-of-change heading in canonical order
+        // UnreleasedChanges.md has Added and Fixed; pushing Changed (ordinal 1) should land between them
+        String withChanged = pushToString(x, using("/UnreleasedChanges.md"), TypeOfChange.CHANGED, "Some change");
+        assertThat(withChanged.indexOf("### Added"))
+                .isLessThan(withChanged.indexOf("### Changed"))
+                .isLessThan(withChanged.indexOf("### Fixed"));
     }
 
     @Test
@@ -607,6 +614,65 @@ public class HeylogsTest {
         String result5 = unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc5);
         assertThat(result5)
                 .contains("End summary");
+    }
+
+    @Test
+    public void testFormat() {
+        Heylogs heylogs = Heylogs.ofServiceLoader();
+
+        // Validation guard: invalid changelog returns false without modifying
+        Document empty = using("/Empty.md");
+        assertThat(heylogs.format(empty)).isFalse();
+
+        // Already sorted changelog returns false (no change)
+        assertThat(heylogs.format(using("/Main.md"))).isFalse();
+
+        // Unsorted type-of-change sections are reordered, returns true
+        Document unsorted = using("/UnsortedTypeOfChanges.md");
+        assertThat(heylogs.format(unsorted)).isTrue();
+        String result = unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(unsorted);
+        assertThat(result.indexOf("### Added"))
+                .isLessThan(result.indexOf("### Fixed"))
+                .isLessThan(result.indexOf("### Security"));
+
+        // Second call on already-sorted document returns false
+        assertThat(heylogs.format(unsorted)).isFalse();
+
+        // Unsorted reference links are reordered (unreleased first, then by version order)
+        Document unsortedRefs = using("/UnsortedReferenceLinks.md");
+        assertThat(heylogs.format(unsortedRefs)).isTrue();
+        String refsResult = unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(unsortedRefs);
+        assertThat(refsResult.indexOf("[Unreleased]"))
+                .isLessThan(refsResult.indexOf("[1.1.0]"))
+                .isLessThan(refsResult.indexOf("[1.0.0]"));
+
+        // Second call on already-sorted refs returns false
+        assertThat(heylogs.format(unsortedRefs)).isFalse();
+
+        // Empty type-of-change groups are removed from released versions only
+        Document noEmptyGroup = using("/NoEmptyGroup.md");
+        assertThat(heylogs.format(noEmptyGroup)).isTrue();
+        String noEmptyResult = unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(noEmptyGroup);
+        // Empty ### Changed under [Unreleased] is kept (work-in-progress)
+        assertThat(noEmptyResult).contains("## [Unreleased]").contains("### Changed");
+        // Empty ### Changed under released [1.1.0] is removed (1.1.0 is after 1.1.1 in descending order)
+        int idx110 = noEmptyResult.indexOf("## [1.1.0]");
+        assertThat(idx110).isGreaterThan(0);
+        assertThat(noEmptyResult.substring(idx110)).doesNotContain("### Changed");
+
+        // Non-dash bullet markers are normalized to '-'
+        Document nonDashMarkers = using("/BulletMarkersToNormalize.md");
+        assertThat(heylogs.format(nonDashMarkers)).isTrue();
+        String markersResult = unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(nonDashMarkers);
+        assertThat(markersResult)
+                .contains("- New feature using asterisk")
+                .contains("- Another change using plus")
+                .contains("- A fix with asterisk")
+                .doesNotContain("* ")
+                .doesNotContain("+ ");
+
+        // Second call on already-normalized markers returns false
+        assertThat(heylogs.format(nonDashMarkers)).isFalse();
     }
 
     private static String pushToString(Heylogs heylogs, Document doc, TypeOfChange typeOfChange, String message) {

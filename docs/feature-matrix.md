@@ -14,6 +14,7 @@ This matrix shows which Heylogs features are supported by each usage mode.
 | [Note](feature-note.md)               |  ✔  |      ✔       |       ✖        |    ✔    |   ✔   |
 | [Release](feature-release.md)         |  ✔  |      ✔       |       ✖        |    ✔    |   ✔   |
 | [Yank](feature-yank.md)               |  ✔  |      ✔       |       ✖        |    ✔    |   ✔   |
+| [Format](feature-format.md)           |  ✔  |      ✔       |       ✔        |    ✔    |   ✔   |
 | [Forge](feature-forge.md)             |  ✔  |      ✔       |       ✔        |    ✔    |   ✔   |
 | [Versioning](feature-versioning.md)   |  ✔  |      ✔       |       ✔        |    ✔    |   ✔   |
 | [Tagging](feature-tagging.md)         |  ✔  |      ✔       |       ✔        |    ✔    |   ✔   |

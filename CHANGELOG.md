@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Add format command to normalize content and enforce structural ordering [#524](https://github.com/nbbrd/heylogs/issues/524)
+
 ## [0.16.1] - 2026-03-26
 
 ### Fixed
