@@ -275,6 +275,61 @@ public class ExtendedRulesTest {
     }
 
     @Test
+    public void testValidateNoOrphanRef() {
+        RuleContext withoutForge = RuleContext.DEFAULT;
+        RuleContext withForge = RuleContext
+                .builder()
+                .forge(ForgeSupport
+                        .builder()
+                        .id("mocked").name("").moduleId("")
+                        .knownHostPredicate(url -> true)
+                        .refParser(ISSUE, text -> text.toString().startsWith("#") ? MockedForgeRef.of(true) : null)
+                        .build())
+                .build();
+
+        assertThat(validateNoOrphanRef(asBulletListItem("- Fixed bug."), withoutForge))
+                .describedAs("Plain text ending, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateNoOrphanRef(asBulletListItem("- Fixed bug [#123](https://github.com/org/repo/issues/123)"), withForge))
+                .describedAs("Inline link, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateNoOrphanRef(asBulletListItem("- Fixed the bug [#123]"), withoutForge))
+                .describedAs("LinkRef but no forge configured, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateNoOrphanRef(asBulletListItem("- Fixed the bug [#123]"), withForge))
+                .describedAs("Orphan ForgeRef without definition")
+                .isEqualTo(RuleIssue.builder().message("Orphan reference '[#123]' without explicit link").line(1).column(1).build());
+
+        assertThat(validateNoOrphanRef(asBulletListItem("- Fixed the bug #123"), withForge))
+                .describedAs("Orphan ForgeRef in plain text")
+                .isEqualTo(RuleIssue.builder().message("Orphan reference '#123' without explicit link").line(1).column(1).build());
+
+        assertThat(validateNoOrphanRef(asBulletListItem("- Fixed the bug (#123)"), withForge))
+                .describedAs("Orphan ForgeRef wrapped in parentheses")
+                .isEqualTo(RuleIssue.builder().message("Orphan reference '(#123)' without explicit link").line(1).column(1).build());
+
+        assertThat(validateNoOrphanRef(asBulletListItem("- Fixed the bug {#123}"), withForge))
+                .describedAs("Orphan ForgeRef wrapped in curly braces")
+                .isEqualTo(RuleIssue.builder().message("Orphan reference '{#123}' without explicit link").line(1).column(1).build());
+
+        assertThat(validateNoOrphanRef(asBulletListItem("- Fixed the bug"), withForge))
+                .describedAs("Plain text with no ref token, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(Nodes.of(BulletListItem.class).descendants(using("/OrphanRef.md"))
+                .map(item -> validateNoOrphanRef(item, withForge))
+                .filter(Objects::nonNull))
+                .describedAs("Orphan refs in full document")
+                .contains(RuleIssue.builder().message("Orphan reference '[#123]' without explicit link").line(7).column(1).build())
+                .contains(RuleIssue.builder().message("Orphan reference '#456' without explicit link").line(11).column(1).build())
+                .contains(RuleIssue.builder().message("Orphan reference '(#789)' without explicit link").line(15).column(1).build())
+                .hasSize(3);
+    }
+
+    @Test
     public void testValidateTagVersioning() {
         RuleContext baseContext = RuleContext
                 .builder()
