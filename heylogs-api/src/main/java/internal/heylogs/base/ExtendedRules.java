@@ -171,6 +171,17 @@ public enum ExtendedRules implements Rule {
             return RuleSeverity.OFF;
         }
     },
+    UNKNOWN_LINK_TYPE {
+        @Override
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
+            return node instanceof BulletListItem ? validateUnknownLinkType((BulletListItem) node, context) : NO_RULE_ISSUE;
+        }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "Unknown link type";
+        }
+    },
     TAG_VERSIONING {
         @Override
         public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
@@ -533,6 +544,30 @@ public enum ExtendedRules implements Rule {
                 .flatMap(forge -> Stream.of(forge.getLinkParser(ForgeLinkType.ISSUE), forge.getLinkParser(ForgeLinkType.REQUEST)))
                 .filter(Objects::nonNull)
                 .anyMatch(linkParser -> linkParser.parseForgeLinkOrNull(url) != null);
+    }
+
+    @VisibleForTesting
+    static @Nullable RuleIssue validateUnknownLinkType(@NonNull BulletListItem item, @NonNull RuleContext context) {
+        Link lastLink = getLastLink(item);
+        if (lastLink == null) return NO_RULE_ISSUE;
+
+        URL url = Parser.onURL().parse(lastLink.getUrl());
+        if (url == null) return NO_RULE_ISSUE;
+
+        List<Forge> forges = context.findAllForges(url);
+        if (forges.isEmpty()) return NO_RULE_ISSUE;
+
+        boolean isKnownType = forges.stream()
+                .flatMap(forge -> Stream.of(ForgeLinkType.values()).map(forge::getLinkParser).filter(Objects::nonNull))
+                .anyMatch(parser -> parser.parseForgeLinkOrNull(url) != null);
+
+        return isKnownType
+                ? NO_RULE_ISSUE
+                : RuleIssue
+                .builder()
+                .message(String.format(ROOT, "Link to '%s' is of unknown type", url))
+                .location(lastLink)
+                .build();
     }
 
     @VisibleForTesting

@@ -330,6 +330,48 @@ public class ExtendedRulesTest {
     }
 
     @Test
+    public void testValidateUnknownLinkType() {
+        RuleContext withoutForge = RuleContext.DEFAULT;
+        RuleContext withKnownType = RuleContext
+                .builder()
+                .forge(ForgeSupport
+                        .builder()
+                        .id("mocked").name("").moduleId("")
+                        .knownHostPredicate(url -> true)
+                        .linkParser(ISSUE, MockedForgeLink::parse)
+                        .build())
+                .build();
+        RuleContext withUnknownType = RuleContext
+                .builder()
+                .forge(ForgeSupport
+                        .builder()
+                        .id("mocked").name("").moduleId("")
+                        .knownHostPredicate(url -> true)
+                        .build())
+                .build();
+
+        assertThat(validateUnknownLinkType(asBulletListItem("- hello."), withKnownType))
+                .describedAs("No link at end, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateUnknownLinkType(asBulletListItem("- hello [abc](http://localhost)"), withoutForge))
+                .describedAs("No forge configured, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateUnknownLinkType(asBulletListItem("- hello [abc](http://localhost)"), withKnownType))
+                .describedAs("Known link type, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateUnknownLinkType(asBulletListItem("- hello [abc](http://localhost)"), withUnknownType))
+                .describedAs("Unknown link type")
+                .isEqualTo(RuleIssue.builder().message("Link to 'http://localhost' is of unknown type").line(1).column(9).build());
+
+        assertThat(validateUnknownLinkType(asBulletListItem("- hello [abc](invalidURL)"), withKnownType))
+                .describedAs("Invalid URL, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+    }
+
+    @Test
     public void testValidateTagVersioning() {
         RuleContext baseContext = RuleContext
                 .builder()

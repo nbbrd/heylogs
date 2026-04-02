@@ -10,6 +10,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 - Add format command to normalize content and enforce structural ordering [#524](https://github.com/nbbrd/heylogs/issues/524)
+- Add no-orphan-ref rule [#481](https://github.com/nbbrd/heylogs/issues/481)
+- Add unknown-link-type rule [#483](https://github.com/nbbrd/heylogs/issues/483)
 
 ## [0.16.1] - 2026-03-26
 
