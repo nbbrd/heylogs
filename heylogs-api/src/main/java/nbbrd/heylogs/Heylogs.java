@@ -6,6 +6,7 @@ import com.vladsch.flexmark.ast.*;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.ast.ReferenceNode;
+import com.vladsch.flexmark.util.sequence.BasedSequence;
 import internal.heylogs.ChangelogHeading;
 import internal.heylogs.FlexmarkIO;
 import internal.heylogs.TypeOfChangeHeading;
@@ -367,13 +368,27 @@ public class Heylogs {
 
         if (typeOfChangeHeading == null) {
             typeOfChangeHeading = typeOfChange.toHeading();
-            // Insert the new heading after the unreleased heading (before any existing type-of-change or next version or reference links)
+            // Skip preamble (non-heading nodes after the version heading)
             Node insertAfter = unreleased.getHeading();
-            // Walk past any non-heading siblings to find the right insertion point
             Node next = insertAfter.getNext();
             while (next != null && !VersionHeading.isParsable(next) && !TypeOfChangeHeading.isParsable(next) && !(next instanceof ReferenceNode)) {
                 insertAfter = next;
                 next = next.getNext();
+            }
+            // Walk through existing type-of-change headings to find the canonical insertion point
+            while (next != null && TypeOfChangeHeading.isParsable(next)) {
+                TypeOfChange existing = illegalArgumentToNull(TypeOfChange::parse).apply((Heading) next);
+                if (existing != null && existing.ordinal() < typeOfChange.ordinal()) {
+                    // Skip past this block (heading + all its content nodes)
+                    insertAfter = next;
+                    next = next.getNext();
+                    while (next != null && !TypeOfChangeHeading.isParsable(next) && !VersionHeading.isParsable(next) && !(next instanceof ReferenceNode)) {
+                        insertAfter = next;
+                        next = next.getNext();
+                    }
+                } else {
+                    break; // found the right insertion position
+                }
             }
             insertAfter.insertAfter(typeOfChangeHeading);
         }
@@ -450,6 +465,210 @@ public class Heylogs {
                                 .orElse(URLExtractor.baseOf(first.getURL()))
                 )
                 .build();
+    }
+
+    public boolean format(@NonNull Document document) {
+        if (isNotValidAgainstGuidingPrinciples(document)) {
+            return false;
+        }
+        ChangelogHeading changelog = ChangelogHeading.root(document).orElse(null);
+        if (changelog == null) {
+            return false;
+        }
+        boolean changed = changelog.getVersions()
+                .map(Heylogs::sortTypeOfChanges)
+                .reduce(false, Boolean::logicalOr);
+        changed |= changelog.getVersions()
+                .map(Heylogs::removeEmptyTypeOfChanges)
+                .reduce(false, Boolean::logicalOr);
+        changed |= sortReferenceLinks(changelog, document);
+        changed |= normalizeBulletMarkers(document);
+        return changed;
+    }
+
+    private static boolean removeEmptyTypeOfChanges(@NonNull VersionHeading versionHeading) {
+        if (!versionHeading.getSection().isReleased()) {
+            return false; // leave unreleased sections untouched (works-in-progress)
+        }
+
+        List<List<Node>> toRemove = new ArrayList<>();
+        Node node = versionHeading.getHeading().getNext();
+        while (node != null && !isVersionBoundary(node)) {
+            if (TypeOfChangeHeading.isParsable(node)) {
+                TypeOfChangeHeading toc = illegalArgumentToNull(TypeOfChangeHeading::parse).apply(node);
+                if (toc != null && !toc.getBulletListItems().findFirst().isPresent()) {
+                    List<Node> block = new ArrayList<>();
+                    block.add(node);
+                    Node next = node.getNext();
+                    while (next != null && !TypeOfChangeHeading.isParsable(next) && !isVersionBoundary(next)) {
+                        block.add(next);
+                        next = next.getNext();
+                    }
+                    toRemove.add(block);
+                    node = next;
+                    continue;
+                }
+            }
+            node = node.getNext();
+        }
+
+        if (toRemove.isEmpty()) {
+            return false;
+        }
+        for (List<Node> block : toRemove) {
+            for (Node n : block) {
+                n.unlink();
+            }
+        }
+        return true;
+    }
+
+    private static boolean sortReferenceLinks(@NonNull ChangelogHeading changelog, @NonNull Document document) {
+        List<Reference> allRefs = Nodes.of(Reference.class)
+                .descendants(document)
+                .collect(toList());
+
+        if (allRefs.size() < 2) {
+            return false;
+        }
+
+        // Build version ref list in current display order (already latest-first)
+        List<String> versionRefs = changelog.getVersions()
+                .map(vh -> vh.getSection().getRef().toLowerCase(Locale.ROOT))
+                .collect(toList());
+
+        // Build sorted list: version refs in version order, then remaining refs alphabetically
+        List<Reference> sorted = new ArrayList<>();
+        Set<String> placed = new HashSet<>();
+
+        for (String versionRef : versionRefs) {
+            allRefs.stream()
+                    .filter(ref -> versionRef.equalsIgnoreCase(ref.getReference().toString()))
+                    .findFirst()
+                    .ifPresent(ref -> {
+                        sorted.add(ref);
+                        placed.add(ref.getReference().toString().toLowerCase(Locale.ROOT));
+                    });
+        }
+
+        allRefs.stream()
+                .filter(ref -> !placed.contains(ref.getReference().toString().toLowerCase(Locale.ROOT)))
+                .sorted(Comparator.comparing(ref -> ref.getReference().toString().toLowerCase(Locale.ROOT)))
+                .forEach(sorted::add);
+
+        if (sorted.equals(allRefs)) {
+            return false;
+        }
+
+        allRefs.forEach(Node::unlink);
+        sorted.forEach(document::appendChild);
+        return true;
+    }
+
+    private static boolean sortTypeOfChanges(@NonNull VersionHeading versionHeading) {
+        Heading versionNode = versionHeading.getHeading();
+
+        // Skip preamble (nodes before first type-of-change heading)
+        Node insertionPoint = versionNode;
+        Node node = versionNode.getNext();
+        while (node != null && !TypeOfChangeHeading.isParsable(node) && !isVersionBoundary(node)) {
+            insertionPoint = node;
+            node = node.getNext();
+        }
+
+        if (node == null || isVersionBoundary(node)) {
+            return false; // no type-of-change headings in this version
+        }
+
+        // Collect type-of-change blocks
+        List<TypeOfChangeBlock> blocks = new ArrayList<>();
+        while (node != null && !isVersionBoundary(node)) {
+            if (TypeOfChangeHeading.isParsable(node)) {
+                TypeOfChange typeOfChange = illegalArgumentToNull(TypeOfChange::parse).apply((Heading) node);
+                if (typeOfChange == null) {
+                    node = node.getNext();
+                    continue;
+                }
+                List<Node> content = new ArrayList<>();
+                content.add(node);
+                Node next = node.getNext();
+                while (next != null && !TypeOfChangeHeading.isParsable(next) && !isVersionBoundary(next)) {
+                    content.add(next);
+                    next = next.getNext();
+                }
+                blocks.add(new TypeOfChangeBlock(typeOfChange, content));
+                node = next;
+            } else {
+                node = node.getNext();
+            }
+        }
+
+        if (blocks.size() < 2) {
+            return false; // nothing to sort
+        }
+
+        // Check if already sorted
+        boolean sorted = true;
+        for (int i = 1; i < blocks.size(); i++) {
+            if (blocks.get(i).typeOfChange.ordinal() < blocks.get(i - 1).typeOfChange.ordinal()) {
+                sorted = false;
+                break;
+            }
+        }
+        if (sorted) {
+            return false;
+        }
+
+        // Sort blocks by canonical TypeOfChange order
+        blocks.sort(Comparator.comparingInt(b -> b.typeOfChange.ordinal()));
+
+        // Unlink all type-of-change nodes
+        for (TypeOfChangeBlock block : blocks) {
+            for (Node n : block.content) {
+                n.unlink();
+            }
+        }
+
+        // Re-insert in sorted order after insertionPoint
+        Node lastInserted = insertionPoint;
+        for (TypeOfChangeBlock block : blocks) {
+            for (Node n : block.content) {
+                lastInserted.insertAfter(n);
+                lastInserted = n;
+            }
+        }
+        return true;
+    }
+
+    private static boolean normalizeBulletMarkers(@NonNull Document document) {
+        boolean changed = false;
+
+        for (BulletList list : Nodes.of(BulletList.class).descendants(document).collect(toList())) {
+            if (list.getOpeningMarker() != '-') {
+                list.setOpeningMarker('-');
+                changed = true;
+            }
+        }
+
+        for (BulletListItem item : Nodes.of(BulletListItem.class).descendants(document).collect(toList())) {
+            BasedSequence marker = item.getOpeningMarker();
+            if (marker.isEmpty() || marker.charAt(0) != '-') {
+                item.setOpeningMarker(BasedSequence.of("-"));
+                changed = true;
+            }
+        }
+
+        return changed;
+    }
+
+    private static boolean isVersionBoundary(@NonNull Node node) {
+        return VersionHeading.isParsable(node) || node instanceof com.vladsch.flexmark.ast.Reference;
+    }
+
+    @lombok.Value
+    private static class TypeOfChangeBlock {
+        TypeOfChange typeOfChange;
+        List<Node> content;
     }
 
     public void note(@NonNull Document document, @NonNull String summary) {

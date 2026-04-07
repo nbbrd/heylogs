@@ -6,6 +6,7 @@ import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.ast.LinkNodeBase;
 import com.vladsch.flexmark.util.ast.Node;
 import internal.heylogs.FlexmarkIO;
+import nbbrd.design.MightBePromoted;
 import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Nodes;
 import nbbrd.heylogs.VersioningConfig;
@@ -13,6 +14,7 @@ import nbbrd.heylogs.spi.ForgeLinkType;
 import nbbrd.heylogs.spi.ForgeSupport;
 import nbbrd.heylogs.spi.RuleContext;
 import nbbrd.heylogs.spi.RuleIssue;
+import nbbrd.heylogs.spi.RuleSeverity;
 import org.junit.jupiter.api.Test;
 import tests.heylogs.spi.MockedCompareLink;
 import tests.heylogs.spi.MockedForgeLink;
@@ -44,6 +46,7 @@ public class ExtendedRulesTest {
     public void test() {
         Node sample = using("/Main.md");
         for (ExtendedRules rule : ExtendedRules.values()) {
+            if (rule.getRuleSeverity() == RuleSeverity.OFF) continue;
             assertThat(Nodes.of(Node.class).descendants(sample).map(node -> rule.getRuleIssueOrNull(node, RuleContext.DEFAULT)).filter(Objects::nonNull))
                     .isEmpty();
         }
@@ -275,6 +278,103 @@ public class ExtendedRulesTest {
     }
 
     @Test
+    public void testValidateNoOrphanRef() {
+        RuleContext withoutForge = RuleContext.DEFAULT;
+        RuleContext withForge = RuleContext
+                .builder()
+                .forge(ForgeSupport
+                        .builder()
+                        .id("mocked").name("").moduleId("")
+                        .knownHostPredicate(url -> true)
+                        .refParser(ISSUE, text -> text.toString().startsWith("#") ? MockedForgeRef.of(true) : null)
+                        .build())
+                .build();
+
+        assertThat(validateNoOrphanRef(asBulletListItem("- Fixed bug."), withoutForge))
+                .describedAs("Plain text ending, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateNoOrphanRef(asBulletListItem("- Fixed bug [#123](https://github.com/org/repo/issues/123)"), withForge))
+                .describedAs("Inline link, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateNoOrphanRef(asBulletListItem("- Fixed the bug [#123]"), withoutForge))
+                .describedAs("LinkRef but no forge configured, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateNoOrphanRef(asBulletListItem("- Fixed the bug [#123]"), withForge))
+                .describedAs("Orphan ForgeRef without definition")
+                .isEqualTo(RuleIssue.builder().message("Orphan reference '[#123]' without explicit link").line(1).column(1).build());
+
+        assertThat(validateNoOrphanRef(asBulletListItem("- Fixed the bug #123"), withForge))
+                .describedAs("Orphan ForgeRef in plain text")
+                .isEqualTo(RuleIssue.builder().message("Orphan reference '#123' without explicit link").line(1).column(1).build());
+
+        assertThat(validateNoOrphanRef(asBulletListItem("- Fixed the bug (#123)"), withForge))
+                .describedAs("Orphan ForgeRef wrapped in parentheses")
+                .isEqualTo(RuleIssue.builder().message("Orphan reference '(#123)' without explicit link").line(1).column(1).build());
+
+        assertThat(validateNoOrphanRef(asBulletListItem("- Fixed the bug {#123}"), withForge))
+                .describedAs("Orphan ForgeRef wrapped in curly braces")
+                .isEqualTo(RuleIssue.builder().message("Orphan reference '{#123}' without explicit link").line(1).column(1).build());
+
+        assertThat(validateNoOrphanRef(asBulletListItem("- Fixed the bug"), withForge))
+                .describedAs("Plain text with no ref token, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(Nodes.of(BulletListItem.class).descendants(using("/OrphanRef.md"))
+                .map(item -> validateNoOrphanRef(item, withForge))
+                .filter(Objects::nonNull))
+                .describedAs("Orphan refs in full document")
+                .contains(RuleIssue.builder().message("Orphan reference '[#123]' without explicit link").line(7).column(1).build())
+                .contains(RuleIssue.builder().message("Orphan reference '#456' without explicit link").line(11).column(1).build())
+                .contains(RuleIssue.builder().message("Orphan reference '(#789)' without explicit link").line(15).column(1).build())
+                .hasSize(3);
+    }
+
+    @Test
+    public void testValidateUnknownLinkType() {
+        RuleContext withoutForge = RuleContext.DEFAULT;
+        RuleContext withKnownType = RuleContext
+                .builder()
+                .forge(ForgeSupport
+                        .builder()
+                        .id("mocked").name("").moduleId("")
+                        .knownHostPredicate(url -> true)
+                        .linkParser(ISSUE, MockedForgeLink::parse)
+                        .build())
+                .build();
+        RuleContext withUnknownType = RuleContext
+                .builder()
+                .forge(ForgeSupport
+                        .builder()
+                        .id("mocked").name("").moduleId("")
+                        .knownHostPredicate(url -> true)
+                        .build())
+                .build();
+
+        assertThat(validateUnknownLinkType(asBulletListItem("- hello."), withKnownType))
+                .describedAs("No link at end, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateUnknownLinkType(asBulletListItem("- hello [abc](http://localhost)"), withoutForge))
+                .describedAs("No forge configured, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateUnknownLinkType(asBulletListItem("- hello [abc](http://localhost)"), withKnownType))
+                .describedAs("Known link type, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateUnknownLinkType(asBulletListItem("- hello [abc](http://localhost)"), withUnknownType))
+                .describedAs("Unknown link type")
+                .isEqualTo(RuleIssue.builder().message("Link to 'http://localhost' is of unknown type").line(1).column(9).build());
+
+        assertThat(validateUnknownLinkType(asBulletListItem("- hello [abc](invalidURL)"), withKnownType))
+                .describedAs("Invalid URL, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+    }
+
+    @Test
     public void testValidateTagVersioning() {
         RuleContext baseContext = RuleContext
                 .builder()
@@ -339,6 +439,59 @@ public class ExtendedRulesTest {
         assertThat(Nodes.of(Node.class).descendants(using("/Main.md")).map(node -> TAG_VERSIONING.getRuleIssueOrNull(node, baseContext.withConfig(config))).filter(Objects::nonNull))
                 .hasSize(13)
                 .allMatch(ruleIssue -> ruleIssue.getMessage().contains("Invalid base reference"));
+    }
+
+    @Test
+    public void testValidateNoLinkBrackets() {
+        assertThat(validateNoLinkBrackets(asBulletListItem("- hello.")))
+                .describedAs("No link, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateNoLinkBrackets(asBulletListItem("- hello [abc](https://example.com)")))
+                .describedAs("Link not surrounded by brackets, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateNoLinkBrackets(asBulletListItem("- hello ([abc](https://example.com))")))
+                .describedAs("Link surrounded by parentheses")
+                .isEqualTo(RuleIssue.builder().message("Expecting link without surrounding brackets").line(1).column(10).build());
+
+        assertThat(validateNoLinkBrackets(asBulletListItem("- hello {[abc](https://example.com)}")))
+                .describedAs("Link surrounded by curly braces")
+                .isEqualTo(RuleIssue.builder().message("Expecting link without surrounding brackets").line(1).column(10).build());
+
+        assertThat(validateNoLinkBrackets(asBulletListItem("- hello ([abc](https://example.com)) more")))
+                .describedAs("Link in brackets but not at end of entry, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+    }
+
+    @Test
+    public void testValidateColumnWidth() {
+        assertThat(validateColumnWidth(asBulletListItem("- Short entry")))
+                .describedAs("Short entry, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateColumnWidth(asBulletListItem("- " + repeat('a', 78))))
+                .describedAs("Exactly 80 characters, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateColumnWidth(asBulletListItem("- " + repeat('a', 100))))
+                .describedAs("Entry exceeds 80 characters")
+                .extracting(RuleIssue::getMessage)
+                .asString()
+                .contains("Entry exceeds 80 characters");
+
+        assertThat(validateColumnWidth(asBulletListItem("- Short text [link](https://very-long-url-that-exceeds-the-80-character-limit.com)")))
+                .describedAs("Link starts before 80, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+    }
+
+    @MightBePromoted
+    private static String repeat(char c, int count) {
+        StringBuilder sb = new StringBuilder(count);
+        for (int i = 0; i < count; i++) {
+            sb.append(c);
+        }
+        return sb.toString();
     }
 
     private static BulletListItem asBulletListItem(String text) {

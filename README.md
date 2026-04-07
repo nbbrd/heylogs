@@ -46,6 +46,7 @@ Heylogs provides several **commands** to interact with changelog files:
 - **[note](docs/feature-note.md)** - Set or update the summary text after the Unreleased header
 - **[release](docs/feature-release.md)** - Convert unreleased changes into a new release
 - **[yank](docs/feature-yank.md)** - Mark an existing release as yanked
+- **[format](docs/feature-format.md)** - Normalize content and enforce structural ordering
 
 Heylogs also provides some **customizations** to adapt to various workflows:
 

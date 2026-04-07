@@ -1,6 +1,7 @@
 package internal.heylogs.base;
 
 import com.vladsch.flexmark.ast.*;
+import com.vladsch.flexmark.ast.util.ReferenceRepository;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
 import internal.heylogs.ChangelogHeading;
@@ -170,6 +171,17 @@ public enum ExtendedRules implements Rule {
             return RuleSeverity.OFF;
         }
     },
+    UNKNOWN_LINK_TYPE {
+        @Override
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
+            return node instanceof BulletListItem ? validateUnknownLinkType((BulletListItem) node, context) : NO_RULE_ISSUE;
+        }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "Unknown link type";
+        }
+    },
     TAG_VERSIONING {
         @Override
         public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
@@ -190,6 +202,44 @@ public enum ExtendedRules implements Rule {
         @Override
         public @NonNull String getRuleName() {
             return "Duplicate items";
+        }
+    },
+    NO_ORPHAN_REF {
+        @Override
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
+            return node instanceof BulletListItem ? validateNoOrphanRef((BulletListItem) node, context) : NO_RULE_ISSUE;
+        }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "No orphan ref";
+        }
+    },
+    NO_LINK_BRACKETS {
+        @Override
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
+            return node instanceof BulletListItem ? validateNoLinkBrackets((BulletListItem) node) : NO_RULE_ISSUE;
+        }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "No link brackets";
+        }
+    },
+    COLUMN_WIDTH {
+        @Override
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
+            return node instanceof BulletListItem ? validateColumnWidth((BulletListItem) node) : NO_RULE_ISSUE;
+        }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "Column width";
+        }
+
+        @Override
+        public @NonNull RuleSeverity getRuleSeverity() {
+            return RuleSeverity.OFF;
         }
     };
 
@@ -524,6 +574,30 @@ public enum ExtendedRules implements Rule {
     }
 
     @VisibleForTesting
+    static @Nullable RuleIssue validateUnknownLinkType(@NonNull BulletListItem item, @NonNull RuleContext context) {
+        Link lastLink = getLastLink(item);
+        if (lastLink == null) return NO_RULE_ISSUE;
+
+        URL url = Parser.onURL().parse(lastLink.getUrl());
+        if (url == null) return NO_RULE_ISSUE;
+
+        List<Forge> forges = context.findAllForges(url);
+        if (forges.isEmpty()) return NO_RULE_ISSUE;
+
+        boolean isKnownType = forges.stream()
+                .flatMap(forge -> Stream.of(ForgeLinkType.values()).map(forge::getLinkParser).filter(Objects::nonNull))
+                .anyMatch(parser -> parser.parseForgeLinkOrNull(url) != null);
+
+        return isKnownType
+                ? NO_RULE_ISSUE
+                : RuleIssue
+                .builder()
+                .message(String.format(ROOT, "Link to '%s' is of unknown type", url))
+                .location(lastLink)
+                .build();
+    }
+
+    @VisibleForTesting
     public static @Nullable RuleIssue validateTagVersioning(@NonNull LinkNodeBase link, @NonNull RuleContext context) {
         URL url = Parser.onURL().parse(link.getUrl());
         Converter<String, String> tagParser = context.findTagParserOrNull();
@@ -615,6 +689,130 @@ public enum ExtendedRules implements Rule {
                 })
                 .findFirst()
                 .orElse(NO_RULE_ISSUE);
+    }
+
+    @VisibleForTesting
+    static @Nullable RuleIssue validateNoOrphanRef(@NonNull BulletListItem item, @NonNull RuleContext context) {
+        Node paragraph = item.getLastChild();
+        if (paragraph == null) return NO_RULE_ISSUE;
+
+        Node lastInline = paragraph.getLastChild();
+
+        if (lastInline instanceof LinkRef) {
+            LinkRef linkRef = (LinkRef) lastInline;
+
+            if (!matchesForgeRef(linkRef.getReference(), context)) return NO_RULE_ISSUE;
+
+            ReferenceRepository repository = com.vladsch.flexmark.parser.Parser.REFERENCES.get(item.getDocument());
+
+            String normalizedKey = repository.normalizeKey(linkRef.getReference());
+            Reference reference = repository.get(normalizedKey);
+
+            return reference == null
+                    ? RuleIssue
+                    .builder()
+                    .message("Orphan reference '[" + linkRef.getReference() + "]' without explicit link")
+                    .location(item)
+                    .build()
+                    : NO_RULE_ISSUE;
+        }
+
+        if (lastInline instanceof Text) {
+            String content = lastInline.getChars().trim().toString();
+            if (content.isEmpty()) return NO_RULE_ISSUE;
+
+            String[] tokens = content.split("\\s+");
+            String lastToken = tokens[tokens.length - 1];
+
+            return isOrphanRefToken(lastToken, context)
+                    ? RuleIssue
+                    .builder()
+                    .message("Orphan reference '" + lastToken + "' without explicit link")
+                    .location(item)
+                    .build()
+                    : NO_RULE_ISSUE;
+        }
+
+        return NO_RULE_ISSUE;
+    }
+
+    private static final char[][] BRACKET_WRAPPERS = {{'(', ')'}, {'{', '}'}};
+
+    private static boolean isOrphanRefToken(@NonNull String token, @NonNull RuleContext context) {
+        if (matchesForgeRef(token, context)) return true;
+        for (char[] wrapper : BRACKET_WRAPPERS) {
+            if (token.length() > 2 && token.charAt(0) == wrapper[0] && token.charAt(token.length() - 1) == wrapper[1]) {
+                if (matchesForgeRef(token.substring(1, token.length() - 1), context)) return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean matchesForgeRef(@NonNull CharSequence candidate, @NonNull RuleContext context) {
+        return context.getForges().stream()
+                .flatMap(forge -> Stream.of(ForgeLinkType.values()).map(forge::getRefParser).filter(Objects::nonNull))
+                .anyMatch(refParser -> refParser.parseForgeRefOrNull(candidate) != null);
+    }
+
+    @VisibleForTesting
+    static @Nullable RuleIssue validateNoLinkBrackets(@NonNull BulletListItem item) {
+        Node paragraph = item.getLastChild();
+        if (paragraph == null) return NO_RULE_ISSUE;
+
+        Node lastChild = paragraph.getLastChild();
+        if (!(lastChild instanceof Text)) return NO_RULE_ISSUE;
+
+        String closingText = lastChild.getChars().trim().toString();
+        if (!closingText.equals(")") && !closingText.equals("]") && !closingText.equals("}")) return NO_RULE_ISSUE;
+
+        Node prev = lastChild.getPrevious();
+        if (!(prev instanceof Link)) return NO_RULE_ISSUE;
+
+        Link link = (Link) prev;
+        Node beforeLink = link.getPrevious();
+        if (!(beforeLink instanceof Text)) return NO_RULE_ISSUE;
+
+        CharSequence beforeText = beforeLink.getChars();
+        if (beforeText.length() == 0) return NO_RULE_ISSUE;
+
+        char lastChar = beforeText.charAt(beforeText.length() - 1);
+        char expectedOpening = closingText.equals(")") ? '(' : closingText.equals("]") ? '[' : '{';
+
+        return lastChar == expectedOpening
+                ? RuleIssue
+                .builder()
+                .message("Expecting link without surrounding brackets")
+                .location(link)
+                .build()
+                : NO_RULE_ISSUE;
+    }
+
+    @VisibleForTesting
+    static @Nullable RuleIssue validateColumnWidth(@NonNull BulletListItem item) {
+        String text = item.getChars().toString();
+        int length = text.length();
+
+        if (length <= 80) return NO_RULE_ISSUE;
+
+        // Check if a link/URL starts before position 80
+        Node paragraph = item.getFirstChild();
+        if (paragraph != null) {
+            int position = 0;
+            for (Node child = paragraph.getFirstChild(); child != null; child = child.getNext()) {
+                int childStart = position;
+                position += child.getChars().length();
+
+                if (child instanceof Link && childStart < 80) {
+                    return NO_RULE_ISSUE;
+                }
+            }
+        }
+
+        return RuleIssue
+                .builder()
+                .message(String.format(ROOT, "Entry exceeds 80 characters (length: %d)", length))
+                .location(item)
+                .build();
     }
 
     private static class ItemLocation {
