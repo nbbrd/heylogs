@@ -36,7 +36,8 @@ import java.util.concurrent.Callable;
                 ReleaseCommand.class,
                 YankCommand.class,
                 FormatCommand.class,
-                ScrapeCommand.class
+                ScrapeCommand.class,
+                MigrateConfigCommand.class
         },
         description = {
                 "Set of tools to deal with the @|bold keep-a-changelog|@ format.",
