@@ -2,30 +2,25 @@ package internal.heylogs;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import tests.heylogs.api.Files2;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Properties;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConfigMigratorTest {
 
-    @TempDir
-    Path tempDir;
-
     @Test
-    public void testMigrateSinglePom() throws IOException {
+    public void testMigrateSinglePom(@TempDir Path tempDir) throws IOException {
         // Copy test pom to temp directory
-        Path testPom = getTestResource("/migration/enforcer-rules/pom.xml");
-        Path targetPom = tempDir.resolve("pom.xml");
-        Files.copy(testPom, targetPom, StandardCopyOption.REPLACE_EXISTING);
+        Path testPom = Files2.resolveResource(ConfigMigratorTest.class, "/migration/enforcer-rules/pom.xml");
+        Files2.copyRecursively(testPom.getParent(), tempDir, REPLACE_EXISTING);
 
         // Run migration
         ConfigMigrator.MigrationReport report = ConfigMigrator.migrateConfigs(tempDir);
@@ -50,11 +45,10 @@ public class ConfigMigratorTest {
     }
 
     @Test
-    public void testSkipIfPropertiesExists() throws IOException {
+    public void testSkipIfPropertiesExists(@TempDir Path tempDir) throws IOException {
         // Copy test pom to temp directory
-        Path testPom = getTestResource("/migration/enforcer-rules/pom.xml");
-        Path targetPom = tempDir.resolve("pom.xml");
-        Files.copy(testPom, targetPom, StandardCopyOption.REPLACE_EXISTING);
+        Path testPom = Files2.resolveResource(ConfigMigratorTest.class, "/migration/enforcer-rules/pom.xml");
+        Files2.copyRecursively(testPom.getParent(), tempDir, REPLACE_EXISTING);
 
         // Create existing properties file
         Path propertiesFile = tempDir.resolve("heylogs.properties");
@@ -73,9 +67,5 @@ public class ConfigMigratorTest {
         // Check properties file unchanged
         String content = new String(Files.readAllBytes(propertiesFile), UTF_8);
         assertThat(content).isEqualTo("existing=true");
-    }
-
-    private Path getTestResource(String path) {
-        return Paths.get(getClass().getResource(path).getPath().substring(1));
     }
 }
