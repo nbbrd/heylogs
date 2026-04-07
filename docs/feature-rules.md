@@ -21,6 +21,7 @@ heylogs check --rule dot-space-link-style:WARN --rule no-empty-group:OFF
 | Module | ID                         | Name                     | Options |
 |--------|----------------------------|--------------------------|---------|
 | `api`  | `all-h2-contain-a-version` | All H2 contain a version | `ERROR` |
+| `api`  | `column-width`             | Column width             | `OFF`   |
 | `api`  | `consistent-separator`     | Consistent separator     | `ERROR` |
 | `api`  | `date-displayed`           | Date displayed           | `ERROR` |
 | `api`  | `dot-space-link-style`     | Dot-space-link style     | `OFF`   |
@@ -33,11 +34,14 @@ heylogs check --rule dot-space-link-style:WARN --rule no-empty-group:OFF
 | `api`  | `linkable`                 | Linkable                 | `ERROR` |
 | `api`  | `no-empty-group`           | No empty group           | `ERROR` |
 | `api`  | `no-empty-release`         | No empty release         | `ERROR` |
+| `api`  | `no-link-brackets`         | No link brackets         | `ERROR` |
+| `api`  | `no-orphan-ref`            | No orphan ref            | `ERROR` |
 | `api`  | `release-date`             | Release date             | `WARN`  |
 | `api`  | `tag-versioning`           | Tag versioning           | `ERROR` |
 | `api`  | `type-of-changes-grouped`  | Type of changes grouped  | `ERROR` |
 | `api`  | `unique-headings`          | Unique headings          | `ERROR` |
 | `api`  | `unique-release`           | Unique release           | `ERROR` |
+| `api`  | `unknown-link-type`        | Unknown link type        | `ERROR` |
 | `api`  | `versioning-format`        | Versioning format        | `ERROR` |
 
 ---
