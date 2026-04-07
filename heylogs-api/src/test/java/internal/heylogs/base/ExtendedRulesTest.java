@@ -6,6 +6,7 @@ import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.ast.LinkNodeBase;
 import com.vladsch.flexmark.util.ast.Node;
 import internal.heylogs.FlexmarkIO;
+import nbbrd.design.MightBePromoted;
 import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Nodes;
 import nbbrd.heylogs.VersioningConfig;
@@ -13,6 +14,7 @@ import nbbrd.heylogs.spi.ForgeLinkType;
 import nbbrd.heylogs.spi.ForgeSupport;
 import nbbrd.heylogs.spi.RuleContext;
 import nbbrd.heylogs.spi.RuleIssue;
+import nbbrd.heylogs.spi.RuleSeverity;
 import org.junit.jupiter.api.Test;
 import tests.heylogs.spi.MockedCompareLink;
 import tests.heylogs.spi.MockedForgeLink;
@@ -44,6 +46,7 @@ public class ExtendedRulesTest {
     public void test() {
         Node sample = using("/Main.md");
         for (ExtendedRules rule : ExtendedRules.values()) {
+            if (rule.getRuleSeverity() == RuleSeverity.OFF) continue;
             assertThat(Nodes.of(Node.class).descendants(sample).map(node -> rule.getRuleIssueOrNull(node, RuleContext.DEFAULT)).filter(Objects::nonNull))
                     .isEmpty();
         }
@@ -459,6 +462,36 @@ public class ExtendedRulesTest {
         assertThat(validateNoLinkBrackets(asBulletListItem("- hello ([abc](https://example.com)) more")))
                 .describedAs("Link in brackets but not at end of entry, no issue")
                 .isEqualTo(NO_RULE_ISSUE);
+    }
+
+    @Test
+    public void testValidateColumnWidth() {
+        assertThat(validateColumnWidth(asBulletListItem("- Short entry")))
+                .describedAs("Short entry, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateColumnWidth(asBulletListItem("- " + repeat('a', 78))))
+                .describedAs("Exactly 80 characters, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateColumnWidth(asBulletListItem("- " + repeat('a', 100))))
+                .describedAs("Entry exceeds 80 characters")
+                .extracting(RuleIssue::getMessage)
+                .asString()
+                .contains("Entry exceeds 80 characters");
+
+        assertThat(validateColumnWidth(asBulletListItem("- Short text [link](https://very-long-url-that-exceeds-the-80-character-limit.com)")))
+                .describedAs("Link starts before 80, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+    }
+
+    @MightBePromoted
+    private static String repeat(char c, int count) {
+        StringBuilder sb = new StringBuilder(count);
+        for (int i = 0; i < count; i++) {
+            sb.append(c);
+        }
+        return sb.toString();
     }
 
     private static BulletListItem asBulletListItem(String text) {

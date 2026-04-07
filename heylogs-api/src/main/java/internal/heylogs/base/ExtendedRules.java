@@ -225,6 +225,22 @@ public enum ExtendedRules implements Rule {
         public @NonNull String getRuleName() {
             return "No link brackets";
         }
+    },
+    COLUMN_WIDTH {
+        @Override
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
+            return node instanceof BulletListItem ? validateColumnWidth((BulletListItem) node) : NO_RULE_ISSUE;
+        }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "Column width";
+        }
+
+        @Override
+        public @NonNull RuleSeverity getRuleSeverity() {
+            return RuleSeverity.OFF;
+        }
     };
 
     @Override
@@ -769,6 +785,34 @@ public enum ExtendedRules implements Rule {
                 .location(link)
                 .build()
                 : NO_RULE_ISSUE;
+    }
+
+    @VisibleForTesting
+    static @Nullable RuleIssue validateColumnWidth(@NonNull BulletListItem item) {
+        String text = item.getChars().toString();
+        int length = text.length();
+
+        if (length <= 80) return NO_RULE_ISSUE;
+
+        // Check if a link/URL starts before position 80
+        Node paragraph = item.getFirstChild();
+        if (paragraph != null) {
+            int position = 0;
+            for (Node child = paragraph.getFirstChild(); child != null; child = child.getNext()) {
+                int childStart = position;
+                position += child.getChars().length();
+
+                if (child instanceof Link && childStart < 80) {
+                    return NO_RULE_ISSUE;
+                }
+            }
+        }
+
+        return RuleIssue
+                .builder()
+                .message(String.format(ROOT, "Entry exceeds 80 characters (length: %d)", length))
+                .location(item)
+                .build();
     }
 
     private static class ItemLocation {

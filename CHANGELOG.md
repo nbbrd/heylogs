@@ -13,6 +13,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Add no-orphan-ref rule [#481](https://github.com/nbbrd/heylogs/issues/481)
 - Add unknown-link-type rule [#483](https://github.com/nbbrd/heylogs/issues/483)
 - Add no-link-brackets rule [#499](https://github.com/nbbrd/heylogs/issues/499)
+- Add column-width rule [#330](https://github.com/nbbrd/heylogs/issues/330)
 
 ## [0.16.1] - 2026-03-26
 
