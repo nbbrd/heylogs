@@ -214,6 +214,17 @@ public enum ExtendedRules implements Rule {
         public @NonNull String getRuleName() {
             return "No orphan ref";
         }
+    },
+    NO_LINK_BRACKETS {
+        @Override
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
+            return node instanceof BulletListItem ? validateNoLinkBrackets((BulletListItem) node) : NO_RULE_ISSUE;
+        }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "No link brackets";
+        }
     };
 
     @Override
@@ -725,6 +736,39 @@ public enum ExtendedRules implements Rule {
         return context.getForges().stream()
                 .flatMap(forge -> Stream.of(ForgeLinkType.values()).map(forge::getRefParser).filter(Objects::nonNull))
                 .anyMatch(refParser -> refParser.parseForgeRefOrNull(candidate) != null);
+    }
+
+    @VisibleForTesting
+    static @Nullable RuleIssue validateNoLinkBrackets(@NonNull BulletListItem item) {
+        Node paragraph = item.getLastChild();
+        if (paragraph == null) return NO_RULE_ISSUE;
+
+        Node lastChild = paragraph.getLastChild();
+        if (!(lastChild instanceof Text)) return NO_RULE_ISSUE;
+
+        String closingText = lastChild.getChars().trim().toString();
+        if (!closingText.equals(")") && !closingText.equals("]") && !closingText.equals("}")) return NO_RULE_ISSUE;
+
+        Node prev = lastChild.getPrevious();
+        if (!(prev instanceof Link)) return NO_RULE_ISSUE;
+
+        Link link = (Link) prev;
+        Node beforeLink = link.getPrevious();
+        if (!(beforeLink instanceof Text)) return NO_RULE_ISSUE;
+
+        CharSequence beforeText = beforeLink.getChars();
+        if (beforeText.length() == 0) return NO_RULE_ISSUE;
+
+        char lastChar = beforeText.charAt(beforeText.length() - 1);
+        char expectedOpening = closingText.equals(")") ? '(' : closingText.equals("]") ? '[' : '{';
+
+        return lastChar == expectedOpening
+                ? RuleIssue
+                .builder()
+                .message("Expecting link without surrounding brackets")
+                .location(link)
+                .build()
+                : NO_RULE_ISSUE;
     }
 
     private static class ItemLocation {

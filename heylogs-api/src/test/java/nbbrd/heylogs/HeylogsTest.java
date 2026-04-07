@@ -40,7 +40,7 @@ public class HeylogsTest {
                 .contains("stylish");
 
         assertThat(x.getRules())
-                .hasSize(21);
+                .hasSize(22);
 
         assertThat(x.getTaggings())
                 .extracting(Tagging::getTaggingId)

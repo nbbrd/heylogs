@@ -438,6 +438,29 @@ public class ExtendedRulesTest {
                 .allMatch(ruleIssue -> ruleIssue.getMessage().contains("Invalid base reference"));
     }
 
+    @Test
+    public void testValidateNoLinkBrackets() {
+        assertThat(validateNoLinkBrackets(asBulletListItem("- hello.")))
+                .describedAs("No link, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateNoLinkBrackets(asBulletListItem("- hello [abc](https://example.com)")))
+                .describedAs("Link not surrounded by brackets, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateNoLinkBrackets(asBulletListItem("- hello ([abc](https://example.com))")))
+                .describedAs("Link surrounded by parentheses")
+                .isEqualTo(RuleIssue.builder().message("Expecting link without surrounding brackets").line(1).column(10).build());
+
+        assertThat(validateNoLinkBrackets(asBulletListItem("- hello {[abc](https://example.com)}")))
+                .describedAs("Link surrounded by curly braces")
+                .isEqualTo(RuleIssue.builder().message("Expecting link without surrounding brackets").line(1).column(10).build());
+
+        assertThat(validateNoLinkBrackets(asBulletListItem("- hello ([abc](https://example.com)) more")))
+                .describedAs("Link in brackets but not at end of entry, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+    }
+
     private static BulletListItem asBulletListItem(String text) {
         return unchecked(FlexmarkIO.newTextParser()::parseChars)
                 .andThen(doc -> (BulletListItem) StreamSupport.stream(doc.getDescendants().spliterator(), false).filter(item -> item instanceof BulletListItem).findFirst().orElseThrow(IllegalArgumentException::new))
