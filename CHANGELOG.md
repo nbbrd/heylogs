@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Downgrade unknown-link-type rule severity from ERROR to WARN
+
 ## [0.17.0] - 2026-04-07
 
 This release enhances changelog quality enforcement with new validation rules and adds a format command to automatically normalize changelog content.

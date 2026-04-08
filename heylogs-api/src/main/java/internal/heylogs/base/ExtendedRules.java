@@ -181,6 +181,11 @@ public enum ExtendedRules implements Rule {
         public @NonNull String getRuleName() {
             return "Unknown link type";
         }
+
+        @Override
+        public @NonNull RuleSeverity getRuleSeverity() {
+            return RuleSeverity.WARN;
+        }
     },
     TAG_VERSIONING {
         @Override
