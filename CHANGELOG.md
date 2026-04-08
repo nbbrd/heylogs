@@ -7,6 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.17.1] - 2026-04-08
+
+### Changed
+
+- Downgrade unknown-link-type rule severity from ERROR to WARN [#528](https://github.com/nbbrd/heylogs/issues/528)
+
 ## [0.17.0] - 2026-04-07
 
 This release enhances changelog quality enforcement with new validation rules and adds a format command to automatically normalize changelog content.
@@ -355,7 +361,8 @@ This release improves extension points and also aligns features of Maven plugin 
 
 - Initial release
 
-[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.17.0...HEAD
+[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.17.1...HEAD
+[0.17.1]: https://github.com/nbbrd/heylogs/compare/v0.17.0...v0.17.1
 [0.17.0]: https://github.com/nbbrd/heylogs/compare/v0.16.1...v0.17.0
 [0.16.1]: https://github.com/nbbrd/heylogs/compare/v0.16.0...v0.16.1
 [0.16.0]: https://github.com/nbbrd/heylogs/compare/v0.15.0...v0.16.0
