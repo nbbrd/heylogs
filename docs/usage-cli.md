@@ -127,6 +127,29 @@ The CLI is running on the Java runtime.
 It is possible to configure the runtime by setting Java system properties with the following syntax:
 `heylogs <command> -D<property>=<value> [options]`
 
+## Global options
+
+These options are available on every command and subcommand.
+
+| Option                 | Description                                                                                          |
+|------------------------|------------------------------------------------------------------------------------------------------|
+| `--debug`              | Print the full stack trace when an error occurs. Useful for troubleshooting.                         |
+| `--batch`              | Disable ANSI colors in the output. Useful in scripts, CI pipelines, or when piping output to a file. |
+| `-D<property>=<value>` | Set a Java system property. Can be repeated. Allows `--Dkey` (value-less) form.                      |
+
+### Examples
+
+```bash
+# Show the full stack trace on error
+heylogs --debug check CHANGELOG.md
+
+# Disable colors when piping output
+heylogs --batch scan CHANGELOG.md | grep "Valid"
+
+# Combine options
+heylogs --batch --debug check CHANGELOG.md
+```
+
 ---
 
 [← Back to README](../README.md)
