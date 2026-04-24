@@ -26,9 +26,6 @@ public final class ScrapeCommand implements Callable<Integer> {
     @CommandLine.Mixin
     private ConfigOptions configOptions;
 
-    @CommandLine.Mixin
-    private DebugOptions debugOptions;
-
     @Override
     public Integer call() throws Exception {
         Heylogs heylogs = Heylogs.ofServiceLoader();

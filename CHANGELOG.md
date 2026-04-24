@@ -11,6 +11,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Add ANSI color codes to stylish format [#529](https://github.com/nbbrd/heylogs/issues/529)
 
+### Fixed
+
+- Fix use of special properties in CLI [#539](https://github.com/nbbrd/heylogs/issues/539)
+
 ## [0.17.1] - 2026-04-08
 
 ### Changed

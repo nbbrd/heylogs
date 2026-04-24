@@ -34,9 +34,6 @@ public final class CheckCommand implements Callable<Integer> {
     @CommandLine.Mixin
     private FormatOptions formatOptions;
 
-    @CommandLine.Mixin
-    private DebugOptions debugOptions;
-
     @Override
     public Integer call() throws Exception {
         Heylogs heylogs = Heylogs.ofServiceLoader();

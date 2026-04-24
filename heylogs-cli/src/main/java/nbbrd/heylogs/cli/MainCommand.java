@@ -71,6 +71,20 @@ public final class MainCommand implements Callable<Void> {
     }
 
     @CommandLine.Option(
+            names = SpecialProperties.DEBUG_OPTION,
+            defaultValue = "false",
+            hidden = true,
+            scope = CommandLine.ScopeType.INHERIT)
+    private boolean debug;
+
+    @CommandLine.Option(
+            names = SpecialProperties.BATCH_OPTION,
+            defaultValue = "false",
+            hidden = true,
+            scope = CommandLine.ScopeType.INHERIT)
+    private boolean batch;
+
+    @CommandLine.Option(
             names = "-D",
             mapFallbackValue = "", // allow -Dkey
             hidden = true,

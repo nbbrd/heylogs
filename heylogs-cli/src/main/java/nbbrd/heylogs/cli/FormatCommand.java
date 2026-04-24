@@ -1,6 +1,5 @@
 package nbbrd.heylogs.cli;
 
-import internal.heylogs.cli.DebugOptions;
 import internal.heylogs.cli.MarkdownInputSupport;
 import internal.heylogs.cli.MarkdownOutputSupport;
 import internal.heylogs.cli.MultiChangelogInputOptions;
@@ -28,9 +27,6 @@ public final class FormatCommand implements Callable<Integer> {
             description = "Check if files are already formatted without modifying them."
     )
     private boolean check;
-
-    @Mixin
-    private DebugOptions debugOptions;
 
     @Override
     public Integer call() throws Exception {

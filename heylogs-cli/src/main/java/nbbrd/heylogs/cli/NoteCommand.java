@@ -2,7 +2,6 @@ package nbbrd.heylogs.cli;
 
 import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.cli.ChangelogInputParameters;
-import internal.heylogs.cli.DebugOptions;
 import internal.heylogs.cli.SpecialProperties;
 import nbbrd.heylogs.Heylogs;
 import picocli.CommandLine;
@@ -27,9 +26,6 @@ public final class NoteCommand implements Callable<Void> {
             required = true
     )
     private String message;
-
-    @CommandLine.Mixin
-    private DebugOptions debugOptions;
 
     @Override
     public Void call() throws Exception {

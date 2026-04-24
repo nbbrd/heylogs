@@ -33,9 +33,6 @@ public final class FetchCommand implements Callable<Void> {
     @CommandLine.Mixin
     private ConfigOptions configOptions;
 
-    @CommandLine.Mixin
-    private DebugOptions debugOptions;
-
     @Override
     public Void call() throws Exception {
         Config config = configOptions.getConfigFromDirectory(Config.resolveStartDir(input.getFile()));
