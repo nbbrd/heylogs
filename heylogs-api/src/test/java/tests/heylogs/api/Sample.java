@@ -60,6 +60,10 @@ public class Sample {
     public static final Resource RESOURCE1 = Resource.builder().type("a").module("stuff").id("hello").name("(A) Hello").options("*").build();
     public static final Resource RESOURCE2 = Resource.builder().type("world").module("stuff").id("b").name("World (B)").options("").build();
 
+    public static String stripAnsi(String text) {
+        return text.replaceAll("\u001B\\[[0-9;]*m", "");
+    }
+
     //@MightBePromoted
     public static String writing(IOConsumer<? super Appendable> content) {
         StringBuilder result = new StringBuilder();

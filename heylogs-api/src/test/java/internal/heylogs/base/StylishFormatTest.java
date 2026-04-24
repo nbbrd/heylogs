@@ -44,14 +44,14 @@ class StylishFormatTest {
     public void testFormatProblems() {
         Format x = new StylishFormat();
 
-        assertThat(writing(appendable -> x.formatProblems(appendable, singletonList(CHECK1))))
+        assertThat(stripAnsi(writing(appendable -> x.formatProblems(appendable, singletonList(CHECK1)))))
                 .isEqualToNormalizingNewlines(
                         "source1\n"
                                 + "  \n"
                                 + "  No problem\n"
                 );
 
-        assertThat(writing(appendable -> x.formatProblems(appendable, singletonList(CHECK2))))
+        assertThat(stripAnsi(writing(appendable -> x.formatProblems(appendable, singletonList(CHECK2)))))
                 .isEqualToNormalizingNewlines(
                         "source2\n"
                                 + "  5:18  error  boom  rule1\n"
@@ -59,7 +59,7 @@ class StylishFormatTest {
                                 + "  1 problem\n"
                 );
 
-        assertThat(writing(appendable -> x.formatProblems(appendable, singletonList(CHECK3))))
+        assertThat(stripAnsi(writing(appendable -> x.formatProblems(appendable, singletonList(CHECK3)))))
                 .isEqualToNormalizingNewlines(
                         "source3\n"
                                 + "   5:18  error  boom         rule1  \n"
@@ -73,13 +73,13 @@ class StylishFormatTest {
     public void testFormatStatus() {
         Format x = new StylishFormat();
 
-        assertThat(writing(appendable -> x.formatStatus(appendable, singletonList(SCAN1))))
+        assertThat(stripAnsi(writing(appendable -> x.formatStatus(appendable, singletonList(SCAN1)))))
                 .isEqualToNormalizingNewlines(
                         "source1\n"
                                 + "  Invalid changelog\n"
                 );
 
-        assertThat(writing(appendable -> x.formatStatus(appendable, singletonList(SCAN2))))
+        assertThat(stripAnsi(writing(appendable -> x.formatStatus(appendable, singletonList(SCAN2)))))
                 .isEqualToNormalizingNewlines(
                         "source2\n"
                                 + "  Valid changelog                         \n"
@@ -95,14 +95,14 @@ class StylishFormatTest {
     public void testFormatResource() {
         Format x = new StylishFormat();
 
-        assertThat(writing(appendable -> x.formatResources(appendable, emptyList())))
+        assertThat(stripAnsi(writing(appendable -> x.formatResources(appendable, emptyList()))))
                 .isEqualToNormalizingNewlines(
                         "Resources\n"
                                 + "  \n"
                                 + "  No resource found\n"
                 );
 
-        assertThat(writing(appendable -> x.formatResources(appendable, singletonList(RESOURCE1))))
+        assertThat(stripAnsi(writing(appendable -> x.formatResources(appendable, singletonList(RESOURCE1)))))
                 .isEqualToNormalizingNewlines(
                         "Resources\n"
                                 + "  a  stuff  hello  (A) Hello  *\n"
@@ -110,7 +110,7 @@ class StylishFormatTest {
                                 + "  1 resource found\n"
                 );
 
-        assertThat(writing(appendable -> x.formatResources(appendable, asList(RESOURCE1, RESOURCE2))))
+        assertThat(stripAnsi(writing(appendable -> x.formatResources(appendable, asList(RESOURCE1, RESOURCE2)))))
                 .isEqualToNormalizingNewlines(
                         "Resources\n"
                                 + "  a      stuff  hello  (A) Hello  *\n"

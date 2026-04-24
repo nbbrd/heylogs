@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.function.Function;
 
 import static java.lang.System.lineSeparator;
-import static java.util.Locale.ROOT;
 
 @lombok.Value
 @lombok.Builder
@@ -68,16 +67,16 @@ public class StylishWriter<T> {
         Arrays.fill(sizes, 1);
         for (CharSequence[] row : rows) {
             for (int i = 0; i < row.length; i++) {
-                sizes[i] = Math.max(sizes[i], row[i].length());
+                sizes[i] = Math.max(sizes[i], AnsiCodes.visibleLength(row[i]));
             }
-        }
-        String[] patterns = new String[columns.size()];
-        for (int i = 0; i < patterns.length; i++) {
-            patterns[i] = "%-" + sizes[i] + "s";
         }
         for (CharSequence[] row : rows) {
             for (int i = 0; i < row.length; i++) {
-                appendable.append(delimiter).append(String.format(ROOT, patterns[i], row[i]));
+                appendable.append(delimiter).append(row[i]);
+                int padding = sizes[i] - AnsiCodes.visibleLength(row[i]);
+                for (int j = 0; j < padding; j++) {
+                    appendable.append(' ');
+                }
             }
             appendable.append(separator);
         }

@@ -24,6 +24,7 @@ import static nbbrd.heylogs.spi.RuleSeverity.ERROR;
 import static nbbrd.io.function.IOFunction.unchecked;
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.InstanceOfAssertFactories.list;
+import static tests.heylogs.api.Sample.stripAnsi;
 import static tests.heylogs.api.Sample.using;
 
 public class HeylogsTest {
@@ -334,7 +335,7 @@ public class HeylogsTest {
 
         StringBuilder output = new StringBuilder();
         Heylogs.ofServiceLoader().formatProblems(StylishFormat.ID, output, checks);
-        assertThat(output.toString())
+        assertThat(stripAnsi(output.toString()))
                 .isEqualToIgnoringNewLines(
                         "file1\n" +
                                 "  10:20  error  some message  rule1\n" +
@@ -370,7 +371,7 @@ public class HeylogsTest {
 
         StringBuilder output = new StringBuilder();
         Heylogs.ofServiceLoader().formatStatus(StylishFormat.ID, output, scans);
-        assertThat(output.toString())
+        assertThat(stripAnsi(output.toString()))
                 .isEqualToIgnoringNewLines(
                         "file1\n" +
                                 "  Valid changelog                                     \n" +
