@@ -36,6 +36,7 @@ heylogs check --rule dot-space-link-style:WARN --rule no-empty-group:OFF
 | `api`  | `no-empty-release`         | No empty release         | `ERROR` |
 | `api`  | `no-link-brackets`         | No link brackets         | `ERROR` |
 | `api`  | `no-orphan-ref`            | No orphan ref            | `ERROR` |
+| `api`  | `no-version-regression`    | No version regression    | `ERROR` |
 | `api`  | `release-date`             | Release date             | `WARN`  |
 | `api`  | `tag-versioning`           | Tag versioning           | `ERROR` |
 | `api`  | `type-of-changes-grouped`  | Type of changes grouped  | `ERROR` |

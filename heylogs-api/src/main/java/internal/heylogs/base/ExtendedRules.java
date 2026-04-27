@@ -25,14 +25,15 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static nbbrd.heylogs.spi.RuleSupport.nameToId;
 import static java.util.Locale.ROOT;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.*;
 import static nbbrd.heylogs.Util.illegalArgumentToNull;
+import static nbbrd.heylogs.spi.RuleSupport.nameToId;
 import static nbbrd.heylogs.spi.Tagging.CONVERSION_NOT_SUPPORTED;
 import static nbbrd.heylogs.spi.Versioning.NO_VERSIONING_FILTER;
 
@@ -245,6 +246,17 @@ public enum ExtendedRules implements Rule {
         @Override
         public @NonNull RuleSeverity getRuleSeverity() {
             return RuleSeverity.OFF;
+        }
+    },
+    NO_VERSION_REGRESSION {
+        @Override
+        public @Nullable RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
+            return node instanceof Document ? validateNoVersionRegression((Document) node, context) : NO_RULE_ISSUE;
+        }
+
+        @Override
+        public @NonNull String getRuleName() {
+            return "No version regression";
         }
     };
 
@@ -818,6 +830,58 @@ public enum ExtendedRules implements Rule {
                 .message(String.format(ROOT, "Entry exceeds 80 characters (length: %d)", length))
                 .location(item)
                 .build();
+    }
+
+    @VisibleForTesting
+    static @Nullable RuleIssue validateNoVersionRegression(@NonNull Document doc, @NonNull RuleContext context) {
+        Comparator<CharSequence> comparator = context.findVersioningComparatorOrNull();
+        if (comparator == null) {
+            return NO_RULE_ISSUE;
+        }
+
+        Function<CharSequence, String> familyMapper = context.findVersioningFamilyMapperOrNull();
+
+        return ChangelogHeading.root(doc)
+                .map(changelog -> validateNoVersionRegression(changelog, comparator, familyMapper))
+                .orElse(NO_RULE_ISSUE);
+    }
+
+    private static @Nullable RuleIssue validateNoVersionRegression(@NonNull ChangelogHeading changelog, @NonNull Comparator<CharSequence> comparator, @Nullable Function<CharSequence, String> familyMapper) {
+        List<VersionHeading> versions = changelog.getVersions()
+                .filter(v -> v.getSection().isReleased())
+                .collect(toList());
+
+        // Group by family using the family mapper if available
+        Map<String, List<VersionHeading>> byFamily = new LinkedHashMap<>();
+        for (VersionHeading version : versions) {
+            String ref = version.getSection().getRef();
+            String familyKey = familyMapper != null ? familyMapper.apply(ref) : ref;
+            if (familyKey != null) {
+                byFamily.computeIfAbsent(familyKey, k -> new ArrayList<>()).add(version);
+            }
+        }
+
+        // Within each family (document order = newest first), check versions are descending
+        for (Map.Entry<String, List<VersionHeading>> familyEntry : byFamily.entrySet()) {
+            List<VersionHeading> family = familyEntry.getValue();
+            for (int i = 0; i + 1 < family.size(); i++) {
+                VersionHeading current = family.get(i);
+                VersionHeading next = family.get(i + 1);
+                String currentRef = current.getSection().getRef();
+                String nextRef = next.getSection().getRef();
+                
+                if (comparator.compare(currentRef, nextRef) < 0) {
+                    return RuleIssue
+                            .builder()
+                            .message(String.format(ROOT, "Version '%s' is lower than '%s' in the same family",
+                                    currentRef, nextRef))
+                            .location(current.getHeading())
+                            .build();
+                }
+            }
+        }
+
+        return NO_RULE_ISSUE;
     }
 
     private static class ItemLocation {

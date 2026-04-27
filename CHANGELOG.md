@@ -10,6 +10,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 - Add ANSI color codes to stylish format [#529](https://github.com/nbbrd/heylogs/issues/529)
+- Add no-version-regression rule [#545](https://github.com/nbbrd/heylogs/issues/545)
 
 ### Fixed
 
