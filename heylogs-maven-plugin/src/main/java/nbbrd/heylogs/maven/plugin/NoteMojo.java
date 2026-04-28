@@ -1,6 +1,7 @@
 package nbbrd.heylogs.maven.plugin;
 
 import com.vladsch.flexmark.util.ast.Document;
+import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Heylogs;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -37,7 +38,7 @@ public final class NoteMojo extends HeylogsMojo {
         Document document = readChangelog(inputFile);
 
         getLog().info("Setting summary: " + message);
-        Heylogs.ofServiceLoader().note(document, message);
+        Heylogs.ofServiceLoader().note(document, message, Config.DEFAULT);
 
         writeChangelog(document, inputFile);
     }

@@ -147,6 +147,7 @@ public class HeylogsTest {
         Heylogs x = Heylogs.ofServiceLoader()
                 .toBuilder()
                 .forge(MOCKED_FORGE)
+                .validateAfterModification(false)
                 .build();
 
         LocalDate date = LocalDate.of(2010, 1, 1);
@@ -425,14 +426,17 @@ public class HeylogsTest {
 
     @Test
     public void testPush() {
-        Heylogs x = Heylogs.ofServiceLoader();
+        Heylogs x = Heylogs.ofServiceLoader()
+                .toBuilder()
+                .validateAfterModification(false)
+                .build();
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> x.push(using("/Empty.md"), TypeOfChange.ADDED, "some message"))
+                .isThrownBy(() -> x.push(using("/Empty.md"), TypeOfChange.ADDED, "some message", Config.DEFAULT))
                 .withMessageContaining("Cannot locate changelog header");
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> x.push(using("/Main.md"), TypeOfChange.ADDED, ""))
+                .isThrownBy(() -> x.push(using("/Main.md"), TypeOfChange.ADDED, "", Config.DEFAULT))
                 .withMessageContaining("Message must not be empty");
 
         // Push to existing type-of-change group
@@ -469,23 +473,23 @@ public class HeylogsTest {
         Heylogs x = Heylogs.ofServiceLoader();
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> x.yank(using("/Empty.md"), "1.0.0"))
+                .isThrownBy(() -> x.yank(using("/Empty.md"), "1.0.0", Config.DEFAULT))
                 .withMessageContaining("Cannot locate changelog header");
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> x.yank(using("/Main.md"), ""))
+                .isThrownBy(() -> x.yank(using("/Main.md"), "", Config.DEFAULT))
                 .withMessageContaining("Ref must not be empty");
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> x.yank(using("/Main.md"), "9.9.9"))
+                .isThrownBy(() -> x.yank(using("/Main.md"), "9.9.9", Config.DEFAULT))
                 .withMessageContaining("Cannot locate version '9.9.9'");
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> x.yank(using("/Main.md"), "unreleased"))
+                .isThrownBy(() -> x.yank(using("/Main.md"), "unreleased", Config.DEFAULT))
                 .withMessageContaining("Cannot yank unreleased version");
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> x.yank(using("/YankedRelease.md"), "1.0.0"))
+                .isThrownBy(() -> x.yank(using("/YankedRelease.md"), "1.0.0", Config.DEFAULT))
                 .withMessageContaining("Version '1.0.0' is already yanked");
 
         // Yank an existing released version
@@ -574,11 +578,14 @@ public class HeylogsTest {
 
     @Test
     public void testNote() {
-        Heylogs heylogs = Heylogs.ofServiceLoader();
+        Heylogs heylogs = Heylogs.ofServiceLoader()
+                .toBuilder()
+                .validateAfterModification(false)
+                .build();
 
         // 1. Insert summary when none exists (FirstRelease.md)
         Document doc1 = using("/FirstRelease.md");
-        heylogs.note(doc1, "This is a summary.");
+        heylogs.note(doc1, "This is a summary.", Config.DEFAULT);
         String result1 = unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc1);
         assertThat(result1)
                 .contains("## [Unreleased]", "This is a summary.")
@@ -586,7 +593,7 @@ public class HeylogsTest {
 
         // 2. Replace existing summary (UnreleasedChanges.md)
         Document doc2 = using("/UnreleasedChanges.md");
-        heylogs.note(doc2, "Replaced summary");
+        heylogs.note(doc2, "Replaced summary", Config.DEFAULT);
         String result2 = unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc2);
         assertThat(result2)
                 .contains("## [Unreleased]", "Replaced summary")
@@ -595,7 +602,7 @@ public class HeylogsTest {
 
         // 3. Do not insert summary if empty
         Document doc3 = using("/FirstRelease.md");
-        heylogs.note(doc3, "   ");
+        heylogs.note(doc3, "   ", Config.DEFAULT);
         String result3 = unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc3);
         assertThat(result3)
                 .contains("## [Unreleased]")
@@ -604,14 +611,14 @@ public class HeylogsTest {
         // 4. Multi-line/markdown summary
         Document doc4 = using("/FirstRelease.md");
         String multiSummary = "This is a summary.\n\n- Point 1\n- Point 2";
-        heylogs.note(doc4, multiSummary);
+        heylogs.note(doc4, multiSummary, Config.DEFAULT);
         String result4 = unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc4);
         assertThat(result4)
                 .contains("This is a summary.", "- Point 1", "- Point 2");
 
         // 5. Unreleased as last node (should still insert summary)
         Document doc5 = using("/FirstRelease.md");
-        heylogs.note(doc5, "End summary");
+        heylogs.note(doc5, "End summary", Config.DEFAULT);
         String result5 = unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc5);
         assertThat(result5)
                 .contains("End summary");
@@ -677,12 +684,12 @@ public class HeylogsTest {
     }
 
     private static String pushToString(Heylogs heylogs, Document doc, TypeOfChange typeOfChange, String message) {
-        heylogs.push(doc, typeOfChange, message);
+        heylogs.push(doc, typeOfChange, message, Config.DEFAULT);
         return unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc);
     }
 
     private static String yankToString(Heylogs heylogs, Document doc, String ref) {
-        heylogs.yank(doc, ref);
+        heylogs.yank(doc, ref, Config.DEFAULT);
         return unchecked(FlexmarkIO.newTextFormatter()::formatToString).apply(doc);
     }
 

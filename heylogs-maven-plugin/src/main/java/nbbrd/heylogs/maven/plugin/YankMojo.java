@@ -1,6 +1,7 @@
 package nbbrd.heylogs.maven.plugin;
 
 import com.vladsch.flexmark.util.ast.Document;
+import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Heylogs;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -38,7 +39,7 @@ public final class YankMojo extends HeylogsMojo {
 
         getLog().info("Yanking release " + ref);
         try {
-            Heylogs.ofServiceLoader().yank(document, ref);
+            Heylogs.ofServiceLoader().yank(document, ref, Config.DEFAULT);
         } catch (IllegalArgumentException ex) {
             throw new MojoExecutionException(ex.getMessage(), ex);
         }

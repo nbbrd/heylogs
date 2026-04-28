@@ -81,6 +81,9 @@ public class Heylogs {
     @lombok.Builder.Default
     HttpFactory httpFactory = HttpFactory.noOp();
 
+    @lombok.Builder.Default
+    boolean validateAfterModification = false;
+
     public @NonNull List<Problem> check(@NonNull Document document, @NonNull Config config) {
         checkConfig(config);
 
@@ -186,6 +189,8 @@ public class Heylogs {
         unreleased.getReference().insertAfter(release.getReference());
         unreleased.getReference().insertBefore(updated.getReference());
         unreleased.getReference().unlink();
+
+        validateAfterModification(document, config);
     }
 
     public @NonNull Document init(@NonNull Config config, @Nullable String template, @Nullable URL projectUrl) {
@@ -253,7 +258,7 @@ public class Heylogs {
         }
     }
 
-    public void yank(@NonNull Document document, @NonNull String ref) throws IllegalArgumentException {
+    public void yank(@NonNull Document document, @NonNull String ref, @NonNull Config config) throws IllegalArgumentException {
         if (ref.isEmpty()) {
             throw new IllegalArgumentException("Ref must not be empty");
         }
@@ -281,6 +286,8 @@ public class Heylogs {
         Heading newHeading = yankedVersion.toHeading();
         target.getHeading().insertBefore(newHeading);
         target.getHeading().unlink();
+
+        validateAfterModification(document, config);
     }
 
     public void fetch(@NonNull Document document, @NonNull TypeOfChange typeOfChange, @NonNull String id, @NonNull Config config) throws IOException {
@@ -288,7 +295,7 @@ public class Heylogs {
         String message = url != null
                 ? fetchMessageByUrl(url)
                 : fetchMessageByRef(document, id, config);
-        push(document, typeOfChange, message);
+        push(document, typeOfChange, message, config);
     }
 
     private @NonNull String fetchMessageByUrl(@NonNull URL url) throws IOException {
@@ -346,7 +353,7 @@ public class Heylogs {
         throw new IllegalArgumentException("Cannot resolve ref '" + ref + "' for project URL '" + projectLink + "' on forge '" + forge.getForgeName() + "'");
     }
 
-    public void push(@NonNull Document document, @NonNull TypeOfChange typeOfChange, @NonNull String message) throws IllegalArgumentException {
+    public void push(@NonNull Document document, @NonNull TypeOfChange typeOfChange, @NonNull String message, @NonNull Config config) throws IllegalArgumentException {
         if (message.isEmpty()) {
             throw new IllegalArgumentException("Message must not be empty");
         }
@@ -411,6 +418,8 @@ public class Heylogs {
                 .orElseThrow(() -> new IllegalArgumentException("Failed to parse message as bullet list item"));
 
         bulletList.appendChild(newItem);
+
+        validateAfterModification(document, config);
     }
 
     public @NonNull Summary scan(@NonNull Document document, @NonNull Config config) {
@@ -671,7 +680,7 @@ public class Heylogs {
         List<Node> content;
     }
 
-    public void note(@NonNull Document document, @NonNull String summary) {
+    public void note(@NonNull Document document, @NonNull String summary, @NonNull Config config) {
         ChangelogHeading changelog = ChangelogHeading.root(document)
                 .orElseThrow(() -> new IllegalArgumentException("Cannot locate changelog header"));
 
@@ -735,6 +744,8 @@ public class Heylogs {
                 last = ref;
             }
         }
+
+        validateAfterModification(document, config);
     }
 
     public @NonNull List<ScrapedLink> scrape(@NonNull Document doc, @NonNull Config config) {
@@ -909,6 +920,40 @@ public class Heylogs {
                 .versionings(versionings)
                 .taggings(taggings)
                 .build();
+    }
+
+    /**
+     * Validates a document after modification to ensure it remains valid.
+     * Uses the check() method to validate with the provided configuration.
+     * Can be disabled by setting validateAfterModification to false in the builder.
+     *
+     * @param document the document to validate
+     * @param config   the configuration to use for validation
+     * @throws IllegalStateException if the document has validation errors after modification
+     */
+    private void validateAfterModification(@NonNull Document document, @NonNull Config config) {
+        if (!validateAfterModification) {
+            return; // Validation is disabled
+        }
+
+        List<Problem> problems = check(document, config);
+        if (!problems.isEmpty()) {
+            // Only report ERROR-level problems
+            List<Problem> errors = problems.stream()
+                    .filter(p -> RuleSeverity.ERROR.equals(p.getSeverity()))
+                    .collect(toList());
+
+            if (!errors.isEmpty()) {
+                StringBuilder message = new StringBuilder("Modified changelog has errors:");
+                for (Problem problem : errors) {
+                    message.append("\n  - ")
+                            .append(problem.getId())
+                            .append(": ")
+                            .append(problem.getIssue().getMessage());
+                }
+                throw new IllegalStateException(message.toString());
+            }
+        }
     }
 
     private static @NonNull String toMarkdown(ForgeLink link) {

@@ -3,6 +3,7 @@ package nbbrd.heylogs.cli;
 import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.cli.ChangelogInputParameters;
 import internal.heylogs.cli.SpecialProperties;
+import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Heylogs;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -38,7 +39,7 @@ public final class YankCommand implements Callable<Void> {
     }
 
     private Document yank(Document document) {
-        Heylogs.ofServiceLoader().yank(document, ref);
+        Heylogs.ofServiceLoader().yank(document, ref, Config.DEFAULT);
         return document;
     }
 

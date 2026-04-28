@@ -4,6 +4,7 @@ import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.cli.ChangelogInputParameters;
 import internal.heylogs.cli.SpecialProperties;
 import internal.heylogs.cli.TypeOfChangeOptions;
+import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Heylogs;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -42,7 +43,7 @@ public final class PushCommand implements Callable<Void> {
     }
 
     private Document push(Document document) {
-        Heylogs.ofServiceLoader().push(document, typeOfChangeOptions.getTypeOfChange(), message);
+        Heylogs.ofServiceLoader().push(document, typeOfChangeOptions.getTypeOfChange(), message, Config.DEFAULT);
         return document;
     }
 

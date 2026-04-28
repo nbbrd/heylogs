@@ -3,6 +3,7 @@ package nbbrd.heylogs.cli;
 import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.cli.ChangelogInputParameters;
 import internal.heylogs.cli.SpecialProperties;
+import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Heylogs;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -38,7 +39,7 @@ public final class NoteCommand implements Callable<Void> {
     }
 
     private Document note(Document document) {
-        Heylogs.ofServiceLoader().note(document, message);
+        Heylogs.ofServiceLoader().note(document, message, Config.DEFAULT);
         return document;
     }
 
