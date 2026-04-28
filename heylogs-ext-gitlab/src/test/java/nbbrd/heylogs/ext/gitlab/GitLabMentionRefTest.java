@@ -6,7 +6,7 @@ import org.junit.jupiter.params.provider.CsvFileSource;
 
 import java.util.Arrays;
 
-import static internal.heylogs.spi.URLExtractor.urlOf;
+import static nbbrd.heylogs.spi.URLExtractor.urlOf;
 import static nbbrd.heylogs.ext.gitlab.GitLabMentionRef.of;
 import static nbbrd.heylogs.ext.gitlab.GitLabMentionRef.parse;
 import static org.assertj.core.api.Assertions.*;

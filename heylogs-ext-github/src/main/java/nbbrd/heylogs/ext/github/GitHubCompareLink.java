@@ -1,6 +1,6 @@
 package nbbrd.heylogs.ext.github;
 
-import internal.heylogs.git.ThreeDotDiff;
+import nbbrd.heylogs.spi.ThreeDotDiff;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAs;
@@ -13,8 +13,8 @@ import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
 
-import static internal.heylogs.git.ThreeDotDiff.THREE_DOT_DIFF_PATTERN;
-import static internal.heylogs.spi.URLExtractor.*;
+import static nbbrd.heylogs.spi.ThreeDotDiff.THREE_DOT_DIFF_PATTERN;
+import static nbbrd.heylogs.spi.URLExtractor.*;
 
 // https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-comparing-branches-in-pull-requests#three-dot-and-two-dot-git-diff-comparisons
 @RepresentableAs(URL.class)

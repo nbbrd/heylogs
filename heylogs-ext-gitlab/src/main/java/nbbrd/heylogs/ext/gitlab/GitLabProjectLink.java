@@ -7,7 +7,7 @@ import nbbrd.io.http.URLQueryBuilder;
 import java.net.URL;
 import java.util.List;
 
-import static internal.heylogs.spi.URLExtractor.urlOf;
+import static nbbrd.heylogs.spi.URLExtractor.urlOf;
 
 public interface GitLabProjectLink extends ProjectLink {
 

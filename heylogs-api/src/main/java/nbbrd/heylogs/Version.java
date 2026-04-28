@@ -19,7 +19,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.Iterator;
 
-import static internal.heylogs.spi.URLExtractor.urlOf;
+import static nbbrd.heylogs.spi.URLExtractor.urlOf;
 
 @lombok.Value(staticConstructor = "of")
 @RepresentableAs(Heading.class)

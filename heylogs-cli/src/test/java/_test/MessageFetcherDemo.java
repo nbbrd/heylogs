@@ -11,7 +11,7 @@ import nbbrd.io.http.HttpClient;
 import java.io.IOException;
 import java.net.URL;
 
-import static internal.heylogs.spi.URLExtractor.urlOf;
+import static nbbrd.heylogs.spi.URLExtractor.urlOf;
 
 public class MessageFetcherDemo {
 

@@ -5,7 +5,7 @@ import com.vladsch.flexmark.ast.Reference;
 import com.vladsch.flexmark.ast.util.ReferenceRepository;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
-import internal.heylogs.spi.URLExtractor;
+import nbbrd.heylogs.spi.URLExtractor;
 import lombok.NonNull;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.Nodes;

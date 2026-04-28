@@ -12,7 +12,7 @@ import internal.heylogs.FlexmarkIO;
 import internal.heylogs.TypeOfChangeHeading;
 import internal.heylogs.VersionHeading;
 import internal.heylogs.base.GuidingPrinciples;
-import internal.heylogs.spi.URLExtractor;
+import nbbrd.heylogs.spi.URLExtractor;
 import lombok.NonNull;
 import nbbrd.design.MightBePromoted;
 import nbbrd.design.StaticFactoryMethod;

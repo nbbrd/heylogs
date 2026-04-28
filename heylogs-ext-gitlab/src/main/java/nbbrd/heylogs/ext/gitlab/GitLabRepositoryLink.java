@@ -10,8 +10,8 @@ import nbbrd.io.http.URLQueryBuilder;
 import java.net.URL;
 import java.util.List;
 
-import static internal.heylogs.spi.URLExtractor.baseOf;
-import static internal.heylogs.spi.URLExtractor.getPathArray;
+import static nbbrd.heylogs.spi.URLExtractor.baseOf;
+import static nbbrd.heylogs.spi.URLExtractor.getPathArray;
 import static java.util.Collections.unmodifiableList;
 import static nbbrd.heylogs.ext.gitlab.GitLabSupport.NAMESPACE_PATTERN;
 import static nbbrd.heylogs.ext.gitlab.GitLabSupport.PROJECT_PATTERN;

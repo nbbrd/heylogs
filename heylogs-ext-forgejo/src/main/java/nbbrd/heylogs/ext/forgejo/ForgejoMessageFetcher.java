@@ -13,7 +13,7 @@ import nbbrd.io.net.MediaType;
 import java.io.IOException;
 import java.net.URL;
 
-import static internal.heylogs.spi.URLExtractor.urlOf;
+import static nbbrd.heylogs.spi.URLExtractor.urlOf;
 
 // https://forgejo.org/docs/latest/developer/api-usage/
 // https://codeberg.org/api/swagger

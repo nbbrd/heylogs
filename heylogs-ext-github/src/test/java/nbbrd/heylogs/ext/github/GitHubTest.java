@@ -2,7 +2,7 @@ package nbbrd.heylogs.ext.github;
 
 import com.vladsch.flexmark.ast.Link;
 import internal.heylogs.base.ExtendedRules;
-import internal.heylogs.spi.URLExtractor;
+import nbbrd.heylogs.spi.URLExtractor;
 import nbbrd.heylogs.Nodes;
 import nbbrd.heylogs.spi.Forge;
 import nbbrd.heylogs.spi.RuleContext;

@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Function;
 
-import static internal.heylogs.spi.URLExtractor.urlOf;
+import static nbbrd.heylogs.spi.URLExtractor.urlOf;
 import static java.util.Collections.singletonList;
 import static nbbrd.heylogs.Heylogs.FIRST_FORMAT_AVAILABLE;
 import static nbbrd.heylogs.Version.HYPHEN;

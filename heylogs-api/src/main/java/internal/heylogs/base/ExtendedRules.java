@@ -7,7 +7,7 @@ import com.vladsch.flexmark.util.ast.Node;
 import internal.heylogs.ChangelogHeading;
 import internal.heylogs.TypeOfChangeHeading;
 import internal.heylogs.VersionHeading;
-import internal.heylogs.spi.URLExtractor;
+import nbbrd.heylogs.spi.URLExtractor;
 import lombok.NonNull;
 import nbbrd.design.DirectImpl;
 import nbbrd.design.MightBeGenerated;

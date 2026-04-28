@@ -8,7 +8,7 @@ import nbbrd.heylogs.spi.ForgeRef;
 
 import java.net.URL;
 
-import static internal.heylogs.spi.URLExtractor.*;
+import static nbbrd.heylogs.spi.URLExtractor.*;
 
 @RepresentableAs(URL.class)
 @lombok.Value

@@ -1,6 +1,6 @@
 package tests.heylogs.spi;
 
-import internal.heylogs.git.ThreeDotDiff;
+import nbbrd.heylogs.spi.ThreeDotDiff;
 import lombok.NonNull;
 import nbbrd.heylogs.spi.CompareLink;
 import nbbrd.heylogs.spi.ForgeRef;
@@ -8,7 +8,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
 
-import static internal.heylogs.spi.URLExtractor.urlOf;
+import static nbbrd.heylogs.spi.URLExtractor.urlOf;
 
 @lombok.Value
 public class MockedCompareLink implements CompareLink {

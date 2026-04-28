@@ -1,6 +1,6 @@
 package nbbrd.heylogs.ext.gitlab;
 
-import internal.heylogs.git.Hash;
+import nbbrd.heylogs.spi.Hash;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAsString;
@@ -11,7 +11,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-import static internal.heylogs.git.Hash.HASH_PATTERN;
+import static nbbrd.heylogs.spi.Hash.HASH_PATTERN;
 import static nbbrd.heylogs.ext.gitlab.GitLabSupport.getRefType;
 import static nbbrd.heylogs.ext.gitlab.GitLabSupport.refToString;
 

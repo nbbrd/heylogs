@@ -1,4 +1,4 @@
-package internal.heylogs.git;
+package nbbrd.heylogs.spi;
 
 import lombok.AccessLevel;
 import lombok.NonNull;

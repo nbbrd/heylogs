@@ -1,15 +1,11 @@
 package tests.heylogs.spi;
 
-import internal.heylogs.git.ThreeDotDiff;
 import lombok.NonNull;
-import nbbrd.heylogs.spi.CompareLink;
 import nbbrd.heylogs.spi.ForgeRef;
 import nbbrd.heylogs.spi.ProjectLink;
 import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
-
-import static internal.heylogs.spi.URLExtractor.urlOf;
 
 @lombok.Value
 public class MockedRepositoryLink implements ProjectLink {

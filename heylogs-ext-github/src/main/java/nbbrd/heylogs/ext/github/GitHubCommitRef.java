@@ -1,6 +1,6 @@
 package nbbrd.heylogs.ext.github;
 
-import internal.heylogs.git.Hash;
+import nbbrd.heylogs.spi.Hash;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAsString;

@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import static internal.heylogs.spi.URLExtractor.checkPathItem;
+import static nbbrd.heylogs.spi.URLExtractor.checkPathItem;
 import static java.util.Collections.unmodifiableList;
 import static nbbrd.heylogs.ext.gitlab.GitLabSupport.NAMESPACE_PATTERN;
 import static nbbrd.heylogs.ext.gitlab.GitLabSupport.PATH_SEPARATOR;

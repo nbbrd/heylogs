@@ -13,7 +13,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
-import static internal.heylogs.spi.URLExtractor.*;
+import static nbbrd.heylogs.spi.URLExtractor.*;
 import static java.util.Collections.unmodifiableList;
 import static nbbrd.heylogs.ext.gitlab.GitLabSupport.NAMESPACE_PATTERN;
 
