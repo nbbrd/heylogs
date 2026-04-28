@@ -65,10 +65,10 @@ CHANGELOG.md
 
 ### Output parameters
 
-| Parameter    | Description                   | CLI               | Maven Plugin                         | Enforcer Rule                        |
-|--------------|-------------------------------|-------------------|--------------------------------------|--------------------------------------|
-| `outputFile` | Output file for result        | `--output <file>` | `<outputFile>result.md</outputFile>` | `<outputFile>result.md</outputFile>` |
-| `format`     | Output format (stylish, json) | `--format <id>`   | `<format>json</format>`              | `<format>json</format>`              |
+| Parameter    | Description                                         | CLI               | Maven Plugin                         | Enforcer Rule                        |
+|--------------|-----------------------------------------------------|-------------------|--------------------------------------|--------------------------------------|
+| `outputFile` | Output file for result                              | `--output <file>` | `<outputFile>result.md</outputFile>` | `<outputFile>result.md</outputFile>` |
+| `format`     | Output format (stylish, json, github-actions, etc.) | `--format <id>`   | `<format>json</format>`              | `<format>json</format>`              |
 
 ### Configuration options
 

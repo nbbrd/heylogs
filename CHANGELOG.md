@@ -11,6 +11,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Add ANSI color codes to stylish format [#529](https://github.com/nbbrd/heylogs/issues/529)
 - Add no-version-regression rule [#545](https://github.com/nbbrd/heylogs/issues/545)
+- Add GitHub Actions annotation output format for check [#544](https://github.com/nbbrd/heylogs/issues/544)
 
 ### Fixed
 
