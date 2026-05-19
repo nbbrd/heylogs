@@ -9,6 +9,9 @@ The release command finalizes unreleased changes in a changelog file by creating
 ```bash
 $ heylogs release --ref 1.0.0
 # Converts Unreleased changes into a new release with version 1.0.0
+
+# Preview without writing the file
+$ heylogs release --ref 1.0.0 --dry-run
 ```
 
 ### Maven Plugin
@@ -44,6 +47,7 @@ $ heylogs release --ref 1.0.0
 |--------------|-----------------------------------|--------------------------|---------------------------------------|
 | `ref`        | New release version to create     | `--ref <version>`        | `<ref>1.0.0</ref>`                    |
 | `date`       | Release date (default: today)     | `--date <date>`          | `<date>2026-03-10</date>`             |
+| `dryRun`     | Preview without writing the file  | `--dry-run`              | *(not supported)*                     |
 
 ### Configuration options
 
@@ -59,6 +63,22 @@ $ heylogs release --ref 1.0.0
 ## Configuration
 
 The release command supports hierarchical configuration via `heylogs.properties` files. You can specify versioning, tagging, and forge options globally or per module.
+
+## Feedback
+
+On success the CLI prints a single line to **stderr**:
+
+```
++ Released [1.0.0] - 2026-05-19 in CHANGELOG.md
+```
+
+In `--dry-run` mode no file is written and the message uses the `~` prefix:
+
+```
+~ Would release [1.0.0] - 2026-05-19 in CHANGELOG.md
+```
+
+Use `--batch` to suppress all feedback.
 
 ---
 

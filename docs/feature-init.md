@@ -18,6 +18,9 @@ $ heylogs init --versioning semver
 
 # Create a changelog from a custom Mustache template
 $ heylogs init --template-file my-template.mustache
+
+# Preview what would be created without writing the file
+$ heylogs init --dry-run --project-url https://github.com/nbbrd/heylogs
 ```
 
 ### Maven plugin
@@ -48,6 +51,7 @@ $ heylogs init --template-file my-template.mustache
 | `outputFile`  | Changelog file to create (default: CHANGELOG.md)       | `<file>` (positional)        | `<outputFile>CHANGELOG.md</outputFile>`        |
 | `templateFile`| Custom [Mustache](https://mustache.github.io/) template file | `--template-file <file>` | `<templateFile>my-template.mustache</templateFile>` |
 | `projectUrl`  | Project URL for Unreleased link                        | `-p, --project-url <url>`    | `<projectUrl>https://example.com</projectUrl>`  |
+| `dryRun`      | Preview what would be created without writing the file | `--dry-run`                  | *(not supported)*                              |
 
 ### Configuration options
 
@@ -141,6 +145,23 @@ Example custom template:
 
 ## [Unreleased]{{#projectUrl}} ([Unreleased]({{projectUrl}})){{/projectUrl}}
 ```
+
+## Feedback
+
+On success the CLI prints a single line to **stderr**:
+
+```
++ Created: CHANGELOG.md
++ Created: CHANGELOG.md (project: https://github.com/nbbrd/heylogs)
+```
+
+In `--dry-run` mode no file is written and the message uses the `~` prefix:
+
+```
+~ Would create: CHANGELOG.md (project: https://github.com/nbbrd/heylogs)
+```
+
+Use `--batch` to suppress all feedback.
 
 ---
 

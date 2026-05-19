@@ -22,6 +22,9 @@ $ heylogs format CHANGELOG.md
 
 # Check if the changelog is already properly formatted (exit code 1 if not)
 $ heylogs format --check
+
+# Preview what would change without writing any file
+$ heylogs format --dry-run
 ```
 
 **Before:**
@@ -127,9 +130,10 @@ To enforce formatting without modifying files (e.g. in CI):
 
 ### Format parameters
 
-| Parameter | Description                                              | CLI       | Maven Plugin              | Enforcer Rule |
-|-----------|----------------------------------------------------------|-----------|---------------------------|---------------|
+| Parameter | Description                                              | CLI         | Maven Plugin              | Enforcer Rule |
+|-----------|----------------------------------------------------------|-------------|---------------------------|---------------|
 | `check`   | Check formatting without modifying files (fails if not formatted) | `--check` | `<check>true</check>`     | *(always check mode)* |
+| `dryRun`  | Preview which files would be formatted without writing   | `--dry-run` | *(not supported)*         | *(not supported)* |
 
 ## Notes
 
@@ -137,6 +141,39 @@ To enforce formatting without modifying files (e.g. in CI):
 - In `--check` mode (CLI) or when `check=true` (Maven plugin), the build fails with a non-zero exit code if any file requires formatting.
 - The Enforcer rule always operates in check mode and fails the build if the changelog is not properly formatted.
 - The `[Unreleased]` section is intentionally excluded from empty-group removal, as it represents a work in progress.
+- Files that are already correctly formatted are not rewritten (no unnecessary timestamp updates).
+
+## Feedback
+
+All three modes print one line per file to **stderr**.
+
+**Write mode** (default):
+```
++ Formatted: CHANGELOG.md
+= Already formatted: CHANGELOG.md
+```
+
+**Check mode** (`--check`):
+```
++ Properly formatted: CHANGELOG.md
+! Not formatted: CHANGELOG.md
+```
+The command exits with a non-zero code if any file prints `!`.
+
+**Dry-run mode** (`--dry-run`):
+```
+~ Would format: CHANGELOG.md
+= Already formatted: CHANGELOG.md
+```
+
+When **multiple files** are processed, a summary line is also printed after the per-file lines:
+```
++ 2 formatted, 1 already up-to-date
+! 1 of 3 file(s) need formatting
+~ 2 would be formatted, 1 already up-to-date
+```
+
+Use `--batch` to suppress all feedback.
 
 ---
 

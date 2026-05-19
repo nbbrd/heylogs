@@ -3,7 +3,8 @@ package nbbrd.heylogs.cli;
 import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.cli.ChangelogInputParameters;
 import internal.heylogs.cli.ConfigOptions;
-import internal.heylogs.cli.SpecialProperties;
+import internal.heylogs.cli.DryRunOptions;
+import internal.heylogs.cli.FeedbackSupport;
 import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Heylogs;
 import nbbrd.heylogs.Version;
@@ -20,6 +21,9 @@ import static internal.heylogs.cli.MarkdownOutputSupport.newMarkdownOutputSuppor
 
 @Command(name = "release", description = "Release changes.")
 public final class ReleaseCommand implements Callable<Void> {
+
+    @CommandLine.Spec
+    private CommandLine.Model.CommandSpec spec;
 
     @CommandLine.Mixin
     private ChangelogInputParameters input;
@@ -43,9 +47,18 @@ public final class ReleaseCommand implements Callable<Void> {
     @CommandLine.Mixin
     private ConfigOptions configOptions;
 
+    @CommandLine.Mixin
+    private DryRunOptions dryRunOptions;
+
     @Override
     public Void call() throws Exception {
+        String displayPath = FeedbackSupport.relativize(input.getFile());
+        if (dryRunOptions.isDryRun()) {
+            FeedbackSupport.printDryRun(spec, "Would release [" + ref + "] - " + date + " in " + displayPath);
+            return null;
+        }
         store(release(load()));
+        FeedbackSupport.printSuccess(spec, "Released [" + ref + "] - " + date + " in " + displayPath);
         return null;
     }
 

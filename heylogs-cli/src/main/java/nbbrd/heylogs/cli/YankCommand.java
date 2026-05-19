@@ -2,7 +2,8 @@ package nbbrd.heylogs.cli;
 
 import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.cli.ChangelogInputParameters;
-import internal.heylogs.cli.SpecialProperties;
+import internal.heylogs.cli.DryRunOptions;
+import internal.heylogs.cli.FeedbackSupport;
 import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Heylogs;
 import picocli.CommandLine;
@@ -17,6 +18,9 @@ import static internal.heylogs.cli.MarkdownOutputSupport.newMarkdownOutputSuppor
 @Command(name = "yank", description = "Mark a release as yanked.")
 public final class YankCommand implements Callable<Void> {
 
+    @CommandLine.Spec
+    private CommandLine.Model.CommandSpec spec;
+
     @CommandLine.Mixin
     private ChangelogInputParameters input;
 
@@ -28,9 +32,18 @@ public final class YankCommand implements Callable<Void> {
     )
     private String ref;
 
+    @CommandLine.Mixin
+    private DryRunOptions dryRunOptions;
+
     @Override
     public Void call() throws Exception {
+        String displayPath = FeedbackSupport.relativize(input.getFile());
+        if (dryRunOptions.isDryRun()) {
+            FeedbackSupport.printDryRun(spec, "Would yank [" + ref + "] in " + displayPath);
+            return null;
+        }
         store(yank(load()));
+        FeedbackSupport.printSuccess(spec, "Yanked [" + ref + "] in " + displayPath);
         return null;
     }
 
@@ -47,4 +60,3 @@ public final class YankCommand implements Callable<Void> {
         newMarkdownOutputSupport().writeDocument(input.getFile(), document);
     }
 }
-

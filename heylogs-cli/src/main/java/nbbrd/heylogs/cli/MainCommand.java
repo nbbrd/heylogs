@@ -80,7 +80,7 @@ public final class MainCommand implements Callable<Void> {
     @CommandLine.Option(
             names = SpecialProperties.BATCH_OPTION,
             defaultValue = "false",
-            hidden = true,
+            description = "Suppress progress feedback on standard error.",
             scope = CommandLine.ScopeType.INHERIT)
     private boolean batch;
 

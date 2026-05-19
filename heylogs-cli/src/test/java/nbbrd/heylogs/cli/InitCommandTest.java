@@ -33,7 +33,7 @@ public class InitCommandTest {
 
         assertThat(cmd.execute(file.toString())).isEqualTo(CommandLine.ExitCode.OK);
         assertThat(watcher.getOut()).isEmpty();
-        assertThat(watcher.getErr()).isEmpty();
+        assertThat(watcher.getErr()).isNotEmpty();
 
         assertThat(file)
                 .exists()
@@ -71,7 +71,7 @@ public class InitCommandTest {
         assertThat(cmd.execute(file.toString(), "--template-file", templateFile.toString()))
                 .isEqualTo(CommandLine.ExitCode.OK);
         assertThat(watcher.getOut()).isEmpty();
-        assertThat(watcher.getErr()).isEmpty();
+        assertThat(watcher.getErr()).isNotEmpty();
 
         assertThat(file)
                 .exists()
@@ -90,11 +90,26 @@ public class InitCommandTest {
         assertThat(cmd.execute(file.toString(), "--project-url", "https://example.com"))
                 .isEqualTo(CommandLine.ExitCode.OK);
         assertThat(watcher.getOut()).isEmpty();
-        assertThat(watcher.getErr()).isEmpty();
+        assertThat(watcher.getErr()).isNotEmpty();
 
         assertThat(file)
                 .exists()
                 .content(UTF_8)
                 .contains("https://example.com");
+        assertThat(watcher.getErr()).contains("https://example.com");
+    }
+
+    @Test
+    public void testInitDryRun(@TempDir Path temp) throws IOException {
+        CommandLine cmd = new CommandLine(new InitCommand());
+        CommandWatcher watcher = CommandWatcher.on(cmd);
+
+        Path file = temp.resolve("CHANGELOG.md");
+
+        assertThat(cmd.execute(file.toString(), "--dry-run")).isEqualTo(CommandLine.ExitCode.OK);
+        assertThat(watcher.getOut()).isEmpty();
+        assertThat(watcher.getErr()).isNotEmpty();
+
+        assertThat(file).doesNotExist();
     }
 }

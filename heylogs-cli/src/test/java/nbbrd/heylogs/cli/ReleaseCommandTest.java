@@ -40,7 +40,7 @@ public class ReleaseCommandTest {
         assertThat(cmd.execute(src.toString(), "--ref", "1.0.0"))
                 .isEqualTo(CommandLine.ExitCode.OK);
         assertThat(watcher.getOut()).isEmpty();
-        assertThat(watcher.getErr()).isEmpty();
+        assertThat(watcher.getErr()).isNotEmpty();
 
         assertThat(src)
                 .content(UTF_8)
@@ -78,5 +78,22 @@ public class ReleaseCommandTest {
                 .isEqualTo(CommandLine.ExitCode.USAGE);
         assertThat(watcher.getOut()).isEmpty();
         assertThat(watcher.getErr()).isNotEmpty();
+    }
+
+    @Test
+    public void testValidContentDryRun(@TempDir Path temp) throws IOException {
+        CommandLine cmd = new CommandLine(new ReleaseCommand());
+        CommandWatcher watcher = CommandWatcher.on(cmd);
+
+        Path src = temp.resolve("src.md");
+        String original = "# Changelog\n## [Unreleased]\n[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.9.3...HEAD\n";
+        Files.write(src, original.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+        assertThat(cmd.execute(src.toString(), "--ref", "1.0.0", "--dry-run"))
+                .isEqualTo(CommandLine.ExitCode.OK);
+        assertThat(watcher.getOut()).isEmpty();
+        assertThat(watcher.getErr()).isNotEmpty();
+
+        assertThat(src).content(java.nio.charset.StandardCharsets.UTF_8).isEqualTo(original);
     }
 }

@@ -134,7 +134,7 @@ These options are available on every command and subcommand.
 | Option                 | Description                                                                                          |
 |------------------------|------------------------------------------------------------------------------------------------------|
 | `--debug`              | Print the full stack trace when an error occurs. Useful for troubleshooting.                         |
-| `--batch`              | Disable ANSI colors in the output. Useful in scripts, CI pipelines, or when piping output to a file. |
+| `--batch`              | Suppress progress feedback on standard error and disable ANSI colors. Useful in CI/CD pipelines or when piping output. |
 | `-D<property>=<value>` | Set a Java system property. Can be repeated. Allows `--Dkey` (value-less) form.                      |
 
 ### Examples
@@ -143,12 +143,25 @@ These options are available on every command and subcommand.
 # Show the full stack trace on error
 heylogs --debug check CHANGELOG.md
 
-# Disable colors when piping output
-heylogs --batch scan CHANGELOG.md | grep "Valid"
+# Suppress feedback and colors when scripting
+heylogs --batch release --ref 1.0.0
 
 # Combine options
 heylogs --batch --debug check CHANGELOG.md
 ```
+
+## Feedback
+
+All commands that modify files print a one-line progress message to **standard error** (`stderr`) on success. This keeps `stdout` clean for piping structured output while still confirming what happened.
+
+| Symbol | Color  | Meaning                                    | Example                                        |
+|--------|--------|--------------------------------------------|------------------------------------------------|
+| `+`    | Green  | File was created or successfully modified  | `+ Released [1.0.0] - 2026-05-19 in CHANGELOG.md` |
+| `!`    | Yellow | File needs attention (check mode)          | `! Not formatted: CHANGELOG.md`                |
+| `~`    | Cyan   | Dry-run preview — no file was written      | `~ Would release [1.0.0] - 2026-05-19 in CHANGELOG.md` |
+| `=`    | Faint  | No-op — nothing to do                      | `= Already formatted: CHANGELOG.md`            |
+
+Use `--batch` to suppress all feedback messages (e.g. in CI pipelines or shell scripts).
 
 ---
 

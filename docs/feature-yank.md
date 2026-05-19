@@ -12,6 +12,9 @@ $ heylogs yank -r 1.0.0
 
 # Mark release 1.0.0 as yanked in a specific changelog file
 $ heylogs yank CHANGELOG.md -r 1.0.0
+
+# Preview without writing the file
+$ heylogs yank -r 1.0.0 --dry-run
 ```
 
 **Before:**
@@ -56,6 +59,7 @@ $ heylogs yank CHANGELOG.md -r 1.0.0
 | Parameter | Description               | CLI                        | Maven Plugin       |
 |-----------|---------------------------|----------------------------|--------------------|
 | `ref`     | Version reference to yank | `-r <ref>` / `--ref <ref>` | `<ref>1.0.0</ref>` |
+| `dryRun`  | Preview without writing   | `--dry-run`                | *(not supported)*  |
 
 ## Notes
 
@@ -63,6 +67,22 @@ $ heylogs yank CHANGELOG.md -r 1.0.0
 - The command fails if the version is already marked as yanked.
 - The `[Unreleased]` section cannot be yanked.
 - The reference link definition (e.g. `[1.0.0]: https://...`) is not modified by this command.
+
+## Feedback
+
+On success the CLI prints a single line to **stderr**:
+
+```
++ Yanked [1.0.0] in CHANGELOG.md
+```
+
+In `--dry-run` mode no file is written and the message uses the `~` prefix:
+
+```
+~ Would yank [1.0.0] in CHANGELOG.md
+```
+
+Use `--batch` to suppress all feedback.
 
 ---
 

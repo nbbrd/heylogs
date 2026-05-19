@@ -23,6 +23,15 @@ public class MainCommandTest {
     }
 
     @Test
+    public void testHelpShowsBatchOption() {
+        CommandLine cmd = new CommandLine(new MainCommand());
+        CommandWatcher watcher = CommandWatcher.on(cmd);
+
+        cmd.execute("--help");
+        assertThat(watcher.getOut() + watcher.getErr()).contains("--batch");
+    }
+
+    @Test
     public void testContent(@TempDir Path temp) throws IOException {
         CommandLine cmd = new CommandLine(new MainCommand());
         CommandWatcher watcher = CommandWatcher.on(cmd);
