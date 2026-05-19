@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static internal.heylogs.base.AnsiCodes.*;
 import static java.util.Locale.ROOT;
 
 // https://eslint.org/docs/latest/user-guide/formatters/#stylish
@@ -44,7 +45,7 @@ public final class StylishFormat implements Format {
                 .column(Formatter.of(problem -> problem.getIssue().getMessage()))
                 .column(Formatter.of(Problem::getId))
                 .build()
-                .writeAll(appendable, list, Check::getSource, Check::getProblems, item -> getProblemsSummary(item.getProblems()));
+                .writeAll(appendable, list, item -> bold(item.getSource()), Check::getProblems, item -> getProblemsSummary(item.getProblems()));
     }
 
     private static void formatScanList(@NonNull Appendable appendable, @NonNull List<Scan> list) throws IOException {
@@ -52,19 +53,19 @@ public final class StylishFormat implements Format {
                 .<String>builder()
                 .column(Formatter.onString())
                 .build()
-                .writeAll(appendable, list, Scan::getSource, item -> getStatusBody(item.getSummary()), ignore -> null);
+                .writeAll(appendable, list, item -> bold(item.getSource()), item -> getStatusBody(item.getSummary()), ignore -> null);
     }
 
     private static void formatResourceList(@NonNull Appendable appendable, @NonNull List<Resource> list) throws IOException {
         StylishWriter
                 .<Resource>builder()
-                .column(Formatter.of(Resource::getType))
+                .column(Formatter.of(resource -> bold(resource.getType())))
                 .column(Formatter.of(Resource::getModule))
-                .column(Formatter.of(Resource::getId))
+                .column(Formatter.of(resource -> bold(resource.getId())))
                 .column(Formatter.of(Resource::getName))
                 .column(Formatter.of(Resource::getOptions))
                 .build()
-                .write(appendable, "Resources", list, getResourcesSummary(list));
+                .write(appendable, bold("Resources"), list, getResourcesSummary(list));
     }
 
     @MightBePromoted
@@ -81,9 +82,9 @@ public final class StylishFormat implements Format {
                 case OFF:
                     return "off";
                 case WARN:
-                    return "warning";
+                    return yellow("warning");
                 case ERROR:
-                    return "error";
+                    return red("error");
                 default:
                     throw new RuntimeException();
             }
@@ -98,35 +99,37 @@ public final class StylishFormat implements Format {
     private static String getProblemsSummary(List<Problem> list) {
         switch (list.size()) {
             case 0:
-                return "No problem";
+                return green("No problem");
             case 1:
-                return "1 problem";
+                return red("1 problem");
             default:
-                return list.size() + " problems";
+                return red(list.size() + " problems");
         }
     }
 
     private static List<String> getStatusBody(Summary summary) {
         List<String> result = new ArrayList<>();
         if (summary.isValid()) {
-            result.add("Valid changelog");
+            result.add(green(bold("Valid changelog")));
             if (summary.getReleaseCount() == 0) {
                 result.add("No release found");
             } else {
                 result.add(String.format(ROOT, "Found %d releases", summary.getReleaseCount()));
                 if (summary.getYankedReleaseCount() > 0) {
-                    result.add(String.format(ROOT, "Has %d yanked releases", summary.getYankedReleaseCount()));
+                    result.add(yellow(String.format(ROOT, "Has %d yanked releases", summary.getYankedReleaseCount())));
                 }
                 result.add(String.format(ROOT, "Ranging from %s to %s", summary.getTimeRange().getFrom(), summary.getTimeRange().getTo()));
                 result.add(summary.getCompatibilities().isEmpty()
-                        ? "Not compatible with known versioning"
+                        ? yellow("Not compatible with known versioning")
                         : "Compatible with " + String.join(", ", summary.getCompatibilities()));
             }
             result.add("Forged with " + Optional.ofNullable(summary.getForgeName()).orElse("unknown forge")
                     + " at " + Optional.ofNullable(summary.getForgeURL()).map(URL::toString).orElse("unknown URL"));
-            result.add(summary.getUnreleasedChanges() > 0 ? ("Has " + summary.getUnreleasedChanges() + " unreleased changes") : "Has no unreleased changes");
+            result.add(summary.getUnreleasedChanges() > 0
+                    ? yellow("Has " + summary.getUnreleasedChanges() + " unreleased changes")
+                    : "Has no unreleased changes");
         } else {
-            result.add("Invalid changelog");
+            result.add(red(bold("Invalid changelog")));
         }
         return result;
     }
@@ -134,11 +137,11 @@ public final class StylishFormat implements Format {
     private static String getResourcesSummary(List<Resource> list) {
         switch (list.size()) {
             case 0:
-                return "No resource found";
+                return yellow("No resource found");
             case 1:
-                return "1 resource found";
+                return green("1 resource found");
             default:
-                return list.size() + " resources found";
+                return green(list.size() + " resources found");
         }
     }
 }

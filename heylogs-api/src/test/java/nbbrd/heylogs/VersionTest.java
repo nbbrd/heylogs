@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 
-import static internal.heylogs.spi.URLExtractor.urlOf;
+import static nbbrd.heylogs.spi.URLExtractor.urlOf;
 import static nbbrd.heylogs.Version.*;
 import static org.assertj.core.api.Assertions.*;
 import static tests.heylogs.api.Sample.asHeading;

@@ -10,11 +10,7 @@ import nbbrd.design.MightBePromoted;
 import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Nodes;
 import nbbrd.heylogs.VersioningConfig;
-import nbbrd.heylogs.spi.ForgeLinkType;
-import nbbrd.heylogs.spi.ForgeSupport;
-import nbbrd.heylogs.spi.RuleContext;
-import nbbrd.heylogs.spi.RuleIssue;
-import nbbrd.heylogs.spi.RuleSeverity;
+import nbbrd.heylogs.spi.*;
 import org.junit.jupiter.api.Test;
 import tests.heylogs.spi.MockedCompareLink;
 import tests.heylogs.spi.MockedForgeLink;
@@ -482,6 +478,66 @@ public class ExtendedRulesTest {
 
         assertThat(validateColumnWidth(asBulletListItem("- Short text [link](https://very-long-url-that-exceeds-the-80-character-limit.com)")))
                 .describedAs("Link starts before 80, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+    }
+
+    @Test
+    public void testValidateNoVersionRegression() {
+        RuleContext contextWithoutVersioning = RuleContext.DEFAULT;
+
+        assertThat(validateNoVersionRegression(using("/Main.md"), contextWithoutVersioning))
+                .describedAs("No versioning configured, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        // Mock versioning with a simple numeric comparator for testing
+        Versioning numericVersioning = VersioningSupport
+                .builder()
+                .id("test-numeric")
+                .name("Test Numeric")
+                .urlOf("http://example.com")
+                .moduleId("test")
+                .validator(arg -> null)
+                .predicate(arg -> text -> text.toString().matches("\\d+\\.\\d+\\.\\d+"))
+                .comparator(arg -> (a, b) -> {
+                    String[] aParts = a.toString().split("\\.");
+                    String[] bParts = b.toString().split("\\.");
+                    if (aParts.length != 3 || bParts.length != 3) return 0;
+
+                    for (int i = 0; i < 3; i++) {
+                        int cmp = Integer.compare(Integer.parseInt(aParts[i]), Integer.parseInt(bParts[i]));
+                        if (cmp != 0) return cmp;
+                    }
+                    return 0;
+                })
+                .familyMapper(arg -> version -> {
+                    String[] parts = version.toString().split("\\.");
+                    if (parts.length >= 2) {
+                        return parts[0] + "." + parts[1];
+                    }
+                    return null;
+                })
+                .build();
+
+        Config config = Config.builder().versioningOf("test-numeric").build();
+        RuleContext contextWithVersioning = RuleContext.builder()
+                .config(config)
+                .versioning(numericVersioning)
+                .build();
+
+        assertThat(validateNoVersionRegression(using("/Main.md"), contextWithVersioning))
+                .describedAs("Valid changelog with versioning, no issue")
+                .isEqualTo(NO_RULE_ISSUE);
+
+        assertThat(validateNoVersionRegression(using("/VersionRegression.md"), contextWithVersioning))
+                .describedAs("Version regression detected")
+                .isNotNull()
+                .extracting(RuleIssue::getMessage)
+                .asString()
+                .contains("2.4.0")
+                .contains("2.4.1");
+
+        assertThat(validateNoVersionRegression(using("/DuplicateVersions.md"), contextWithVersioning))
+                .describedAs("Duplicate versions treated as same family - no regression within duplicates")
                 .isEqualTo(NO_RULE_ISSUE);
     }
 

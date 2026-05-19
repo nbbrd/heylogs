@@ -4,7 +4,17 @@ Heylogs can be integrated into CI/CD environments to automate changelog validati
 
 ## GitHub Actions
 
-**Check changelog format:**
+**Check changelog format with inline annotations:**
+```yml
+- uses: jbangdev/jbang-action@v0.130.0
+  with:
+    script: com.github.nbbrd.heylogs:heylogs-cli:_VERSION_:bin
+    scriptargs: "check --format github-actions"
+```
+
+This format emits GitHub Actions workflow commands that appear as inline annotations on the Files changed tab of Pull Requests. Errors are highlighted directly in the changelog file, making it easier for developers to identify and fix issues without digging through logs.
+
+**Check changelog format (JSON output):**
 ```yml
 - uses: jbangdev/jbang-action@v0.130.0
   with:

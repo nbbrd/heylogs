@@ -1,9 +1,9 @@
 package nbbrd.heylogs.ext.github;
 
-import internal.heylogs.git.Hash;
+import nbbrd.heylogs.spi.Hash;
 import org.junit.jupiter.api.Test;
 
-import static internal.heylogs.spi.URLExtractor.urlOf;
+import static nbbrd.heylogs.spi.URLExtractor.urlOf;
 import static nbbrd.heylogs.ext.github.GitHubCommitLink.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

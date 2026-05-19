@@ -8,6 +8,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.concurrent.Callable;
 
 import static internal.heylogs.cli.MarkdownInputSupport.newMarkdownInputSupport;
@@ -15,6 +16,9 @@ import static internal.heylogs.cli.MarkdownOutputSupport.newMarkdownOutputSuppor
 
 @Command(name = "fetch", description = "Fetch a change from a forge into the Unreleased section.")
 public final class FetchCommand implements Callable<Void> {
+
+    @CommandLine.Spec
+    private CommandLine.Model.CommandSpec spec;
 
     @CommandLine.Mixin
     private ChangelogInputParameters input;
@@ -34,12 +38,29 @@ public final class FetchCommand implements Callable<Void> {
     private ConfigOptions configOptions;
 
     @CommandLine.Mixin
-    private DebugOptions debugOptions;
+    private DryRunOptions dryRunOptions;
 
     @Override
     public Void call() throws Exception {
+        String displayPath = FeedbackSupport.relativize(input.getFile());
+        String type = typeOfChangeOptions.getTypeOfChange().name().toLowerCase(Locale.ROOT);
+        if (dryRunOptions.isDryRun()) {
+            FeedbackSupport.printDryRun(spec, "Would fetch [" + type + "] " + issue + " into " + displayPath);
+            return null;
+        }
         Config config = configOptions.getConfigFromDirectory(Config.resolveStartDir(input.getFile()));
-        store(fetch(load(), config));
+        Document document = load();
+        String snapshot = FeedbackSupport.renderDocument(document);
+        long startNano = System.nanoTime();
+        fetch(document, config);
+        String elapsed = FeedbackSupport.formatElapsed(startNano);
+        if (!snapshot.equals(FeedbackSupport.renderDocument(document))) {
+            store(document);
+            FeedbackSupport.printSuccess(spec, "[" + type + "] " + issue + " fetched into " + displayPath
+                    + " " + FeedbackSupport.faint(spec, "(" + elapsed + ")"));
+        } else {
+            FeedbackSupport.printNoOp(spec, "Already present: " + issue + " in " + displayPath);
+        }
         return null;
     }
 
@@ -47,9 +68,8 @@ public final class FetchCommand implements Callable<Void> {
         return newMarkdownInputSupport().readDocument(input.getFile());
     }
 
-    private Document fetch(Document document, Config config) throws IOException {
+    private void fetch(Document document, Config config) throws IOException {
         Heylogs.ofServiceLoader().fetch(document, typeOfChangeOptions.getTypeOfChange(), issue, config);
-        return document;
     }
 
     private void store(Document document) throws IOException {

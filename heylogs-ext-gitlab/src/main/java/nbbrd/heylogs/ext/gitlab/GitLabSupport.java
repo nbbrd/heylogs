@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static internal.heylogs.spi.URLExtractor.*;
+import static nbbrd.heylogs.spi.URLExtractor.*;
 
 // https://docs.gitlab.com/user/markdown/#gitlab-specific-references
 // https://docs.gitlab.com/user/reserved_names/#limitations-on-usernames-project-and-group-names

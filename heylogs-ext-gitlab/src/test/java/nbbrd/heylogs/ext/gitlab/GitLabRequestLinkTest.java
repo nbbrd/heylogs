@@ -7,7 +7,7 @@ import org.junit.jupiter.params.provider.CsvFileSource;
 import java.net.URL;
 import java.util.Arrays;
 
-import static internal.heylogs.spi.URLExtractor.urlOf;
+import static nbbrd.heylogs.spi.URLExtractor.urlOf;
 import static nbbrd.heylogs.ext.gitlab.GitLabRequestLink.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

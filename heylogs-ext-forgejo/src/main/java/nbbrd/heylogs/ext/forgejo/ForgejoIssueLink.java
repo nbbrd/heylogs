@@ -13,7 +13,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.regex.Pattern;
 
-import static internal.heylogs.spi.URLExtractor.*;
+import static nbbrd.heylogs.spi.URLExtractor.*;
 import static java.lang.Integer.parseInt;
 
 // https://forgejo.org/docs/latest/user/linked-references/

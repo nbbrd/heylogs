@@ -1,6 +1,6 @@
 package nbbrd.heylogs.ext.forgejo;
 
-import internal.heylogs.git.Hash;
+import nbbrd.heylogs.spi.Hash;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAs;
@@ -11,8 +11,8 @@ import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
 
-import static internal.heylogs.git.Hash.HASH_PATTERN;
-import static internal.heylogs.spi.URLExtractor.*;
+import static nbbrd.heylogs.spi.Hash.HASH_PATTERN;
+import static nbbrd.heylogs.spi.URLExtractor.*;
 
 // https://forgejo.org/docs/latest/user/linked-references/
 @RepresentableAs(URL.class)

@@ -6,7 +6,7 @@
 
     <groupId>com.github.nbbrd.heylogs</groupId>
     <artifactId>heylogs-parent</artifactId>
-    <version>0.17.1</version>
+    <version>0.18.0</version>
     <packaging>pom</packaging>
 
     <name>heylogs</name>
@@ -39,10 +39,10 @@
     <properties>
         <!-- Java 8+ config -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.build.outputTimestamp>2026-04-08T07:51:31Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2026-05-19T12:52:02Z</project.build.outputTimestamp>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
-        <requiredMavenVersion>3.9.11</requiredMavenVersion>
+        <requiredMavenVersion>3.9.14</requiredMavenVersion>
 
         <!-- GitHub hosting -->
         <x.github.user>nbbrd</x.github.user>
@@ -71,6 +71,11 @@
                 <artifactId>assertj-core</artifactId>
                 <version>3.27.7</version>
             </dependency>
+            <dependency>
+                <groupId>com.tngtech.archunit</groupId>
+                <artifactId>archunit-junit5</artifactId>
+                <version>1.4.2</version>
+            </dependency>
 
             <!-- other libraries -->
             <dependency>
@@ -97,7 +102,7 @@
             <dependency>
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
-                <version>2.13.2</version>
+                <version>2.14.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -200,7 +205,7 @@
                 <plugin>
                     <groupId>org.jreleaser</groupId>
                     <artifactId>jreleaser-maven-plugin</artifactId>
-                    <version>1.23.0</version>
+                    <version>1.24.0</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -210,10 +215,13 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <properties>
-                        <!-- Enable parallel execution of junit5 tests -->
+                        <!-- Enable parallel execution of junit tests -->
                         <configurationParameters>
                             junit.jupiter.execution.parallel.enabled=true
                             junit.jupiter.execution.parallel.mode.default=concurrent
+                            junit.jupiter.execution.parallel.mode.classes.default=concurrent
+                            junit.jupiter.execution.parallel.config.strategy=dynamic
+                            junit.jupiter.execution.parallel.config.dynamic.max-pool-size-factor=4
                         </configurationParameters>
                     </properties>
                 </configuration>
@@ -260,6 +268,7 @@
         <module>heylogs-maven-plugin</module>
         <module>heylogs-bom</module>
         <module>heylogs-ext-http</module>
+        <module>heylogs-architecture-tests</module>
     </modules>
 
     <profiles>
@@ -276,7 +285,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
+                        <configuration combine.self="append">
                             <useModulePath>false</useModulePath>
                         </configuration>
                     </plugin>
@@ -293,9 +302,9 @@
                 </property>
             </activation>
             <properties>
-                <lombok.version>1.18.44</lombok.version>
-                <java-service.version>2.0.0</java-service.version>
-                <java-design.version>1.9.0</java-design.version>
+                <lombok.version>1.18.46</lombok.version>
+                <java-service.version>2.1.0</java-service.version>
+                <java-design.version>1.10.2</java-design.version>
                 <picocli.version>4.7.7</picocli.version>
             </properties>
             <dependencyManagement>

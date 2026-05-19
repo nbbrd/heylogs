@@ -1,9 +1,9 @@
 package nbbrd.heylogs.ext.forgejo;
 
-import internal.heylogs.spi.URLExtractor;
+import nbbrd.heylogs.spi.URLExtractor;
 import org.junit.jupiter.api.Test;
 
-import static internal.heylogs.spi.URLExtractor.urlOf;
+import static nbbrd.heylogs.spi.URLExtractor.urlOf;
 import static nbbrd.heylogs.ext.forgejo.ForgejoRequestLink.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

@@ -2,7 +2,6 @@ package nbbrd.heylogs.cli;
 
 import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.cli.ChangelogInputParameters;
-import internal.heylogs.cli.DebugOptions;
 import internal.heylogs.cli.SpecialProperties;
 import nbbrd.console.picocli.FileOutputOptions;
 import nbbrd.heylogs.Filter;
@@ -69,9 +68,6 @@ public final class ExtractCommand implements Callable<Void> {
             description = "Ignore versions content, keep headers only."
     )
     private boolean ignoreContent = false;
-
-    @CommandLine.Mixin
-    private DebugOptions debugOptions;
 
     @Override
     public Void call() throws Exception {

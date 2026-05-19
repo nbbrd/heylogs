@@ -12,7 +12,7 @@ import org.jspecify.annotations.Nullable;
 import java.net.URL;
 import java.util.regex.Pattern;
 
-import static internal.heylogs.spi.URLExtractor.*;
+import static nbbrd.heylogs.spi.URLExtractor.*;
 
 // https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#mentioning-people-and-teams
 @RepresentableAs(URL.class)

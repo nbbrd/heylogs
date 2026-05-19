@@ -1,9 +1,9 @@
 package nbbrd.heylogs.ext.github;
 
-import internal.heylogs.git.Hash;
+import nbbrd.heylogs.spi.Hash;
 import org.junit.jupiter.api.Test;
 
-import static internal.heylogs.spi.URLExtractor.urlOf;
+import static nbbrd.heylogs.spi.URLExtractor.urlOf;
 import static nbbrd.heylogs.ext.github.GitHubCommitRef.of;
 import static nbbrd.heylogs.ext.github.GitHubCommitRef.parse;
 import static org.assertj.core.api.Assertions.*;

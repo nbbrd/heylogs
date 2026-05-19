@@ -1,8 +1,9 @@
 package internal.heylogs.spi;
 
+import nbbrd.heylogs.spi.URLExtractor;
 import org.junit.jupiter.api.Test;
 
-import static internal.heylogs.spi.URLExtractor.urlOf;
+import static nbbrd.heylogs.spi.URLExtractor.urlOf;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class URLExtractorTest {

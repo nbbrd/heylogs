@@ -5,12 +5,16 @@ import nbbrd.heylogs.*;
 import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static java.util.stream.Collectors.toList;
 import static nbbrd.heylogs.spi.Tagging.CONVERSION_NOT_SUPPORTED;
+import static nbbrd.heylogs.spi.Versioning.NO_VERSIONING_COMPARATOR;
+import static nbbrd.heylogs.spi.Versioning.NO_VERSIONING_FAMILY_MAPPER;
 import static nbbrd.heylogs.spi.Versioning.NO_VERSIONING_FILTER;
 
 @lombok.Value
@@ -41,6 +45,26 @@ public class RuleContext {
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(NO_VERSIONING_FILTER) : NO_VERSIONING_FILTER;
+    }
+
+    public @Nullable Comparator<CharSequence> findVersioningComparatorOrNull() {
+        VersioningConfig versioningConfig = config.getVersioning();
+        return versioningConfig != null ? versionings.stream()
+                .filter(versioningConfig::isCompatibleWith)
+                .map(v -> v.getVersioningComparatorOrNull(versioningConfig.getArg()))
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(NO_VERSIONING_COMPARATOR) : NO_VERSIONING_COMPARATOR;
+    }
+
+    public @Nullable Function<CharSequence, String> findVersioningFamilyMapperOrNull() {
+        VersioningConfig versioningConfig = config.getVersioning();
+        return versioningConfig != null ? versionings.stream()
+                .filter(versioningConfig::isCompatibleWith)
+                .map(v -> v.getVersioningFamilyMapperOrNull(versioningConfig.getArg()))
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(NO_VERSIONING_FAMILY_MAPPER) : NO_VERSIONING_FAMILY_MAPPER;
     }
 
     public @Nullable RuleSeverity findRuleSeverityOrNull(@NonNull String ruleId) {

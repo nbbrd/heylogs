@@ -1,6 +1,6 @@
 package nbbrd.heylogs.ext.gitlab;
 
-import internal.heylogs.git.Hash;
+import nbbrd.heylogs.spi.Hash;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.converter.ConvertWith;
@@ -10,7 +10,7 @@ import tests.heylogs.spi.HashConverter;
 import java.net.URL;
 import java.util.Arrays;
 
-import static internal.heylogs.spi.URLExtractor.urlOf;
+import static nbbrd.heylogs.spi.URLExtractor.urlOf;
 import static nbbrd.heylogs.ext.gitlab.GitLabCommitLink.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

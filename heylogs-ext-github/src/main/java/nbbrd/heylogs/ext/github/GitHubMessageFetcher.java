@@ -13,7 +13,7 @@ import nbbrd.io.net.MediaType;
 import java.io.IOException;
 import java.net.URL;
 
-import static internal.heylogs.spi.URLExtractor.urlOf;
+import static nbbrd.heylogs.spi.URLExtractor.urlOf;
 
 // https://docs.github.com/en/rest/issues/issues#get-an-issue
 // https://docs.github.com/en/rest/pulls/pulls#get-a-pull-request

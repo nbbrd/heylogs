@@ -20,6 +20,27 @@ public final class SemVer implements Versioning {
             .urlOf("https://semver.org/")
             .moduleId("semver")
             .validator(arg -> arg == null ? null : "Semver does not take any arguments")
-            .predicate(withoutArg(text -> Semver.isValid(text.toString())))
+            .predicate(withoutArg(SemVer::validate))
+            .comparator(withoutArg(SemVer::compare))
+            .familyMapper(withoutArg(SemVer::toFamily))
             .build();
+
+    private static boolean validate(CharSequence text) {
+        return Semver.isValid(text.toString());
+    }
+
+    private static int compare(CharSequence a, CharSequence b) {
+        if (!validate(a) || !validate(b)) {
+            return 0; // incomparable
+        }
+        return new Semver(a.toString()).compareTo(new Semver(b.toString()));
+    }
+
+    private static String toFamily(CharSequence version) {
+        if (!validate(version)) {
+            return null;
+        }
+        Semver semver = new Semver(version.toString());
+        return semver.getMajor() + "." + semver.getMinor();
+    }
 }

@@ -49,7 +49,7 @@ public class FormatCommandTest {
         assertThat(cmd.execute(src.toString()))
                 .isEqualTo(CommandLine.ExitCode.OK);
         assertThat(watcher.getOut()).isEmpty();
-        assertThat(watcher.getErr()).isEmpty();
+        assertThat(watcher.getErr()).isNotEmpty();
 
         String content = new String(Files.readAllBytes(src), UTF_8);
         assertThat(content.indexOf("### Added"))
@@ -80,7 +80,7 @@ public class FormatCommandTest {
         assertThat(cmd.execute(src.toString()))
                 .isEqualTo(CommandLine.ExitCode.OK);
         assertThat(watcher.getOut()).isEmpty();
-        assertThat(watcher.getErr()).isEmpty();
+        assertThat(watcher.getErr()).isNotEmpty();
 
         String content = new String(Files.readAllBytes(src), UTF_8);
         assertThat(content.indexOf("### Added"))
@@ -114,7 +114,7 @@ public class FormatCommandTest {
         assertThat(cmd.execute(src1.toString(), src2.toString()))
                 .isEqualTo(CommandLine.ExitCode.OK);
         assertThat(watcher.getOut()).isEmpty();
-        assertThat(watcher.getErr()).isEmpty();
+        assertThat(watcher.getErr()).isNotEmpty();
 
         for (Path src : Arrays.asList(src1, src2)) {
             String content = new String(Files.readAllBytes(src), UTF_8);
@@ -146,7 +146,7 @@ public class FormatCommandTest {
 
         assertThat(cmd.execute("--check", src.toString()))
                 .isEqualTo(CommandLine.ExitCode.OK);
-        assertThat(watcher.getErr()).isEmpty();
+        assertThat(watcher.getErr()).contains("Properly formatted");
     }
 
     @Test
@@ -177,5 +177,105 @@ public class FormatCommandTest {
 
         // File must NOT have been modified in check mode
         assertThat(src).content(UTF_8).isEqualTo(originalContent);
+    }
+
+    @Test
+    public void testFormatAlreadyFormattedReportsNoOp(@TempDir Path temp) throws IOException {
+        CommandLine cmd = new CommandLine(new FormatCommand());
+        CommandWatcher watcher = CommandWatcher.on(cmd);
+
+        Path src = temp.resolve("CHANGELOG.md");
+        Files.write(src, Arrays.asList(
+                "# Changelog",
+                "",
+                "## [Unreleased]",
+                "",
+                "### Added",
+                "",
+                "- New feature",
+                "",
+                "[Unreleased]: https://github.com/example/project/compare/v1.0.0...HEAD"));
+
+        assertThat(cmd.execute(src.toString())).isEqualTo(CommandLine.ExitCode.OK);
+        assertThat(watcher.getOut()).isEmpty();
+        assertThat(watcher.getErr()).contains("Already formatted");
+    }
+
+    @Test
+    public void testFormatMultipleFilesPrintsSummary(@TempDir Path temp) throws IOException {
+        CommandLine cmd = new CommandLine(new FormatCommand());
+        CommandWatcher watcher = CommandWatcher.on(cmd);
+
+        Path src1 = temp.resolve("CHANGELOG1.md");
+        Path src2 = temp.resolve("CHANGELOG2.md");
+        for (Path src : Arrays.asList(src1, src2)) {
+            Files.write(src, Arrays.asList(
+                    "# Changelog",
+                    "",
+                    "## [Unreleased]",
+                    "",
+                    "### Fixed",
+                    "",
+                    "- Fix bug",
+                    "",
+                    "### Added",
+                    "",
+                    "- New feature",
+                    "",
+                    "[Unreleased]: https://github.com/example/project/compare/v1.0.0...HEAD"));
+        }
+
+        assertThat(cmd.execute(src1.toString(), src2.toString())).isEqualTo(CommandLine.ExitCode.OK);
+        assertThat(watcher.getErr()).contains("formatted").contains("up-to-date");
+    }
+
+    @Test
+    public void testDryRunShowsWhatWouldBeFormatted(@TempDir Path temp) throws IOException {
+        CommandLine cmd = new CommandLine(new FormatCommand());
+        CommandWatcher watcher = CommandWatcher.on(cmd);
+
+        Path src = temp.resolve("CHANGELOG.md");
+        Files.write(src, Arrays.asList(
+                "# Changelog",
+                "",
+                "## [Unreleased]",
+                "",
+                "### Fixed",
+                "",
+                "- Fix bug",
+                "",
+                "### Added",
+                "",
+                "- New feature",
+                "",
+                "[Unreleased]: https://github.com/example/project/compare/v1.0.0...HEAD"));
+
+        String originalContent = new String(Files.readAllBytes(src), UTF_8);
+
+        assertThat(cmd.execute("--dry-run", src.toString())).isEqualTo(CommandLine.ExitCode.OK);
+        assertThat(watcher.getErr()).contains("Would format");
+
+        assertThat(src).content(UTF_8).isEqualTo(originalContent);
+    }
+
+    @Test
+    public void testDryRunOnAlreadyFormattedFile(@TempDir Path temp) throws IOException {
+        CommandLine cmd = new CommandLine(new FormatCommand());
+        CommandWatcher watcher = CommandWatcher.on(cmd);
+
+        Path src = temp.resolve("CHANGELOG.md");
+        Files.write(src, Arrays.asList(
+                "# Changelog",
+                "",
+                "## [Unreleased]",
+                "",
+                "### Added",
+                "",
+                "- New feature",
+                "",
+                "[Unreleased]: https://github.com/example/project/compare/v1.0.0...HEAD"));
+
+        assertThat(cmd.execute("--dry-run", src.toString())).isEqualTo(CommandLine.ExitCode.OK);
+        assertThat(watcher.getErr()).contains("Already formatted");
     }
 }

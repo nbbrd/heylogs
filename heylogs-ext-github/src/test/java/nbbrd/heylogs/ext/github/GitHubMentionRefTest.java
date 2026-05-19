@@ -2,7 +2,7 @@ package nbbrd.heylogs.ext.github;
 
 import org.junit.jupiter.api.Test;
 
-import static internal.heylogs.spi.URLExtractor.urlOf;
+import static nbbrd.heylogs.spi.URLExtractor.urlOf;
 import static nbbrd.heylogs.ext.github.GitHubMentionRef.of;
 import static nbbrd.heylogs.ext.github.GitHubMentionRef.parse;
 import static org.assertj.core.api.Assertions.*;

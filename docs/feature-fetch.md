@@ -15,6 +15,9 @@ $ heylogs fetch -y fixed -i https://github.com/nbbrd/heylogs/pull/42
 
 # Fetch an issue by short ref (forge inferred from the changelog compare link)
 $ heylogs fetch CHANGELOG.md -y added -i "#1"
+
+# Preview without writing the file
+$ heylogs fetch -y added -i https://github.com/nbbrd/heylogs/issues/1 --dry-run
 ```
 
 ### Maven plugin
@@ -52,6 +55,7 @@ $ heylogs fetch CHANGELOG.md -y added -i "#1"
 |-----------|-----------------------------------------------------------------------|-------------------------------|----------------------|
 | `type`    | Type of change (added, changed, deprecated, removed, fixed, security) | `-y <type>` / `--type <type>` | `<type>added</type>` |
 | `id`      | Full URL or short ref of the forge issue or pull request              | `-i <id>` / `--id <id>`       | `<id>https://…</id>` |
+| `dryRun`  | Preview without writing the file                                      | `--dry-run`                   | *(not supported)*    |
 
 ### Configuration options
 
@@ -63,6 +67,28 @@ $ heylogs fetch CHANGELOG.md -y added -i "#1"
 | `forge`      | Forge platform                    | `--forge <platform>`      | `<forge>github</forge>`                        |
 | `rules`      | Rule overrides (comma-separated)  | `--rule <id:severity>`    | `<rules>no-empty-group:WARN,...</rules>`       |
 | `domains`    | Domain mappings (comma-separated) | `--domain <domain:forge>` | `<domains>gitlab.company.com:gitlab</domains>` |
+
+## Feedback
+
+On success the CLI prints a single line to **stderr**, including the elapsed network time:
+
+```
++ [added] https://github.com/nbbrd/heylogs/issues/1 fetched into CHANGELOG.md (342ms)
+```
+
+If the issue was already present in the Unreleased section (duplicate detection), the file is not rewritten and a no-op message is shown instead:
+
+```
+= Already present: https://github.com/nbbrd/heylogs/issues/1 in CHANGELOG.md
+```
+
+In `--dry-run` mode no network call is made, no file is written, and the message uses the `~` prefix:
+
+```
+~ Would fetch [added] https://github.com/nbbrd/heylogs/issues/1 into CHANGELOG.md
+```
+
+Use `--batch` to suppress all feedback.
 
 ---
 

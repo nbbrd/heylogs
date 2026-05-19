@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
-import static internal.heylogs.spi.URLExtractor.urlOf;
+import static nbbrd.heylogs.spi.URLExtractor.urlOf;
 
 // https://docs.gitlab.com/ee/api/issues.html#single-issue
 // https://docs.gitlab.com/ee/api/merge_requests.html#get-single-mr

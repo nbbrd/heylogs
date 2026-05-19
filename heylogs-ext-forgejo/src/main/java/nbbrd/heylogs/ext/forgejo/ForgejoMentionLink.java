@@ -12,7 +12,7 @@ import org.jspecify.annotations.Nullable;
 import java.net.URL;
 import java.util.regex.Pattern;
 
-import static internal.heylogs.spi.URLExtractor.*;
+import static nbbrd.heylogs.spi.URLExtractor.*;
 
 // https://forgejo.org/docs/latest/user/linked-references/
 @RepresentableAs(URL.class)

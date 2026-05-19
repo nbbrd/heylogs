@@ -2,8 +2,8 @@ package nbbrd.heylogs.cli;
 
 import com.vladsch.flexmark.util.ast.Document;
 import internal.heylogs.cli.ConfigOptions;
-import internal.heylogs.cli.DebugOptions;
-import internal.heylogs.cli.SpecialProperties;
+import internal.heylogs.cli.DryRunOptions;
+import internal.heylogs.cli.FeedbackSupport;
 import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Heylogs;
 import picocli.CommandLine;
@@ -22,6 +22,9 @@ import static internal.heylogs.cli.MarkdownOutputSupport.newMarkdownOutputSuppor
 
 @Command(name = "init", description = "Initialize a new changelog file.")
 public final class InitCommand implements Callable<Void> {
+
+    @CommandLine.Spec
+    private CommandLine.Model.CommandSpec spec;
 
     @CommandLine.Parameters(
             paramLabel = "<file>",
@@ -48,17 +51,25 @@ public final class InitCommand implements Callable<Void> {
     private ConfigOptions configOptions;
 
     @CommandLine.Mixin
-    private DebugOptions debugOptions;
+    private DryRunOptions dryRunOptions;
 
     @Override
     public Void call() throws Exception {
         if (Files.exists(file)) {
             throw new IOException("File already exists: " + file);
         }
+        String displayPath = FeedbackSupport.relativize(file);
+        if (dryRunOptions.isDryRun()) {
+            String urlHint = projectUrl != null ? " (project: " + projectUrl + ")" : "";
+            FeedbackSupport.printDryRun(spec, "Would create: " + displayPath + urlHint);
+            return null;
+        }
         Config config = configOptions.getConfigFromDirectory(Config.resolveStartDir(file));
         String template = templateFile != null ? new String(Files.readAllBytes(templateFile), StandardCharsets.UTF_8) : null;
         Document document = Heylogs.ofServiceLoader().init(config, template, projectUrl);
         newMarkdownOutputSupport().writeDocument(file, document);
+        String urlHint = projectUrl != null ? " (project: " + projectUrl + ")" : "";
+        FeedbackSupport.printSuccess(spec, "Created: " + displayPath + urlHint);
         return null;
     }
 }

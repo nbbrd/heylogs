@@ -12,7 +12,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.regex.Pattern;
 
-import static internal.heylogs.spi.URLExtractor.*;
+import static nbbrd.heylogs.spi.URLExtractor.*;
 import static java.lang.Integer.parseInt;
 
 // https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/autolinked-references-and-urls#issues-and-pull-requests

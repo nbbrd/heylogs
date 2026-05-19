@@ -1,6 +1,6 @@
 package tests.heylogs.spi;
 
-import internal.heylogs.git.Hash;
+import nbbrd.heylogs.spi.Hash;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.converter.ArgumentConversionException;
 import org.junit.jupiter.params.converter.SimpleArgumentConverter;

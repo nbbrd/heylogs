@@ -1,6 +1,5 @@
 package nbbrd.heylogs.cli;
 
-import internal.heylogs.cli.DebugOptions;
 import internal.heylogs.cli.FormatOptions;
 import internal.heylogs.cli.SpecialProperties;
 import nbbrd.console.picocli.FileOutputOptions;
@@ -25,9 +24,6 @@ public final class ListCommand implements Callable<Void> {
 
     @CommandLine.Mixin
     private FormatOptions formatOptions;
-
-    @CommandLine.Mixin
-    private DebugOptions debugOptions;
 
     @Override
     public Void call() throws IOException {

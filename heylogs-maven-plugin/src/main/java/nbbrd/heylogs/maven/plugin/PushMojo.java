@@ -1,6 +1,7 @@
 package nbbrd.heylogs.maven.plugin;
 
 import com.vladsch.flexmark.util.ast.Document;
+import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Heylogs;
 import nbbrd.heylogs.TypeOfChange;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -44,7 +45,7 @@ public final class PushMojo extends HeylogsMojo {
         TypeOfChange typeOfChange = parseTypeOfChange(type);
 
         getLog().info("Pushing " + typeOfChange.getLabel() + " change: " + message);
-        Heylogs.ofServiceLoader().push(document, typeOfChange, message);
+        Heylogs.ofServiceLoader().push(document, typeOfChange, message, Config.DEFAULT);
 
         writeChangelog(document, inputFile);
     }

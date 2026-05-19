@@ -1,6 +1,6 @@
 package nbbrd.heylogs.ext.gitlab;
 
-import internal.heylogs.git.ThreeDotDiff;
+import nbbrd.heylogs.spi.ThreeDotDiff;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAs;
@@ -13,8 +13,8 @@ import org.jspecify.annotations.Nullable;
 import java.net.URL;
 import java.util.List;
 
-import static internal.heylogs.git.ThreeDotDiff.THREE_DOT_DIFF_PATTERN;
-import static internal.heylogs.spi.URLExtractor.urlOf;
+import static nbbrd.heylogs.spi.ThreeDotDiff.THREE_DOT_DIFF_PATTERN;
+import static nbbrd.heylogs.spi.URLExtractor.urlOf;
 import static nbbrd.heylogs.ext.gitlab.GitLabSupport.parseLink;
 
 @RepresentableAs(URL.class)

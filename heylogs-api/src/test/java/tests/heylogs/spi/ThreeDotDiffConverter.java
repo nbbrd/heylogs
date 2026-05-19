@@ -1,6 +1,6 @@
 package tests.heylogs.spi;
 
-import internal.heylogs.git.ThreeDotDiff;
+import nbbrd.heylogs.spi.ThreeDotDiff;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.converter.ArgumentConversionException;
 import org.junit.jupiter.params.converter.SimpleArgumentConverter;

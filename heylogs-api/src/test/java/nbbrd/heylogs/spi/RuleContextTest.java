@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import tests.heylogs.spi.MockedForgeLink;
 
 import static internal.heylogs.base.BaseVersionings.REGEX_VERSIONING;
-import static internal.heylogs.spi.URLExtractor.urlOf;
+import static nbbrd.heylogs.spi.URLExtractor.urlOf;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class RuleContextTest {

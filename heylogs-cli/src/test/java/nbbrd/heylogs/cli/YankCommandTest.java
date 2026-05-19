@@ -48,7 +48,7 @@ public class YankCommandTest {
         assertThat(cmd.execute(src.toString(), "-r", "1.0.0"))
                 .isEqualTo(CommandLine.ExitCode.OK);
         assertThat(watcher.getOut()).isEmpty();
-        assertThat(watcher.getErr()).isEmpty();
+        assertThat(watcher.getErr()).isNotEmpty();
 
         assertThat(src)
                 .content(UTF_8)
@@ -91,6 +91,32 @@ public class YankCommandTest {
 
         assertThat(cmd.execute(src.toString(), "-r", "1.0.0"))
                 .isEqualTo(CommandLine.ExitCode.SOFTWARE);
+    }
+
+    @Test
+    public void testYankDryRun(@TempDir Path temp) throws IOException {
+        CommandLine cmd = new CommandLine(new YankCommand());
+        CommandWatcher watcher = CommandWatcher.on(cmd);
+
+        Path src = temp.resolve("CHANGELOG.md");
+        Files.write(src, Arrays.asList(
+                "# Changelog",
+                "",
+                "## [Unreleased]",
+                "",
+                "## [1.0.0] - 2020-01-01",
+                "",
+                "[Unreleased]: https://github.com/example/project/compare/v1.0.0...HEAD",
+                "[1.0.0]: https://github.com/example/project/releases/tag/v1.0.0"));
+
+        String original = new String(Files.readAllBytes(src), UTF_8);
+
+        assertThat(cmd.execute(src.toString(), "-r", "1.0.0", "--dry-run"))
+                .isEqualTo(CommandLine.ExitCode.OK);
+        assertThat(watcher.getOut()).isEmpty();
+        assertThat(watcher.getErr()).isNotEmpty();
+
+        assertThat(src).content(UTF_8).isEqualTo(original);
     }
 }
 

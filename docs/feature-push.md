@@ -16,6 +16,8 @@ heylogs push CHANGELOG.md -y fixed -m "Fix memory leak in parser"
 heylogs push -y security -m "Fix XSS vulnerability [#456](https://github.com/user/repo/issues/456)"
 # Deprecate a feature
 heylogs push -y deprecated -m "Deprecate legacy API endpoints"
+# Preview without writing the file
+heylogs push -y added -m "Add support for custom themes" --dry-run
 ```
 
 ### Maven plugin
@@ -54,6 +56,23 @@ heylogs push -y deprecated -m "Deprecate legacy API endpoints"
 |-----------|----------------------------------------------|----------------------------------------|----------------------------------|
 | `type`    | Type of change (added, changed, fixed, etc.) | `-y <type>` / `--type <type>`          | `<type>added</type>`             |
 | `message` | The change message                           | `-m <message>` / `--message <message>` | `<message>Some change</message>` |
+| `dryRun`  | Preview without writing the file             | `--dry-run`                            | *(not supported)*                |
+
+## Feedback
+
+On success the CLI prints a single line to **stderr** (message truncated to 40 characters):
+
+```
++ [added] "Add support for custom themes" pushed into CHANGELOG.md
+```
+
+In `--dry-run` mode no file is written and the message uses the `~` prefix:
+
+```
+~ Would push [added] "Add support for custom themes" into CHANGELOG.md
+```
+
+Use `--batch` to suppress all feedback.
 
 ---
 

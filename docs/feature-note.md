@@ -12,6 +12,9 @@ $ heylogs note -m "This release introduces major improvements to performance."
 
 # Set the summary in a specific changelog file
 $ heylogs note custom-changelog.md -m "Security fixes and dependency updates."
+
+# Preview without writing the file
+$ heylogs note -m "This release introduces major improvements." --dry-run
 ```
 
 ### Maven plugin
@@ -47,12 +50,30 @@ $ heylogs note custom-changelog.md -m "Security fixes and dependency updates."
 | Parameter | Description           | CLI                                 | Maven Plugin                          |
 |-----------|----------------------|-------------------------------------|---------------------------------------|
 | `message` | The summary text     | `-m <message>` / `--message <message>` | `<message>Some summary</message>`     |
+| `dryRun`  | Preview without writing the file | `--dry-run`            | *(not supported)*                     |
 
 ## Notes
 
 - The summary is placed immediately after the `## [Unreleased]` header.
 - If a summary already exists, it will be replaced by the new message.
 - The command fails if the changelog file does not exist.
+- Messages longer than 40 characters are truncated in the feedback line (the full message is always written to the file).
+
+## Feedback
+
+On success the CLI prints a single line to **stderr** (message truncated to 40 characters):
+
+```
++ Note set "This release introduces major imp..." in CHANGELOG.md
+```
+
+In `--dry-run` mode no file is written and the message uses the `~` prefix:
+
+```
+~ Would set note "This release introduces major imp..." in CHANGELOG.md
+```
+
+Use `--batch` to suppress all feedback.
 
 ---
 

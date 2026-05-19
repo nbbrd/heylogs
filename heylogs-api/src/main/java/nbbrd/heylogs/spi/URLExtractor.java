@@ -1,4 +1,4 @@
-package internal.heylogs.spi;
+package nbbrd.heylogs.spi;
 
 import lombok.NonNull;
 

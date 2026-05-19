@@ -7,6 +7,21 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-05-19
+
+This release polishes the user experience with richer output, progress feedback, and first-class GitHub Actions support, while also tightening version validation.
+
+### Added
+
+- Add ANSI color codes to stylish format [#529](https://github.com/nbbrd/heylogs/issues/529)
+- Add no-version-regression rule [#545](https://github.com/nbbrd/heylogs/issues/545)
+- Add GitHub Actions annotation output format for check [#544](https://github.com/nbbrd/heylogs/issues/544)
+- Add progress feedback to file-modifying commands [#549](https://github.com/nbbrd/heylogs/issues/549)
+
+### Fixed
+
+- Fix use of special properties in CLI [#539](https://github.com/nbbrd/heylogs/issues/539)
+
 ## [0.17.1] - 2026-04-08
 
 ### Changed
@@ -361,7 +376,8 @@ This release improves extension points and also aligns features of Maven plugin 
 
 - Initial release
 
-[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.17.1...HEAD
+[Unreleased]: https://github.com/nbbrd/heylogs/compare/0.18.0...HEAD
+[0.18.0]: https://github.com/nbbrd/heylogs/compare/v0.17.1...0.18.0
 [0.17.1]: https://github.com/nbbrd/heylogs/compare/v0.17.0...v0.17.1
 [0.17.0]: https://github.com/nbbrd/heylogs/compare/v0.16.1...v0.17.0
 [0.16.1]: https://github.com/nbbrd/heylogs/compare/v0.16.0...v0.16.1
