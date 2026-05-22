@@ -69,7 +69,7 @@ public class ExtendedRulesTest {
     @Test
     public void testValidateConsistentSeparator() {
         assertThat(validateConsistentSeparator(using("/ErraticSeparator.md")))
-                .isEqualTo(RuleIssue.builder().message("Expecting consistent version-date separator \\u002d, found [\\u002d, \\u2013, \\u2014]").line(1).column(1).build());
+                .isEqualTo(RuleIssue.builder().message("Expecting consistent version-date separator \\u002d, but also found: [\\u2013, \\u2014]").line(1).column(1).build());
 
         assertThat(validateConsistentSeparator(using("/NonDefaultSeparator.md")))
                 .isEqualTo(NO_RULE_ISSUE);
@@ -102,7 +102,7 @@ public class ExtendedRulesTest {
     @Test
     public void testValidateImbalancedBraces() {
         assertThat(validateImbalancedBraces(using("/ImbalancedBraces.md")))
-                .isEqualTo(RuleIssue.builder().message("Imbalanced braces found in '- Danish translation from [@frederikspang](https://github.com/frederikspang)].'").line(9).column(1).build());
+                .isEqualTo(RuleIssue.builder().message("Imbalanced braces found in '- Danish translation from [@frederikspang](https://github.co\u2026'").line(9).column(1).build());
     }
 
     @Test
@@ -111,14 +111,14 @@ public class ExtendedRulesTest {
                 .extracting(RuleIssue::getMessage)
                 .asString()
                 .contains("Duplicate item found in version 1.1.0 across ADDED and CHANGED")
-                .contains("- Danish translation from [@frederikspang](https://github.com/frederikspang).")
+                .contains("- Danish translation from [@frederikspang](https://github.co\u2026")
                 .contains("appears 2 times");
 
         assertThat(validateDuplicateItems(using("/DuplicateItemsAcrossVersions.md")))
                 .extracting(RuleIssue::getMessage)
                 .asString()
                 .contains("Duplicate item found across versions 1.1.0 (ADDED) and 1.0.0 (FIXED)")
-                .contains("- Danish translation from [@frederikspang](https://github.com/frederikspang).")
+                .contains("- Danish translation from [@frederikspang](https://github.co\u2026")
                 .contains("appears 2 times");
     }
 
@@ -146,6 +146,12 @@ public class ExtendedRulesTest {
         assertThat(hasImbalancedBraces("text `[code]` (unbalanced")).isTrue();
         assertThat(hasImbalancedBraces("(text `[ignore]` balanced)")).isFalse();
         assertThat(hasImbalancedBraces("(text `[ignore]` unbalanced")).isTrue();
+
+        // Double-backtick code spans should also be ignored
+        assertThat(hasImbalancedBraces("``(``")).isFalse();
+        assertThat(hasImbalancedBraces("``[``")).isFalse();
+        assertThat(hasImbalancedBraces("text ``[code]`` (balanced)")).isFalse();
+        assertThat(hasImbalancedBraces("text ``[code]`` (unbalanced")).isTrue();
     }
 
     @Test

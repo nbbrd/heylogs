@@ -30,7 +30,6 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static java.util.Locale.ROOT;
-import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.*;
 import static nbbrd.heylogs.Util.illegalArgumentToNull;
 import static nbbrd.heylogs.spi.RuleSupport.nameToId;
@@ -313,7 +312,7 @@ public enum ExtendedRules implements Rule {
         return separators.size() > 1
                 ? RuleIssue
                 .builder()
-                .message("Expecting consistent version-date separator " + Util.toUnicode(separators.get(0)) + ", found " + separators.stream().map(Util::toUnicode).collect(joining(", ", "[", "]")))
+                .message("Expecting consistent version-date separator " + Util.toUnicode(separators.get(0)) + ", but also found: " + separators.subList(1, separators.size()).stream().map(Util::toUnicode).collect(joining(", ", "[", "]")))
                 .location(changelog.getHeading())
                 .build()
                 : NO_RULE_ISSUE;
@@ -351,7 +350,7 @@ public enum ExtendedRules implements Rule {
 
     private static Map<TypeOfChange, Long> countByTypeOfChange(VersionHeading version) {
         return version.getTypeOfChanges()
-                .collect(groupingBy(TypeOfChangeHeading::getSection, counting()));
+                .collect(groupingBy(TypeOfChangeHeading::getSection, LinkedHashMap::new, counting()));
     }
 
     @VisibleForTesting
@@ -372,13 +371,11 @@ public enum ExtendedRules implements Rule {
 
     private static Stream<RuleIssue> validateNoEmptyGroupOnVersionNode(VersionHeading version) {
         return version.getTypeOfChanges()
-                .collect(toMap(identity(), typeOfChange -> typeOfChange.getBulletListItems().count()))
-                .entrySet().stream()
-                .filter(entry -> entry.getValue() == 0)
-                .map(entry -> RuleIssue
+                .filter(typeOfChange -> typeOfChange.getBulletListItems().count() == 0)
+                .map(typeOfChange -> RuleIssue
                         .builder()
-                        .message("Heading " + version.getHeading().getText() + " has no entries for " + entry.getKey().getSection())
-                        .location(entry.getKey().getHeading())
+                        .message("Heading " + version.getHeading().getText() + " has no entries for " + typeOfChange.getSection())
+                        .location(typeOfChange.getHeading())
                         .build());
     }
 
@@ -393,15 +390,13 @@ public enum ExtendedRules implements Rule {
         return changelog
                 .getVersions()
                 .filter(version -> version.getSection().isReleased())
-                .collect(toMap(identity(), version -> version.getTypeOfChanges().count()))
-                .entrySet().stream()
-                .filter(entry -> entry.getValue() == 0)
-                .map(entry -> RuleIssue
-                        .builder()
-                        .message("Heading " + entry.getKey().getHeading().getText() + " has no entries")
-                        .location(entry.getKey().getHeading())
-                        .build())
+                .filter(version -> version.getTypeOfChanges().count() == 0)
                 .findFirst()
+                .map(version -> RuleIssue
+                        .builder()
+                        .message("Heading " + version.getHeading().getText() + " has no entries")
+                        .location(version.getHeading())
+                        .build())
                 .orElse(NO_RULE_ISSUE);
     }
 
@@ -415,7 +410,7 @@ public enum ExtendedRules implements Rule {
     private static RuleIssue validateUniqueRelease(ChangelogHeading changelog) {
         return changelog
                 .getVersions()
-                .collect(groupingBy(version -> version.getSection().getRef(), toList()))
+                .collect(groupingBy(version -> version.getSection().getRef(), LinkedHashMap::new, toList()))
                 .entrySet().stream()
                 .filter(entry -> entry.getValue().size() > 1)
                 .findFirst()
@@ -443,7 +438,7 @@ public enum ExtendedRules implements Rule {
                 .findFirst()
                 .map(item -> RuleIssue
                         .builder()
-                        .message("Imbalanced braces found in '" + item.getChars().trim() + "'")
+                        .message("Imbalanced braces found in '" + truncate(item.getChars().trim().toString(), 60) + "'")
                         .location(item)
                         .build())
                 .orElse(NO_RULE_ISSUE);
@@ -453,29 +448,54 @@ public enum ExtendedRules implements Rule {
     static boolean hasImbalancedBraces(String markdown) {
         final String braces = "{}[]()";
         Deque<Character> stack = new ArrayDeque<>();
-        boolean insideBackticks = false;
-
-        for (char c : markdown.toCharArray()) {
+        char[] chars = markdown.toCharArray();
+        int i = 0;
+        while (i < chars.length) {
+            char c = chars[i];
             if (c == '`') {
-                insideBackticks = !insideBackticks;
+                // Count consecutive backticks to determine code-span delimiter length
+                int backtickStart = i;
+                while (i < chars.length && chars[i] == '`') i++;
+                int backtickCount = i - backtickStart;
+                // Find matching closing run of the same length
+                int closing = indexOfBacktickRun(chars, i, backtickCount);
+                if (closing >= 0) {
+                    i = closing + backtickCount; // skip everything inside + closing backticks
+                }
+                // If no matching closing run, the opening backticks are literal — just continue
                 continue;
             }
-
-            if (insideBackticks) {
-                continue; // skip braces inside backticks
-            }
-
             int idx = braces.indexOf(c);
-            if (idx == -1) continue;
-            if (idx % 2 == 0) { // opening brace
-                stack.push(c);
-            } else { // closing brace
-                if (stack.isEmpty() || stack.pop() != braces.charAt(idx - 1)) {
-                    return true; // imbalance found
+            if (idx != -1) {
+                if (idx % 2 == 0) { // opening brace
+                    stack.push(c);
+                } else { // closing brace
+                    if (stack.isEmpty() || stack.pop() != braces.charAt(idx - 1)) {
+                        return true; // imbalance found
+                    }
                 }
             }
+            i++;
         }
         return !stack.isEmpty(); // true if any unmatched opening braces remain
+    }
+
+    private static int indexOfBacktickRun(char[] chars, int start, int count) {
+        int i = start;
+        while (i <= chars.length - count) {
+            if (chars[i] == '`') {
+                int runStart = i;
+                while (i < chars.length && chars[i] == '`') i++;
+                if (i - runStart == count) return runStart;
+            } else {
+                i++;
+            }
+        }
+        return -1;
+    }
+
+    private static String truncate(String text, int maxLength) {
+        return text.length() > maxLength ? text.substring(0, maxLength) + "\u2026" : text;
     }
 
     @VisibleForTesting
@@ -659,7 +679,7 @@ public enum ExtendedRules implements Rule {
 
     private static RuleIssue validateDuplicateItems(ChangelogHeading changelog) {
         // Collect all items across all versions and type of changes
-        Map<String, List<ItemLocation>> itemsByText = new HashMap<>();
+        Map<String, List<ItemLocation>> itemsByText = new LinkedHashMap<>();
 
         changelog.getVersions().forEach(version ->
                 version.getTypeOfChanges().forEach(typeOfChange ->
@@ -686,7 +706,7 @@ public enum ExtendedRules implements Rule {
                                 first.version.getSection().getRef(),
                                 first.typeOfChange.getSection(),
                                 second.typeOfChange.getSection(),
-                                entry.getKey(),
+                                truncate(entry.getKey(), 60),
                                 locations.size());
                     } else {
                         // Different versions
@@ -695,7 +715,7 @@ public enum ExtendedRules implements Rule {
                                 first.typeOfChange.getSection(),
                                 second.version.getSection().getRef(),
                                 second.typeOfChange.getSection(),
-                                entry.getKey(),
+                                truncate(entry.getKey(), 60),
                                 locations.size());
                     }
 

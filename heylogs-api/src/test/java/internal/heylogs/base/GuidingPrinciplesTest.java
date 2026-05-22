@@ -43,7 +43,7 @@ GuidingPrinciplesTest {
                 .isEqualTo(RuleIssue.builder().message("Missing Changelog heading").line(1).column(1).build());
 
         assertThat(validateForHumans(using("/NoChangelog.md")))
-                .isEqualTo(RuleIssue.builder().message("Invalid text: expecting 'Changelog', found 'Stuff'").line(1).column(1).build());
+                .isEqualTo(RuleIssue.builder().message("Invalid Changelog heading: Invalid text: expecting 'Changelog', found 'Stuff'").line(1).column(1).build());
 
         assertThat(validateForHumans(using("/TooManyChangelog.md")))
                 .isEqualTo(RuleIssue.builder().message("Too many Changelog headings").line(1).column(1).build());
@@ -61,9 +61,9 @@ GuidingPrinciplesTest {
                 .map(GuidingPrinciples::validateAllH2ContainAVersion)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains(RuleIssue.builder().message("Invalid date format").line(4).column(1).build(), atIndex(0))
-                .contains(RuleIssue.builder().message("Missing date part").line(5).column(1).build(), atIndex(1))
-                .contains(RuleIssue.builder().message("Missing ref link").line(6).column(1).build(), atIndex(2))
+                .contains(RuleIssue.builder().message("Invalid version heading: Invalid date format").line(4).column(1).build(), atIndex(0))
+                .contains(RuleIssue.builder().message("Invalid version heading: Missing date part").line(5).column(1).build(), atIndex(1))
+                .contains(RuleIssue.builder().message("Invalid version heading: Missing ref link").line(6).column(1).build(), atIndex(2))
                 .hasSize(3);
 
     }
@@ -80,7 +80,7 @@ GuidingPrinciplesTest {
                 .map(GuidingPrinciples::validateTypeOfChangesGrouped)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains(RuleIssue.builder().message("Cannot parse 'Stuff'").line(7).column(1).build(), atIndex(0))
+                .contains(RuleIssue.builder().message("Invalid type-of-change heading: Cannot parse 'Stuff'").line(7).column(1).build(), atIndex(0))
                 .hasSize(1);
     }
 
@@ -115,12 +115,17 @@ GuidingPrinciplesTest {
                 .isNull();
 
         assertThat(validateLatestVersionFirst(using("/NotLatestVersionFirst.md")))
-                .isEqualTo(RuleIssue.builder().message("Versions not sorted").line(3).column(1).build());
+                .isEqualTo(RuleIssue.builder().message("Version 'Unreleased' should come before '1.1.0' (2019-02-15)").line(3).column(1).build());
 
         assertThat(validateLatestVersionFirst(using("/UnsortedVersion.md")))
-                .isEqualTo(RuleIssue.builder().message("Versions not sorted").line(3).column(1).build());
+                .isEqualTo(RuleIssue.builder().message("Version '1.1.0' (2019-02-15) should come before '1.0.0' (2017-06-20)").line(3).column(1).build());
 
         assertThat(validateLatestVersionFirst(using("/InvalidVersion.md")))
-                .isEqualTo(RuleIssue.builder().message("Versions not sorted").line(7).column(1).build());
+                .isNotNull()
+                .satisfies(issue -> {
+                    assertThat(issue.getLine()).isEqualTo(7);
+                    assertThat(issue.getColumn()).isEqualTo(1);
+                    assertThat(issue.getMessage()).contains("should come before");
+                });
     }
 }
