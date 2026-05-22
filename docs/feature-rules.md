@@ -42,7 +42,7 @@ heylogs check --rule dot-space-link-style:WARN --rule no-empty-group:OFF
 | `api`  | `type-of-changes-grouped`  | Type of changes grouped  | `ERROR` |
 | `api`  | `unique-headings`          | Unique headings          | `ERROR` |
 | `api`  | `unique-release`           | Unique release           | `ERROR` |
-| `api`  | `unknown-link-type`        | Unknown link type        | `ERROR` |
+| `api`  | `unknown-link-type`        | Unknown link type        | `WARN`  |
 | `api`  | `versioning-format`        | Versioning format        | `ERROR` |
 
 ---
