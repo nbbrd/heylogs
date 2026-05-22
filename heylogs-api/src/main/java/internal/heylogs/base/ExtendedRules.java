@@ -283,8 +283,9 @@ public enum ExtendedRules implements Rule {
     @VisibleForTesting
     static RuleIssue validateHttps(LinkNodeBase link) {
         try {
-            if (new URL(link.getUrl().toString()).getProtocol().equals("https")) return NO_RULE_ISSUE;
+            if (!new URL(link.getUrl().toString()).getProtocol().equals("http")) return NO_RULE_ISSUE;
         } catch (MalformedURLException ignore) {
+            return NO_RULE_ISSUE;
         }
         return RuleIssue
                 .builder()

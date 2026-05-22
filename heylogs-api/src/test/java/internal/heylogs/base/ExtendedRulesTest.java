@@ -62,9 +62,8 @@ public class ExtendedRulesTest {
                 .filteredOn(Objects::nonNull)
                 .contains(RuleIssue.builder().message("Expecting HTTPS protocol").line(1).column(1).build(), atIndex(0))
                 .contains(RuleIssue.builder().message("Expecting HTTPS protocol").line(2).column(7).build(), atIndex(1))
-                .contains(RuleIssue.builder().message("Expecting HTTPS protocol").line(3).column(7).build(), atIndex(2))
-                .contains(RuleIssue.builder().message("Expecting HTTPS protocol").line(5).column(1).build(), atIndex(3))
-                .hasSize(4);
+                .contains(RuleIssue.builder().message("Expecting HTTPS protocol").line(6).column(1).build(), atIndex(2))
+                .hasSize(3);
     }
 
     @Test
