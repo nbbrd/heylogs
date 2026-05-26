@@ -1,6 +1,8 @@
 package internal.heylogs.base;
 
 import com.vladsch.flexmark.ast.Heading;
+import com.vladsch.flexmark.ast.Link;
+import com.vladsch.flexmark.ast.LinkRef;
 import com.vladsch.flexmark.ast.Reference;
 import com.vladsch.flexmark.ast.util.ReferenceRepository;
 import com.vladsch.flexmark.parser.Parser;
@@ -87,7 +89,7 @@ public enum GuidingPrinciples implements Rule {
     DATE_DISPLAYED {
         @Override
         public RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
-            return NO_RULE_ISSUE;
+            return node instanceof Heading ? validateDateDisplayed((Heading) node) : NO_RULE_ISSUE;
         }
 
         @Override
@@ -227,6 +229,37 @@ public enum GuidingPrinciples implements Rule {
                 }
                 previous = current;
             }
+        }
+        return NO_RULE_ISSUE;
+    }
+
+    @VisibleForTesting
+    static RuleIssue validateDateDisplayed(@NonNull Heading heading) {
+        if (!Version.isVersionLevel(heading)) {
+            return NO_RULE_ISSUE;
+        }
+        Iterator<Node> parts = heading.getChildIterator();
+        if (!parts.hasNext()) {
+            return NO_RULE_ISSUE; // malformed heading — ALL_H2_CONTAIN_A_VERSION handles this
+        }
+        Node firstPart = parts.next();
+        String ref;
+        if (firstPart instanceof LinkRef) {
+            ref = ((LinkRef) firstPart).getReference().toString();
+        } else if (firstPart instanceof Link) {
+            ref = ((Link) firstPart).getText().toString();
+        } else {
+            return NO_RULE_ISSUE; // malformed heading — ALL_H2_CONTAIN_A_VERSION handles this
+        }
+        if (ref.equalsIgnoreCase("unreleased")) {
+            return NO_RULE_ISSUE; // Unreleased version has no date by design
+        }
+        if (!parts.hasNext()) {
+            return RuleIssue
+                    .builder()
+                    .message("Missing date for version '" + ref + "'")
+                    .location(heading)
+                    .build();
         }
         return NO_RULE_ISSUE;
     }

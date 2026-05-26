@@ -2,7 +2,6 @@ package internal.heylogs.base;
 
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.util.ast.Node;
-import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Nodes;
 import nbbrd.heylogs.spi.RuleContext;
 import nbbrd.heylogs.spi.RuleIssue;
@@ -17,8 +16,7 @@ import static org.assertj.core.data.Index.atIndex;
 import static tests.heylogs.api.Sample.using;
 import static tests.heylogs.spi.RuleAssert.assertRuleCompliance;
 
-public class
-GuidingPrinciplesTest {
+public class GuidingPrinciplesTest {
 
     @Test
     public void testCompliance() {
@@ -104,6 +102,22 @@ GuidingPrinciplesTest {
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .isEmpty();
+    }
+
+    @Test
+    public void testValidateDateDisplayed() {
+        assertThat(Nodes.of(Heading.class).descendants(using("/Main.md")))
+                .map(GuidingPrinciples::validateDateDisplayed)
+                .isNotEmpty()
+                .filteredOn(Objects::nonNull)
+                .isEmpty();
+
+        assertThat(Nodes.of(Heading.class).descendants(using("/MissingDate.md")))
+                .map(GuidingPrinciples::validateDateDisplayed)
+                .isNotEmpty()
+                .filteredOn(Objects::nonNull)
+                .contains(RuleIssue.builder().message("Missing date for version '1.0.0'").line(4).column(1).build(), atIndex(0))
+                .hasSize(1);
     }
 
     @Test

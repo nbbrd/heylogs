@@ -7,6 +7,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix HTTPS validation logic
+- Fix message quality issues in rules
+- Fix rule severity error in documentation
+- Fix validation for date display in headings
+
 ## [0.18.0] - 2026-05-19
 
 This release polishes the user experience with richer output, progress feedback, and first-class GitHub Actions support, while also tightening version validation.
