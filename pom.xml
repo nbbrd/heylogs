@@ -6,7 +6,7 @@
 
     <groupId>com.github.nbbrd.heylogs</groupId>
     <artifactId>heylogs-parent</artifactId>
-    <version>0.18.0</version>
+    <version>0.18.1</version>
     <packaging>pom</packaging>
 
     <name>heylogs</name>
@@ -39,7 +39,7 @@
     <properties>
         <!-- Java 8+ config -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.build.outputTimestamp>2026-05-19T12:52:02Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2026-05-26T08:20:26Z</project.build.outputTimestamp>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
         <requiredMavenVersion>3.9.14</requiredMavenVersion>
@@ -62,7 +62,7 @@
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
-                <version>6.0.3</version>
+                <version>6.1.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -160,12 +160,12 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>3.6.2</version>
+                    <version>3.6.3</version>
                 </plugin>
                 <plugin>
                     <groupId>org.gaul</groupId>
                     <artifactId>modernizer-maven-plugin</artifactId>
-                    <version>3.3.0</version>
+                    <version>3.4.0</version>
                 </plugin>
                 <plugin>
                     <groupId>de.thetaphi</groupId>

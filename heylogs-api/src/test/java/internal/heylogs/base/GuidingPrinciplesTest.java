@@ -2,7 +2,6 @@ package internal.heylogs.base;
 
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.util.ast.Node;
-import nbbrd.heylogs.Config;
 import nbbrd.heylogs.Nodes;
 import nbbrd.heylogs.spi.RuleContext;
 import nbbrd.heylogs.spi.RuleIssue;
@@ -17,8 +16,7 @@ import static org.assertj.core.data.Index.atIndex;
 import static tests.heylogs.api.Sample.using;
 import static tests.heylogs.spi.RuleAssert.assertRuleCompliance;
 
-public class
-GuidingPrinciplesTest {
+public class GuidingPrinciplesTest {
 
     @Test
     public void testCompliance() {
@@ -43,7 +41,7 @@ GuidingPrinciplesTest {
                 .isEqualTo(RuleIssue.builder().message("Missing Changelog heading").line(1).column(1).build());
 
         assertThat(validateForHumans(using("/NoChangelog.md")))
-                .isEqualTo(RuleIssue.builder().message("Invalid text: expecting 'Changelog', found 'Stuff'").line(1).column(1).build());
+                .isEqualTo(RuleIssue.builder().message("Invalid Changelog heading: Invalid text: expecting 'Changelog', found 'Stuff'").line(1).column(1).build());
 
         assertThat(validateForHumans(using("/TooManyChangelog.md")))
                 .isEqualTo(RuleIssue.builder().message("Too many Changelog headings").line(1).column(1).build());
@@ -61,9 +59,9 @@ GuidingPrinciplesTest {
                 .map(GuidingPrinciples::validateAllH2ContainAVersion)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains(RuleIssue.builder().message("Invalid date format").line(4).column(1).build(), atIndex(0))
-                .contains(RuleIssue.builder().message("Missing date part").line(5).column(1).build(), atIndex(1))
-                .contains(RuleIssue.builder().message("Missing ref link").line(6).column(1).build(), atIndex(2))
+                .contains(RuleIssue.builder().message("Invalid version heading: Invalid date format").line(4).column(1).build(), atIndex(0))
+                .contains(RuleIssue.builder().message("Invalid version heading: Missing date part").line(5).column(1).build(), atIndex(1))
+                .contains(RuleIssue.builder().message("Invalid version heading: Missing ref link").line(6).column(1).build(), atIndex(2))
                 .hasSize(3);
 
     }
@@ -80,7 +78,7 @@ GuidingPrinciplesTest {
                 .map(GuidingPrinciples::validateTypeOfChangesGrouped)
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
-                .contains(RuleIssue.builder().message("Cannot parse 'Stuff'").line(7).column(1).build(), atIndex(0))
+                .contains(RuleIssue.builder().message("Invalid type-of-change heading: Cannot parse 'Stuff'").line(7).column(1).build(), atIndex(0))
                 .hasSize(1);
     }
 
@@ -107,6 +105,22 @@ GuidingPrinciplesTest {
     }
 
     @Test
+    public void testValidateDateDisplayed() {
+        assertThat(Nodes.of(Heading.class).descendants(using("/Main.md")))
+                .map(GuidingPrinciples::validateDateDisplayed)
+                .isNotEmpty()
+                .filteredOn(Objects::nonNull)
+                .isEmpty();
+
+        assertThat(Nodes.of(Heading.class).descendants(using("/MissingDate.md")))
+                .map(GuidingPrinciples::validateDateDisplayed)
+                .isNotEmpty()
+                .filteredOn(Objects::nonNull)
+                .contains(RuleIssue.builder().message("Missing date for version '1.0.0'").line(4).column(1).build(), atIndex(0))
+                .hasSize(1);
+    }
+
+    @Test
     public void testValidateLatestVersionFirst() {
         assertThat(validateLatestVersionFirst(using("/Main.md")))
                 .isNull();
@@ -115,12 +129,17 @@ GuidingPrinciplesTest {
                 .isNull();
 
         assertThat(validateLatestVersionFirst(using("/NotLatestVersionFirst.md")))
-                .isEqualTo(RuleIssue.builder().message("Versions not sorted").line(3).column(1).build());
+                .isEqualTo(RuleIssue.builder().message("Version 'Unreleased' should come before '1.1.0' (2019-02-15)").line(3).column(1).build());
 
         assertThat(validateLatestVersionFirst(using("/UnsortedVersion.md")))
-                .isEqualTo(RuleIssue.builder().message("Versions not sorted").line(3).column(1).build());
+                .isEqualTo(RuleIssue.builder().message("Version '1.1.0' (2019-02-15) should come before '1.0.0' (2017-06-20)").line(3).column(1).build());
 
         assertThat(validateLatestVersionFirst(using("/InvalidVersion.md")))
-                .isEqualTo(RuleIssue.builder().message("Versions not sorted").line(7).column(1).build());
+                .isNotNull()
+                .satisfies(issue -> {
+                    assertThat(issue.getLine()).isEqualTo(7);
+                    assertThat(issue.getColumn()).isEqualTo(1);
+                    assertThat(issue.getMessage()).contains("should come before");
+                });
     }
 }

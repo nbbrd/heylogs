@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.github.nbbrd.heylogs</groupId>
         <artifactId>heylogs-parent</artifactId>
-        <version>0.18.0</version>
+        <version>0.18.1</version>
     </parent>
 
     <artifactId>heylogs-enforcer-rules</artifactId>
@@ -37,7 +37,7 @@
         <dependency>
             <groupId>org.apache.maven.enforcer</groupId>
             <artifactId>enforcer-api</artifactId>
-            <version>3.6.2</version>
+            <version>3.6.3</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

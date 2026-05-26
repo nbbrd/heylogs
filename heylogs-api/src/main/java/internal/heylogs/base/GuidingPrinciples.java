@@ -1,6 +1,8 @@
 package internal.heylogs.base;
 
 import com.vladsch.flexmark.ast.Heading;
+import com.vladsch.flexmark.ast.Link;
+import com.vladsch.flexmark.ast.LinkRef;
 import com.vladsch.flexmark.ast.Reference;
 import com.vladsch.flexmark.ast.util.ReferenceRepository;
 import com.vladsch.flexmark.parser.Parser;
@@ -87,7 +89,7 @@ public enum GuidingPrinciples implements Rule {
     DATE_DISPLAYED {
         @Override
         public RuleIssue getRuleIssueOrNull(@NonNull Node node, @NonNull RuleContext context) {
-            return NO_RULE_ISSUE;
+            return node instanceof Heading ? validateDateDisplayed((Heading) node) : NO_RULE_ISSUE;
         }
 
         @Override
@@ -137,8 +139,8 @@ public enum GuidingPrinciples implements Rule {
                 } catch (IllegalArgumentException ex) {
                     return RuleIssue
                             .builder()
-                            .message(ex.getMessage())
-                            .location(document)
+                            .message("Invalid Changelog heading: " + ex.getMessage())
+                            .location(headings.get(0))
                             .build();
                 }
             default:
@@ -160,7 +162,7 @@ public enum GuidingPrinciples implements Rule {
         } catch (IllegalArgumentException ex) {
             return RuleIssue
                     .builder()
-                    .message(ex.getMessage())
+                    .message("Invalid version heading: " + ex.getMessage())
                     .location(heading)
                     .build();
         }
@@ -177,7 +179,7 @@ public enum GuidingPrinciples implements Rule {
         } catch (IllegalArgumentException ex) {
             return RuleIssue
                     .builder()
-                    .message(ex.getMessage())
+                    .message("Invalid type-of-change heading: " + ex.getMessage())
                     .location(heading)
                     .build();
         }
@@ -213,14 +215,59 @@ public enum GuidingPrinciples implements Rule {
         List<VersionNode> versions = VersionNode.allOf(doc);
 
         Comparator<VersionNode> comparator = Comparator.comparing((VersionNode item) -> item.getVersion().getDate()).reversed();
-        VersionNode unsortedItem = getFirstUnsortedItem(versions, comparator);
-        return unsortedItem != null
-                ? RuleIssue
-                .builder()
-                .message("Versions not sorted")
-                .location(unsortedItem.getNode())
-                .build()
-                : NO_RULE_ISSUE;
+        if (versions.size() > 1) {
+            Iterator<VersionNode> iterator = versions.iterator();
+            VersionNode previous = iterator.next();
+            while (iterator.hasNext()) {
+                VersionNode current = iterator.next();
+                if (comparator.compare(previous, current) > 0) {
+                    return RuleIssue
+                            .builder()
+                            .message("Version " + versionLabel(current.getVersion()) + " should come before " + versionLabel(previous.getVersion()))
+                            .location(current.getNode())
+                            .build();
+                }
+                previous = current;
+            }
+        }
+        return NO_RULE_ISSUE;
+    }
+
+    @VisibleForTesting
+    static RuleIssue validateDateDisplayed(@NonNull Heading heading) {
+        if (!Version.isVersionLevel(heading)) {
+            return NO_RULE_ISSUE;
+        }
+        Iterator<Node> parts = heading.getChildIterator();
+        if (!parts.hasNext()) {
+            return NO_RULE_ISSUE; // malformed heading — ALL_H2_CONTAIN_A_VERSION handles this
+        }
+        Node firstPart = parts.next();
+        String ref;
+        if (firstPart instanceof LinkRef) {
+            ref = ((LinkRef) firstPart).getReference().toString();
+        } else if (firstPart instanceof Link) {
+            ref = ((Link) firstPart).getText().toString();
+        } else {
+            return NO_RULE_ISSUE; // malformed heading — ALL_H2_CONTAIN_A_VERSION handles this
+        }
+        if (ref.equalsIgnoreCase("unreleased")) {
+            return NO_RULE_ISSUE; // Unreleased version has no date by design
+        }
+        if (!parts.hasNext()) {
+            return RuleIssue
+                    .builder()
+                    .message("Missing date for version '" + ref + "'")
+                    .location(heading)
+                    .build();
+        }
+        return NO_RULE_ISSUE;
+    }
+
+    private static String versionLabel(Version version) {
+        return version.isReleased()
+                ? "'" + version.getRef() + "' (" + version.getDate() + ")"
+                : "'" + version.getRef() + "'";
     }
 
     @lombok.Value
@@ -243,22 +290,6 @@ public enum GuidingPrinciples implements Rule {
 
     }
 
-    private static <T> T getFirstUnsortedItem(List<T> list, Comparator<T> comparator) {
-        if ((list.isEmpty()) || list.size() == 1) {
-            return null;
-        }
-
-        Iterator<T> iterator = list.iterator();
-        T current, previous = iterator.next();
-        while (iterator.hasNext()) {
-            current = iterator.next();
-            if (comparator.compare(previous, current) > 0) {
-                return current;
-            }
-            previous = current;
-        }
-        return null;
-    }
 
     @SuppressWarnings("unused")
     @DirectImpl
