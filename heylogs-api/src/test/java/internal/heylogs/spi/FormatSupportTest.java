@@ -4,6 +4,7 @@ import internal.heylogs.base.StylishFormat;
 import nbbrd.heylogs.FormatConfig;
 import nbbrd.heylogs.Heylogs;
 import nbbrd.heylogs.spi.FormatSupport;
+import nbbrd.heylogs.spi.FormatType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -35,19 +36,14 @@ class FormatSupportTest {
         Predicate<Path> stdio = ignore -> true;
         Predicate<Path> file = ignore -> false;
 
-        assertThat(resolveFormatId(null, heylogs, file, unknown)).isEqualTo("stylish");
-        assertThat(resolveFormatId(null, heylogs, stdio, unknown)).isEqualTo("stylish");
-        assertThat(resolveFormatId(null, heylogs, file, stuff)).isEqualTo("stuff");
-        assertThat(resolveFormatId(null, heylogs, stdio, stuff)).isEqualTo("stylish");
+        assertThat(resolveFormatId(null, heylogs, file, unknown, FormatType.PROBLEMS)).isEqualTo("stylish");
+        assertThat(resolveFormatId(null, heylogs, stdio, unknown, FormatType.PROBLEMS)).isEqualTo("stylish");
+        assertThat(resolveFormatId(null, heylogs, file, stuff, FormatType.PROBLEMS)).isEqualTo("stuff");
+        assertThat(resolveFormatId(null, heylogs, stdio, stuff, FormatType.PROBLEMS)).isEqualTo("stylish");
 
-//        assertThat(resolveFormatId(FormatConfig.parse(""), heylogs, file, unknown)).isEqualTo("stylish");
-//        assertThat(resolveFormatId(FormatConfig.parse(""), heylogs, stdio, unknown)).isEqualTo("stylish");
-//        assertThat(resolveFormatId(FormatConfig.parse(""), heylogs, file, stuff)).isEqualTo("stuff");
-//        assertThat(resolveFormatId(FormatConfig.parse(""), heylogs, stdio, stuff)).isEqualTo("stylish");
-
-        assertThat(resolveFormatId(FormatConfig.parse("other"), heylogs, file, unknown)).isEqualTo("other");
-        assertThat(resolveFormatId(FormatConfig.parse("other"), heylogs, stdio, unknown)).isEqualTo("other");
-        assertThat(resolveFormatId(FormatConfig.parse("other"), heylogs, file, stuff)).isEqualTo("other");
-        assertThat(resolveFormatId(FormatConfig.parse("other"), heylogs, stdio, stuff)).isEqualTo("other");
+        assertThat(resolveFormatId(FormatConfig.parse("other"), heylogs, file, unknown, FormatType.PROBLEMS)).isEqualTo("other");
+        assertThat(resolveFormatId(FormatConfig.parse("other"), heylogs, stdio, unknown, FormatType.PROBLEMS)).isEqualTo("other");
+        assertThat(resolveFormatId(FormatConfig.parse("other"), heylogs, file, stuff, FormatType.PROBLEMS)).isEqualTo("other");
+        assertThat(resolveFormatId(FormatConfig.parse("other"), heylogs, stdio, stuff, FormatType.PROBLEMS)).isEqualTo("other");
     }
 }

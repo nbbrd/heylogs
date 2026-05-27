@@ -10,6 +10,8 @@ import nbbrd.io.function.IOConsumer;
 import org.assertj.core.util.URLs;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Objects;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -59,6 +61,34 @@ public class Sample {
 
     public static final Resource RESOURCE1 = Resource.builder().type("a").module("stuff").id("hello").name("(A) Hello").options("*").build();
     public static final Resource RESOURCE2 = Resource.builder().type("world").module("stuff").id("b").name("World (B)").options("").build();
+
+    public static final ChangelogContent CONTENT1 = new ChangelogContent(
+            "Changelog",
+            null,
+            Arrays.asList(
+                    new ChangelogContent.VersionContent(
+                            Version.of("Unreleased", null, '-', LocalDate.MAX, false),
+                            Collections.emptyList()
+                    ),
+                    new ChangelogContent.VersionContent(
+                            Version.of("1.0.0", null, '-', LocalDate.of(2024, 1, 1), false),
+                            Collections.singletonList(
+                                    new ChangelogContent.TypeOfChangeContent(TypeOfChange.ADDED, Collections.singletonList("Initial release."))
+                            )
+                    )
+            )
+    );
+
+    public static final ChangelogContent CONTENT2 = new ChangelogContent(
+            "Changelog",
+            "All notable changes.",
+            Collections.singletonList(
+                    new ChangelogContent.VersionContent(
+                            Version.of("1.0.0", null, '-', LocalDate.of(2024, 1, 1), true),
+                            Collections.emptyList()
+                    )
+            )
+    );
 
     public static String stripAnsi(String text) {
         return text.replaceAll("\u001B\\[[0-9;]*m", "");

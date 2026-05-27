@@ -15,6 +15,7 @@ import java.util.concurrent.Callable;
 
 import static nbbrd.heylogs.spi.FormatSupport.resolveFormatId;
 import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
+import nbbrd.heylogs.spi.FormatType;
 
 @Command(name = "list", description = "List resources.")
 public final class ListCommand implements Callable<Void> {
@@ -31,7 +32,7 @@ public final class ListCommand implements Callable<Void> {
 
         TextOutputSupport outputSupport = newTextOutputSupport();
         Path outputFile = output.getFile();
-        String formatId = resolveFormatId(formatOptions.getFormat(), heylogs, outputSupport::isStdoutFile, outputFile);
+        String formatId = resolveFormatId(formatOptions.getFormat(), heylogs, outputSupport::isStdoutFile, outputFile, FormatType.RESOURCES);
 
         try (Writer writer = outputSupport.newBufferedWriter(outputFile)) {
             heylogs.formatResources(formatId, writer, heylogs.list());

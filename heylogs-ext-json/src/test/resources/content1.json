@@ -1,0 +1,36 @@
+{
+  "title": "Changelog",
+  "description": null,
+  "versions": [
+    {
+      "version": null,
+      "date": null,
+      "yanked": false,
+      "link": null,
+      "changes": {
+        "added": [],
+        "changed": [],
+        "deprecated": [],
+        "removed": [],
+        "fixed": [],
+        "security": []
+      }
+    },
+    {
+      "version": "1.0.0",
+      "date": "2024-01-01",
+      "yanked": false,
+      "link": null,
+      "changes": {
+        "added": [
+          "Initial release."
+        ],
+        "changed": [],
+        "deprecated": [],
+        "removed": [],
+        "fixed": [],
+        "security": []
+      }
+    }
+  ]
+}

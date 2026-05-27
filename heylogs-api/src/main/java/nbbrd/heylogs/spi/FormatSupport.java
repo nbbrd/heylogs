@@ -7,6 +7,7 @@ import nbbrd.heylogs.*;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,6 +36,10 @@ public final class FormatSupport implements Format {
 
     private final @Nullable ItemsFormatter<Resource> resources;
 
+    private final @Nullable ContentFormatter content;
+
+    private final @Nullable ContentParser contentParser;
+
     private final @NonNull DirectoryStream.Filter<? super Path> filter;
 
     @Override
@@ -59,20 +64,37 @@ public final class FormatSupport implements Format {
 
     @Override
     public void formatProblems(@NonNull Appendable appendable, @NonNull List<Check> list) throws IOException {
-        if (problems != null)
-            problems.formatItems(appendable, list);
+        if (problems == null)
+            throw new UnsupportedOperationException("formatProblems not supported by format '" + getFormatId() + "'");
+        problems.formatItems(appendable, list);
     }
 
     @Override
     public void formatStatus(@NonNull Appendable appendable, @NonNull List<Scan> list) throws IOException {
-        if (status != null)
-            status.formatItems(appendable, list);
+        if (status == null)
+            throw new UnsupportedOperationException("formatStatus not supported by format '" + getFormatId() + "'");
+        status.formatItems(appendable, list);
     }
 
     @Override
     public void formatResources(@NonNull Appendable appendable, @NonNull List<Resource> list) throws IOException {
-        if (resources != null)
-            resources.formatItems(appendable, list);
+        if (resources == null)
+            throw new UnsupportedOperationException("formatResources not supported by format '" + getFormatId() + "'");
+        resources.formatItems(appendable, list);
+    }
+
+    @Override
+    public void formatContent(@NonNull Appendable appendable, @NonNull ChangelogContent changelogContent) throws IOException {
+        if (content == null)
+            throw new UnsupportedOperationException("formatContent not supported by format '" + getFormatId() + "'");
+        content.formatContent(appendable, changelogContent);
+    }
+
+    @Override
+    public @NonNull ChangelogContent parseContent(@NonNull Reader reader) throws IOException {
+        if (contentParser == null)
+            throw new UnsupportedOperationException("parseContent not supported by format '" + getFormatId() + "'");
+        return contentParser.parseContent(reader);
     }
 
     @Override
@@ -84,6 +106,19 @@ public final class FormatSupport implements Format {
     public interface ItemsFormatter<T> {
 
         void formatItems(@NonNull Appendable appendable, @NonNull List<T> list) throws IOException;
+    }
+
+    @FunctionalInterface
+    public interface ContentFormatter {
+
+        void formatContent(@NonNull Appendable appendable, @NonNull ChangelogContent content) throws IOException;
+    }
+
+    @FunctionalInterface
+    public interface ContentParser {
+
+        @NonNull
+        ChangelogContent parseContent(@NonNull Reader reader) throws IOException;
     }
 
     public static final class Builder {
@@ -108,6 +143,16 @@ public final class FormatSupport implements Format {
             return type(FormatType.RESOURCES);
         }
 
+        public @NonNull Builder content(@NonNull ContentFormatter content) {
+            this.content = content;
+            return type(FormatType.CONTENT);
+        }
+
+        public @NonNull Builder contentParser(@NonNull ContentParser contentParser) {
+            this.contentParser = contentParser;
+            return this;
+        }
+
         public @NonNull Builder filterByExtension(@NonNull String extension) {
             return filter(getFormatFileFilterByExtension(extension));
         }
@@ -129,13 +174,20 @@ public final class FormatSupport implements Format {
         return file.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(extension);
     }
 
-    public static @NonNull String resolveFormatId(@Nullable FormatConfig format, @NonNull Heylogs heylogs, @NonNull Predicate<? super Path> stdio, @NonNull Path file) {
+    public static @NonNull String resolveFormatId(@Nullable FormatConfig format, @NonNull Heylogs heylogs, @NonNull Predicate<? super Path> stdio, @NonNull Path file, @NonNull FormatType type) {
         String formatId = format != null ? format.getId() : null;
-        return isSpecified(formatId) ? formatId : !stdio.test(file) ? heylogs.getFormatIdByFile(file).orElse(DEFAULT_FORMAT_ID) : DEFAULT_FORMAT_ID;
+        if (isSpecified(formatId)) return formatId;
+        String fallback = heylogs.getFirstFormatIdByType(type).orElse(DEFAULT_FORMAT_ID);
+        return !stdio.test(file) ? heylogs.getFormatIdByFile(file).orElse(fallback) : fallback;
     }
 
     private static boolean isSpecified(String formatId) {
         return formatId != null && !formatId.isEmpty();
+    }
+
+    @StaticFactoryMethod(Predicate.class)
+    public static @NonNull Predicate<Format> onFormatType(@NonNull FormatType type) {
+        return format -> format.getSupportedFormatTypes().contains(type);
     }
 
     @StaticFactoryMethod(Predicate.class)

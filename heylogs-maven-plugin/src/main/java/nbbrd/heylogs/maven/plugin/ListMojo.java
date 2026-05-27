@@ -15,6 +15,7 @@ import java.io.Writer;
 import static nbbrd.heylogs.spi.FormatSupport.resolveFormatId;
 import static nbbrd.console.picocli.ByteOutputSupport.DEFAULT_STDOUT_FILE;
 import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
+import nbbrd.heylogs.spi.FormatType;
 
 @lombok.Getter
 @lombok.Setter
@@ -37,7 +38,7 @@ public final class ListMojo extends HeylogsMojo {
         Heylogs heylogs = Heylogs.ofServiceLoader();
 
         TextOutputSupport outputSupport = newTextOutputSupport();
-        String formatId = resolveFormatId(format != null ? FormatConfig.parse(format) : null, heylogs, outputSupport::isStdoutFile, outputFile.toPath());
+        String formatId = resolveFormatId(format != null ? FormatConfig.parse(format) : null, heylogs, outputSupport::isStdoutFile, outputFile.toPath(), FormatType.RESOURCES);
 
         try (Writer writer = newWriter(outputFile, getLog()::info)) {
             heylogs.formatResources(formatId, writer, heylogs.list());

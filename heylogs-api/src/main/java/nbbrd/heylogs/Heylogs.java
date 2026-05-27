@@ -38,6 +38,7 @@ import static nbbrd.heylogs.Util.illegalArgumentToNull;
 import static nbbrd.heylogs.spi.ForgeSupport.*;
 import static nbbrd.heylogs.spi.FormatSupport.onFormatFileFilter;
 import static nbbrd.heylogs.spi.FormatSupport.onFormatId;
+import static nbbrd.heylogs.spi.FormatSupport.onFormatType;
 import static nbbrd.heylogs.spi.Versioning.NO_VERSIONING_FILTER;
 
 @lombok.Value
@@ -791,8 +792,32 @@ public class Heylogs {
                 .formatResources(appendable, list);
     }
 
+    public @NonNull Optional<ChangelogContent> content(@NonNull Document document) {
+        ChangelogHeading changelog = ChangelogHeading.root(document).orElse(null);
+        if (changelog != null) {
+            return Optional.of(ChangelogContent.of(document));
+        }
+        return ChangelogContent.ofVersionsOnly(document);
+    }
+
+    public void formatContent(@NonNull String formatId, @NonNull Appendable appendable, @NonNull ChangelogContent content) throws IOException {
+        findFormat(onFormatId(formatId))
+                .orElseThrow(() -> new IOException("Cannot find format '" + formatId + "'"))
+                .formatContent(appendable, content);
+    }
+
+    public @NonNull ChangelogContent parseContent(@NonNull String formatId, @NonNull java.io.Reader reader) throws IOException {
+        return findFormat(onFormatId(formatId))
+                .orElseThrow(() -> new IOException("Cannot find format '" + formatId + "'"))
+                .parseContent(reader);
+    }
+
     public @NonNull Optional<String> getFormatIdByFile(@NonNull Path file) {
         return findFormat(onFormatFileFilter(file)).map(Format::getFormatId);
+    }
+
+    public @NonNull Optional<String> getFirstFormatIdByType(@NonNull FormatType type) {
+        return findFormat(onFormatType(type)).map(Format::getFormatId);
     }
 
     private Optional<Rule> findRule(@NonNull Predicate<Rule> predicate) {

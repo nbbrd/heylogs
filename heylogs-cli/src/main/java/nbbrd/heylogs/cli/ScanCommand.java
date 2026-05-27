@@ -18,6 +18,7 @@ import java.util.concurrent.Callable;
 import static internal.heylogs.cli.MarkdownInputSupport.newMarkdownInputSupport;
 import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
 import static nbbrd.heylogs.spi.FormatSupport.resolveFormatId;
+import nbbrd.heylogs.spi.FormatType;
 
 @Command(name = "scan", description = "Summarize content.")
 public final class ScanCommand implements Callable<Void> {
@@ -52,7 +53,7 @@ public final class ScanCommand implements Callable<Void> {
 
         TextOutputSupport outputSupport = newTextOutputSupport();
         Path outputFile = output.getFile();
-        String formatId = resolveFormatId(formatOptions.getFormat(), heylogs, outputSupport::isStdoutFile, outputFile);
+        String formatId = resolveFormatId(formatOptions.getFormat(), heylogs, outputSupport::isStdoutFile, outputFile, FormatType.STATUS);
 
         try (Writer writer = outputSupport.newBufferedWriter(outputFile)) {
             heylogs.formatStatus(formatId, writer, list);

@@ -36,6 +36,8 @@ import java.util.concurrent.Callable;
                 ReleaseCommand.class,
                 YankCommand.class,
                 FormatCommand.class,
+                ExportCommand.class,
+                ImportCommand.class,
                 ScrapeCommand.class,
                 MigrateConfigCommand.class
         },

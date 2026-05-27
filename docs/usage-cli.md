@@ -53,6 +53,14 @@ curl -s https://raw.githubusercontent.com/olivierlacan/keep-a-changelog/main/CHA
   | bat -l json                                                                                # 3️⃣
 ```
 
+Or export the full changelog content to JSON:
+
+```bash
+curl -s https://raw.githubusercontent.com/olivierlacan/keep-a-changelog/main/CHANGELOG.md \    # 1️⃣
+  | heylogs export - --format json \                                                            # 2️⃣
+  | bat -l json                                                                                 # 3️⃣
+```
+
 ## Installation
 
 The easiest way of installing the CLI is to use a package manager.
