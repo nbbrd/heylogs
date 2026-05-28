@@ -10,11 +10,11 @@
         <version>0.18.2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>heylogs-ext-forgejo</artifactId>
+    <artifactId>heylogs-ext-rules</artifactId>
     <packaging>jar</packaging>
 
-    <name>heylogs-ext-forgejo</name>
-    <description>Keep-a-changelog tool - Forgejo extension</description>
+    <name>heylogs-ext-rules</name>
+    <description>Keep-a-changelog tool - Rules extension</description>
     <url>https://github.com/nbbrd/heylogs</url>
 
     <dependencies>
@@ -46,10 +46,6 @@
             <groupId>${project.groupId}</groupId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-        </dependency>
 
         <!-- test only -->
         <dependency>
@@ -58,12 +54,6 @@
             <version>${project.version}</version>
             <classifier>tests</classifier>
             <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <artifactId>heylogs-ext-rules</artifactId>
-            <groupId>${project.groupId}</groupId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -78,3 +68,4 @@
         </dependency>
     </dependencies>
 </project>
+

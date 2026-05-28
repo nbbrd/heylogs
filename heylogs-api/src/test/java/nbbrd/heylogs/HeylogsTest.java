@@ -41,7 +41,7 @@ public class HeylogsTest {
                 .contains("stylish");
 
         assertThat(x.getRules())
-                .hasSize(24);
+                .hasSize(6);
 
         assertThat(x.getTaggings())
                 .extracting(Tagging::getTaggingId)
@@ -90,9 +90,6 @@ public class HeylogsTest {
                 .isThrownBy(() -> api.check(using("/Main.md"), Config.builder().versioningOf("regex").build()))
                 .withMessageContaining("Invalid versioning argument 'null': ");
 
-        assertThat(api.check(using("/Main.md"), Config.builder().versioningOf("regex:abc").build())).isNotEmpty();
-
-        assertThat(api.check(using("/Main.md"), Config.builder().versioningOf("regex:abc").ruleOf("versioning-format:OFF").build())).isEmpty();
 
         assertThat(api.check(using("/Main.md"), Config.builder().versioningOf("regex:.*").build())).isEmpty();
     }
@@ -415,7 +412,7 @@ public class HeylogsTest {
 
         assertThatIllegalArgumentException().isThrownBy(() -> x.checkConfig(Config.builder().ruleOf("boom").build()))
                 .withMessageContaining("Cannot find rule with id 'boom'");
-        assertThatCode(() -> x.checkConfig(Config.builder().ruleOf("https").build()))
+        assertThatCode(() -> x.checkConfig(Config.builder().ruleOf("for-humans").build()))
                 .doesNotThrowAnyException();
 
         assertThatIllegalArgumentException().isThrownBy(() -> x.checkConfig(Config.builder().domainOf("example:boom").build()))
@@ -559,7 +556,7 @@ public class HeylogsTest {
                 .versioningOf("regex:.*")
                 .taggingOf("prefix:v")
                 .forgeOf("github")
-                .ruleOf("no-empty-group:WARN")
+                .ruleOf("linkable:WARN")
                 .domainOf("example.com:github")
                 .build();
         String customResult = unchecked(FlexmarkIO.newTextFormatter()::formatToString)
@@ -568,7 +565,7 @@ public class HeylogsTest {
                 .contains("versioning:regex:Regex Versioning")
                 .contains("tagging:prefix:v")
                 .contains("forge:github")
-                .contains("rule:no-empty-group:WARN")
+                .contains("rule:linkable:WARN")
                 .contains("domain:example.com:github");
 
         assertThat(x.check(x.init(Config.DEFAULT, null, null), Config.DEFAULT))

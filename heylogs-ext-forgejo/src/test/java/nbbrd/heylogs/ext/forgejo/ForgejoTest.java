@@ -1,7 +1,7 @@
 package nbbrd.heylogs.ext.forgejo;
 
 import com.vladsch.flexmark.ast.Link;
-import internal.heylogs.base.ExtendedRules;
+import nbbrd.heylogs.ext.rules.LinkRules;
 import nbbrd.heylogs.Nodes;
 import nbbrd.heylogs.spi.Forge;
 import nbbrd.heylogs.spi.RuleContext;
@@ -28,48 +28,48 @@ class ForgejoTest {
         RuleContext context = RuleContext.builder().forge(new Forgejo()).build();
 
         assertThat(Nodes.of(Link.class).descendants(using("/Main.md")))
-                .map(node -> ExtendedRules.validateForgeRef(node, context))
+                .map(node -> LinkRules.validateForgeRef(node, context))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .isEmpty();
 
         assertThat(Nodes.of(Link.class).descendants(using("/InvalidForgejoIssueRef.md")))
-                .map(node -> ExtendedRules.validateForgeRef(node, context))
+                .map(node -> LinkRules.validateForgeRef(node, context))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .contains(RuleIssue.builder().message("Expecting forgejo ISSUE ref #5173, found #517").line(2).column(1).build(), atIndex(0))
                 .hasSize(1);
 
         assertThat(Nodes.of(Link.class).descendants(using("/InvalidForgejoIssueRefPrefix.md")))
-                .map(node -> ExtendedRules.validateForgeRef(node, context))
+                .map(node -> LinkRules.validateForgeRef(node, context))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .contains(RuleIssue.builder().message("Expecting forgejo ISSUE ref #5173, found 5173").line(2).column(1).build(), atIndex(0))
                 .hasSize(1);
 
         assertThat(Nodes.of(Link.class).descendants(using("/InvalidForgejoPullRequestRef.md")))
-                .map(node -> ExtendedRules.validateForgeRef(node, context))
+                .map(node -> LinkRules.validateForgeRef(node, context))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .contains(RuleIssue.builder().message("Expecting forgejo REQUEST ref #5170, found #517").line(2).column(1).build(), atIndex(0))
                 .hasSize(1);
 
         assertThat(Nodes.of(Link.class).descendants(using("/InvalidForgejoPullRequestRefPrefix.md")))
-                .map(node -> ExtendedRules.validateForgeRef(node, context))
+                .map(node -> LinkRules.validateForgeRef(node, context))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .contains(RuleIssue.builder().message("Expecting forgejo REQUEST ref #5170, found 5170").line(2).column(1).build(), atIndex(0))
                 .hasSize(1);
 
         assertThat(Nodes.of(Link.class).descendants(using("/InvalidForgejoMentionRef.md")))
-                .map(node -> ExtendedRules.validateForgeRef(node, context))
+                .map(node -> LinkRules.validateForgeRef(node, context))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .contains(RuleIssue.builder().message("Expecting forgejo MENTION ref @charphi, found @user").line(2).column(1).build(), atIndex(0))
                 .hasSize(1);
 
         assertThat(Nodes.of(Link.class).descendants(using("/InvalidForgejoCommitRef.md")))
-                .map(node -> ExtendedRules.validateForgeRef(node, context))
+                .map(node -> LinkRules.validateForgeRef(node, context))
                 .isNotEmpty()
                 .filteredOn(Objects::nonNull)
                 .contains(RuleIssue.builder().message("Expecting forgejo COMMIT ref b5d40a0, found 0000000").line(2).column(1).build(), atIndex(0))

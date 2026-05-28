@@ -18,32 +18,32 @@ heylogs check --rule dot-space-link-style:WARN --rule no-empty-group:OFF
 
 ## Available rules
 
-| Module | ID                                                      | Name                     | Options |
-|--------|---------------------------------------------------------|--------------------------|---------|
-| `api`  | [`all-h2-contain-a-version`](#all-h2-contain-a-version) | All H2 contain a version | `ERROR` |
-| `api`  | [`column-width`](#column-width)                         | Column width             | `OFF`   |
-| `api`  | [`consistent-separator`](#consistent-separator)         | Consistent separator     | `ERROR` |
-| `api`  | [`date-displayed`](#date-displayed)                     | Date displayed           | `ERROR` |
-| `api`  | [`dot-space-link-style`](#dot-space-link-style)         | Dot-space-link style     | `OFF`   |
-| `api`  | [`duplicate-items`](#duplicate-items)                   | Duplicate items          | `ERROR` |
-| `api`  | [`for-humans`](#for-humans)                             | For humans               | `ERROR` |
-| `api`  | [`forge-ref`](#forge-ref)                               | Forge reference          | `ERROR` |
-| `api`  | [`https`](#https)                                       | HTTPS                    | `ERROR` |
-| `api`  | [`imbalanced-braces`](#imbalanced-braces)               | Imbalanced braces        | `ERROR` |
-| `api`  | [`latest-version-first`](#latest-version-first)         | Latest version first     | `ERROR` |
-| `api`  | [`linkable`](#linkable)                                 | Linkable                 | `ERROR` |
-| `api`  | [`no-empty-group`](#no-empty-group)                     | No empty group           | `ERROR` |
-| `api`  | [`no-empty-release`](#no-empty-release)                 | No empty release         | `ERROR` |
-| `api`  | [`no-link-brackets`](#no-link-brackets)                 | No link brackets         | `ERROR` |
-| `api`  | [`no-orphan-ref`](#no-orphan-ref)                       | No orphan ref            | `ERROR` |
-| `api`  | [`no-version-regression`](#no-version-regression)       | No version regression    | `ERROR` |
-| `api`  | [`release-date`](#release-date)                         | Release date             | `WARN`  |
-| `api`  | [`tag-versioning`](#tag-versioning)                     | Tag versioning           | `ERROR` |
-| `api`  | [`type-of-changes-grouped`](#type-of-changes-grouped)   | Type of changes grouped  | `ERROR` |
-| `api`  | [`unique-headings`](#unique-headings)                   | Unique headings          | `ERROR` |
-| `api`  | [`unique-release`](#unique-release)                     | Unique release           | `ERROR` |
-| `api`  | [`unknown-link-type`](#unknown-link-type)               | Unknown link type        | `WARN`  |
-| `api`  | [`versioning-format`](#versioning-format)               | Versioning format        | `ERROR` |
+| Module  | ID                                                      | Name                     | Options |
+|---------|---------------------------------------------------------|--------------------------|---------|
+| `api`   | [`all-h2-contain-a-version`](#all-h2-contain-a-version) | All H2 contain a version | `ERROR` |
+| `api`   | [`date-displayed`](#date-displayed)                     | Date displayed           | `ERROR` |
+| `api`   | [`for-humans`](#for-humans)                             | For humans               | `ERROR` |
+| `api`   | [`latest-version-first`](#latest-version-first)         | Latest version first     | `ERROR` |
+| `api`   | [`linkable`](#linkable)                                 | Linkable                 | `ERROR` |
+| `api`   | [`type-of-changes-grouped`](#type-of-changes-grouped)   | Type of changes grouped  | `ERROR` |
+| `rules` | [`column-width`](#column-width)                         | Column width             | `OFF`   |
+| `rules` | [`consistent-separator`](#consistent-separator)         | Consistent separator     | `ERROR` |
+| `rules` | [`dot-space-link-style`](#dot-space-link-style)         | Dot-space-link style     | `OFF`   |
+| `rules` | [`duplicate-items`](#duplicate-items)                   | Duplicate items          | `ERROR` |
+| `rules` | [`forge-ref`](#forge-ref)                               | Forge reference          | `ERROR` |
+| `rules` | [`https`](#https)                                       | HTTPS                    | `ERROR` |
+| `rules` | [`imbalanced-braces`](#imbalanced-braces)               | Imbalanced braces        | `ERROR` |
+| `rules` | [`no-empty-group`](#no-empty-group)                     | No empty group           | `ERROR` |
+| `rules` | [`no-empty-release`](#no-empty-release)                 | No empty release         | `ERROR` |
+| `rules` | [`no-link-brackets`](#no-link-brackets)                 | No link brackets         | `ERROR` |
+| `rules` | [`no-orphan-ref`](#no-orphan-ref)                       | No orphan ref            | `ERROR` |
+| `rules` | [`no-version-regression`](#no-version-regression)       | No version regression    | `ERROR` |
+| `rules` | [`release-date`](#release-date)                         | Release date             | `WARN`  |
+| `rules` | [`tag-versioning`](#tag-versioning)                     | Tag versioning           | `ERROR` |
+| `rules` | [`unique-headings`](#unique-headings)                   | Unique headings          | `ERROR` |
+| `rules` | [`unique-release`](#unique-release)                     | Unique release           | `ERROR` |
+| `rules` | [`unknown-link-type`](#unknown-link-type)               | Unknown link type        | `WARN`  |
+| `rules` | [`versioning-format`](#versioning-format)               | Versioning format        | `ERROR` |
 
 ---
 

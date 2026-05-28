@@ -69,6 +69,12 @@
         </dependency>
         <dependency>
             <groupId>com.github.nbbrd.heylogs</groupId>
+            <artifactId>heylogs-ext-rules</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.nbbrd.heylogs</groupId>
             <artifactId>heylogs-cli</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
