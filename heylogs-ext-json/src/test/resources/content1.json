@@ -1,36 +1,24 @@
 {
   "title": "Changelog",
   "description": null,
-  "versions": [
+  "releases": [
     {
       "version": null,
-      "date": null,
-      "yanked": false,
       "link": null,
-      "changes": {
-        "added": [],
-        "changed": [],
-        "deprecated": [],
-        "removed": [],
-        "fixed": [],
-        "security": []
-      }
+      "date": null,
+      "changes": [],
+      "yanked": false
     },
     {
       "version": "1.0.0",
-      "date": "2024-01-01",
-      "yanked": false,
       "link": null,
-      "changes": {
-        "added": [
-          "Initial release."
-        ],
-        "changed": [],
-        "deprecated": [],
-        "removed": [],
-        "fixed": [],
-        "security": []
-      }
+      "date": "2024-01-01",
+      "changes": [
+        {
+          "added": "Initial release."
+        }
+      ],
+      "yanked": false
     }
   ]
 }

@@ -8,7 +8,6 @@ import nbbrd.heylogs.spi.Format;
 import nbbrd.heylogs.spi.FormatSupport;
 import nbbrd.heylogs.spi.RuleIssue;
 import nbbrd.heylogs.spi.RuleSeverity;
-import nbbrd.heylogs.spi.URLExtractor;
 import nbbrd.service.ServiceProvider;
 
 import java.io.IOException;
@@ -17,10 +16,7 @@ import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
@@ -185,11 +181,11 @@ public final class JsonFormat implements Format {
         } else {
             result.add("description", JsonNull.INSTANCE);
         }
-        JsonArray versions = new JsonArray();
+        JsonArray releases = new JsonArray();
         for (ChangelogContent.VersionContent vc : src.getVersions()) {
-            versions.add(context.serialize(vc, ChangelogContent.VersionContent.class));
+            releases.add(context.serialize(vc, ChangelogContent.VersionContent.class));
         }
-        result.add("versions", versions);
+        result.add("releases", releases);
         return result;
     }
 
@@ -200,8 +196,8 @@ public final class JsonFormat implements Format {
         JsonElement descEl = x.get("description");
         String description = (descEl == null || descEl.isJsonNull()) ? null : descEl.getAsString();
         List<ChangelogContent.VersionContent> versions = new ArrayList<>();
-        if (x.has("versions")) {
-            for (JsonElement ve : x.get("versions").getAsJsonArray()) {
+        if (x.has("releases")) {
+            for (JsonElement ve : x.get("releases").getAsJsonArray()) {
                 versions.add(context.deserialize(ve, ChangelogContent.VersionContent.class));
             }
         }
@@ -214,30 +210,30 @@ public final class JsonFormat implements Format {
         Version v = src.getVersion();
         if (v.isUnreleased()) {
             result.add("version", JsonNull.INSTANCE);
-            result.add("date", JsonNull.INSTANCE);
         } else {
             result.addProperty("version", v.getRef());
-            result.addProperty("date", v.getDate().toString());
         }
-        result.addProperty("yanked", v.isYanked());
         if (v.getLink() != null) {
             result.addProperty("link", v.getLink().toString());
         } else {
             result.add("link", JsonNull.INSTANCE);
         }
-        JsonObject changes = new JsonObject();
-        for (TypeOfChange type : TypeOfChange.values()) {
-            String key = type.name().toLowerCase(Locale.ROOT);
-            List<String> items = src.getGroups().stream()
-                    .filter(g -> g.getTypeOfChange() == type)
-                    .findFirst()
-                    .map(ChangelogContent.TypeOfChangeContent::getItems)
-                    .orElse(Collections.emptyList());
-            JsonArray arr = new JsonArray();
-            items.forEach(arr::add);
-            changes.add(key, arr);
+        if (v.isUnreleased()) {
+            result.add("date", JsonNull.INSTANCE);
+        } else {
+            result.addProperty("date", v.getDate().toString());
+        }
+        JsonArray changes = new JsonArray();
+        for (ChangelogContent.TypeOfChangeContent tc : src.getGroups()) {
+            String key = tc.getTypeOfChange().name().toLowerCase(Locale.ROOT);
+            for (String item : tc.getItems()) {
+                JsonObject changeObj = new JsonObject();
+                changeObj.addProperty(key, item);
+                changes.add(changeObj);
+            }
         }
         result.add("changes", changes);
+        result.addProperty("yanked", v.isYanked());
         return result;
     }
 
@@ -261,42 +257,23 @@ public final class JsonFormat implements Format {
         Version version = Version.of(ref, link, '-', date, yanked);
         List<ChangelogContent.TypeOfChangeContent> groups = new ArrayList<>();
         if (x.has("changes")) {
-            JsonObject changes = x.get("changes").getAsJsonObject();
-            for (TypeOfChange type : TypeOfChange.values()) {
-                String key = type.name().toLowerCase(Locale.ROOT);
-                if (changes.has(key)) {
-                    List<String> items = new ArrayList<>();
-                    for (JsonElement ie : changes.get(key).getAsJsonArray()) {
-                        items.add(ie.getAsString());
+            Map<TypeOfChange, List<String>> groupMap = new LinkedHashMap<>();
+            for (JsonElement changeEl : x.get("changes").getAsJsonArray()) {
+                JsonObject changeObj = changeEl.getAsJsonObject();
+                for (Map.Entry<String, JsonElement> entry : changeObj.entrySet()) {
+                    TypeOfChange type;
+                    try {
+                        type = TypeOfChange.valueOf(entry.getKey().toUpperCase(Locale.ROOT));
+                    } catch (IllegalArgumentException ex) {
+                        throw new JsonParseException("Unknown change type: " + entry.getKey(), ex);
                     }
-                    if (!items.isEmpty()) {
-                        groups.add(new ChangelogContent.TypeOfChangeContent(type, items));
-                    }
+                    groupMap.computeIfAbsent(type, k -> new ArrayList<>()).add(entry.getValue().getAsString());
                 }
+            }
+            for (Map.Entry<TypeOfChange, List<String>> entry : groupMap.entrySet()) {
+                groups.add(new ChangelogContent.TypeOfChangeContent(entry.getKey(), entry.getValue()));
             }
         }
         return new ChangelogContent.VersionContent(version, groups);
-    }
-
-    private static final class AppendableWriter extends java.io.Writer {
-
-        private final Appendable appendable;
-
-        private AppendableWriter(Appendable appendable) {
-            this.appendable = appendable;
-        }
-
-        @Override
-        public void write(char[] cbuf, int off, int len) throws IOException {
-            appendable.append(new String(cbuf, off, len));
-        }
-
-        @Override
-        public void flush() {
-        }
-
-        @Override
-        public void close() {
-        }
     }
 }

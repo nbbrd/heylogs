@@ -26,9 +26,8 @@ public class ImportCommandTest {
         Path src = temp.resolve("changelog.json");
         Files.write(src, singletonList(
                 "{\"title\":\"Changelog\",\"description\":null,"
-                + "\"versions\":[{\"version\":null,\"date\":null,\"yanked\":false,\"link\":null,"
-                + "\"changes\":{\"added\":[\"First feature\"],\"changed\":[],\"deprecated\":[],"
-                + "\"removed\":[],\"fixed\":[],\"security\":[]}}]}"));
+                + "\"releases\":[{\"version\":null,\"link\":null,\"date\":null,"
+                + "\"changes\":[{\"added\":\"First feature\"}],\"yanked\":false}]}"));
         Path out = temp.resolve("CHANGELOG.md");
         assertThat(cmd.execute(src.toString(), "-o", out.toString()))
                 .isEqualTo(CommandLine.ExitCode.OK);
@@ -56,9 +55,8 @@ public class ImportCommandTest {
         Path src = temp.resolve("changelog.json");
         Files.write(src, singletonList(
                 "{\"title\":\"Changelog\",\"description\":null,"
-                + "\"versions\":[{\"version\":null,\"date\":null,\"yanked\":false,\"link\":null,"
-                + "\"changes\":{\"added\":[],\"changed\":[],\"deprecated\":[],"
-                + "\"removed\":[],\"fixed\":[],\"security\":[]}}]}"));
+                + "\"releases\":[{\"version\":null,\"link\":null,\"date\":null,"
+                + "\"changes\":[],\"yanked\":false}]}"));
         Path out = temp.resolve("CHANGELOG.md");
         assertThat(cmd.execute("--dry-run", src.toString(), "-o", out.toString()))
                 .isEqualTo(CommandLine.ExitCode.OK);

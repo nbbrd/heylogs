@@ -45,57 +45,49 @@ $ heylogs extract --limit 1 | heylogs export - --format json
 
 ### Changelog input parameters
 
-| Parameter   | Description                                                    | CLI                                            | Maven Plugin                          |
-|-------------|----------------------------------------------------------------|------------------------------------------------|---------------------------------------|
+| Parameter   | Description                                                         | CLI                                            | Maven Plugin                          |
+|-------------|---------------------------------------------------------------------|------------------------------------------------|---------------------------------------|
 | `inputFile` | Changelog file to export (default: CHANGELOG.md); use `-` for stdin | `<source>` (positional, default: CHANGELOG.md) | `<inputFile>CHANGELOG.md</inputFile>` |
 
 ### Output parameters
 
-| Parameter    | Description                                        | CLI               | Maven Plugin                          |
-|--------------|----------------------------------------------------|-------------------|---------------------------------------|
-| `outputFile` | Output file for structured data (default: stdout) | `--output <file>` | `<outputFile>changelog.json</outputFile>` |
-| `format`     | Output format (default: auto-detected from file extension, falls back to first available content format) | `--format <id>` | `<format>json</format>` |
+| Parameter    | Description                                                                                              | CLI               | Maven Plugin                              |
+|--------------|----------------------------------------------------------------------------------------------------------|-------------------|-------------------------------------------|
+| `outputFile` | Output file for structured data (default: stdout)                                                        | `--output <file>` | `<outputFile>changelog.json</outputFile>` |
+| `format`     | Output format (default: auto-detected from file extension, falls back to first available content format) | `--format <id>`   | `<format>json</format>`                   |
 
 ## Output format
 
-The JSON output contains the full changelog structure including title, optional description, and all versions with their changes grouped by type:
+The JSON output is compatible with the [clparse](https://github.com/marcaddeo/clparse) format. It contains the full changelog structure including title, optional description, and all releases with their changes as a flat ordered list:
 
 ```json
 {
   "title": "Changelog",
   "description": null,
-  "versions": [
+  "releases": [
     {
-      "version": "Unreleased",
+      "version": null,
+      "link": "https://github.com/owner/repo/compare/v1.0.0...HEAD",
       "date": null,
-      "yanked": false,
-      "link": null,
-      "changes": {
-        "added": [],
-        "changed": [],
-        "deprecated": [],
-        "removed": [],
-        "fixed": [],
-        "security": []
-      }
+      "changes": [],
+      "yanked": false
     },
     {
       "version": "1.0.0",
-      "date": "2024-01-01",
-      "yanked": false,
       "link": "https://github.com/owner/repo/releases/tag/v1.0.0",
-      "changes": {
-        "added": ["Initial release."],
-        "changed": [],
-        "deprecated": [],
-        "removed": [],
-        "fixed": [],
-        "security": []
-      }
+      "date": "2024-01-01",
+      "changes": [
+        {
+          "added": "Initial release."
+        }
+      ],
+      "yanked": false
     }
   ]
 }
 ```
+
+Each entry in `changes` is a single-key object mapping the change type (`added`, `changed`, `deprecated`, `removed`, `fixed`, `security`) to the item text. Multiple items of the same type appear as separate objects in the array, preserving their original order.
 
 ---
 

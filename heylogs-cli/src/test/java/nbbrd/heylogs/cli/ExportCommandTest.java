@@ -62,7 +62,7 @@ public class ExportCommandTest {
                 .content(UTF_8)
                 .contains("\"title\"")
                 .contains("\"Changelog\"")
-                .contains("\"versions\"")
+                .contains("\"releases\"")
                 .contains("\"1.0.0\"")
                 .contains("First feature");
     }

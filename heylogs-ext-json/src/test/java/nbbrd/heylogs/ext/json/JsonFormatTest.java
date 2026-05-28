@@ -1,5 +1,7 @@
 package nbbrd.heylogs.ext.json;
 
+import nbbrd.heylogs.ChangelogContent;
+import nbbrd.heylogs.TypeOfChange;
 import nbbrd.heylogs.spi.Format;
 import nbbrd.heylogs.spi.FormatType;
 import org.junit.jupiter.api.Test;
@@ -90,6 +92,44 @@ class JsonFormatTest {
         try (StringReader reader = new StringReader(contentOf(JsonFormatTest.class, "/content2.json"))) {
             assertThat(x.parseContent(reader)).isEqualTo(CONTENT2);
         }
+    }
+
+    @Test
+    public void testParseClparseContent() throws IOException {
+        Format x = new JsonFormat();
+
+        try (StringReader reader = new StringReader(contentOf(JsonFormatTest.class, "/clparse.json"))) {
+            ChangelogContent content = x.parseContent(reader);
+            assertThat(content.getTitle()).isEqualTo("Changelog");
+            assertThat(content.getVersions()).hasSize(3);
+
+            ChangelogContent.VersionContent unreleased = content.getVersions().get(0);
+            assertThat(unreleased.getVersion().isUnreleased()).isTrue();
+            assertThat(unreleased.getVersion().getLink()).isNotNull();
+            assertThat(unreleased.getGroups()).hasSize(1);
+            assertThat(unreleased.getGroups().get(0).getTypeOfChange()).isEqualTo(TypeOfChange.FIXED);
+            assertThat(unreleased.getGroups().get(0).getItems()).containsExactly("Fix a bug that caused undefined behavior");
+
+            ChangelogContent.VersionContent v100 = content.getVersions().get(1);
+            assertThat(v100.getVersion().getRef()).isEqualTo("1.0.0");
+            assertThat(v100.getGroups()).hasSize(2);
+
+            ChangelogContent.VersionContent v001 = content.getVersions().get(2);
+            assertThat(v001.getVersion().getRef()).isEqualTo("0.0.1");
+        }
+    }
+
+    @Test
+    public void testClparseRoundtrip() throws IOException {
+        Format x = new JsonFormat();
+
+        String originalJson = contentOf(JsonFormatTest.class, "/clparse.json");
+        ChangelogContent content;
+        try (StringReader reader = new StringReader(originalJson)) {
+            content = x.parseContent(reader);
+        }
+        assertThat(writing(appendable -> x.formatContent(appendable, content)))
+                .isEqualToNormalizingNewlines(originalJson);
     }
 
 }
