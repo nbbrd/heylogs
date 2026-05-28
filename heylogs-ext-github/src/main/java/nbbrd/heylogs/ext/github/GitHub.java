@@ -28,6 +28,7 @@ public final class GitHub implements Forge {
             .messageFetcher(ISSUE, GitHubMessageFetcher.ISSUE)
             .messageFetcher(REQUEST, GitHubMessageFetcher.REQUEST)
             .linkParser(REPOSITORY, GitHubRepositoryLink::parse)
+            .linkParser(TAG, GitHubTagLink::parse)
             .compareLinkConverter(GitHubCompareLink::of)
             .build();
 }

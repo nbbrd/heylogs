@@ -60,7 +60,7 @@ public final class ForgeSupport implements Forge {
 
     @Override
     public @Nullable ProjectLinkParser getProjectLinkParser() {
-        List<ProjectLinkParser> parsers = Stream.of(COMMIT, COMPARE, ISSUE, REQUEST, REPOSITORY)
+        List<ProjectLinkParser> parsers = Stream.of(COMMIT, COMPARE, ISSUE, REQUEST, REPOSITORY, TAG)
                 .map(this::getLinkParser)
                 .filter(Objects::nonNull)
                 .map(ProjectLinkParser::casting)

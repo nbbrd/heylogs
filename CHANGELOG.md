@@ -10,6 +10,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 - Add import/export Markdown format from/to JSON format [#174](https://github.com/nbbrd/heylogs/issues/174)
+- Add support of TAG link type [#543](https://github.com/nbbrd/heylogs/issues/543)
 
 ### Changed
 
