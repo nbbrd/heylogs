@@ -63,6 +63,12 @@
         </dependency>
         <dependency>
             <groupId>com.github.nbbrd.heylogs</groupId>
+            <artifactId>heylogs-ext-pep440</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.nbbrd.heylogs</groupId>
             <artifactId>heylogs-ext-http</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
