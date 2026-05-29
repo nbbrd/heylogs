@@ -36,18 +36,18 @@ class GitHubTagLinkTest {
                 .returns(urlOf("https://github.com"), GitHubTagLink::getBase)
                 .returns("rjdverse", GitHubTagLink::getOwner)
                 .returns("rjd3xjars", GitHubTagLink::getRepo)
-                .returns("v3.8.2", GitHubTagLink::getTag)
+                .returns("v3.8.2", GitHubTagLink::getBranchName)
                 .hasToString("https://github.com/rjdverse/rjd3xjars/releases/tag/v3.8.2");
 
         assertThat(parse(urlOf("https://github.com/olivierlacan/keep-a-changelog/releases/tag/v0.0.1")))
-                .returns("v0.0.1", GitHubTagLink::getTag)
+                .returns("v0.0.1", GitHubTagLink::getBranchName)
                 .hasToString("https://github.com/olivierlacan/keep-a-changelog/releases/tag/v0.0.1");
 
         assertThat(parse(urlOf("https://localhost:8080/nbbrd/heylogs/releases/tag/v1.0.0")))
                 .returns(urlOf("https://localhost:8080"), GitHubTagLink::getBase)
                 .returns("nbbrd", GitHubTagLink::getOwner)
                 .returns("heylogs", GitHubTagLink::getRepo)
-                .returns("v1.0.0", GitHubTagLink::getTag)
+                .returns("v1.0.0", GitHubTagLink::getBranchName)
                 .hasToString("https://localhost:8080/nbbrd/heylogs/releases/tag/v1.0.0");
     }
 

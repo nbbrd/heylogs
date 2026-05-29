@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
+import nbbrd.heylogs.spi.BranchLink;
 import nbbrd.heylogs.spi.ForgeRef;
 import org.jspecify.annotations.Nullable;
 
@@ -18,7 +19,7 @@ import static nbbrd.heylogs.ext.gitlab.GitLabSupport.parseLink;
 @RepresentableAs(URL.class)
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class GitLabTagLink implements GitLabProjectLink {
+class GitLabTagLink implements GitLabProjectLink, BranchLink {
 
     @StaticFactoryMethod
     public static @NonNull GitLabTagLink parse(@NonNull URL url) {
@@ -35,7 +36,7 @@ class GitLabTagLink implements GitLabProjectLink {
     String project;
 
     @NonNull
-    String tag;
+    String branchName;
 
     @Override
     public String toString() {
@@ -44,7 +45,7 @@ class GitLabTagLink implements GitLabProjectLink {
 
     @Override
     public @NonNull URL toURL() {
-        return urlOf(GitLabSupport.linkToString(base, namespace, project, TAGS_KEYWORD, tag));
+        return urlOf(GitLabSupport.linkToString(base, namespace, project, TAGS_KEYWORD, branchName));
     }
 
     @Override

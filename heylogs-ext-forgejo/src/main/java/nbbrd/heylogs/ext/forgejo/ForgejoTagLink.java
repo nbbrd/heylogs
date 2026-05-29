@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
+import nbbrd.heylogs.spi.BranchLink;
 import nbbrd.heylogs.spi.ForgeRef;
 import nbbrd.io.http.URLQueryBuilder;
 import org.jspecify.annotations.Nullable;
@@ -17,7 +18,7 @@ import static nbbrd.heylogs.spi.URLExtractor.*;
 @RepresentableAs(URL.class)
 @lombok.Value
 @lombok.AllArgsConstructor(access = AccessLevel.PRIVATE)
-class ForgejoTagLink implements ForgejoProjectLink {
+class ForgejoTagLink implements ForgejoProjectLink, BranchLink {
 
     @StaticFactoryMethod
     public static @NonNull ForgejoTagLink parse(@NonNull URL url) {
@@ -43,11 +44,11 @@ class ForgejoTagLink implements ForgejoProjectLink {
     String repo;
 
     @NonNull
-    String tag;
+    String branchName;
 
     @Override
     public String toString() {
-        return URLQueryBuilder.of(base).path(owner).path(repo).path(RELEASES_KEYWORD).path(TAG_KEYWORD).path(tag).toString();
+        return URLQueryBuilder.of(base).path(owner).path(repo).path(RELEASES_KEYWORD).path(TAG_KEYWORD).path(branchName).toString();
     }
 
     @Override

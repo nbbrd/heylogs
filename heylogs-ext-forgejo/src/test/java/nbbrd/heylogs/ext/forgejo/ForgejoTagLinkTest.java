@@ -31,14 +31,14 @@ class ForgejoTagLinkTest {
                 .returns(urlOf("https://codeberg.org"), ForgejoTagLink::getBase)
                 .returns("Freeyourgadget", ForgejoTagLink::getOwner)
                 .returns("Gadgetbridge", ForgejoTagLink::getRepo)
-                .returns("0.86.1", ForgejoTagLink::getTag)
+                .returns("0.86.1", ForgejoTagLink::getBranchName)
                 .hasToString("https://codeberg.org/Freeyourgadget/Gadgetbridge/releases/tag/0.86.1");
 
         assertThat(parse(urlOf("https://localhost:8080/nbbrd/heylogs/releases/tag/v1.0.0")))
                 .returns(urlOf("https://localhost:8080"), ForgejoTagLink::getBase)
                 .returns("nbbrd", ForgejoTagLink::getOwner)
                 .returns("heylogs", ForgejoTagLink::getRepo)
-                .returns("v1.0.0", ForgejoTagLink::getTag)
+                .returns("v1.0.0", ForgejoTagLink::getBranchName)
                 .hasToString("https://localhost:8080/nbbrd/heylogs/releases/tag/v1.0.0");
     }
 
