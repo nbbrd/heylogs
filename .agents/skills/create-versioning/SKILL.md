@@ -467,9 +467,10 @@ Expect:
 
 ## Quick reference — Existing versioning modules
 
-| Module               | ID       | Arg? | External dep? | Internal class(es)                |
-|----------------------|----------|------|---------------|-----------------------------------|
-| `heylogs-ext-semver` | `semver` | No   | `semver4j`    | (none — uses library directly)    |
-| `heylogs-ext-calver` | `calver` | Yes  | No            | `CalVerFormat`, `CalVerTag`, etc. |
-| `heylogs-ext-pep440` | `pep440` | No   | No            | `Pep440Version`                   |
+| Module               | ID       | Arg? | External dep?    | Internal class(es)                |
+|----------------------|----------|------|------------------|-----------------------------------|
+| `heylogs-ext-semver` | `semver` | No   | `semver4j`       | (none — uses library directly)    |
+| `heylogs-ext-calver` | `calver` | Yes  | No               | `CalVerFormat`, `CalVerTag`, etc. |
+| `heylogs-ext-pep440` | `pep440` | No   | No               | `Pep440Version`                   |
+| `heylogs-ext-maven`  | `maven`  | No   | `maven-artifact` | (none — uses library directly)    |
 

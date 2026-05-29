@@ -13,6 +13,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Add support of TAG link type [#543](https://github.com/nbbrd/heylogs/issues/543)
 - Add support of BLOB link type [#435](https://github.com/nbbrd/heylogs/issues/435)
 - Add PEP 440 versioning [#556](https://github.com/nbbrd/heylogs/issues/556)
+- Add Maven versioning [#557](https://github.com/nbbrd/heylogs/issues/557)
 
 ### Changed
 

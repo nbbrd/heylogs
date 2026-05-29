@@ -108,6 +108,12 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
+            <artifactId>heylogs-ext-maven</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <artifactId>heylogs-ext-rules</artifactId>
             <groupId>${project.groupId}</groupId>
             <version>${project.version}</version>
