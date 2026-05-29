@@ -29,6 +29,7 @@ public final class GitLab implements Forge {
             .messageFetcher(REQUEST, GitLabMessageFetcher.REQUEST)
             .linkParser(REPOSITORY, GitLabRepositoryLink::parse)
             .linkParser(TAG, GitLabTagLink::parse)
+            .linkParser(BLOB, GitLabBlobLink::parse)
             .compareLinkConverter(GitLabCompareLink::of)
             .build();
 }
