@@ -19,6 +19,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Move extended rules to their own module
 
+### Fixed
+
+- Fix warnings when running CLI with Java25+ [#562](https://github.com/nbbrd/heylogs/issues/562)
+
 ## [0.18.1] - 2026-05-26
 
 This release improves the correctness and reliability of existing rules, fixes several message quality issues that made errors harder to understand, and adds per-rule documentation to the feature guide.
