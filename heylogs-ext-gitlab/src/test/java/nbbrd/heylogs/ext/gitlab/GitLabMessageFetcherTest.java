@@ -3,6 +3,9 @@ package nbbrd.heylogs.ext.gitlab;
 import lombok.NonNull;
 import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.io.http.HttpClient;
+import nbbrd.io.http.HttpHeaders;
+import nbbrd.io.http.HttpRequest;
+import nbbrd.io.http.HttpResponse;
 import nbbrd.io.http.ext.PersistentResponse;
 import org.junit.jupiter.api.Test;
 
@@ -21,9 +24,17 @@ class GitLabMessageFetcherTest {
 
         ForgeLink link = GitLabIssueLink.parse(urlOf("https://gitlab.com/nbbrd/heylogs/-/issues/173"));
 
-        HttpClient client = request -> {
-            assertThat(request.getQuery()).hasToString("https://gitlab.com/api/v4/projects/nbbrd%2Fheylogs/issues/173");
-            return PersistentResponse.of(ANY_TYPE, "{\"id\":1,\"title\":\"Add check on GitLab issue links\",\"state\":\"closed\"}");
+        HttpClient client = new HttpClient() {
+            @Override
+            public @NonNull String getDescription() {
+                return "";
+            }
+
+            @Override
+            public @NonNull HttpResponse send(@NonNull HttpRequest request) throws IOException {
+                assertThat(request.getQuery()).hasToString("https://gitlab.com/api/v4/projects/nbbrd%2Fheylogs/issues/173");
+                return PersistentResponse.of(ANY_TYPE, HttpHeaders.EMPTY, "{\"id\":1,\"title\":\"Add check on GitLab issue links\",\"state\":\"closed\"}");
+            }
         };
 
         assertThat(x.fetchMessage(client, link))
@@ -36,9 +47,17 @@ class GitLabMessageFetcherTest {
 
         ForgeLink link = GitLabRequestLink.parse(urlOf("https://gitlab.com/nbbrd/heylogs/-/merge_requests/172"));
 
-        HttpClient client = request -> {
-            assertThat(request.getQuery()).hasToString("https://gitlab.com/api/v4/projects/nbbrd%2Fheylogs/merge_requests/172");
-            return PersistentResponse.of(ANY_TYPE, "{\"id\":1,\"title\":\"Fix issue with changelog parsing\",\"state\":\"merged\"}");
+        HttpClient client = new HttpClient() {
+            @Override
+            public @NonNull String getDescription() {
+                return "";
+            }
+
+            @Override
+            public @NonNull HttpResponse send(@NonNull HttpRequest request) throws IOException {
+                assertThat(request.getQuery()).hasToString("https://gitlab.com/api/v4/projects/nbbrd%2Fheylogs/merge_requests/172");
+                return PersistentResponse.of(ANY_TYPE, HttpHeaders.EMPTY, "{\"id\":1,\"title\":\"Fix issue with changelog parsing\",\"state\":\"merged\"}");
+            }
         };
 
         assertThat(fetcher.fetchMessage(client, link))
@@ -51,8 +70,17 @@ class GitLabMessageFetcherTest {
 
         ForgeLink link = GitLabIssueLink.parse(urlOf("https://gitlab.com/nbbrd/heylogs/-/issues/173"));
 
-        HttpClient client = url ->
-                PersistentResponse.of(ANY_TYPE, "{\"title\":\"Fix \\\"quotes\\\" in title\"}");
+        HttpClient client = new HttpClient() {
+            @Override
+            public @NonNull String getDescription() {
+                return "";
+            }
+
+            @Override
+            public @NonNull HttpResponse send(@NonNull HttpRequest request) throws IOException {
+                return PersistentResponse.of(ANY_TYPE, HttpHeaders.EMPTY, "{\"title\":\"Fix \\\"quotes\\\" in title\"}");
+            }
+        };
 
         assertThat(fetcher.fetchMessage(client, link))
                 .isEqualTo("Fix \"quotes\" in title");
@@ -64,8 +92,16 @@ class GitLabMessageFetcherTest {
 
         ForgeLink link = GitLabIssueLink.parse(urlOf("https://gitlab.com/nbbrd/heylogs/-/issues/173"));
 
-        HttpClient client = url -> {
-            throw new IOException("HTTP 404");
+        HttpClient client = new HttpClient() {
+            @Override
+            public @NonNull String getDescription() {
+                return "";
+            }
+
+            @Override
+            public @NonNull HttpResponse send(@NonNull HttpRequest request) throws IOException {
+                throw new IOException("HTTP 404");
+            }
         };
 
         assertThatIOException()

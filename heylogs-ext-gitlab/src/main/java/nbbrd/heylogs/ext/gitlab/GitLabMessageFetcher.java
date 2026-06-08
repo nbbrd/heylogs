@@ -52,9 +52,9 @@ enum GitLabMessageFetcher implements MessageFetcher {
     public @NonNull String fetchMessage(@NonNull HttpClient client, @NonNull ForgeLink link) throws IOException {
         HttpRequest request = HttpRequest
                 .builder()
-                .query(buildApiUrl(link))
+                .query(UrlConnectionHttpClient.toURI(buildApiUrl(link)))
                 .method(HttpMethod.GET)
-                .mediaType(JSON_TYPE)
+                .headers(HttpHeaders.builder().mediaType(JSON_TYPE).build())
                 .build();
         try (HttpResponse response = client.send(request)) {
             return extractTitle(response.getBodyAsString());
