@@ -56,9 +56,9 @@ enum ForgejoMessageFetcher implements MessageFetcher {
         URL apiUrl = buildApiUrl(link);
         HttpRequest request = HttpRequest
                 .builder()
-                .query(apiUrl)
+                .query(UrlConnectionHttpClient.toURI(apiUrl))
                 .method(HttpMethod.GET)
-                .mediaType(JSON)
+                .headers(HttpHeaders.builder().mediaType(JSON).build())
                 .build();
         try (HttpResponse response = client.send(request)) {
             return extractTitle(response.getBodyAsString());

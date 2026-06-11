@@ -3,6 +3,9 @@ package nbbrd.heylogs.ext.github;
 import lombok.NonNull;
 import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.io.http.HttpClient;
+import nbbrd.io.http.HttpHeaders;
+import nbbrd.io.http.HttpRequest;
+import nbbrd.io.http.HttpResponse;
 import nbbrd.io.http.ext.PersistentResponse;
 import nbbrd.io.net.MediaType;
 import org.junit.jupiter.api.Test;
@@ -21,9 +24,17 @@ class GitHubMessageFetcherTest {
 
         ForgeLink link = GitHubIssueLink.parse(urlOf("https://github.com/nbbrd/heylogs/issues/173"));
 
-        HttpClient client = request -> {
-            assertThat(request.getQuery()).hasToString("https://api.github.com/repos/nbbrd/heylogs/issues/173");
-            return PersistentResponse.of(MediaType.ANY_TYPE, "{\"id\":1,\"title\":\"Add check on GitHub Pull Request links\",\"state\":\"closed\"}");
+        HttpClient client = new HttpClient() {
+            @Override
+            public @NonNull String getDescription() {
+                return "";
+            }
+
+            @Override
+            public @NonNull HttpResponse send(@NonNull HttpRequest request) throws IOException {
+                assertThat(request.getQuery()).hasToString("https://api.github.com/repos/nbbrd/heylogs/issues/173");
+                return PersistentResponse.of(MediaType.ANY_TYPE, HttpHeaders.EMPTY, "{\"id\":1,\"title\":\"Add check on GitHub Pull Request links\",\"state\":\"closed\"}");
+            }
         };
 
         assertThat(fetcher.fetchMessage(client, link))
@@ -36,9 +47,17 @@ class GitHubMessageFetcherTest {
 
         ForgeLink link = GitHubRequestLink.parse(urlOf("https://github.com/nbbrd/heylogs/pull/172"));
 
-        HttpClient client = request -> {
-            assertThat(request.getQuery()).hasToString("https://api.github.com/repos/nbbrd/heylogs/pulls/172");
-            return PersistentResponse.of(MediaType.ANY_TYPE, "{\"id\":1,\"title\":\"Fix issue with changelog parsing\",\"state\":\"closed\"}");
+        HttpClient client = new HttpClient() {
+            @Override
+            public @NonNull String getDescription() {
+                return "";
+            }
+
+            @Override
+            public @NonNull HttpResponse send(@NonNull HttpRequest request) throws IOException {
+                assertThat(request.getQuery()).hasToString("https://api.github.com/repos/nbbrd/heylogs/pulls/172");
+                return PersistentResponse.of(MediaType.ANY_TYPE, HttpHeaders.EMPTY, "{\"id\":1,\"title\":\"Fix issue with changelog parsing\",\"state\":\"closed\"}");
+            }
         };
 
         assertThat(fetcher.fetchMessage(client, link))
@@ -51,8 +70,17 @@ class GitHubMessageFetcherTest {
 
         ForgeLink link = GitHubIssueLink.parse(urlOf("https://github.com/nbbrd/heylogs/issues/173"));
 
-        HttpClient client = url ->
-                PersistentResponse.of(MediaType.ANY_TYPE, "{\"title\":\"Fix \\\"quotes\\\" in title\"}");
+        HttpClient client = new HttpClient() {
+            @Override
+            public @NonNull String getDescription() {
+                return "";
+            }
+
+            @Override
+            public @NonNull HttpResponse send(@NonNull HttpRequest request) throws IOException {
+                return PersistentResponse.of(MediaType.ANY_TYPE, HttpHeaders.EMPTY, "{\"title\":\"Fix \\\"quotes\\\" in title\"}");
+            }
+        };
 
         assertThat(fetcher.fetchMessage(client, link))
                 .isEqualTo("Fix \"quotes\" in title");
@@ -64,8 +92,16 @@ class GitHubMessageFetcherTest {
 
         ForgeLink link = GitHubIssueLink.parse(urlOf("https://github.com/nbbrd/heylogs/issues/173"));
 
-        HttpClient client = url -> {
-            throw new IOException("HTTP 404");
+        HttpClient client = new HttpClient() {
+            @Override
+            public @NonNull String getDescription() {
+                return "";
+            }
+
+            @Override
+            public @NonNull HttpResponse send(@NonNull HttpRequest request) throws IOException {
+                throw new IOException("HTTP 404");
+            }
         };
 
         assertThatIOException()
