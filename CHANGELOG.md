@@ -7,6 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.19.1] - 2026-06-17
+
+### Fixed
+
+- Fix missing Javadoc folders
+
 ## [0.19.0] - 2026-06-17
 
 This release adds Markdown-JSON format conversion, support for more link types and more versioning schemes.  
@@ -412,7 +418,8 @@ This release improves extension points and also aligns features of Maven plugin 
 
 - Initial release
 
-[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.19.0...HEAD
+[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.19.1...HEAD
+[0.19.1]: https://github.com/nbbrd/heylogs/compare/v0.19.0...v0.19.1
 [0.19.0]: https://github.com/nbbrd/heylogs/compare/v0.18.1...v0.19.0
 [0.18.1]: https://github.com/nbbrd/heylogs/compare/v0.18.0...v0.18.1
 [0.18.0]: https://github.com/nbbrd/heylogs/compare/v0.17.1...v0.18.0
