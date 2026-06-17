@@ -17,6 +17,7 @@ Features:
 * [Create](docs/feature-init.md) changelog files, and [list](docs/feature-list.md) available resources and rules.
 * [Validate](docs/feature-check.md) changelog format, [summarize](docs/feature-scan.md) content, and [extract](docs/feature-extract.md) or filter versions for publication or searching.
 * [Add](docs/feature-push.md), [fetch](docs/feature-fetch.md), or set [summaries](docs/feature-note.md) for changes; [release](docs/feature-release.md) new versions or [yank](docs/feature-yank.md) problematic releases.
+* [Export](docs/feature-export.md) a changelog to structured data (e.g. JSON) and [import](docs/feature-import.md) it back to Markdown for integration with external tools or programmatic edits.
 * Integrate with [GitHub](docs/feature-forge.md), [GitLab](docs/feature-forge.md), and [Forgejo](docs/feature-forge.md); support [semantic](docs/feature-versioning.md), [calendar](docs/feature-versioning.md), and [regex](docs/feature-versioning.md) versioning; and handle [tag](docs/feature-tagging.md) prefix strategies.
 * Automate workflows in [CI/CD](docs/usage-pipelines.md) pipelines and support hierarchical [configuration](docs/feature-config-file.md) via `heylogs.properties` files.
 
@@ -41,6 +42,8 @@ Heylogs provides several **commands** to interact with changelog files:
 - **[scan](docs/feature-scan.md)** - Summarize changelog content and metadata
 - **[list](docs/feature-list.md)** - Display all available resources and rules
 - **[extract](docs/feature-extract.md)** - Filter and extract specific versions
+- **[export](docs/feature-export.md)** - Export changelog content as structured data (e.g. JSON)
+- **[import](docs/feature-import.md)** - Import structured data back as a Markdown changelog
 - **[push](docs/feature-push.md)** - Insert a change entry to the Unreleased section
 - **[fetch](docs/feature-fetch.md)** - Fetch a change from a forge issue or pull request into Unreleased
 - **[note](docs/feature-note.md)** - Set or update the summary text after the Unreleased header

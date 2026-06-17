@@ -1,0 +1,42 @@
+{
+  "title": "Changelog",
+  "description": "All notable changes to this project will be documented in this file.\n\nThe format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),\nand this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).\n\n",
+  "releases": [
+    {
+      "version": null,
+      "link": "https://github.com/example/example/compare/v1.0.0...HEAD",
+      "date": null,
+      "changes": [
+        {
+          "fixed": "Fix a bug that caused undefined behavior"
+        }
+      ],
+      "yanked": false
+    },
+    {
+      "version": "1.0.0",
+      "link": "https://github.com/example/example/compare/v0.0.1...v1.0.0",
+      "date": "2019-06-20",
+      "changes": [
+        {
+          "added": "Add a cool new feature"
+        },
+        {
+          "changed": "Change something that was notable"
+        }
+      ],
+      "yanked": false
+    },
+    {
+      "version": "0.0.1",
+      "link": "https://github.com/example/example/releases/tag/v0.0.1",
+      "date": "2019-05-31",
+      "changes": [
+        {
+          "added": "Add the initial features"
+        }
+      ],
+      "yanked": false
+    }
+  ]
+}

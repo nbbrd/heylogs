@@ -23,6 +23,7 @@ import static java.util.stream.Collectors.toList;
 import static nbbrd.console.picocli.ByteOutputSupport.DEFAULT_STDOUT_FILE;
 import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
 import static nbbrd.heylogs.spi.FormatSupport.resolveFormatId;
+import nbbrd.heylogs.spi.FormatType;
 
 @lombok.Getter
 @lombok.Setter
@@ -69,7 +70,7 @@ public final class CheckMojo extends ConfigMojo {
         boolean hasErrors = list.stream().anyMatch(Check::hasErrors);
 
         TextOutputSupport outputSupport = newTextOutputSupport();
-        String formatId = resolveFormatId(format != null ? FormatConfig.parse(format) : null, heylogs, outputSupport::isStdoutFile, outputFile.toPath());
+        String formatId = resolveFormatId(format != null ? FormatConfig.parse(format) : null, heylogs, outputSupport::isStdoutFile, outputFile.toPath(), FormatType.PROBLEMS);
 
         try (Writer writer = newWriter(outputFile, hasErrors ? getLog()::error : getLog()::info)) {
             heylogs.formatProblems(formatId, writer, list);

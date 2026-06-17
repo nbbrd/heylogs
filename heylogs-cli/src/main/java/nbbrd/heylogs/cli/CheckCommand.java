@@ -18,6 +18,7 @@ import java.util.concurrent.Callable;
 import static internal.heylogs.cli.MarkdownInputSupport.newMarkdownInputSupport;
 import static nbbrd.heylogs.spi.FormatSupport.resolveFormatId;
 import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
+import nbbrd.heylogs.spi.FormatType;
 
 @Command(name = "check", description = "Check format.")
 public final class CheckCommand implements Callable<Integer> {
@@ -55,7 +56,7 @@ public final class CheckCommand implements Callable<Integer> {
 
         TextOutputSupport outputSupport = newTextOutputSupport();
         Path outputFile = output.getFile();
-        String formatId = resolveFormatId(formatOptions.getFormat(), heylogs, outputSupport::isStdoutFile, outputFile);
+        String formatId = resolveFormatId(formatOptions.getFormat(), heylogs, outputSupport::isStdoutFile, outputFile, FormatType.PROBLEMS);
 
         try (Writer writer = outputSupport.newBufferedWriter(outputFile)) {
             heylogs.formatProblems(formatId, writer, list);

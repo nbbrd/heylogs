@@ -9,6 +9,8 @@ This matrix shows which Heylogs features are supported by each usage mode.
 | [Scan](feature-scan.md)               |  ✔  |      ✔       |       ✖        |    ✔    |   ✔   |
 | [List](feature-list.md)               |  ✔  |      ✔       |       ✖        |    ✔    |   ✔   |
 | [Extract](feature-extract.md)         |  ✔  |      ✔       |       ✖        |    ✔    |   ✔   |
+| [Export](feature-export.md)           |  ✔  |      ✔       |       ✖        |    ✔    |   ✔   |
+| [Import](feature-import.md)           |  ✔  |      ✔       |       ✖        |    ✔    |   ✔   |
 | [Push](feature-push.md)               |  ✔  |      ✔       |       ✖        |    ✔    |   ✔   |
 | [Fetch](feature-fetch.md)             |  ✔  |      ✔       |       ✖        |    ✔    |   ✔   |
 | [Note](feature-note.md)               |  ✔  |      ✔       |       ✖        |    ✔    |   ✔   |

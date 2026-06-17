@@ -30,7 +30,7 @@ class StylishFormatTest {
         Format x = new StylishFormat();
 
         assertThat(x.getSupportedFormatTypes())
-                .containsExactlyInAnyOrder(FormatType.values());
+                .containsExactlyInAnyOrder(FormatType.PROBLEMS, FormatType.STATUS, FormatType.RESOURCES);
     }
 
     @Test

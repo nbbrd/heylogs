@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.github.nbbrd.heylogs</groupId>
         <artifactId>heylogs-parent</artifactId>
-        <version>0.18.1</version>
+        <version>0.19.0</version>
     </parent>
 
     <artifactId>heylogs-enforcer-rules</artifactId>
@@ -97,6 +97,24 @@
         </dependency>
         <dependency>
             <artifactId>heylogs-ext-semver</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <artifactId>heylogs-ext-pep440</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <artifactId>heylogs-ext-maven</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <artifactId>heylogs-ext-rules</artifactId>
             <groupId>${project.groupId}</groupId>
             <version>${project.version}</version>
             <scope>runtime</scope>

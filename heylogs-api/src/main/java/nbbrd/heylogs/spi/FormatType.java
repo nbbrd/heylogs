@@ -1,5 +1,5 @@
 package nbbrd.heylogs.spi;
 
 public enum FormatType {
-    PROBLEMS, STATUS, RESOURCES
+    PROBLEMS, STATUS, RESOURCES, CONTENT
 }

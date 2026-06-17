@@ -1,0 +1,13 @@
+{
+  "title": "Changelog",
+  "description": "All notable changes.",
+  "releases": [
+    {
+      "version": "1.0.0",
+      "link": null,
+      "date": "2024-01-01",
+      "changes": [],
+      "yanked": true
+    }
+  ]
+}

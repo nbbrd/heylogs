@@ -24,6 +24,7 @@ import static nbbrd.heylogs.spi.FormatSupport.resolveFormatId;
 import static java.util.stream.Collectors.toList;
 import static nbbrd.console.picocli.ByteOutputSupport.DEFAULT_STDOUT_FILE;
 import static nbbrd.console.picocli.text.TextOutputSupport.newTextOutputSupport;
+import nbbrd.heylogs.spi.FormatType;
 
 /**
  * Maven Enforcer rule that checks a changelog file against the keep-a-changelog format.
@@ -89,7 +90,7 @@ public final class CheckRule extends HeylogsRule {
         File resolvedOutputFile = resolveOutputFile();
 
         TextOutputSupport outputSupport = newTextOutputSupport();
-        String formatId = resolveFormatId(format != null ? FormatConfig.parse(format) : null, heylogs, outputSupport::isStdoutFile, resolvedOutputFile.toPath());
+        String formatId = resolveFormatId(format != null ? FormatConfig.parse(format) : null, heylogs, outputSupport::isStdoutFile, resolvedOutputFile.toPath(), FormatType.PROBLEMS);
 
         try (Writer writer = newWriter(resolvedOutputFile, hasErrors ? getLog()::error : getLog()::info)) {
             heylogs.formatProblems(formatId, writer, list);

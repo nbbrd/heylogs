@@ -7,6 +7,27 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.19.0] - 2026-06-17
+
+This release adds Markdown-JSON format conversion, support for more link types and more versioning schemes.  
+Extended rules were refactored into a separate module, and a Java 25+ compatibility issue was fixed.
+
+### Added
+
+- Add import/export Markdown format from/to JSON format [#174](https://github.com/nbbrd/heylogs/issues/174)
+- Add support of TAG link type [#543](https://github.com/nbbrd/heylogs/issues/543)
+- Add support of BLOB link type [#435](https://github.com/nbbrd/heylogs/issues/435)
+- Add PEP 440 versioning [#556](https://github.com/nbbrd/heylogs/issues/556)
+- Add Maven versioning [#557](https://github.com/nbbrd/heylogs/issues/557)
+
+### Changed
+
+- Move extended rules to their own module
+
+### Fixed
+
+- Fix warnings when running CLI with Java25+ [#562](https://github.com/nbbrd/heylogs/issues/562)
+
 ## [0.18.1] - 2026-05-26
 
 This release improves the correctness and reliability of existing rules, fixes several message quality issues that made errors harder to understand, and adds per-rule documentation to the feature guide.
@@ -391,7 +412,8 @@ This release improves extension points and also aligns features of Maven plugin 
 
 - Initial release
 
-[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.18.1...HEAD
+[Unreleased]: https://github.com/nbbrd/heylogs/compare/v0.19.0...HEAD
+[0.19.0]: https://github.com/nbbrd/heylogs/compare/v0.18.1...v0.19.0
 [0.18.1]: https://github.com/nbbrd/heylogs/compare/v0.18.0...v0.18.1
 [0.18.0]: https://github.com/nbbrd/heylogs/compare/v0.17.1...v0.18.0
 [0.17.1]: https://github.com/nbbrd/heylogs/compare/v0.17.0...v0.17.1

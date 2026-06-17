@@ -6,7 +6,7 @@
 
     <groupId>com.github.nbbrd.heylogs</groupId>
     <artifactId>heylogs-parent</artifactId>
-    <version>0.18.1</version>
+    <version>0.19.0</version>
     <packaging>pom</packaging>
 
     <name>heylogs</name>
@@ -39,7 +39,7 @@
     <properties>
         <!-- Java 8+ config -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.build.outputTimestamp>2026-05-26T08:20:26Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2026-06-17T09:33:43Z</project.build.outputTimestamp>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
         <requiredMavenVersion>3.9.14</requiredMavenVersion>
@@ -97,7 +97,7 @@
             <dependency>
                 <groupId>io.github.hakky54</groupId>
                 <artifactId>ayza</artifactId>
-                <version>10.0.4</version>
+                <version>10.0.5</version>
             </dependency>
             <dependency>
                 <groupId>com.google.code.gson</groupId>
@@ -144,18 +144,23 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
-                    <version>3.21.0</version>
+                    <version>3.22.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.5.5</version>
+                    <version>3.5.6</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>3.5.6</version>
                 </plugin>
                 <!-- Other plugins -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
-                    <version>3.10.0</version>
+                    <version>3.11.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -200,7 +205,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.14</version>
+                    <version>0.8.15</version>
                 </plugin>
                 <plugin>
                     <groupId>org.jreleaser</groupId>
@@ -225,6 +230,19 @@
                         </configurationParameters>
                     </properties>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-integration-test</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>de.thetaphi</groupId>
@@ -264,6 +282,9 @@
         <module>heylogs-ext-json</module>
         <module>heylogs-ext-semver</module>
         <module>heylogs-ext-calver</module>
+        <module>heylogs-ext-pep440</module>
+        <module>heylogs-ext-maven</module>
+        <module>heylogs-ext-rules</module>
         <module>heylogs-enforcer-rules</module>
         <module>heylogs-maven-plugin</module>
         <module>heylogs-bom</module>

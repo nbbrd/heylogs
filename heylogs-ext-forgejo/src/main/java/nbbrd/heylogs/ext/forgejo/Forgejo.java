@@ -28,6 +28,8 @@ public final class Forgejo implements Forge {
             .messageFetcher(ISSUE, ForgejoMessageFetcher.ISSUE)
             .messageFetcher(REQUEST, ForgejoMessageFetcher.REQUEST)
             .linkParser(REPOSITORY, ForgejoRepositoryLink::parse)
+            .linkParser(TAG, ForgejoTagLink::parse)
+            .linkParser(BLOB, ForgejoBlobLink::parse)
             .compareLinkConverter(ForgejoCompareLink::of)
             .build();
 }

@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.github.nbbrd.heylogs</groupId>
         <artifactId>heylogs-parent</artifactId>
-        <version>0.18.1</version>
+        <version>0.19.0</version>
     </parent>
 
     <artifactId>heylogs-architecture-tests</artifactId>
@@ -63,7 +63,25 @@
         </dependency>
         <dependency>
             <groupId>com.github.nbbrd.heylogs</groupId>
+            <artifactId>heylogs-ext-pep440</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.nbbrd.heylogs</groupId>
+            <artifactId>heylogs-ext-maven</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.nbbrd.heylogs</groupId>
             <artifactId>heylogs-ext-http</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.nbbrd.heylogs</groupId>
+            <artifactId>heylogs-ext-rules</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
