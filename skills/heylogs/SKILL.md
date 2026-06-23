@@ -9,7 +9,7 @@ description: >
   add/extract/export changelog entries. Covers the `check` command and rule
   configuration (primary task), persistent `heylogs.properties` config, every
   built-in rule, the authoring/releasing/inspecting commands, and how to run the
-  CLI with no prerequisites via gg.cmd or JBang.
+  CLI with no prerequisites via JBang.
 metadata:
   source: https://github.com/nbbrd/heylogs
   agent-generic: "true"
@@ -35,11 +35,12 @@ heylogs <command> [<args>]
 ```
 
 Examples below write `heylogs …` for brevity. If you don't have a native binary
-on `PATH`, run the same command through `gg.cmd` (no prerequisites) or JBang —
-see [`references/running-cli.md`](references/running-cli.md). Quickest one-liner:
+on `PATH`, run the same command through JBang (no prerequisites) — see
+[`references/running-cli.md`](references/running-cli.md). Quickest one-liner:
 
 ```bash
-./gg.cmd jbang com.github.nbbrd.heylogs:heylogs-cli:0.18.1:bin check CHANGELOG.md
+export JBANG_USE_NATIVE=true
+curl -Ls https://sh.jbang.dev | bash -s - com.github.nbbrd.heylogs:heylogs-cli:0.18.1:bin check CHANGELOG.md
 ```
 
 Most commands default to `CHANGELOG.md` and accept a positional file argument

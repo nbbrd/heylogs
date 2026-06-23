@@ -5,31 +5,34 @@ don't have a native binary on `PATH` (e.g. via Homebrew/Scoop), run the same
 commands through one of the options below — substitute the whole invocation for
 `heylogs`.
 
-## With gg.cmd (recommended — no prerequisites)
+## Zero-install one-liner (recommended — no prerequisites)
 
-[`gg.cmd`](https://github.com/eirikb/gg/) bootstraps both a JDK and JBang on
-demand, so contributors and CI need **nothing** pre-installed. Download it once
-into the repo:
-
-```bash
-curl -L ggcmd.io > gg.cmd && chmod +x gg.cmd
-```
-
-Then run heylogs via JBang through it:
+JBang's install script bootstraps JBang (and a JDK) on demand and runs the CLI in
+a single command — nothing pre-installed. Set `JBANG_USE_NATIVE=true` to launch
+JBang's own native binary for near-instant startup (no JVM needed to start JBang
+itself):
 
 ```bash
-./gg.cmd jbang com.github.nbbrd.heylogs:heylogs-cli:0.18.1:bin check CHANGELOG.md
+# Linux / macOS / Windows (bash)
+export JBANG_USE_NATIVE=true
+curl -Ls https://sh.jbang.dev | bash -s - com.github.nbbrd.heylogs:heylogs-cli:0.18.1:bin check CHANGELOG.md
 ```
 
-## With JBang directly
+```powershell
+# Windows PowerShell
+$env:JBANG_USE_NATIVE = "true"
+iex "& { $(iwr -useb https://ps.jbang.dev) } com.github.nbbrd.heylogs:heylogs-cli:0.18.1:bin check CHANGELOG.md"
+```
 
-If JBang is already available:
+## With JBang installed
+
+If JBang is already on `PATH`:
 
 ```bash
 jbang com.github.nbbrd.heylogs:heylogs-cli:0.18.1:bin check CHANGELOG.md
 ```
 
-Install JBang with the universal (all-platforms) installer if needed:
+Install JBang persistently with the universal (all-platforms) installer if needed:
 
 ```bash
 # Linux / macOS / Windows (bash)

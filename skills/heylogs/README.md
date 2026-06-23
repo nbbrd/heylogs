@@ -18,7 +18,7 @@ Node.js (v18+) is required only for the `npx skills` method. Install it via your
 system's package manager or from [nodejs.org](https://nodejs.org).
 
 The skill drives the Heylogs CLI; if it isn't on your `PATH`, the skill itself
-explains how to run it with no prerequisites via `gg.cmd` or JBang (see
+explains how to run it with no prerequisites via JBang (see
 [`references/running-cli.md`](references/running-cli.md)).
 
 ## Installation
