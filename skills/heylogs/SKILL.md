@@ -40,7 +40,7 @@ on `PATH`, run the same command through JBang (no prerequisites) — see
 
 ```bash
 export JBANG_USE_NATIVE=true
-curl -Ls https://sh.jbang.dev | bash -s - com.github.nbbrd.heylogs:heylogs-cli:0.18.1:bin check CHANGELOG.md
+curl -Ls https://sh.jbang.dev | bash -s - com.github.nbbrd.heylogs:heylogs-cli:0.19.1:bin check CHANGELOG.md
 ```
 
 Most commands default to `CHANGELOG.md` and accept a positional file argument

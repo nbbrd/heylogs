@@ -15,13 +15,13 @@ itself):
 ```bash
 # Linux / macOS / Windows (bash)
 export JBANG_USE_NATIVE=true
-curl -Ls https://sh.jbang.dev | bash -s - com.github.nbbrd.heylogs:heylogs-cli:0.18.1:bin check CHANGELOG.md
+curl -Ls https://sh.jbang.dev | bash -s - com.github.nbbrd.heylogs:heylogs-cli:0.19.1:bin check CHANGELOG.md
 ```
 
 ```powershell
 # Windows PowerShell
 $env:JBANG_USE_NATIVE = "true"
-iex "& { $(iwr -useb https://ps.jbang.dev) } com.github.nbbrd.heylogs:heylogs-cli:0.18.1:bin check CHANGELOG.md"
+iex "& { $(iwr -useb https://ps.jbang.dev) } com.github.nbbrd.heylogs:heylogs-cli:0.19.1:bin check CHANGELOG.md"
 ```
 
 ## With JBang installed
@@ -29,7 +29,7 @@ iex "& { $(iwr -useb https://ps.jbang.dev) } com.github.nbbrd.heylogs:heylogs-cl
 If JBang is already on `PATH`:
 
 ```bash
-jbang com.github.nbbrd.heylogs:heylogs-cli:0.18.1:bin check CHANGELOG.md
+jbang com.github.nbbrd.heylogs:heylogs-cli:0.19.1:bin check CHANGELOG.md
 ```
 
 Install JBang persistently with the universal (all-platforms) installer if needed:
@@ -43,7 +43,7 @@ iex "& { $(iwr -useb https://ps.jbang.dev) } app setup"
 
 JBang can also resolve the latest release from the project's catalog
 (`heylogs@nbbrd`, requires `trust: https://github.com/nbbrd/jbang-catalog`).
-Replace `0.18.1` with the version you want; see
+Replace `0.19.1` with the version you want; see
 [releases](https://github.com/nbbrd/heylogs/releases/latest). Other install
 methods (Homebrew, Scoop, plain jar) are in
 [`docs/usage-cli.md`](../../../docs/usage-cli.md).
