@@ -4,6 +4,8 @@
 
 Heylogs is a Java 8+ multi-module Maven project for validating and releasing changelogs in [Keep a Changelog](https://keepachangelog.com) format. It parses Markdown into an AST (via [flexmark-java](https://github.com/vsch/flexmark-java)) and operates on the tree.
 
+> **This file** covers building and contributing to Heylogs itself. To *use* Heylogs (run `check`, tune rules, configure `heylogs.properties`) on a changelog, see the [`heylogs` skill](skills/heylogs/SKILL.md).
+
 ## Architecture
 
 **Core module** (`heylogs-api`): Contains the facade class (`Heylogs`), domain model, and SPI interfaces in the `spi` subpackage. Internal implementation lives under `internal.*` packages — never reference these types from public API.
