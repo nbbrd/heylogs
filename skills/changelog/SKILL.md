@@ -1,9 +1,9 @@
 ---
-name: heylogs
+name: changelog
 description: >
-  Validate and maintain Keep a Changelog–formatted CHANGELOG.md files with the
-  Heylogs CLI. Use this skill whenever the user asks to check, lint, validate,
-  fix, format, or release a changelog, sees Heylogs rule violations (e.g.
+  Check, lint, fix, format, or release Keep a Changelog CHANGELOG.md files with
+  the Heylogs CLI. Use this skill whenever the user asks to validate or maintain
+  a changelog, sees Heylogs rule violations (e.g.
   no-empty-group, latest-version-first, forge-ref), wants to get a repo to
   "0 problems" via heylogs.properties without editing the changelog, or needs to
   add/extract/export changelog entries. Covers the `check` command and rule
