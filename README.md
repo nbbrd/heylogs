@@ -33,7 +33,7 @@ Heylogs is available in multiple formats to fit your workflow:
 - **[Maven Enforcer rules](docs/usage-enforcer-rules.md)** - Enforce changelog quality in builds
 - **[CI/CD pipelines](docs/usage-pipelines.md)** - Integrate into CI/CD environments
 
-> Using an AI coding assistant? The [`changelog` skill](skills/changelog/SKILL.md) is an agent-generic guide to running `check`, tuning rules, and configuring `heylogs.properties`. Install it with `npx skills add nbbrd/heylogs` ([details](skills/changelog/README.md)).
+> Using an AI coding assistant? The [`changelog` skill](skills/usage/changelog/SKILL.md) is an agent-generic guide to running `check`, tuning rules, and configuring `heylogs.properties`. Install it with `npx skills add nbbrd/heylogs` ([details](skills/usage/changelog/README.md)).
 
 ## Features
 

@@ -42,7 +42,7 @@ npx skills add nbbrd/heylogs -g -a claude-code -y
 ## Alternative: manual installation
 
 If you prefer not to use `npx skills`, download the skill folder
-[`skills/changelog/`](.) and register it as a local skill folder per your agent's
+[`skills/usage/changelog/`](.) and register it as a local skill folder per your agent's
 documentation (no Node.js required).
 
 ## Update

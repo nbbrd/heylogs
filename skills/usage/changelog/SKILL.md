@@ -13,6 +13,7 @@ description: >
 metadata:
   source: https://github.com/nbbrd/heylogs
   agent-generic: "true"
+  category: usage
 ---
 
 # Working with Heylogs changelogs
@@ -21,8 +22,8 @@ Agent-generic guide (works with any coding assistant) for using the
 [Heylogs](https://github.com/nbbrd/heylogs) CLI to validate and maintain
 [Keep a Changelog](https://keepachangelog.com)–formatted `CHANGELOG.md` files.
 
-For project architecture and contribution conventions, see [`AGENTS.md`](../../AGENTS.md).
-Full feature docs live under [`docs/`](../../docs/).
+For project architecture and contribution conventions, see [`AGENTS.md`](../../../AGENTS.md).
+Full feature docs live under [`docs/`](../../../docs/).
 
 ## What Heylogs does
 
@@ -166,5 +167,5 @@ fully explicit, reproducible configuration.
 
 ---
 
-See [`docs/`](../../docs/) for per-feature documentation and
-[`docs/feature-matrix.md`](../../docs/feature-matrix.md) for support by usage mode.
+See [`docs/`](../../../docs/) for per-feature documentation and
+[`docs/feature-matrix.md`](../../../docs/feature-matrix.md) for support by usage mode.
