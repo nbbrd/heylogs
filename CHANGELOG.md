@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix inconsistent behavior in release-date rule [#576](https://github.com/nbbrd/heylogs/issues/576)
+
 ## [0.19.1] - 2026-06-17
 
 ### Fixed

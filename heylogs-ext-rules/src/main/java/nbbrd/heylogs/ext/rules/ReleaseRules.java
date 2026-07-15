@@ -16,7 +16,7 @@ import nbbrd.service.ServiceProvider;
 import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -298,7 +298,7 @@ public enum ReleaseRules implements Rule {
 
         LocalDate date = version.getDate();
 
-        return date.isAfter(LocalDate.now(ZoneId.systemDefault()))
+        return date.isAfter(LocalDate.now(ZoneOffset.UTC))
                 ? RuleIssue
                 .builder()
                 .message(String.format(ROOT, "Release date %s is in the future", date))
