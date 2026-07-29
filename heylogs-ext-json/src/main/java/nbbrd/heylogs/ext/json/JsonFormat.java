@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.*;
@@ -249,8 +251,8 @@ public final class JsonFormat implements Format {
         URL link = null;
         if (lEl != null && !lEl.isJsonNull()) {
             try {
-                link = new URL(lEl.getAsString());
-            } catch (MalformedURLException ex) {
+                link = new URI(lEl.getAsString()).toURL();
+            } catch (MalformedURLException | URISyntaxException ex) {
                 throw new JsonParseException("Invalid URL: " + lEl.getAsString(), ex);
             }
         }

@@ -12,7 +12,8 @@ import nbbrd.io.text.Parser;
 import nbbrd.service.ServiceProvider;
 import org.jspecify.annotations.Nullable;
 
-import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 import java.util.Objects;
@@ -138,8 +139,8 @@ public enum LinkRules implements Rule {
     @VisibleForTesting
     static RuleIssue validateHttps(LinkNodeBase link) {
         try {
-            if (!new URL(link.getUrl().toString()).getProtocol().equals("http")) return NO_RULE_ISSUE;
-        } catch (MalformedURLException ignore) {
+            if (!"http".equals(new URI(link.getUrl().toString()).getScheme())) return NO_RULE_ISSUE;
+        } catch (URISyntaxException ignore) {
             return NO_RULE_ISSUE;
         }
         return RuleIssue
