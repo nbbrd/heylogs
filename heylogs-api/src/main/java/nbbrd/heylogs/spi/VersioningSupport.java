@@ -5,6 +5,7 @@ import nbbrd.design.StaticFactoryMethod;
 import org.jspecify.annotations.Nullable;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Comparator;
 import java.util.function.BiPredicate;
@@ -105,7 +106,7 @@ public final class VersioningSupport implements Versioning {
 
         public @NonNull Builder urlOf(@NonNull CharSequence url) {
             try {
-                return url(new URL(url.toString()));
+                return url(URI.create(url.toString()).toURL());
             } catch (MalformedURLException e) {
                 throw new IllegalArgumentException(e);
             }
