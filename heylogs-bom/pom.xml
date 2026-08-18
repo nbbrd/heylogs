@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -20,75 +18,75 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <artifactId>heylogs-api</artifactId>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>heylogs-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <artifactId>heylogs-api</artifactId>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>heylogs-api</artifactId>
                 <version>${project.version}</version>
-                <classifier>tests</classifier>
                 <type>test-jar</type>
+                <classifier>tests</classifier>
             </dependency>
             <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>heylogs-cli</artifactId>
-                <groupId>${project.groupId}</groupId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>heylogs-ext-calver</artifactId>
-                <groupId>${project.groupId}</groupId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>heylogs-ext-forgejo</artifactId>
-                <groupId>${project.groupId}</groupId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>heylogs-ext-github</artifactId>
-                <groupId>${project.groupId}</groupId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>heylogs-ext-gitlab</artifactId>
-                <groupId>${project.groupId}</groupId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>heylogs-ext-json</artifactId>
-                <groupId>${project.groupId}</groupId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>heylogs-ext-pep440</artifactId>
-                <groupId>${project.groupId}</groupId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>heylogs-ext-maven</artifactId>
-                <groupId>${project.groupId}</groupId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>heylogs-ext-semver</artifactId>
-                <groupId>${project.groupId}</groupId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>heylogs-ext-rules</artifactId>
-                <groupId>${project.groupId}</groupId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>heylogs-maven-plugin</artifactId>
-                <groupId>${project.groupId}</groupId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <artifactId>heylogs-enforcer-rules</artifactId>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>heylogs-enforcer-rules</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

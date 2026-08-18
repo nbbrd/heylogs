@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.nbbrd.heylogs</groupId>
@@ -13,7 +11,6 @@
     <description>Keep-a-changelog tool</description>
     <url>https://github.com/${x.github.user}/${x.github.repo}</url>
     <inceptionYear>2022</inceptionYear>
-
     <licenses>
         <license>
             <name>European Union Public Licence (EUPL)</name>
@@ -29,6 +26,25 @@
             <organizationUrl>https://www.nbb.be</organizationUrl>
         </developer>
     </developers>
+
+    <modules>
+        <module>heylogs-api</module>
+        <module>heylogs-cli</module>
+        <module>heylogs-ext-forgejo</module>
+        <module>heylogs-ext-github</module>
+        <module>heylogs-ext-gitlab</module>
+        <module>heylogs-ext-json</module>
+        <module>heylogs-ext-semver</module>
+        <module>heylogs-ext-calver</module>
+        <module>heylogs-ext-pep440</module>
+        <module>heylogs-ext-maven</module>
+        <module>heylogs-ext-rules</module>
+        <module>heylogs-enforcer-rules</module>
+        <module>heylogs-maven-plugin</module>
+        <module>heylogs-bom</module>
+        <module>heylogs-ext-http</module>
+        <module>heylogs-architecture-tests</module>
+    </modules>
 
     <scm>
         <connection>scm:git:git://github.com/${x.github.user}/${x.github.repo}.git</connection>
@@ -208,6 +224,11 @@
                     <version>0.8.15</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>tidy-maven-plugin</artifactId>
+                    <version>1.4.0</version>
+                </plugin>
+                <plugin>
                     <groupId>org.jreleaser</groupId>
                     <artifactId>jreleaser-maven-plugin</artifactId>
                     <version>1.25.0</version>
@@ -270,27 +291,20 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>tidy-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
-
-    <modules>
-        <module>heylogs-api</module>
-        <module>heylogs-cli</module>
-        <module>heylogs-ext-forgejo</module>
-        <module>heylogs-ext-github</module>
-        <module>heylogs-ext-gitlab</module>
-        <module>heylogs-ext-json</module>
-        <module>heylogs-ext-semver</module>
-        <module>heylogs-ext-calver</module>
-        <module>heylogs-ext-pep440</module>
-        <module>heylogs-ext-maven</module>
-        <module>heylogs-ext-rules</module>
-        <module>heylogs-enforcer-rules</module>
-        <module>heylogs-maven-plugin</module>
-        <module>heylogs-bom</module>
-        <module>heylogs-ext-http</module>
-        <module>heylogs-architecture-tests</module>
-    </modules>
 
     <profiles>
         <!-- Base build java8 -->
@@ -761,6 +775,7 @@
                 <forbiddenapis.skip>true</forbiddenapis.skip>
                 <jacoco.skip>true</jacoco.skip>
                 <heylogs.skip>true</heylogs.skip>
+                <tidy.skip>true</tidy.skip>
             </properties>
         </profile>
     </profiles>
