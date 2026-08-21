@@ -6,7 +6,7 @@ import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.ForgeRef;
-import nbbrd.io.http.URLQueryBuilder;
+import nbbrd.io.http.UriQueryBuilder;
 import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
@@ -47,7 +47,7 @@ class GitLabMentionLink implements ForgeLink {
 
     @Override
     public String toString() {
-        return URLQueryBuilder.of(base).path(namespace).toString();
+        return UriQueryBuilder.of(uriOf(base)).path(namespace).toString();
     }
 
     @Override

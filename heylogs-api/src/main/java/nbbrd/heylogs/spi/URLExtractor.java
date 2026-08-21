@@ -1,6 +1,7 @@
 package nbbrd.heylogs.spi;
 
 import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.UnsupportedEncodingException;
 import java.net.*;
@@ -40,7 +41,7 @@ public final class URLExtractor {
         }
     }
 
-    public static @NonNull URL baseOf(@NonNull URL url) {
+    public static @NonNull URL baseOf(@NonNull URL url) throws IllegalArgumentException {
         try {
             return new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), null, null, null).toURL();
         } catch (URISyntaxException | MalformedURLException ex) {
@@ -52,6 +53,22 @@ public final class URLExtractor {
         try {
             return URI.create(text.toString()).toURL();
         } catch (MalformedURLException ex) {
+            throw new IllegalArgumentException(ex);
+        }
+    }
+
+    public static @Nullable URL urlOrNullOf(@NonNull CharSequence text) {
+        try {
+            return URI.create(text.toString()).toURL();
+        } catch (Exception ignore) {
+            return null;
+        }
+    }
+
+    public static @NonNull URI uriOf(@NonNull URL url) throws IllegalArgumentException {
+        try {
+            return url.toURI();
+        } catch (URISyntaxException ex) {
             throw new IllegalArgumentException(ex);
         }
     }

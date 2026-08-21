@@ -2,11 +2,12 @@ package nbbrd.heylogs.ext.github;
 
 import lombok.NonNull;
 import nbbrd.heylogs.spi.ProjectLink;
-import nbbrd.io.http.URLQueryBuilder;
+import nbbrd.io.http.UriQueryBuilder;
 
 import java.net.URL;
 import java.util.regex.Pattern;
 
+import static nbbrd.heylogs.spi.URLExtractor.uriOf;
 import static nbbrd.heylogs.spi.URLExtractor.urlOf;
 
 interface GitHubProjectLink extends ProjectLink {
@@ -22,7 +23,7 @@ interface GitHubProjectLink extends ProjectLink {
 
     @Override
     default @NonNull URL getProjectURL() {
-        return urlOf(URLQueryBuilder.of(getBase()).path(getOwner()).path(getRepo()).toString());
+        return urlOf(UriQueryBuilder.of(uriOf(getBase())).path(getOwner()).path(getRepo()).toString());
     }
 
     Pattern OWNER_PATTERN = Pattern.compile("[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38}", Pattern.CASE_INSENSITIVE);

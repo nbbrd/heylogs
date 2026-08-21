@@ -8,7 +8,6 @@ import nbbrd.design.DirectImpl;
 import nbbrd.design.MightBeGenerated;
 import nbbrd.design.VisibleForTesting;
 import nbbrd.heylogs.spi.*;
-import nbbrd.io.text.Parser;
 import nbbrd.service.ServiceProvider;
 import org.jspecify.annotations.Nullable;
 
@@ -23,6 +22,7 @@ import static java.util.Locale.ROOT;
 import static nbbrd.heylogs.Util.illegalArgumentToNull;
 import static nbbrd.heylogs.spi.RuleSupport.nameToId;
 import static nbbrd.heylogs.spi.Tagging.CONVERSION_NOT_SUPPORTED;
+import static nbbrd.heylogs.spi.URLExtractor.urlOrNullOf;
 import static nbbrd.heylogs.spi.Versioning.NO_VERSIONING_FILTER;
 
 public enum LinkRules implements Rule {
@@ -152,7 +152,7 @@ public enum LinkRules implements Rule {
 
     @VisibleForTesting
     public static @Nullable RuleIssue validateTagVersioning(@NonNull LinkNodeBase link, @NonNull RuleContext context) {
-        URL url = Parser.onURL().parse(link.getUrl());
+        URL url = urlOrNullOf(link.getUrl());
         Converter<String, String> tagParser = context.findTagParserOrNull();
         java.util.function.Predicate<CharSequence> versioningPredicate = context.findVersioningPredicateOrNull();
 
@@ -187,7 +187,7 @@ public enum LinkRules implements Rule {
 
     @VisibleForTesting
     public static @Nullable RuleIssue validateForgeRef(@NonNull Link link, @NonNull RuleContext context) {
-        URL url = Parser.onURL().parse(link.getUrl());
+        URL url = urlOrNullOf(link.getUrl());
         if (url != null) {
             for (Forge forge : context.findAllForges(url)) {
                 for (ForgeLinkType type : ForgeLinkType.values()) {
@@ -298,7 +298,7 @@ public enum LinkRules implements Rule {
         Link lastLink = getLastLink(item);
         if (lastLink == null) return NO_RULE_ISSUE;
 
-        URL url = Parser.onURL().parse(lastLink.getUrl());
+        URL url = urlOrNullOf(lastLink.getUrl());
         if (url == null) return NO_RULE_ISSUE;
 
         List<Forge> forges = context.findAllForges(url);

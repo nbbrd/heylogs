@@ -5,7 +5,7 @@ import lombok.NonNull;
 import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.spi.ForgeRef;
-import nbbrd.io.http.URLQueryBuilder;
+import nbbrd.io.http.UriQueryBuilder;
 
 import java.net.URL;
 
@@ -36,7 +36,7 @@ class GitHubRepositoryLink implements GitHubProjectLink {
 
     @Override
     public @NonNull URL toURL() {
-        return urlOf(URLQueryBuilder.of(base).path(owner).path(repo).toString());
+        return urlOf(UriQueryBuilder.of(uriOf(base)).path(owner).path(repo).toString());
     }
 
     @Override

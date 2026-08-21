@@ -5,7 +5,7 @@ import lombok.NonNull;
 import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.spi.ForgeRef;
-import nbbrd.io.http.URLQueryBuilder;
+import nbbrd.io.http.UriQueryBuilder;
 import org.jspecify.annotations.Nullable;
 
 import java.net.MalformedURLException;
@@ -38,11 +38,12 @@ class GitHubRequestLink implements GitHubProjectLink {
     public static @NonNull GitHubRequestLink resolve(@NonNull URL projectUrl, @NonNull CharSequence ref) {
         try {
             return parse(
-                    URLQueryBuilder
-                            .of(projectUrl)
+                    UriQueryBuilder
+                            .of(uriOf(projectUrl))
                             .path(PULL_REQUEST_KEYWORD)
                             .path(String.valueOf(GitHubRequestRef.parse(ref).getRequestNumber()))
-                            .build());
+                            .build()
+                            .toURL());
         } catch (MalformedURLException ex) {
             throw new RuntimeException(ex);
         }
@@ -61,7 +62,7 @@ class GitHubRequestLink implements GitHubProjectLink {
 
     @Override
     public String toString() {
-        return URLQueryBuilder.of(base).path(owner).path(repo).path(PULL_REQUEST_KEYWORD).path(String.valueOf(requestNumber)).toString();
+        return UriQueryBuilder.of(uriOf(base)).path(owner).path(repo).path(PULL_REQUEST_KEYWORD).path(String.valueOf(requestNumber)).toString();
     }
 
     @Override

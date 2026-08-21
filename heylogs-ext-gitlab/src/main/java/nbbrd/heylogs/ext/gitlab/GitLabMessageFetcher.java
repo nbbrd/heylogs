@@ -8,6 +8,8 @@ import nbbrd.design.VisibleForTesting;
 import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.MessageFetcher;
 import nbbrd.io.http.*;
+import nbbrd.io.http.ext.ThrowingStatusException;
+import nbbrd.io.http.urlconnection.UrlConnectionHttpClient;
 import nbbrd.io.net.MediaType;
 
 import java.io.IOException;
@@ -58,7 +60,7 @@ enum GitLabMessageFetcher implements MessageFetcher {
                 .build();
         try (HttpResponse response = client.send(request)) {
             return extractTitle(response.getBodyAsString());
-        } catch (HttpResponseException ex) {
+        } catch (ThrowingStatusException ex) {
             throw new IOException("GitLab API returned HTTP " + ex.getResponseCode() + " for " + request.getQuery());
         }
     }

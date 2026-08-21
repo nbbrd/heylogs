@@ -6,7 +6,7 @@ import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.spi.BranchLink;
 import nbbrd.heylogs.spi.ForgeRef;
-import nbbrd.io.http.URLQueryBuilder;
+import nbbrd.io.http.UriQueryBuilder;
 import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
@@ -48,7 +48,7 @@ class ForgejoTagLink implements ForgejoProjectLink, BranchLink {
 
     @Override
     public String toString() {
-        return URLQueryBuilder.of(base).path(owner).path(repo).path(RELEASES_KEYWORD).path(TAG_KEYWORD).path(branchName).toString();
+        return UriQueryBuilder.of(uriOf(base)).path(owner).path(repo).path(RELEASES_KEYWORD).path(TAG_KEYWORD).path(branchName).toString();
     }
 
     @Override

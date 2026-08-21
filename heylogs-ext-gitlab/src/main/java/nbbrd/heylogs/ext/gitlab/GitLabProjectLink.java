@@ -2,11 +2,12 @@ package nbbrd.heylogs.ext.gitlab;
 
 import lombok.NonNull;
 import nbbrd.heylogs.spi.ProjectLink;
-import nbbrd.io.http.URLQueryBuilder;
+import nbbrd.io.http.UriQueryBuilder;
 
 import java.net.URL;
 import java.util.List;
 
+import static nbbrd.heylogs.spi.URLExtractor.uriOf;
 import static nbbrd.heylogs.spi.URLExtractor.urlOf;
 
 public interface GitLabProjectLink extends ProjectLink {
@@ -22,6 +23,6 @@ public interface GitLabProjectLink extends ProjectLink {
 
     @Override
     default @NonNull URL getProjectURL() {
-        return urlOf(URLQueryBuilder.of(getBase()).path(getNamespace()).path(getProject()).toString());
+        return urlOf(UriQueryBuilder.of(uriOf(getBase())).path(getNamespace()).path(getProject()).toString());
     }
 }

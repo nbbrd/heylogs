@@ -6,7 +6,7 @@ import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.spi.BlobLink;
 import nbbrd.heylogs.spi.ForgeRef;
-import nbbrd.io.http.URLQueryBuilder;
+import nbbrd.io.http.UriQueryBuilder;
 import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
@@ -64,7 +64,7 @@ class ForgejoBlobLink implements ForgejoProjectLink, BlobLink {
 
     @Override
     public String toString() {
-        return URLQueryBuilder.of(base).path(owner).path(repo).path(SRC_KEYWORD).path(refType).path(branchName).path(filePath).toString();
+        return UriQueryBuilder.of(uriOf(base)).path(owner).path(repo).path(SRC_KEYWORD).path(refType).path(branchName).path(filePath).toString();
     }
 
     @Override

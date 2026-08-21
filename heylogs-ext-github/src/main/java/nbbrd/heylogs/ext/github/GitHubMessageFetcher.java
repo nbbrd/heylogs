@@ -8,11 +8,14 @@ import nbbrd.design.VisibleForTesting;
 import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.MessageFetcher;
 import nbbrd.io.http.*;
+import nbbrd.io.http.ext.ThrowingStatusException;
+import nbbrd.io.http.urlconnection.UrlConnectionHttpClient;
 import nbbrd.io.net.MediaType;
 
 import java.io.IOException;
 import java.net.URL;
 
+import static nbbrd.heylogs.spi.URLExtractor.uriOf;
 import static nbbrd.heylogs.spi.URLExtractor.urlOf;
 
 // https://docs.github.com/en/rest/issues/issues#get-an-issue
@@ -25,7 +28,7 @@ enum GitHubMessageFetcher implements MessageFetcher {
         URL buildApiUrl(@NonNull ForgeLink link, @NonNull URL apiBase) {
             if (link instanceof GitHubIssueLink) {
                 GitHubIssueLink issueLink = (GitHubIssueLink) link;
-                return urlOf(URLQueryBuilder.of(apiBase)
+                return urlOf(UriQueryBuilder.of(uriOf(apiBase))
                         .path("repos")
                         .path(issueLink.getOwner())
                         .path(issueLink.getRepo())
@@ -42,7 +45,7 @@ enum GitHubMessageFetcher implements MessageFetcher {
         URL buildApiUrl(@NonNull ForgeLink link, @NonNull URL apiBase) {
             if (link instanceof GitHubRequestLink) {
                 GitHubRequestLink requestLink = (GitHubRequestLink) link;
-                return urlOf(URLQueryBuilder.of(apiBase)
+                return urlOf(UriQueryBuilder.of(uriOf(apiBase))
                         .path("repos")
                         .path(requestLink.getOwner())
                         .path(requestLink.getRepo())
@@ -67,7 +70,7 @@ enum GitHubMessageFetcher implements MessageFetcher {
                 .build();
         try (HttpResponse response = client.send(request)) {
             return extractTitle(response.getBodyAsString());
-        } catch (HttpResponseException ex) {
+        } catch (ThrowingStatusException ex) {
             throw new IOException("GitHub API returned HTTP " + ex.getResponseCode() + " for " + request.getQuery());
         }
     }

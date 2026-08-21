@@ -5,16 +5,15 @@ import lombok.NonNull;
 import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.spi.ForgeRef;
-import nbbrd.io.http.URLQueryBuilder;
+import nbbrd.io.http.UriQueryBuilder;
 
 import java.net.URL;
 import java.util.List;
 
-import static nbbrd.heylogs.spi.URLExtractor.baseOf;
-import static nbbrd.heylogs.spi.URLExtractor.getPathArray;
 import static java.util.Collections.unmodifiableList;
 import static nbbrd.heylogs.ext.gitlab.GitLabSupport.NAMESPACE_PATTERN;
 import static nbbrd.heylogs.ext.gitlab.GitLabSupport.PROJECT_PATTERN;
+import static nbbrd.heylogs.spi.URLExtractor.*;
 
 @RepresentableAs(URL.class)
 @lombok.Value
@@ -54,7 +53,7 @@ class GitLabRepositoryLink implements GitLabProjectLink {
     @Override
     public @NonNull URL toURL() {
         try {
-            return URLQueryBuilder.of(base).path(namespace).path(project).build();
+            return UriQueryBuilder.of(uriOf(base)).path(namespace).path(project).build().toURL();
         } catch (java.net.MalformedURLException e) {
             throw new RuntimeException(e);
         }
