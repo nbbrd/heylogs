@@ -5,13 +5,14 @@ import lombok.NonNull;
 import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.spi.ForgeRef;
-import nbbrd.io.http.URLQueryBuilder;
+import nbbrd.io.http.UriQueryBuilder;
 import org.jspecify.annotations.Nullable;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
+import static nbbrd.heylogs.spi.URLExtractor.uriOf;
 import static nbbrd.heylogs.spi.URLExtractor.urlOf;
 import static nbbrd.heylogs.ext.gitlab.GitLabSupport.*;
 
@@ -29,10 +30,11 @@ class GitLabRequestLink implements GitLabProjectLink {
     public static @NonNull GitLabRequestLink resolve(@NonNull URL projectUrl, @NonNull CharSequence ref) {
         try {
             return parse(
-                    URLQueryBuilder.of(projectUrl)
+                    UriQueryBuilder.of(uriOf(projectUrl))
                             .path(MERGE_REQUEST_KEYWORD)
                             .path(String.valueOf(GitLabRequestRef.parse(ref).getNumber()))
-                            .build());
+                            .build()
+                            .toURL());
         } catch (MalformedURLException ex) {
             throw new RuntimeException(ex);
         }

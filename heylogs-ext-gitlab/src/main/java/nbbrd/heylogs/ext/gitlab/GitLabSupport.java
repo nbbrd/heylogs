@@ -4,7 +4,7 @@ import lombok.NonNull;
 import nbbrd.design.MightBePromoted;
 import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.ForgeRef;
-import nbbrd.io.http.URLQueryBuilder;
+import nbbrd.io.http.UriQueryBuilder;
 import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
@@ -83,7 +83,7 @@ class GitLabSupport {
     }
 
     public static @NonNull String linkToString(@NonNull URL base, @NonNull List<String> namespace, @NonNull String project, @NonNull String type, @NonNull String value) {
-        return URLQueryBuilder.of(base).path(namespace).path(project).path(DASH_KEYWORD).path(type).path(value).toString();
+        return UriQueryBuilder.of(uriOf(base)).path(namespace).path(project).path(DASH_KEYWORD).path(type).path(value).toString();
     }
 
     @FunctionalInterface

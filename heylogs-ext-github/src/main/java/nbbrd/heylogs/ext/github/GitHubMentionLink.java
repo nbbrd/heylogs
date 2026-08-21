@@ -6,7 +6,7 @@ import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.spi.ForgeLink;
 import nbbrd.heylogs.spi.ForgeRef;
-import nbbrd.io.http.URLQueryBuilder;
+import nbbrd.io.http.UriQueryBuilder;
 import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
@@ -54,8 +54,8 @@ class GitHubMentionLink implements ForgeLink {
     @Override
     public String toString() {
         return isUser()
-                ? URLQueryBuilder.of(base).path(user).toString()
-                : URLQueryBuilder.of(base).path(ORGS_KEYWORD).path(organization).path(TEAMS_KEYWORD).path(teamName).toString();
+                ? UriQueryBuilder.of(uriOf(base)).path(user).toString()
+                : UriQueryBuilder.of(uriOf(base)).path(ORGS_KEYWORD).path(organization).path(TEAMS_KEYWORD).path(teamName).toString();
     }
 
     @Override

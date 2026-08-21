@@ -6,8 +6,8 @@ import nbbrd.io.http.HttpClient;
 import nbbrd.io.http.HttpHeaders;
 import nbbrd.io.http.HttpRequest;
 import nbbrd.io.http.HttpResponse;
-import nbbrd.io.http.ext.PersistentResponse;
 import org.junit.jupiter.api.Test;
+import tests.heylogs.spi.PersistentResponse;
 
 import java.io.IOException;
 import java.net.URL;

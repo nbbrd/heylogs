@@ -6,7 +6,7 @@ import nbbrd.design.RepresentableAs;
 import nbbrd.design.StaticFactoryMethod;
 import nbbrd.heylogs.spi.BlobLink;
 import nbbrd.heylogs.spi.ForgeRef;
-import nbbrd.io.http.URLQueryBuilder;
+import nbbrd.io.http.UriQueryBuilder;
 import org.jspecify.annotations.Nullable;
 
 import java.net.URL;
@@ -83,7 +83,7 @@ class GitLabBlobLink implements GitLabProjectLink, BlobLink {
 
     @Override
     public @NonNull URL toURL() {
-        return urlOf(URLQueryBuilder.of(base)
+        return urlOf(UriQueryBuilder.of(uriOf(base))
                 .path(namespace).path(project)
                 .path(GitLabSupport.DASH_KEYWORD)
                 .path(BLOB_KEYWORD).path(branchName)

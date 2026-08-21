@@ -13,13 +13,11 @@ import java.util.Objects;
 
 import static internal.heylogs.base.BaseVersionings.REGEX_VERSIONING;
 import static nbbrd.heylogs.ext.rules.LinkRules.*;
-import static nbbrd.heylogs.ext.rules.RulesTestHelper.asLink;
 import static nbbrd.heylogs.ext.rules.RulesTestHelper.asBulletListItem;
+import static nbbrd.heylogs.ext.rules.RulesTestHelper.asLink;
 import static nbbrd.heylogs.spi.ForgeLinkType.ISSUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static tests.heylogs.api.Sample.using;
-import static tests.heylogs.spi.MockedCompareLink.parse;
-import static tests.heylogs.spi.MockedForgeLink.parse;
 import static tests.heylogs.spi.RuleAssert.assertRuleCompliance;
 
 public class LinkRulesTest {
