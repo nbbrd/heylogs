@@ -1,10 +1,13 @@
 ---
 name: create-rule
 description: >
-  Use this skill when asked to add, create, or implement a new validation rule
-  in the Heylogs project. It covers picking the right enum, adding the constant,
-  the validate method, the test, the resource file (if needed), and the
-  documentation row.
+  Contributing to Heylogs — use this skill when asked to add, create, or
+  implement a new validation rule in the Heylogs project. It covers picking the
+  right enum, adding the constant, the validate method, the test, the resource
+  file (if needed), and the documentation row.
+metadata:
+  source: https://github.com/nbbrd/heylogs
+  category: contributing
 ---
 
 Add a new validation rule to `heylogs-ext-rules` by following these steps in order. Execute all steps without asking for confirmation.
