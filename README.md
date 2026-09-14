@@ -97,8 +97,8 @@ the [European Union Public Licence (EUPL)](https://joinup.ec.europa.eu/page/eupl
 
 ## Related work
 
-This project is not the only one that deals with keep-a-changelog format.  
+This project is not the only one that deals with "Keep a Changelog" format.  
 Here is a non-exhaustive list of related work:
 
 - [clparse](https://github.com/marcaddeo/clparse)
-- [GIT Changelog Merge Driver](https://github.com/maven-flow/changelog-merge-driver) - does a semantic merge of two changelogs.
+- [Git Changelog Merge Driver](https://github.com/maven-flow/changelog-merge-driver) - does a semantic merge of two changelogs.
