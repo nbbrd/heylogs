@@ -1,6 +1,6 @@
-# Install the `heylogs` skill
+# Install the `changelog` skill
 
-The `heylogs` skill teaches an AI coding agent how to validate and maintain
+The `changelog` skill teaches an AI coding agent how to validate and maintain
 [Keep a Changelog](https://keepachangelog.com)–formatted `CHANGELOG.md` files
 with the **[Heylogs](https://github.com/nbbrd/heylogs)** CLI — running `check`,
 tuning rules, and configuring `heylogs.properties`. The skill definition is in
@@ -24,7 +24,7 @@ explains how to run it with no prerequisites via JBang (see
 ## Installation
 
 ```bash
-npx skills add nbbrd/heylogs --skill heylogs
+npx skills add nbbrd/heylogs
 ```
 
 The installer fetches the skill from the repository, asks which agents to install
@@ -36,23 +36,23 @@ Confirm to finish.
 Non-interactive (CI-friendly) install for Claude Code, global:
 
 ```bash
-npx skills add nbbrd/heylogs --skill heylogs -g -a claude-code -y
+npx skills add nbbrd/heylogs -g -a claude-code -y
 ```
 
 ## Alternative: manual installation
 
 If you prefer not to use `npx skills`, download the skill folder
-[`skills/heylogs/`](.) and register it as a local skill folder per your agent's
+[`skills/usage/changelog/`](.) and register it as a local skill folder per your agent's
 documentation (no Node.js required).
 
 ## Update
 
 ```bash
-npx skills update heylogs
+npx skills update changelog
 ```
 
 ## Usage
 
-Once installed, invoke `/heylogs` in the selected agent, or just ask it to check,
+Once installed, invoke `/changelog` in the selected agent, or just ask it to check,
 fix, or release a changelog — the skill's `description` triggers it automatically.
 See the [skill definition](SKILL.md) for full capabilities.
