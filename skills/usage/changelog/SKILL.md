@@ -1,9 +1,9 @@
 ---
-name: heylogs
+name: changelog
 description: >
-  Validate and maintain Keep a Changelog–formatted CHANGELOG.md files with the
-  Heylogs CLI. Use this skill whenever the user asks to check, lint, validate,
-  fix, format, or release a changelog, sees Heylogs rule violations (e.g.
+  Check, lint, fix, format, or release Keep a Changelog CHANGELOG.md files with
+  the Heylogs CLI. Use this skill whenever the user asks to validate or maintain
+  a changelog, sees Heylogs rule violations (e.g.
   no-empty-group, latest-version-first, forge-ref), wants to get a repo to
   "0 problems" via heylogs.properties without editing the changelog, or needs to
   add/extract/export changelog entries. Covers the `check` command and rule
@@ -13,6 +13,7 @@ description: >
 metadata:
   source: https://github.com/nbbrd/heylogs
   agent-generic: "true"
+  category: usage
 ---
 
 # Working with Heylogs changelogs
@@ -21,8 +22,8 @@ Agent-generic guide (works with any coding assistant) for using the
 [Heylogs](https://github.com/nbbrd/heylogs) CLI to validate and maintain
 [Keep a Changelog](https://keepachangelog.com)–formatted `CHANGELOG.md` files.
 
-For project architecture and contribution conventions, see [`AGENTS.md`](../../AGENTS.md).
-Full feature docs live under [`docs/`](../../docs/).
+For project architecture and contribution conventions, see [`AGENTS.md`](../../../AGENTS.md).
+Full feature docs live under [`docs/`](../../../docs/).
 
 ## What Heylogs does
 
@@ -166,5 +167,5 @@ fully explicit, reproducible configuration.
 
 ---
 
-See [`docs/`](../../docs/) for per-feature documentation and
-[`docs/feature-matrix.md`](../../docs/feature-matrix.md) for support by usage mode.
+See [`docs/`](../../../docs/) for per-feature documentation and
+[`docs/feature-matrix.md`](../../../docs/feature-matrix.md) for support by usage mode.

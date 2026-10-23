@@ -1,10 +1,13 @@
 ---
 name: create-versioning
 description: >
-  Use this skill when asked to add, create, or implement a new versioning scheme
-  in the Heylogs project. It covers creating the extension module, the public
-  SPI class, the internal parser/comparator, the tests, registering the module
-  in all POMs, and updating the documentation.
+  Contributing to Heylogs — use this skill when asked to add, create, or
+  implement a new versioning scheme in the Heylogs project. It covers creating
+  the extension module, the public SPI class, the internal parser/comparator,
+  the tests, registering the module in all POMs, and updating the documentation.
+metadata:
+  source: https://github.com/nbbrd/heylogs
+  category: contributing
 ---
 
 Add a new versioning scheme to Heylogs by creating a `heylogs-ext-<id>` module. Execute all steps without asking for confirmation.
